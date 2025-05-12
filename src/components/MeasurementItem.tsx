@@ -1,6 +1,6 @@
 
 import React from "react";
-import { ArrowUp, ArrowDown, Wheat, Blend } from "lucide-react";
+import { ArrowUp, ArrowDown, Wheat, Blend, Circle } from "lucide-react";
 
 type MeasurementItemProps = {
   symbol: string;
@@ -37,6 +37,24 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
         symbol === 'small_brokens' ||
         symbol === 'small_brokens_c1') {
       return <Blend className="w-5 h-5 text-white" />;
+    }
+    
+    // Display Circle icon for the "สิ่งเจือปน" category
+    if (symbol === 'red_line_rate' ||
+        symbol === 'parboiled_red_line' ||
+        symbol === 'parboiled_white_rice' ||
+        symbol === 'honey_rice' ||
+        symbol === 'yellow_rice_rate' ||
+        symbol === 'black_kernel' ||
+        symbol === 'partly_black_peck' ||
+        symbol === 'partly_black' ||
+        symbol === 'imperfection_rate' ||
+        symbol === 'sticky_rice_rate' ||
+        symbol === 'impurity_num' ||
+        symbol === 'paddy_rate' ||
+        symbol === 'whiteness' ||
+        symbol === 'process_precision') {
+      return <Circle className="w-5 h-5 text-white" />;
     }
     
     // Display Wheat icon for rice classes and types

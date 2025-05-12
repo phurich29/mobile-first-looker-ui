@@ -94,6 +94,22 @@ export default function Measurements() {
     return data;
   };
 
+  // ดึงข้อมูลสิ่งเจือปนจาก Supabase
+  const fetchImpuritiesData = async () => {
+    const { data, error } = await supabase
+      .from('rice_quality_analysis')
+      .select('id, red_line_rate, parboiled_red_line, parboiled_white_rice, honey_rice, yellow_rice_rate, black_kernel, partly_black_peck, partly_black, imperfection_rate, sticky_rice_rate, impurity_num, paddy_rate, whiteness, process_precision, created_at, thai_datetime')
+      .order('created_at', { ascending: false })
+      .limit(10);
+    
+    if (error) {
+      console.error('Error fetching impurities data:', error);
+      throw new Error(error.message);
+    }
+    
+    return data;
+  };
+
   // ใช้ React Query สำหรับดึงข้อมูล
   const { data: wholeGrainData, isLoading: isLoadingWholeGrain } = useQuery({
     queryKey: ['wholeGrainData'],
@@ -103,6 +119,11 @@ export default function Measurements() {
   const { data: ingredientsData, isLoading: isLoadingIngredients } = useQuery({
     queryKey: ['ingredientsData'],
     queryFn: fetchIngredientsData,
+  });
+  
+  const { data: impuritiesData, isLoading: isLoadingImpurities } = useQuery({
+    queryKey: ['impuritiesData'],
+    queryFn: fetchImpuritiesData,
   });
 
   // แปลงข้อมูลให้อยู่ในรูปแบบที่ใช้กับ MeasurementItem และคำนวณการเปลี่ยนแปลง
@@ -220,6 +241,139 @@ export default function Measurements() {
         price: latestData.small_brokens_c1?.toString() || "0",
         percentageChange: calculateChange(latestData.small_brokens_c1, previousData?.small_brokens_c1),
         iconColor: "#795548",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+      },
+    ];
+
+    return metrics;
+  };
+
+  // แปลงข้อมูลสิ่งเจือปนให้อยู่ในรูปแบบที่ใช้กับ MeasurementItem และคำนวณการเปลี่ยนแปลง
+  const formatImpuritiesItems = () => {
+    if (!impuritiesData || impuritiesData.length === 0) return [];
+    
+    // คำนวณการเปลี่ยนแปลงโดยเปรียบเทียบค่าล่าสุดกับค่าก่อนหน้า
+    const calculateChange = (current: number | null, previous: number | null) => {
+      if (current === null || previous === null) return 0;
+      return current - previous;
+    };
+    
+    // ข้อมูลล่าสุดและข้อมูลก่อนหน้า
+    const latestData = impuritiesData[0];
+    const previousData = impuritiesData.length > 1 ? impuritiesData[1] : null;
+    
+    // แปลงข้อมูลเป็นรูปแบบของ MeasurementItem
+    const metrics = [
+      {
+        symbol: "red_line_rate",
+        name: "สีต่ำกว่ามาตรฐาน",
+        price: latestData.red_line_rate?.toString() || "0",
+        percentageChange: calculateChange(latestData.red_line_rate, previousData?.red_line_rate),
+        iconColor: "#9b87f5",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+      },
+      {
+        symbol: "parboiled_red_line",
+        name: "เมล็ดแดง",
+        price: latestData.parboiled_red_line?.toString() || "0",
+        percentageChange: calculateChange(latestData.parboiled_red_line, previousData?.parboiled_red_line),
+        iconColor: "#7E69AB",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+      },
+      {
+        symbol: "parboiled_white_rice",
+        name: "ข้าวดิบ",
+        price: latestData.parboiled_white_rice?.toString() || "0",
+        percentageChange: calculateChange(latestData.parboiled_white_rice, previousData?.parboiled_white_rice),
+        iconColor: "#6E59A5",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+      },
+      {
+        symbol: "honey_rice",
+        name: "เมล็ดม่วง",
+        price: latestData.honey_rice?.toString() || "0",
+        percentageChange: calculateChange(latestData.honey_rice, previousData?.honey_rice),
+        iconColor: "#D946EF",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+      },
+      {
+        symbol: "yellow_rice_rate",
+        name: "เมล็ดเหลือง",
+        price: latestData.yellow_rice_rate?.toString() || "0",
+        percentageChange: calculateChange(latestData.yellow_rice_rate, previousData?.yellow_rice_rate),
+        iconColor: "#F3BA2F",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+      },
+      {
+        symbol: "black_kernel",
+        name: "เมล็ดดำ",
+        price: latestData.black_kernel?.toString() || "0",
+        percentageChange: calculateChange(latestData.black_kernel, previousData?.black_kernel),
+        iconColor: "#1A1F2C",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+      },
+      {
+        symbol: "partly_black_peck",
+        name: "ดำบางส่วน & จุดดำ",
+        price: latestData.partly_black_peck?.toString() || "0",
+        percentageChange: calculateChange(latestData.partly_black_peck, previousData?.partly_black_peck),
+        iconColor: "#403E43",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+      },
+      {
+        symbol: "partly_black",
+        name: "ดำบางส่วน",
+        price: latestData.partly_black?.toString() || "0",
+        percentageChange: calculateChange(latestData.partly_black, previousData?.partly_black),
+        iconColor: "#221F26",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+      },
+      {
+        symbol: "imperfection_rate",
+        name: "เมล็ดเสีย",
+        price: latestData.imperfection_rate?.toString() || "0",
+        percentageChange: calculateChange(latestData.imperfection_rate, previousData?.imperfection_rate),
+        iconColor: "#F97316",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+      },
+      {
+        symbol: "sticky_rice_rate",
+        name: "ข้าวเหนียว",
+        price: latestData.sticky_rice_rate?.toString() || "0",
+        percentageChange: calculateChange(latestData.sticky_rice_rate, previousData?.sticky_rice_rate),
+        iconColor: "#0EA5E9",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+      },
+      {
+        symbol: "impurity_num",
+        name: "เมล็ดอื่นๆ",
+        price: latestData.impurity_num?.toString() || "0",
+        percentageChange: calculateChange(latestData.impurity_num, previousData?.impurity_num),
+        iconColor: "#8B5CF6",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+      },
+      {
+        symbol: "paddy_rate",
+        name: "ข้าวเปลือก(เมล็ด/กก.)",
+        price: latestData.paddy_rate?.toString() || "0",
+        percentageChange: calculateChange(latestData.paddy_rate, previousData?.paddy_rate),
+        iconColor: "#8E9196",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+      },
+      {
+        symbol: "whiteness",
+        name: "ความขาว",
+        price: latestData.whiteness?.toString() || "0",
+        percentageChange: calculateChange(latestData.whiteness, previousData?.whiteness),
+        iconColor: "#C8C8C9",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+      },
+      {
+        symbol: "process_precision",
+        name: "ระดับขัดสี",
+        price: latestData.process_precision?.toString() || "0",
+        percentageChange: calculateChange(latestData.process_precision, previousData?.process_precision),
+        iconColor: "#9F9EA1",
         updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
       },
     ];
@@ -432,17 +586,27 @@ export default function Measurements() {
             
             <TabsContent value="impurities" className="mt-4">
               <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
-                {/* แสดงเฉพาะรายการสิ่งเจือปน */}
-                {measurements.slice(4, 7).map((item, index) => (
-                  <MeasurementItem
-                    key={index}
-                    symbol={item.symbol}
-                    name={item.name}
-                    price={item.price}
-                    percentageChange={item.percentageChange}
-                    iconColor={item.iconColor}
-                  />
-                ))}
+                {isLoadingImpurities ? (
+                  <div className="flex justify-center items-center p-10">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+                  </div>
+                ) : formatImpuritiesItems().length > 0 ? (
+                  formatImpuritiesItems().map((item, index) => (
+                    <MeasurementItem
+                      key={index}
+                      symbol={item.symbol}
+                      name={item.name}
+                      price={item.price}
+                      percentageChange={item.percentageChange}
+                      iconColor={item.iconColor}
+                      updatedAt={item.updatedAt}
+                    />
+                  ))
+                ) : (
+                  <div className="p-6 text-center text-gray-500">
+                    ไม่พบข้อมูลสิ่งเจือปน
+                  </div>
+                )}
               </div>
             </TabsContent>
           </Tabs>
