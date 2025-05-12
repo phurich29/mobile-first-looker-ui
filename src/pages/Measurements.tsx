@@ -1,14 +1,23 @@
-
 import { Header } from "@/components/Header";
 import { MeasurementItem } from "@/components/MeasurementItem";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRef, useState, useEffect } from "react";
-import { Square, Wheat, Blend, Circle } from "lucide-react";
+import { Square, Wheat, Blend, Circle, Smartphone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 
 export default function Measurements() {
+  // สร้าง state สำหรับเลือกอุปกรณ์
+  const [selectedDevice, setSelectedDevice] = useState<string>("device_001");
+  
   // สร้าง state และ ref สำหรับฟังก์ชันการลาก (Drag)
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -63,11 +72,43 @@ export default function Measurements() {
     };
   }, []);
 
-  // ดึงข้อมูลพื้นข้าวเต็มเมล็ดจาก Supabase
+  // ดึงข้อมูลอุปกรณ์จาก Supabase
+  const fetchDevices = async () => {
+    const { data, error } = await supabase
+      .from('devices')
+      .select('*')
+      .order('device_name', { ascending: true });
+    
+    if (error) {
+      console.error('Error fetching devices:', error);
+      // Return mock data if error occurs
+      return [
+        { device_id: 'device_001', device_name: 'เครื่องที่ 1' },
+        { device_id: 'device_002', device_name: 'เครื่องที่ 2' },
+        { device_id: 'device_003', device_name: 'เครื่องที่ 3' }
+      ];
+    }
+    
+    // Return actual data or mock data if empty
+    return data && data.length > 0 ? data : [
+      { device_id: 'device_001', device_name: 'เครื่องที่ 1' },
+      { device_id: 'device_002', device_name: 'เครื่องที่ 2' },
+      { device_id: 'device_003', device_name: 'เครื่องที่ 3' }
+    ];
+  };
+  
+  // ใช้ React Query สำหรับดึงข้อมูลอุปกรณ์
+  const { data: devices, isLoading: isLoadingDevices } = useQuery({
+    queryKey: ['devices'],
+    queryFn: fetchDevices,
+  });
+
+  // ดึงข้อมูลพื้นข้าวเต็มเมล็ดจาก Supabase ตาม device ที่เลือก
   const fetchWholeGrainData = async () => {
     const { data, error } = await supabase
       .from('rice_quality_analysis')
-      .select('id, class1, class2, class3, short_grain, slender_kernel, created_at, thai_datetime')
+      .select('id, class1, class2, class3, short_grain, slender_kernel, created_at, thai_datetime, device_id')
+      .eq('device_id', selectedDevice)
       .order('created_at', { ascending: false })
       .limit(10);
     
@@ -79,11 +120,12 @@ export default function Measurements() {
     return data;
   };
 
-  // ดึงข้อมูลส่วนผสมข้าวจาก Supabase
+  // ดึงข้อมูลส่วนผสมข้าวจาก Supabase ตาม device ที่เลือก
   const fetchIngredientsData = async () => {
     const { data, error } = await supabase
       .from('rice_quality_analysis')
-      .select('id, whole_kernels, head_rice, total_brokens, small_brokens, small_brokens_c1, created_at, thai_datetime')
+      .select('id, whole_kernels, head_rice, total_brokens, small_brokens, small_brokens_c1, created_at, thai_datetime, device_id')
+      .eq('device_id', selectedDevice)
       .order('created_at', { ascending: false })
       .limit(10);
     
@@ -95,11 +137,12 @@ export default function Measurements() {
     return data;
   };
 
-  // ดึงข้อมูลสิ่งเจือปนจาก Supabase
+  // ดึงข้อมูลสิ่งเจือปนจาก Supabase ตาม device ที่เลือก
   const fetchImpuritiesData = async () => {
     const { data, error } = await supabase
       .from('rice_quality_analysis')
-      .select('id, red_line_rate, parboiled_red_line, parboiled_white_rice, honey_rice, yellow_rice_rate, black_kernel, partly_black_peck, partly_black, imperfection_rate, sticky_rice_rate, impurity_num, paddy_rate, whiteness, process_precision, created_at, thai_datetime')
+      .select('id, red_line_rate, parboiled_red_line, parboiled_white_rice, honey_rice, yellow_rice_rate, black_kernel, partly_black_peck, partly_black, imperfection_rate, sticky_rice_rate, impurity_num, paddy_rate, whiteness, process_precision, created_at, thai_datetime, device_id')
+      .eq('device_id', selectedDevice)
       .order('created_at', { ascending: false })
       .limit(10);
     
@@ -111,11 +154,12 @@ export default function Measurements() {
     return data;
   };
 
-  // ดึงข้อมูลทั้งหมดจาก Supabase สำหรับแท็บ "ทั้งหมด"
+  // ดึงข้อมูลทั้งหมดจาก Supabase สำหรับแท็บ "ทั้งหมด" ตาม device ที่เลือก
   const fetchAllData = async () => {
     const { data, error } = await supabase
       .from('rice_quality_analysis')
       .select('*')
+      .eq('device_id', selectedDevice)
       .order('created_at', { ascending: false })
       .limit(10);
     
@@ -127,24 +171,24 @@ export default function Measurements() {
     return data;
   };
 
-  // ใช้ React Query สำหรับดึงข้อมูล
+  // ใช้ React Query สำหรับดึงข้อมูล และให้ refetch เมื่อ selectedDevice เปลี่ยน
   const { data: wholeGrainData, isLoading: isLoadingWholeGrain } = useQuery({
-    queryKey: ['wholeGrainData'],
+    queryKey: ['wholeGrainData', selectedDevice],
     queryFn: fetchWholeGrainData,
   });
 
   const { data: ingredientsData, isLoading: isLoadingIngredients } = useQuery({
-    queryKey: ['ingredientsData'],
+    queryKey: ['ingredientsData', selectedDevice],
     queryFn: fetchIngredientsData,
   });
   
   const { data: impuritiesData, isLoading: isLoadingImpurities } = useQuery({
-    queryKey: ['impuritiesData'],
+    queryKey: ['impuritiesData', selectedDevice],
     queryFn: fetchImpuritiesData,
   });
   
   const { data: allData, isLoading: isLoadingAllData } = useQuery({
-    queryKey: ['allData'],
+    queryKey: ['allData', selectedDevice],
     queryFn: fetchAllData,
   });
 
@@ -274,7 +318,7 @@ export default function Measurements() {
   const formatImpuritiesItems = () => {
     if (!impuritiesData || impuritiesData.length === 0) return [];
     
-    // คำนวณการเปลี่ยนแปลงโดยเปรียบเทียบค่าล่าสุดกับค่าก่อนหน้า
+    // คำนวณการเปลี่ยนแปลงโดยเปรียบเทียบค่าล่าสุดกับค่าก่อน��น้า
     const calculateChange = (current: number | null, previous: number | null) => {
       if (current === null || previous === null) return 0;
       return current - previous;
@@ -626,28 +670,29 @@ export default function Measurements() {
       <Header />
 
       <main className="flex-1 pb-28">
-        {/* แถบค้นหา */}
+        {/* ส่วนเลือกอุปกรณ์ (แทนช่องค้นหา) */}
         <div className="flex items-center justify-between p-4">
           <div className="relative w-full">
-            <input
-              type="text"
-              placeholder="ค้นหา..."
-              className="w-full h-10 pl-10 pr-4 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
-            />
-            <svg
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+            <Select 
+              value={selectedDevice}
+              onValueChange={(value) => setSelectedDevice(value)}
             >
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
+              <SelectTrigger className="w-full h-12 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500">
+                <div className="flex items-center">
+                  <Smartphone className="mr-2 h-5 w-5 text-emerald-600" />
+                  <SelectValue placeholder="เลือกอุปกรณ์" />
+                </div>
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                {isLoadingDevices ? (
+                  <SelectItem value="loading" disabled>กำลังโหลดข้อมูล...</SelectItem>
+                ) : devices?.map((device) => (
+                  <SelectItem key={device.device_id} value={device.device_id}>
+                    {device.device_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -833,4 +878,3 @@ export default function Measurements() {
     </div>
   );
 }
-
