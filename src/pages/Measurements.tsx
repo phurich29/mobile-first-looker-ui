@@ -1,5 +1,11 @@
+
 import { Header } from "@/components/Header";
 import { MeasurementItem } from "@/components/MeasurementItem";
+import { 
+  Carousel,
+  CarouselContent,
+  CarouselItem
+} from "@/components/ui/carousel";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -87,39 +93,103 @@ export default function Measurements() {
           </div>
         </div>
 
-        {/* แท็บสำหรับเลือกประเภท */}
+        {/* แท็บแบบเลื่อนได้ */}
         <div className="px-4 mb-4">
-          <ScrollArea className="w-full">
-            <div className="flex space-x-2 pb-1">
-              <button className="px-4 py-2 bg-emerald-500 text-white rounded-lg font-medium text-sm whitespace-nowrap">
-                Favorit
-              </button>
-              <button className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg font-medium text-sm whitespace-nowrap">
-                FIAT Pasar
-              </button>
-              <button className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg font-medium text-sm whitespace-nowrap">
-                ETF Pasar
-              </button>
-              <button className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg font-medium text-sm whitespace-nowrap">
-                Kustom
-              </button>
+          <Tabs defaultValue="all" className="w-full">
+            <div className="relative">
+              <ScrollArea className="w-full pb-4">
+                <TabsList className="h-12 inline-flex w-full min-w-max border-b">
+                  <TabsTrigger 
+                    value="all" 
+                    className="flex-1 min-w-[120px] data-[state=active]:text-emerald-600 data-[state=active]:border-b-2 data-[state=active]:border-emerald-600 rounded-none"
+                  >
+                    ทั้งหมด
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="rice" 
+                    className="flex-1 min-w-[150px] data-[state=active]:text-emerald-600 data-[state=active]:border-b-2 data-[state=active]:border-emerald-600 rounded-none"
+                  >
+                    พื้นข้าวเต้มเมล็ด (%)
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="ingredients" 
+                    className="flex-1 min-w-[120px] data-[state=active]:text-emerald-600 data-[state=active]:border-b-2 data-[state=active]:border-emerald-600 rounded-none"
+                  >
+                    ส่วนผสม (%)
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="contaminants" 
+                    className="flex-1 min-w-[120px] data-[state=active]:text-emerald-600 data-[state=active]:border-b-2 data-[state=active]:border-emerald-600 rounded-none"
+                  >
+                    สิ่งเจือปน (%)
+                  </TabsTrigger>
+                </TabsList>
+              </ScrollArea>
             </div>
-          </ScrollArea>
+            
+            <TabsContent value="all" className="mt-4">
+              <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
+                {measurements.map((item, index) => (
+                  <MeasurementItem
+                    key={index}
+                    symbol={item.symbol}
+                    name={item.name}
+                    price={item.price}
+                    percentageChange={item.percentageChange}
+                    iconColor={item.iconColor}
+                  />
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="rice" className="mt-4">
+              <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
+                {measurements.slice(0, 3).map((item, index) => (
+                  <MeasurementItem
+                    key={index}
+                    symbol={item.symbol}
+                    name={item.name}
+                    price={item.price}
+                    percentageChange={item.percentageChange}
+                    iconColor={item.iconColor}
+                  />
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="ingredients" className="mt-4">
+              <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
+                {measurements.slice(2, 5).map((item, index) => (
+                  <MeasurementItem
+                    key={index}
+                    symbol={item.symbol}
+                    name={item.name}
+                    price={item.price}
+                    percentageChange={item.percentageChange}
+                    iconColor={item.iconColor}
+                  />
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="contaminants" className="mt-4">
+              <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
+                {measurements.slice(4, 7).map((item, index) => (
+                  <MeasurementItem
+                    key={index}
+                    symbol={item.symbol}
+                    name={item.name}
+                    price={item.price}
+                    percentageChange={item.percentageChange}
+                    iconColor={item.iconColor}
+                  />
+                ))}
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
         
         {/* รายการการวัด */}
-        <div className="bg-white rounded-xl mx-4 overflow-hidden shadow-md border border-gray-100 mb-8">
-          {measurements.map((item, index) => (
-            <MeasurementItem
-              key={index}
-              symbol={item.symbol}
-              name={item.name}
-              price={item.price}
-              percentageChange={item.percentageChange}
-              iconColor={item.iconColor}
-            />
-          ))}
-        </div>
       </main>
 
       {/* แถบนำทางด้านล่าง */}
