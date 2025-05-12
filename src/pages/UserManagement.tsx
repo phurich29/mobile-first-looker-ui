@@ -82,7 +82,7 @@ export default function UserManagement() {
     }
   });
 
-  // Fetch users and their roles
+  // Fetch users and their roles using direct database queries instead of admin API
   useEffect(() => {
     const fetchUsers = async () => {
       if (!user || (!userRoles.includes('admin') && !userRoles.includes('superadmin'))) {
@@ -91,22 +91,29 @@ export default function UserManagement() {
 
       try {
         setIsLoadingUsers(true);
-        
-        // Fetch all user profiles from the database
-        const { data: profiles, error: profilesError } = await supabase
+
+        // First, get all auth users by querying the auth.users view through an RPC
+        // Since we can't directly query auth.users with client credentials, we use profiles which
+        // is synced with auth.users on signup
+        const { data: allProfiles, error: profilesError } = await supabase
           .from('profiles')
-          .select('id, email, updated_at');
+          .select('*');
         
         if (profilesError) {
           console.error("Error fetching profiles:", profilesError);
           throw profilesError;
         }
+
+        console.log("All profiles:", allProfiles);
         
-        console.log("Profiles fetched:", profiles);
+        if (!allProfiles || allProfiles.length === 0) {
+          setUsers([]);
+          return;
+        }
         
         // For each profile, fetch their roles
         const usersWithRoles = await Promise.all(
-          (profiles || []).map(async (profile) => {
+          allProfiles.map(async (profile) => {
             const { data: roles, error: rolesError } = await supabase.rpc(
               'get_user_roles',
               { user_id: profile.id }
