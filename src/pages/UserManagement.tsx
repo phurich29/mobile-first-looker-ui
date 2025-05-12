@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { Header } from "@/components/Header";
@@ -82,7 +83,7 @@ export default function UserManagement() {
     }
   });
 
-  // Fetch users and their roles using direct database queries instead of admin API
+  // Fetch users directly from profiles table
   useEffect(() => {
     const fetchUsers = async () => {
       if (!user || (!userRoles.includes('admin') && !userRoles.includes('superadmin'))) {
@@ -92,10 +93,9 @@ export default function UserManagement() {
       try {
         setIsLoadingUsers(true);
 
-        // First, get all auth users by querying the auth.users view through an RPC
-        // Since we can't directly query auth.users with client credentials, we use profiles which
-        // is synced with auth.users on signup
-        const { data: allProfiles, error: profilesError } = await supabase
+        // Directly query the profiles table to get all users
+        // This should work for superadmins because they have access to all profiles
+        const { data: profiles, error: profilesError } = await supabase
           .from('profiles')
           .select('*');
         
@@ -104,16 +104,16 @@ export default function UserManagement() {
           throw profilesError;
         }
 
-        console.log("All profiles:", allProfiles);
+        console.log("All profiles from profiles table:", profiles);
         
-        if (!allProfiles || allProfiles.length === 0) {
+        if (!profiles || profiles.length === 0) {
           setUsers([]);
           return;
         }
         
         // For each profile, fetch their roles
         const usersWithRoles = await Promise.all(
-          allProfiles.map(async (profile) => {
+          profiles.map(async (profile) => {
             const { data: roles, error: rolesError } = await supabase.rpc(
               'get_user_roles',
               { user_id: profile.id }
@@ -496,7 +496,7 @@ export default function UserManagement() {
 
         <Card className="overflow-hidden">
           <CardHeader className="py-3">
-            <CardTitle className="text-xl">รายชื่อผู้ใช้ทั้งหมด</CardTitle>
+            <CardTitle className="text-xl">รายชื่อผู้ใช้ทั้งหมด ({users.length} คน)</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             {isLoadingUsers ? (
