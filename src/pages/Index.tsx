@@ -1,4 +1,3 @@
-
 import { Header } from "@/components/Header";
 import { AssetCard } from "@/components/AssetCard";
 import { WatchlistItem } from "@/components/WatchlistItem";
@@ -225,22 +224,22 @@ const Index = () => {
       </main>
 
       {/* Navigation bar at bottom with shadow and rounded corners */}
-      <nav className="fixed bottom-0 w-full bg-white border-t border-gray-100 flex justify-around py-4 shadow-xl rounded-t-3xl backdrop-blur-sm bg-white/90" style={{ maxHeight: '80px' }}>
+      <nav className="fixed bottom-0 w-full bg-gradient-to-r from-emerald-500 to-emerald-600 border-t border-emerald-700 flex justify-around py-5 shadow-xl rounded-t-3xl backdrop-blur-sm" style={{ maxHeight: '90px' }}>
         <a href="/" className="flex flex-col items-center">
-          <div className="w-6 h-1 bg-emerald-600 rounded-full mx-auto mb-1"></div>
-          <span className="text-xs text-emerald-600 font-medium">Home</span>
+          <div className="w-6 h-1.5 bg-emerald-600 rounded-full mx-auto mb-1.5"></div>
+          <span className="text-xs text-white font-medium">Home</span>
         </a>
         <a href="/market" className="flex flex-col items-center">
-          <div className="w-6 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
-          <span className="text-xs text-gray-400">Market</span>
+          <div className="w-6 h-1.5 bg-white/30 rounded-full mx-auto mb-1.5"></div>
+          <span className="text-xs text-white">Market</span>
         </a>
         <a href="/measurements" className="flex flex-col items-center">
-          <div className="w-6 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
-          <span className="text-xs text-gray-400">รายการวัด</span>
+          <div className="w-6 h-1.5 bg-white/30 rounded-full mx-auto mb-1.5"></div>
+          <span className="text-xs text-white">รายการวัด</span>
         </a>
         <a href="/profile" className="flex flex-col items-center">
-          <div className="w-6 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
-          <span className="text-xs text-gray-400">Profile</span>
+          <div className="w-6 h-1.5 bg-white/30 rounded-full mx-auto mb-1.5"></div>
+          <span className="text-xs text-white">Profile</span>
         </a>
       </nav>
     </div>

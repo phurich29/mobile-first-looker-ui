@@ -98,7 +98,7 @@ export const Header = () => {
         </div>
       </div>
       
-      <header className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md border-b border-emerald-700 md:ml-64">
+      <header className="flex items-center justify-between px-4 py-5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md border-b border-emerald-700 md:ml-64">
         {/* Mobile Menu Trigger */}
         <Button variant="ghost" size="icon" className="text-white p-1 hover:bg-emerald-600 md:hidden" onClick={() => setSidebarOpen(true)}>
           <Menu className="h-5 w-5" />
@@ -106,13 +106,13 @@ export const Header = () => {
 
         {/* Minimal Digital Clock */}
         <div className="flex items-center gap-2 mx-auto md:mx-0">
-          <div className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full flex items-center">
+          <div className="bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center">
             <p className="text-xs font-medium text-white tracking-wider">{formatTime()}</p>
           </div>
         </div>
       
-        <div className="bg-white/20 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center">
-          <Bell className="h-4 w-4 text-white" />
+        <div className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center">
+          <Bell className="h-5 w-5 text-white" />
         </div>
       </header>
     </>;
