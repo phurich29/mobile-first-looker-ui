@@ -79,15 +79,24 @@ export default function Login() {
     }
     
     setIsSubmitting(true);
+    
     try {
-      const { error, data } = await supabase.auth.signUp({
+      // First try to sign up
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: window.location.origin
+        }
       });
       
-      if (error) throw error;
+      if (signUpError) {
+        console.error("SignUp error:", signUpError);
+        throw signUpError;
+      }
       
-      if (data.user && data.user.identities && data.user.identities.length === 0) {
+      // Check if user already exists
+      if (signUpData.user && signUpData.user.identities && signUpData.user.identities.length === 0) {
         toast({
           title: "อีเมลนี้มีผู้ใช้งานแล้ว",
           description: "กรุณาลงชื่อเข้าใช้หรือใช้อีเมลอื่น",
@@ -97,21 +106,26 @@ export default function Login() {
         return;
       }
       
-      toast({
-        title: "ลงทะเบียนสำเร็จ",
-        description: "กำลังนำท่านเข้าสู่ระบบ",
-      });
-      
-      // Auto login after successful registration
+      // Sign in automatically after successful registration
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       
-      if (!signInError) {
-        navigate("/");
+      if (signInError) {
+        console.error("Auto login error:", signInError);
+        throw signInError;
       }
+      
+      toast({
+        title: "ลงทะเบียนสำเร็จ",
+        description: "คุณถูกเพิ่มในรายชื่อรอการอนุมัติแล้ว กรุณารอการตรวจสอบ",
+      });
+      
+      // Navigate to waiting page - the ProtectedRoute component will handle the redirection
+      navigate("/waiting");
     } catch (error: any) {
+      console.error("Registration error:", error);
       toast({
         title: "ลงทะเบียนไม่สำเร็จ",
         description: error.message || "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
@@ -132,18 +146,18 @@ export default function Login() {
       
       console.log("Checked roles for user:", userId, roles);
       
-      // If no roles or error, try to add a default 'user' role
+      // If no roles or error, try to add a default 'waiting_list' role
       if (rolesError || !roles || roles.length === 0) {
-        console.log("No roles found, adding default user role");
+        console.log("No roles found, adding waiting_list role");
         const { error } = await supabase.from('user_roles').insert({
           user_id: userId,
-          role: 'user'
+          role: 'waiting_list'
         });
         
         if (error && error.code !== '23505') { // Ignore duplicate key errors
-          console.error("Error adding default role:", error);
+          console.error("Error adding waiting_list role:", error);
         } else {
-          console.log("Added default user role successfully");
+          console.log("Added waiting_list role successfully");
         }
       }
     } catch (error) {
