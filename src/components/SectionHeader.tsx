@@ -18,7 +18,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
       {actionText && (
         <button
           onClick={onAction}
-          className="text-sm text-crypto-green font-medium"
+          className="text-sm text-crypto-c2etech font-medium"
         >
           {actionText}
         </button>

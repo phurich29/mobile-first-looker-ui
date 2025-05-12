@@ -10,7 +10,7 @@ export const PortfolioValue: React.FC<PortfolioValueProps> = ({ value, percentag
   const isPositive = percentageChange >= 0;
   
   return (
-    <div className="bg-crypto-green rounded-xl p-5 text-white mb-6 mx-4">
+    <div className="bg-crypto-c2etech rounded-xl p-5 text-white mb-6 mx-4">
       <p className="text-sm opacity-90 mb-1">Total Portfolio Value</p>
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold">${value}</h2>

@@ -60,7 +60,8 @@ export default {
 					cardBg: '#F8F8F8',
 					bitcoin: '#F7931A',
 					ethereum: '#627EEA',
-					cardano: '#8A33AE'
+					cardano: '#8A33AE',
+					c2etech: '#1e6146' // Adding C2E Tech green color
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
