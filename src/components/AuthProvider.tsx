@@ -31,6 +31,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [userRoles, setUserRoles] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Function to fetch user roles from the database
+  const fetchUserRoles = async (userId: string) => {
+    try {
+      const { data, error } = await supabase.rpc('get_user_roles', {
+        user_id: userId
+      });
+
+      if (error) {
+        console.error('Error fetching user roles:', error);
+        return [];
+      }
+      
+      return data || [];
+    } catch (error) {
+      console.error('Error in fetchUserRoles:', error);
+      return [];
+    }
+  };
+
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -38,22 +57,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
-        // If user is logged in, use metadata to determine roles
+        // If user is logged in, fetch roles from database
         if (currentSession?.user) {
-          // For simplicity, we'll use email domain to determine roles
-          // Real implementation would use a proper roles table
-          const email = currentSession.user.email || '';
-          let roles = ['user']; // Default role for all authenticated users
-          
-          // For demo purposes: assign admin role based on email
-          if (email.includes('admin') || email.includes('superadmin')) {
-            roles.push('admin');
-            // Additional superadmin check
-            if (email.includes('superadmin')) {
-              roles.push('superadmin');
-            }
-          }
-          
+          const roles = await fetchUserRoles(currentSession.user.id);
           setUserRoles(roles);
         } else {
           setUserRoles([]);
@@ -69,20 +75,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setSession(initialSession);
         setUser(initialSession?.user ?? null);
         
-        // If user is logged in, determine roles
+        // If user is logged in, fetch roles from database
         if (initialSession?.user) {
-          const email = initialSession.user.email || '';
-          let roles = ['user']; // Default role
-          
-          // For demo purposes: assign admin role based on email
-          if (email.includes('admin') || email.includes('superadmin')) {
-            roles.push('admin');
-            // Additional superadmin check
-            if (email.includes('superadmin')) {
-              roles.push('superadmin');
-            }
-          }
-          
+          const roles = await fetchUserRoles(initialSession.user.id);
           setUserRoles(roles);
         }
       } catch (error) {

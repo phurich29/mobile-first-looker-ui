@@ -24,6 +24,53 @@ export default function Admin() {
   const [users, setUsers] = useState<User[]>([]);
   const [devices, setDevices] = useState<any[]>([]);
   
+  // Fetch users and their roles
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (!user || (!userRoles.includes('admin') && !userRoles.includes('superadmin'))) {
+        return;
+      }
+      
+      try {
+        // Fetch all users from profiles table
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, email');
+        
+        if (profilesError) throw profilesError;
+        
+        // For each profile, fetch their roles
+        const usersWithRoles = await Promise.all(
+          (profiles || []).map(async (profile) => {
+            const { data: roles, error: rolesError } = await supabase.rpc(
+              'get_user_roles',
+              { user_id: profile.id }
+            );
+            
+            if (rolesError) console.error('Error fetching roles:', rolesError);
+            
+            return {
+              id: profile.id,
+              email: profile.email || 'unknown@example.com',
+              roles: roles || []
+            };
+          })
+        );
+        
+        setUsers(usersWithRoles);
+      } catch (error: any) {
+        console.error('Error fetching users:', error.message);
+        toast({
+          title: "การโหลดข้อมูลผิดพลาด",
+          description: "ไม่สามารถโหลดข้อมูลผู้ใช้ได้",
+          variant: "destructive",
+        });
+      }
+    };
+    
+    fetchUsers();
+  }, [user, userRoles, toast]);
+  
   // Fetch devices
   useEffect(() => {
     const fetchDevices = async () => {
@@ -46,48 +93,8 @@ export default function Admin() {
     fetchDevices();
   }, [user, userRoles]);
   
-  // For demo purposes, create a list of sample users
-  useEffect(() => {
-    if (!userRoles.includes('admin') && !userRoles.includes('superadmin')) {
-      return;
-    }
-
-    // Demo users (would normally come from a database)
-    const mockUsers = [
-      {
-        id: '1',
-        email: 'user@example.com',
-        roles: ['user']
-      },
-      {
-        id: '2',
-        email: 'admin@example.com',
-        roles: ['user', 'admin']
-      },
-      {
-        id: '3',
-        email: 'superadmin@example.com',
-        roles: ['user', 'admin', 'superadmin']
-      }
-    ];
-
-    // Add current user to the list if not already present
-    if (user) {
-      const currentUserInList = mockUsers.some(u => u.email === user.email);
-      if (!currentUserInList) {
-        mockUsers.push({
-          id: user.id,
-          email: user.email || 'unknown@example.com',
-          roles: userRoles
-        });
-      }
-    }
-
-    setUsers(mockUsers);
-  }, [user, userRoles]);
-  
-  // User management functions (demo only)
-  const changeUserRole = (userId: string, newRole: string) => {
+  // Add or remove a role for a user
+  const changeUserRole = async (userId: string, role: string, isAdding: boolean) => {
     if (!userRoles.includes('superadmin')) {
       toast({
         title: "ไม่มีสิทธิ์",
@@ -97,49 +104,67 @@ export default function Admin() {
       return;
     }
     
-    // Update user roles in our mock data
-    const updatedUsers = users.map(user => {
-      if (user.id === userId && !user.roles.includes(newRole)) {
-        return { ...user, roles: [...user.roles, newRole] };
+    try {
+      if (isAdding) {
+        // Add the role
+        const { error } = await supabase
+          .from('user_roles')
+          .insert({ user_id: userId, role });
+        
+        if (error) {
+          if (error.code === '23505') { // Unique violation - role already exists
+            toast({
+              title: "บทบาทซ้ำ",
+              description: `ผู้ใช้มีบทบาท ${role} อยู่แล้ว`,
+              variant: "destructive",
+            });
+            return;
+          }
+          throw error;
+        }
+        
+        toast({
+          title: "เพิ่มบทบาทสำเร็จ",
+          description: `เพิ่มบทบาท ${role} ให้ผู้ใช้สำเร็จ`,
+        });
+      } else {
+        // Remove the role
+        const { error } = await supabase
+          .from('user_roles')
+          .delete()
+          .match({ user_id: userId, role });
+        
+        if (error) throw error;
+        
+        toast({
+          title: "ลบบทบาทสำเร็จ",
+          description: `ลบบทบาท ${role} ออกจากผู้ใช้สำเร็จ`,
+        });
       }
-      return user;
-    });
-    
-    setUsers(updatedUsers);
-    
-    toast({
-      title: "เพิ่มบทบาทสำเร็จ",
-      description: `เพิ่มบทบาท ${newRole} ให้ผู้ใช้สำเร็จ`,
-    });
-  };
-  
-  const removeUserRole = (userId: string, roleToRemove: string) => {
-    if (!userRoles.includes('superadmin')) {
+      
+      // Refresh the users list
+      const updatedUsers = await Promise.all(
+        users.map(async (user) => {
+          if (user.id === userId) {
+            const { data: roles } = await supabase.rpc(
+              'get_user_roles',
+              { user_id: userId }
+            );
+            return { ...user, roles: roles || [] };
+          }
+          return user;
+        })
+      );
+      
+      setUsers(updatedUsers);
+    } catch (error: any) {
+      console.error('Error changing role:', error.message);
       toast({
-        title: "ไม่มีสิทธิ์",
-        description: "เฉพาะ Superadmin เท่านั้นที่สามารถลบบทบาทได้",
+        title: "เปลี่ยนบทบาทไม่สำเร็จ",
+        description: error.message || "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
         variant: "destructive",
       });
-      return;
     }
-    
-    // Remove role from our mock data
-    const updatedUsers = users.map(user => {
-      if (user.id === userId) {
-        return { 
-          ...user, 
-          roles: user.roles.filter(role => role !== roleToRemove) 
-        };
-      }
-      return user;
-    });
-    
-    setUsers(updatedUsers);
-    
-    toast({
-      title: "ลบบทบาทสำเร็จ",
-      description: `ลบบทบาท ${roleToRemove} ออกจากผู้ใช้สำเร็จ`,
-    });
   };
   
   // If still loading, show loading indicator
@@ -214,7 +239,7 @@ export default function Admin() {
                             <Button 
                               size="sm" 
                               variant="outline"
-                              onClick={() => changeUserRole(user.id, 'admin')}
+                              onClick={() => changeUserRole(user.id, 'admin', true)}
                             >
                               เพิ่มเป็น Admin
                             </Button>
@@ -223,7 +248,7 @@ export default function Admin() {
                             <Button 
                               size="sm" 
                               variant="outline"
-                              onClick={() => removeUserRole(user.id, 'admin')}
+                              onClick={() => changeUserRole(user.id, 'admin', false)}
                             >
                               ลบออกจาก Admin
                             </Button>
