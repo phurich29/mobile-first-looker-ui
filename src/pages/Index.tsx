@@ -3,9 +3,12 @@ import { Header } from "@/components/Header";
 import { AssetCard } from "@/components/AssetCard";
 import { WatchlistItem } from "@/components/WatchlistItem";
 import { SectionHeader } from "@/components/SectionHeader";
-import { NewsCarousel } from "@/components/NewsCarousel";
+import { NewsSlider } from "@/components/NewsSlider";
+import useEmblaCarousel from 'embla-carousel-react';
+import { useState, useEffect, useCallback } from 'react';
 
 const Index = () => {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ align: 'start', loop: false, dragFree: true });
   // Sample data for rice prices
   const riceUpdates = [
     {
@@ -72,30 +75,43 @@ const Index = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50">
       <Header />
       
-      <main className="flex-1 pb-16">
+      <main className="flex-1 pb-28">
         <div className="mt-4">
-          <NewsCarousel />
+          {/* แสดงข่าวเกี่ยวกับวงการข้าวไทยแบบเลื่อนได้ 4 ข่าว */}
+          <div className="mb-6 mt-4">
+            <NewsSlider />
+          </div>
           
-          <SectionHeader title="ราคาข้าวจากสมาคมโรงสี" actionText="ดูทั้งหมด" onAction={handleSeeAll} />
-          <div className="grid grid-cols-2 gap-3 px-4 mb-6">
-            {riceUpdates.map((rice) => (
-              <AssetCard
-                key={rice.symbol}
-                symbol={rice.symbol}
-                name={rice.name}
-                value={rice.value}
-                amount={rice.amount}
-                percentageChange={rice.percentageChange}
-                iconColor={rice.iconColor}
-              />
-            ))}
+          <div className="px-4 mb-3 flex justify-between items-center">
+            <h2 className="font-semibold text-gray-700">ราคาข้าว จากสมาคมโรงสีข้าวไทย</h2>
+            <button className="text-sm text-green-600 font-medium">ดูทั้งหมด</button>
+          </div>
+          <div className="mb-7 overflow-visible px-4">
+            <div className="overflow-visible pt-3 pb-3" ref={emblaRef}>
+              <div className="flex">
+                {riceUpdates.map((rice) => (
+                  <div key={rice.symbol} className="min-w-[190px] mr-3 flex-shrink-0">
+                    <AssetCard
+                      symbol={rice.symbol}
+                      name={rice.name}
+                      value={rice.value}
+                      amount={rice.amount}
+                      percentageChange={rice.percentageChange}
+                      iconColor={rice.iconColor}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
-          <SectionHeader title="Watchlist" />
-          <div className="bg-white rounded-xl mx-4 overflow-hidden">
+          <div className="px-4 mb-3 flex justify-between items-center">
+            <h2 className="font-semibold text-gray-700">Watchlist</h2>
+          </div>
+          <div className="bg-white rounded-xl mx-4 overflow-hidden shadow-md border border-gray-100 mb-8">
             {watchlist.map((item) => (
               <WatchlistItem
                 key={item.symbol}
@@ -110,19 +126,19 @@ const Index = () => {
         </div>
       </main>
 
-      {/* Simple navigation bar at bottom */}
-      <nav className="fixed bottom-0 w-full bg-white border-t border-gray-200 flex justify-around py-3">
-        <button className="p-2">
-          {/* Home icon - filled black to indicate current page */}
-          <div className="w-6 h-1 bg-black mx-auto mt-1"></div>
+      {/* Navigation bar at bottom with shadow and rounded corners */}
+      <nav className="fixed bottom-0 w-full bg-white border-t border-gray-100 flex justify-around py-4 shadow-xl rounded-t-3xl backdrop-blur-sm bg-white/90" style={{ maxHeight: '80px' }}>
+        <button className="flex flex-col items-center">
+          <div className="w-6 h-1 bg-emerald-600 rounded-full mx-auto mb-1"></div>
+          <span className="text-xs text-emerald-600 font-medium">Home</span>
         </button>
-        <button className="p-2">
-          {/* Circle button - just showing middle dot */}
-          <div className="w-2 h-2 bg-gray-400 rounded-full mx-auto"></div>
+        <button className="flex flex-col items-center">
+          <div className="w-6 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
+          <span className="text-xs text-gray-400">Market</span>
         </button>
-        <button className="p-2">
-          {/* Menu button - showing 3 lines */}
-          <div className="w-6 h-1 bg-gray-400 mx-auto mb-1"></div>
+        <button className="flex flex-col items-center">
+          <div className="w-6 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
+          <span className="text-xs text-gray-400">Profile</span>
         </button>
       </nav>
     </div>
