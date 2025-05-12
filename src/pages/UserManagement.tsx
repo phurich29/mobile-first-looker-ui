@@ -45,6 +45,11 @@ const newUserSchema = z.object({
   path: ["confirmPassword"]
 });
 
+// Schema for edit user form
+const editUserSchema = z.object({
+  email: z.string().email("กรุณาใส่อีเมลที่ถูกต้อง")
+});
+
 // Schema for reset password form
 const resetPasswordSchema = z.object({
   password: z.string().min(6, "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร"),
@@ -61,6 +66,7 @@ export default function UserManagement() {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(true);
   const [showAddUserDialog, setShowAddUserDialog] = useState<boolean>(false);
+  const [showEditUserDialog, setShowEditUserDialog] = useState<boolean>(false);
   const [showResetPasswordDialog, setShowResetPasswordDialog] = useState<boolean>(false);
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [selectedUserEmail, setSelectedUserEmail] = useState<string>("");
@@ -72,6 +78,13 @@ export default function UserManagement() {
       email: "",
       password: "",
       confirmPassword: ""
+    }
+  });
+
+  const editUserForm = useForm<z.infer<typeof editUserSchema>>({
+    resolver: zodResolver(editUserSchema),
+    defaultValues: {
+      email: ""
     }
   });
 
@@ -94,7 +107,6 @@ export default function UserManagement() {
         setIsLoadingUsers(true);
 
         // Directly query the profiles table to get all users
-        // This should work for superadmins because they have access to all profiles
         const { data: profiles, error: profilesError } = await supabase
           .from('profiles')
           .select('*');
@@ -294,9 +306,10 @@ export default function UserManagement() {
     setIsProcessing(true);
     try {
       // 1. Create user with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email: values.email,
-        password: values.password
+        password: values.password,
+        email_confirm: true
       });
       
       if (authError) throw authError;
@@ -315,41 +328,66 @@ export default function UserManagement() {
       newUserForm.reset();
       
       // Refresh users list to include the new user
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, email');
-      
-      if (profiles) {
-        const usersWithRoles = await Promise.all(
-          profiles.map(async (profile) => {
-            const { data: roles } = await supabase.rpc(
-              'get_user_roles',
-              { user_id: profile.id }
-            );
-            
-            return {
-              id: profile.id,
-              email: profile.email || 'unknown@example.com',
-              roles: roles || []
-            };
-          })
-        );
-        
-        setUsers(usersWithRoles);
-      }
+      refreshUsersList();
     } catch (error: any) {
       console.error('Error creating user:', error);
       
       // Handle error messages
       let errorMessage = "ไม่สามารถสร้างผู้ใช้ได้ กรุณาลองใหม่อีกครั้ง";
       
-      if (error.message.includes("user already registered")) {
+      if (error.message && error.message.includes("user already registered")) {
         errorMessage = "อีเมลนี้มีผู้ใช้งานอยู่แล้ว";
       }
       
       toast({
         title: "สร้างผู้ใช้ไม่สำเร็จ",
         description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Edit user
+  const editUser = async (values: z.infer<typeof editUserSchema>) => {
+    setIsProcessing(true);
+    
+    try {
+      if (!selectedUserId) throw new Error("ไม่พบรหัสผู้ใช้");
+      
+      // Update user email
+      const { error } = await supabase.auth.admin.updateUserById(
+        selectedUserId,
+        { email: values.email }
+      );
+      
+      if (error) throw error;
+      
+      // Also update the email in the profiles table
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ email: values.email })
+        .eq('id', selectedUserId);
+        
+      if (profileError) throw profileError;
+      
+      toast({
+        title: "แก้ไขผู้ใช้สำเร็จ",
+        description: "อีเมลผู้ใช้ถูกเปลี่ยนเรียบร้อยแล้ว",
+      });
+      
+      setShowEditUserDialog(false);
+      editUserForm.reset();
+      
+      // Refresh users list
+      refreshUsersList();
+    } catch (error: any) {
+      console.error("Error editing user:", error);
+      
+      toast({
+        title: "แก้ไขผู้ใช้ไม่สำเร็จ",
+        description: error.message || "เกิดข้อผิดพลาดในการแก้ไขข้อมูลผู้ใช้",
         variant: "destructive",
       });
     } finally {
@@ -398,9 +436,12 @@ export default function UserManagement() {
     
     setIsProcessing(true);
     try {
-      const { error } = await supabase.auth.admin.deleteUser(selectedUserId);
+      // First delete user from auth.users table through admin API
+      const { error: authError } = await supabase.auth.admin.deleteUser(selectedUserId);
       
-      if (error) throw error;
+      if (authError) throw authError;
+      
+      // The profiles and user_roles entries should be automatically deleted due to cascade delete
       
       // Remove user from local state
       setUsers(users.filter(user => user.id !== selectedUserId));
@@ -422,6 +463,57 @@ export default function UserManagement() {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  // Refresh users list
+  const refreshUsersList = async () => {
+    try {
+      // Fetch profiles
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('*');
+      
+      if (profilesError) throw profilesError;
+      
+      if (!profiles) {
+        setUsers([]);
+        return;
+      }
+      
+      // For each profile, fetch their roles
+      const usersWithRoles = await Promise.all(
+        profiles.map(async (profile) => {
+          const { data: roles } = await supabase.rpc(
+            'get_user_roles',
+            { user_id: profile.id }
+          );
+          
+          return {
+            id: profile.id,
+            email: profile.email || 'unknown@example.com',
+            roles: roles || [],
+            last_sign_in_at: profile.updated_at
+          };
+        })
+      );
+      
+      setUsers(usersWithRoles);
+    } catch (error: any) {
+      console.error("Error refreshing users list:", error);
+      toast({
+        title: "ไม่สามารถโหลดข้อมูลผู้ใช้",
+        description: error.message || "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
+        variant: "destructive",
+      });
+    }
+  };
+  
+  // Handle opening edit user dialog
+  const handleOpenEditDialog = (userId: string, email: string) => {
+    setSelectedUserId(userId);
+    setSelectedUserEmail(email);
+    editUserForm.setValue('email', email);
+    setShowEditUserDialog(true);
   };
   
   // Handle opening reset password dialog
@@ -557,6 +649,15 @@ export default function UserManagement() {
                                 อนุมัติ
                               </Button>
                             )}
+                            
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleOpenEditDialog(user.id, user.email)}
+                              className="h-6 w-6 p-0"
+                            >
+                              <Edit className="h-3 w-3" />
+                            </Button>
                             
                             <Button
                               variant="outline"
@@ -713,6 +814,49 @@ export default function UserManagement() {
                 </Button>
                 <Button type="submit" disabled={isProcessing}>
                   {isProcessing ? "กำลังสร้างผู้ใช้..." : "สร้างผู้ใช้"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog for editing user */}
+      <Dialog open={showEditUserDialog} onOpenChange={setShowEditUserDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>แก้ไขข้อมูลผู้ใช้</DialogTitle>
+            <DialogDescription>
+              แก้ไขอีเมลสำหรับผู้ใช้ {selectedUserEmail}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Form {...editUserForm}>
+            <form onSubmit={editUserForm.handleSubmit(editUser)} className="space-y-6">
+              <FormField
+                control={editUserForm.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>อีเมลใหม่</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="email" 
+                        placeholder="กรอกอีเมลใหม่" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <DialogFooter>
+                <Button type="button" variant="outline" asChild>
+                  <DialogClose>ยกเลิก</DialogClose>
+                </Button>
+                <Button type="submit" disabled={isProcessing}>
+                  {isProcessing ? "กำลังแก้ไข..." : "บันทึกการแก้ไข"}
                 </Button>
               </DialogFooter>
             </form>
