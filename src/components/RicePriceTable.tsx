@@ -1,7 +1,7 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { FilePdf } from "lucide-react";
+import { FileText } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -57,7 +57,7 @@ export function RicePriceTable() {
                           aria-label="ดูราคาข้าว"
                           className={`flex items-center gap-2 ${isMobile ? 'px-2 py-1' : 'px-4 py-2'} bg-red-100 text-red-600 hover:bg-red-200 border-red-300 hover:text-red-700 rounded-md font-medium shadow-sm transition-all hover:shadow`}
                         >
-                          <FilePdf className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6'}`} />
+                          <FileText className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6'}`} />
                           <span className="font-bold">PDF</span>
                         </Button>
                       </TooltipTrigger>
