@@ -14,11 +14,36 @@ import { useIsMobile } from "@/hooks/use-mobile";
 export const Header = () => {
   const [open, setOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [currentTime, setCurrentTime] = useState('');
   const isMobile = useIsMobile();
   const location = useLocation();
   
   // ตรวจสอบหน้าที่ผู้ใช้กำลังอยู่เพื่อไฮไลท์เมนูที่ตรงกัน
   const isActive = (path: string) => location.pathname === path;
+  
+  // อัพเดทเวลาแบบเรียลไทม์
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const options: Intl.DateTimeFormatOptions = { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+        timeZone: 'Asia/Bangkok'
+      };
+      setCurrentTime(new Intl.DateTimeFormat('th-TH', options).format(now));
+    };
+    
+    // อัพเดทเวลาทันที
+    updateTime();
+    
+    // อัพเดทเวลาทุก 1 วินาที
+    const timerId = setInterval(updateTime, 1000);
+    
+    // cleanup เมื่อ component unmount
+    return () => clearInterval(timerId);
+  }, []);
   
   // ทำงานเมื่อหน้าจอเปลี่ยนขนาด
   useEffect(() => {
@@ -113,7 +138,9 @@ export const Header = () => {
         </Button>
 
       
-      <h1 className="text-xl font-semibold text-center flex-1 md:text-left">Home</h1>
+      <div className="text-xl font-semibold text-center flex-1 md:text-left bg-emerald-700 px-4 py-1 rounded-lg">
+        {currentTime}
+      </div>
       
       <div className="bg-white rounded-full w-10 h-10 flex items-center justify-center shadow-sm">
         <Bell className="h-5 w-5 text-emerald-600" />
