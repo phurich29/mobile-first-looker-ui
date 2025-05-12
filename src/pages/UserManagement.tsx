@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { Header } from "@/components/Header";
@@ -93,35 +92,40 @@ export default function UserManagement() {
       try {
         setIsLoadingUsers(true);
         
-        // Fetch all users with last sign in details
-        const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+        // Fetch all user profiles from the database
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, email, updated_at');
         
-        if (authError) {
-          console.error("Auth users error:", authError);
-          throw authError;
+        if (profilesError) {
+          console.error("Error fetching profiles:", profilesError);
+          throw profilesError;
         }
         
-        // For each user, fetch their roles
+        console.log("Profiles fetched:", profiles);
+        
+        // For each profile, fetch their roles
         const usersWithRoles = await Promise.all(
-          (authUsers?.users || []).map(async (authUser) => {
+          (profiles || []).map(async (profile) => {
             const { data: roles, error: rolesError } = await supabase.rpc(
               'get_user_roles',
-              { user_id: authUser.id }
+              { user_id: profile.id }
             );
 
             if (rolesError) {
-              console.error('Error fetching roles for user:', authUser.id, rolesError);
+              console.error('Error fetching roles for user:', profile.id, rolesError);
             }
             
             return {
-              id: authUser.id,
-              email: authUser.email || 'unknown@example.com',
+              id: profile.id,
+              email: profile.email || 'unknown@example.com',
               roles: roles || [],
-              last_sign_in_at: authUser.last_sign_in_at
+              last_sign_in_at: profile.updated_at
             };
           })
         );
 
+        console.log("Users with roles:", usersWithRoles);
         setUsers(usersWithRoles);
       } catch (error: any) {
         console.error('Error fetching users:', error.message);
