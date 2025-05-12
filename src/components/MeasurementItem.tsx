@@ -1,6 +1,6 @@
 
 import React from "react";
-import { ArrowUp, ArrowDown, Wheat } from "lucide-react";
+import { ArrowUp, ArrowDown, Wheat, Blend } from "lucide-react";
 
 type MeasurementItemProps = {
   symbol: string;
@@ -30,6 +30,16 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
   
   // Get icon based on category
   const getIcon = () => {
+    // Display Blend icon for the "ส่วนผสม" category
+    if (symbol === 'whole_kernels' ||
+        symbol === 'head_rice' ||
+        symbol === 'total_brokens' ||
+        symbol === 'small_brokens' ||
+        symbol === 'small_brokens_c1') {
+      return <Blend className="w-5 h-5 text-white" />;
+    }
+    
+    // Display Wheat icon for rice classes and types
     if (symbol.includes('class') || 
         symbol === 'short_grain' || 
         symbol === 'slender_kernel' ||
