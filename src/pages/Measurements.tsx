@@ -1,9 +1,7 @@
-
 import { Header } from "@/components/Header";
 import { MeasurementItem } from "@/components/MeasurementItem";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Square, Wheat, Blend, Bug } from "lucide-react";
 
 export default function Measurements() {
   // ข้อมูลตัวอย่างสำหรับรายการวัด
@@ -91,104 +89,36 @@ export default function Measurements() {
 
         {/* แท็บสำหรับเลือกประเภท */}
         <div className="px-4 mb-4">
-          <Tabs defaultValue="all" className="w-full">
-            <ScrollArea className="w-full">
-              <TabsList className="flex w-full h-12 bg-white border border-gray-200 rounded-lg p-1 space-x-1">
-                <TabsTrigger 
-                  value="all" 
-                  className="flex-1 flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md"
-                >
-                  <Square className="h-4 w-4" />
-                  <span>ทั้งหมด</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="wholegrain" 
-                  className="flex-1 flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md"
-                >
-                  <Wheat className="h-4 w-4" />
-                  <span>พื้นข้าวเต้มเมล็ด (%)</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="ingredients" 
-                  className="flex-1 flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md"
-                >
-                  <Blend className="h-4 w-4" />
-                  <span>ส่วนผสม (%)</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="impurities" 
-                  className="flex-1 flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md"
-                >
-                  <Bug className="h-4 w-4" />
-                  <span>สิ่งเจือปน (%)</span>
-                </TabsTrigger>
-              </TabsList>
-            </ScrollArea>
-            
-            <TabsContent value="all" className="mt-4">
-              {/* รายการการวัดทั้งหมด */}
-              <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
-                {measurements.map((item, index) => (
-                  <MeasurementItem
-                    key={index}
-                    symbol={item.symbol}
-                    name={item.name}
-                    price={item.price}
-                    percentageChange={item.percentageChange}
-                    iconColor={item.iconColor}
-                  />
-                ))}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="wholegrain" className="mt-4">
-              <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
-                {/* แสดงเฉพาะรายการพื้นข้าวเต้มเมล็ด */}
-                {measurements.slice(0, 3).map((item, index) => (
-                  <MeasurementItem
-                    key={index}
-                    symbol={item.symbol}
-                    name={item.name}
-                    price={item.price}
-                    percentageChange={item.percentageChange}
-                    iconColor={item.iconColor}
-                  />
-                ))}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="ingredients" className="mt-4">
-              <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
-                {/* แสดงเฉพาะรายการส่วนผสม */}
-                {measurements.slice(2, 5).map((item, index) => (
-                  <MeasurementItem
-                    key={index}
-                    symbol={item.symbol}
-                    name={item.name}
-                    price={item.price}
-                    percentageChange={item.percentageChange}
-                    iconColor={item.iconColor}
-                  />
-                ))}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="impurities" className="mt-4">
-              <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
-                {/* แสดงเฉพาะรายการสิ่งเจือปน */}
-                {measurements.slice(4, 7).map((item, index) => (
-                  <MeasurementItem
-                    key={index}
-                    symbol={item.symbol}
-                    name={item.name}
-                    price={item.price}
-                    percentageChange={item.percentageChange}
-                    iconColor={item.iconColor}
-                  />
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
+          <ScrollArea className="w-full">
+            <div className="flex space-x-2 pb-1">
+              <button className="px-4 py-2 bg-emerald-500 text-white rounded-lg font-medium text-sm whitespace-nowrap">
+                Favorit
+              </button>
+              <button className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg font-medium text-sm whitespace-nowrap">
+                FIAT Pasar
+              </button>
+              <button className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg font-medium text-sm whitespace-nowrap">
+                ETF Pasar
+              </button>
+              <button className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg font-medium text-sm whitespace-nowrap">
+                Kustom
+              </button>
+            </div>
+          </ScrollArea>
+        </div>
+        
+        {/* รายการการวัด */}
+        <div className="bg-white rounded-xl mx-4 overflow-hidden shadow-md border border-gray-100 mb-8">
+          {measurements.map((item, index) => (
+            <MeasurementItem
+              key={index}
+              symbol={item.symbol}
+              name={item.name}
+              price={item.price}
+              percentageChange={item.percentageChange}
+              iconColor={item.iconColor}
+            />
+          ))}
         </div>
       </main>
 
