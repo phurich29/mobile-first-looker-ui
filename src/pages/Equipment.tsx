@@ -1,5 +1,6 @@
 
 import { Header } from "@/components/Header";
+import { Settings } from "lucide-react";
 
 export default function Equipment() {
   return (
