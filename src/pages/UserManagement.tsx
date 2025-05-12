@@ -32,6 +32,7 @@ interface User {
   id: string;
   email: string;
   roles: string[];
+  last_sign_in_at?: string | null;
 }
 
 // Schema for new user form
@@ -92,32 +93,31 @@ export default function UserManagement() {
       try {
         setIsLoadingUsers(true);
         
-        // Fetch all users from profiles table
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, email');
-
-        if (profilesError) {
-          console.error("Profiles error:", profilesError);
-          throw profilesError;
+        // Fetch all users with last sign in details
+        const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+        
+        if (authError) {
+          console.error("Auth users error:", authError);
+          throw authError;
         }
-
-        // For each profile, fetch their roles
+        
+        // For each user, fetch their roles
         const usersWithRoles = await Promise.all(
-          (profiles || []).map(async (profile) => {
+          (authUsers?.users || []).map(async (authUser) => {
             const { data: roles, error: rolesError } = await supabase.rpc(
               'get_user_roles',
-              { user_id: profile.id }
+              { user_id: authUser.id }
             );
 
             if (rolesError) {
-              console.error('Error fetching roles for user:', profile.id, rolesError);
+              console.error('Error fetching roles for user:', authUser.id, rolesError);
             }
             
             return {
-              id: profile.id,
-              email: profile.email || 'unknown@example.com',
-              roles: roles || []
+              id: authUser.id,
+              email: authUser.email || 'unknown@example.com',
+              roles: roles || [],
+              last_sign_in_at: authUser.last_sign_in_at
             };
           })
         );
@@ -428,6 +428,19 @@ export default function UserManagement() {
     setShowDeleteConfirm(true);
   };
 
+  // Format date for display
+  const formatDate = (dateString?: string | null) => {
+    if (!dateString) return "ไม่เคยเข้าสู่ระบบ";
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('th-TH', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date);
+  };
+
   // If still loading, show loading indicator
   if (isLoading) {
     return (
@@ -471,7 +484,7 @@ export default function UserManagement() {
         </div>
 
         <Card className="overflow-hidden">
-          <CardHeader className="py-4">
+          <CardHeader className="py-3">
             <CardTitle className="text-xl">รายชื่อผู้ใช้ทั้งหมด</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -485,41 +498,42 @@ export default function UserManagement() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-1/3 py-2">อีเมล</TableHead>
-                      <TableHead className="w-1/3 py-2">บทบาท</TableHead>
-                      <TableHead className="w-1/3 text-right py-2">จัดการ</TableHead>
+                      <TableHead className="w-2/3 py-1 text-xs">ข้อมูลผู้ใช้</TableHead>
+                      <TableHead className="w-1/3 text-right py-1 text-xs">จัดการ</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {users.map((user) => (
                       <TableRow key={user.id} className={user.roles.includes('waiting_list') ? "bg-amber-50" : ""}>
-                        <TableCell className="py-2 text-sm">
-                          <div className="font-medium">{user.email}</div>
-                          {user.roles.includes('waiting_list') && !user.roles.includes('user') && (
-                            <span className="text-xs text-amber-600 font-medium">รอการอนุมัติ</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="py-2">
-                          <div className="flex flex-wrap gap-1">
-                            {user.roles.length > 0 ? user.roles.map((role) => (
-                              <Badge 
-                                key={role} 
-                                className={`text-xs px-1.5 py-0.5 ${
-                                  role === 'superadmin' ? 'bg-red-100 text-red-800 hover:bg-red-200' : 
-                                  role === 'admin' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : 
-                                  role === 'waiting_list' ? 'bg-amber-100 text-amber-800 hover:bg-amber-200' :
-                                  'bg-green-100 text-green-800 hover:bg-green-200'
-                                }`}
-                                variant="outline"
-                              >
-                                {role}
-                              </Badge>
-                            )) : (
-                              <span className="text-gray-400 text-xs italic">ไม่มีสิทธิ์</span>
-                            )}
+                        <TableCell className="py-1">
+                          <div className="space-y-1">
+                            <div className="flex flex-col">
+                              <span className="font-medium text-xs">{user.email}</span>
+                              <span className="text-[10px] text-gray-500">
+                                เข้าสู่ระบบล่าสุด: {formatDate(user.last_sign_in_at)}
+                              </span>
+                            </div>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {user.roles.length > 0 ? user.roles.map((role) => (
+                                <Badge 
+                                  key={role} 
+                                  className={`text-[10px] px-1 py-0 ${
+                                    role === 'superadmin' ? 'bg-red-100 text-red-800 hover:bg-red-200' : 
+                                    role === 'admin' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : 
+                                    role === 'waiting_list' ? 'bg-amber-100 text-amber-800 hover:bg-amber-200' :
+                                    'bg-green-100 text-green-800 hover:bg-green-200'
+                                  }`}
+                                  variant="outline"
+                                >
+                                  {role}
+                                </Badge>
+                              )) : (
+                                <span className="text-gray-400 text-[10px] italic">ไม่มีสิทธิ์</span>
+                              )}
+                            </div>
                           </div>
                         </TableCell>
-                        <TableCell className="py-2 text-right">
+                        <TableCell className="py-1 text-right">
                           <div className="flex items-center justify-end space-x-1">
                             {user.roles.includes('waiting_list') && !user.roles.includes('user') && (
                               <Button 
@@ -527,7 +541,7 @@ export default function UserManagement() {
                                 size="sm"
                                 onClick={() => approveUser(user.id)}
                                 disabled={isProcessing}
-                                className="bg-emerald-600 hover:bg-emerald-700 text-xs h-7"
+                                className="bg-emerald-600 hover:bg-emerald-700 text-[10px] h-6 px-1"
                               >
                                 อนุมัติ
                               </Button>
@@ -537,64 +551,64 @@ export default function UserManagement() {
                               variant="outline"
                               size="sm"
                               onClick={() => handleOpenResetDialog(user.id, user.email)}
-                              className="h-7"
+                              className="h-6 w-6 p-0"
                             >
-                              <Edit className="h-4 w-4" />
+                              <Edit className="h-3 w-3" />
                             </Button>
                             
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => handleOpenDeleteDialog(user.id, user.email)}
-                              className="text-red-500 hover:text-red-600 h-7"
+                              className="text-red-500 hover:text-red-600 h-6 w-6 p-0"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-3 w-3" />
                             </Button>
                             
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="sm" disabled={isProcessing} className="h-7">
-                                  <ChevronDown className="h-4 w-4" />
+                                <Button variant="outline" size="sm" disabled={isProcessing} className="h-6 w-6 p-0">
+                                  <ChevronDown className="h-3 w-3" />
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="w-48">
+                              <DropdownMenuContent align="end" className="w-40">
                                 {!user.roles.includes('user') ? (
-                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'user', true)} className="text-xs">
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'user', true)} className="text-[11px]">
                                     เพิ่มสิทธิ์ User
                                   </DropdownMenuItem>
                                 ) : (
-                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'user', false)} className="text-xs">
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'user', false)} className="text-[11px]">
                                     ลบสิทธิ์ User
                                   </DropdownMenuItem>
                                 )}
                                 
                                 {!user.roles.includes('admin') ? (
-                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'admin', true)} className="text-xs">
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'admin', true)} className="text-[11px]">
                                     เพิ่มสิทธิ์ Admin
                                   </DropdownMenuItem>
                                 ) : (
-                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'admin', false)} className="text-xs">
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'admin', false)} className="text-[11px]">
                                     ลบสิทธิ์ Admin
                                   </DropdownMenuItem>
                                 )}
                                 
                                 {/* ถ้าเป็น superadmin จึงจะสามารถจัดการสิทธิ์ superadmin ได้ */}
                                 {isSuperAdmin && !user.roles.includes('superadmin') ? (
-                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'superadmin', true)} className="text-xs">
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'superadmin', true)} className="text-[11px]">
                                     เพิ่มสิทธิ์ Superadmin
                                   </DropdownMenuItem>
                                 ) : isSuperAdmin && user.roles.includes('superadmin') ? (
-                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'superadmin', false)} className="text-xs">
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'superadmin', false)} className="text-[11px]">
                                     ลบสิทธิ์ Superadmin
                                   </DropdownMenuItem>
                                 ) : null}
                                 
                                 {!user.roles.includes('waiting_list') ? (
-                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'waiting_list', true)} className="text-xs">
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'waiting_list', true)} className="text-[11px]">
                                     เพิ่มสถานะ Waiting List
                                   </DropdownMenuItem>
                                 ) : (
-                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'waiting_list', false)} className="text-xs">
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'waiting_list', false)} className="text-[11px]">
                                     ลบสถานะ Waiting List
                                   </DropdownMenuItem>
                                 )}
