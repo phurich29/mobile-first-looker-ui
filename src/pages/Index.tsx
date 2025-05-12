@@ -6,23 +6,23 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { NewsCarousel } from "@/components/NewsCarousel";
 
 const Index = () => {
-  // Sample data for assets
-  const assets = [
+  // Sample data for rice prices
+  const riceUpdates = [
     {
-      symbol: "BTC",
-      name: "Bitcoin",
-      value: "26.46",
-      amount: "0.0012",
-      percentageChange: 15.3,
-      iconColor: "#F7931A",
+      symbol: "ข้าวหอมมะลิ",
+      name: "คัดพิเศษ",
+      value: "15,500",
+      amount: "บาท/ตัน",
+      percentageChange: 2.1,
+      iconColor: "#8A33AE",
     },
     {
-      symbol: "ETH",
-      name: "Ethereum",
-      value: "37.30",
-      amount: "0.009",
-      percentageChange: 10.8,
-      iconColor: "#627EEA",
+      symbol: "ข้าวเหนียว",
+      name: "กข 6",
+      value: "12,900",
+      amount: "บาท/ตัน",
+      percentageChange: -0.8,
+      iconColor: "#F7931A",
     },
   ];
 
@@ -52,7 +52,7 @@ const Index = () => {
   ];
 
   const handleSeeAll = () => {
-    console.log("See all assets clicked");
+    console.log("See all rice prices clicked");
   };
 
   return (
@@ -63,17 +63,17 @@ const Index = () => {
         <div className="mt-4">
           <NewsCarousel />
           
-          <SectionHeader title="Your Assets" actionText="See All" onAction={handleSeeAll} />
+          <SectionHeader title="ราคาข้าวจากสมาคมโรงสี" actionText="ดูทั้งหมด" onAction={handleSeeAll} />
           <div className="grid grid-cols-2 gap-3 px-4 mb-6">
-            {assets.map((asset) => (
+            {riceUpdates.map((rice) => (
               <AssetCard
-                key={asset.symbol}
-                symbol={asset.symbol}
-                name={asset.name}
-                value={asset.value}
-                amount={asset.amount}
-                percentageChange={asset.percentageChange}
-                iconColor={asset.iconColor}
+                key={rice.symbol}
+                symbol={rice.symbol}
+                name={rice.name}
+                value={rice.value}
+                amount={rice.amount}
+                percentageChange={rice.percentageChange}
+                iconColor={rice.iconColor}
               />
             ))}
           </div>
