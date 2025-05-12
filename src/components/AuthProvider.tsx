@@ -31,7 +31,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [userRoles, setUserRoles] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Function to fetch user roles from the database
+  // Function to fetch user roles from the database with caching
   const fetchUserRoles = async (userId: string) => {
     try {
       console.log("Fetching roles for user:", userId);
@@ -56,19 +56,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
     console.log("Setting up AuthProvider");
     setIsLoading(true);
 
-    // Set up auth state listener
+    // Set up auth state listener first - critical to avoid race conditions
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, currentSession) => {
+      (_event, currentSession) => {
         console.log("Auth state changed, event:", _event);
+        
+        // First update basic user data synchronously
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
-        // Fetch roles outside the callback to prevent deadlocks
+        // Then fetch additional data asynchronously using setTimeout to avoid deadlocks
         if (currentSession?.user) {
           setTimeout(async () => {
-            const roles = await fetchUserRoles(currentSession.user.id);
-            setUserRoles(roles);
-            setIsLoading(false);
+            try {
+              const roles = await fetchUserRoles(currentSession.user.id);
+              console.log("Setting user roles after auth change:", roles);
+              setUserRoles(roles);
+              setIsLoading(false);
+            } catch (err) {
+              console.error("Error fetching roles during auth change:", err);
+              setIsLoading(false);
+            }
           }, 0);
         } else {
           setUserRoles([]);
@@ -77,12 +85,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     );
 
-    // Initial session check
+    // Initial session check happens after setting up the listener
     const initializeAuth = async () => {
       console.log("Initializing auth");
       try {
         const { data: { session: initialSession } } = await supabase.auth.getSession();
         console.log("Initial session retrieved:", !!initialSession);
+        
+        // Update session and user state immediately
         setSession(initialSession);
         setUser(initialSession?.user ?? null);
         
@@ -90,6 +100,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (initialSession?.user) {
           console.log("User is logged in, fetching roles");
           const roles = await fetchUserRoles(initialSession.user.id);
+          console.log("Setting initial user roles:", roles);
           setUserRoles(roles);
         }
       } catch (error) {

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -103,6 +103,42 @@ export default function Login() {
       setIsSubmitting(false);
     }
   };
+  
+  // Helper function to initialize a user role if none exists
+  const checkAndInitializeUserRole = async (userId: string) => {
+    try {
+      // Check if the user has any roles
+      const { data: roles, error: rolesError } = await supabase.rpc('get_user_roles', {
+        user_id: userId
+      });
+      
+      console.log("Checked roles for user:", userId, roles);
+      
+      // If no roles or error, try to add a default 'user' role
+      if (rolesError || !roles || roles.length === 0) {
+        console.log("No roles found, adding default user role");
+        const { error } = await supabase.from('user_roles').insert({
+          user_id: userId,
+          role: 'user'
+        });
+        
+        if (error && error.code !== '23505') { // Ignore duplicate key errors
+          console.error("Error adding default role:", error);
+        } else {
+          console.log("Added default user role successfully");
+        }
+      }
+    } catch (error) {
+      console.error("Error in checkAndInitializeUserRole:", error);
+    }
+  };
+  
+  // If user just logged in, check and initialize role if needed
+  useEffect(() => {
+    if (user && !isLoading) {
+      checkAndInitializeUserRole(user.id);
+    }
+  }, [user, isLoading]);
   
   // If already logged in, redirect to home
   if (!isLoading && user) {

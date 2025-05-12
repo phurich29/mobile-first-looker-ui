@@ -27,12 +27,12 @@ function App() {
           </Route>
           
           {/* Admin routes */}
-          <Route element={<ProtectedRoute requiredRoles={["admin", "superadmin"]} />}>
+          <Route element={<ProtectedRoute requiredRoles={["admin", "superadmin"]} redirectTo="/" />}>
             <Route path="/admin" element={<Admin />} />
           </Route>
           
           {/* Superadmin routes */}
-          <Route element={<ProtectedRoute requiredRoles={["superadmin"]} />}>
+          <Route element={<ProtectedRoute requiredRoles={["superadmin"]} redirectTo="/" />}>
             <Route path="/user-management" element={<UserManagement />} />
           </Route>
           
