@@ -1,9 +1,9 @@
 
 import { Header } from "@/components/Header";
-import { PortfolioValue } from "@/components/PortfolioValue";
 import { AssetCard } from "@/components/AssetCard";
 import { WatchlistItem } from "@/components/WatchlistItem";
 import { SectionHeader } from "@/components/SectionHeader";
+import { NewsCarousel } from "@/components/NewsCarousel";
 
 const Index = () => {
   // Sample data for assets
@@ -61,7 +61,7 @@ const Index = () => {
       
       <main className="flex-1 pb-16">
         <div className="mt-4">
-          <PortfolioValue value="56.98" percentageChange={15.3} />
+          <NewsCarousel />
           
           <SectionHeader title="Your Assets" actionText="See All" onAction={handleSeeAll} />
           <div className="grid grid-cols-2 gap-3 px-4 mb-6">
