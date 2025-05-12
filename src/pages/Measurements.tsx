@@ -3,10 +3,65 @@ import { Header } from "@/components/Header";
 import { MeasurementItem } from "@/components/MeasurementItem";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useRef, useState, useEffect } from "react";
 import { Square, Wheat, Blend, Bug } from "lucide-react";
 
 export default function Measurements() {
-  // ข้อมูลตัวอย่างสำหรับรายการวัด
+  // สร้าง state และ ref สำหรับฟังก์ชันการลาก (Drag)
+  const tabsContainerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  // ฟังก์ชันจัดการการลาก (Drag)
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!tabsContainerRef.current) return;
+    
+    setIsDragging(true);
+    setStartX(e.pageX - tabsContainerRef.current.offsetLeft);
+    setScrollLeft(tabsContainerRef.current.scrollLeft);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!tabsContainerRef.current) return;
+    
+    setIsDragging(true);
+    setStartX(e.touches[0].pageX - tabsContainerRef.current.offsetLeft);
+    setScrollLeft(tabsContainerRef.current.scrollLeft);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging || !tabsContainerRef.current) return;
+    
+    e.preventDefault();
+    const x = e.pageX - tabsContainerRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5; // เพิ่มความเร็วในการเลื่อน
+    tabsContainerRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isDragging || !tabsContainerRef.current) return;
+    
+    const x = e.touches[0].pageX - tabsContainerRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    tabsContainerRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+
+  // เพิ่ม event listeners เมื่อ component mount
+  useEffect(() => {
+    document.addEventListener('mouseup', handleDragEnd);
+    document.addEventListener('touchend', handleDragEnd);
+    return () => {
+      document.removeEventListener('mouseup', handleDragEnd);
+      document.removeEventListener('touchend', handleDragEnd);
+    };
+  }, []);
+
+  // ข้อมูลทดสอบสำหรับรายการการวัด
   const measurements = [
     {
       symbol: "BTC/BUSD",
@@ -92,38 +147,56 @@ export default function Measurements() {
         {/* แท็บสำหรับเลือกประเภท */}
         <div className="px-4 mb-4">
           <Tabs defaultValue="all" className="w-full">
-            <ScrollArea className="w-full">
-              <TabsList className="flex w-full h-12 bg-white border border-gray-200 rounded-lg p-1 space-x-1">
-                <TabsTrigger 
-                  value="all" 
-                  className="flex-1 flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md"
+            <div className="relative w-full overflow-hidden">
+              <div 
+                ref={tabsContainerRef}
+                className="w-full overflow-x-auto pb-3 no-scrollbar"
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleDragEnd}
+                onMouseLeave={handleDragEnd}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleDragEnd}
+                style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+              >
+                <TabsList 
+                  className="flex min-w-max h-12 bg-white border border-gray-200 rounded-lg p-1 space-x-1 overflow-visible"
+                  style={{ paddingLeft: '0.25rem', paddingRight: '0.25rem' }}
                 >
-                  <Square className="h-4 w-4" />
-                  <span>ทั้งหมด</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="wholegrain" 
-                  className="flex-1 flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md"
-                >
-                  <Wheat className="h-4 w-4" />
-                  <span>พื้นข้าวเต้มเมล็ด (%)</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="ingredients" 
-                  className="flex-1 flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md"
-                >
-                  <Blend className="h-4 w-4" />
-                  <span>ส่วนผสม (%)</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="impurities" 
-                  className="flex-1 flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md"
-                >
-                  <Bug className="h-4 w-4" />
-                  <span>สิ่งเจือปน (%)</span>
-                </TabsTrigger>
-              </TabsList>
-            </ScrollArea>
+                  <TabsTrigger 
+                    value="all" 
+                    className="whitespace-nowrap min-w-[100px] flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md px-4"
+                  >
+                    <Square className="h-4 w-4 flex-shrink-0" />
+                    <span>ทั้งหมด</span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="wholegrain" 
+                    className="whitespace-nowrap min-w-[160px] flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md px-4"
+                  >
+                    <Wheat className="h-4 w-4 flex-shrink-0" />
+                    <span>พื้นข้าวเต้มเมล็ด (%)</span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="ingredients" 
+                    className="whitespace-nowrap min-w-[130px] flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md px-4"
+                  >
+                    <Blend className="h-4 w-4 flex-shrink-0" />
+                    <span>ส่วนผสม (%)</span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="impurities" 
+                    className="whitespace-nowrap min-w-[130px] flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md px-4"
+                  >
+                    <Bug className="h-4 w-4 flex-shrink-0" />
+                    <span>สิ่งเจือปน (%)</span>
+                  </TabsTrigger>
+                </TabsList>
+              </div>
+              <div className="absolute top-0 right-0 h-full w-8 bg-gradient-to-l from-white to-transparent pointer-events-none opacity-70"></div>
+              <div className="absolute top-0 left-0 h-full w-8 bg-gradient-to-r from-white to-transparent pointer-events-none opacity-70"></div>
+            </div>
             
             <TabsContent value="all" className="mt-4">
               {/* รายการการวัดทั้งหมด */}
