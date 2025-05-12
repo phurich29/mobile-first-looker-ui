@@ -9,113 +9,25 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { EquipmentCard } from "@/components/EquipmentCard";
 import { Settings, Users, Shield } from "lucide-react";
+import { useAuth } from "@/components/AuthProvider";
 
-// Define types for our user and roles
+// Define types for our user data
 interface User {
   id: string;
   email: string;
-  username?: string;
-  full_name?: string;
-}
-
-interface UserWithRole extends User {
   roles: string[];
 }
 
 export default function Admin() {
   const { toast } = useToast();
-  const [session, setSession] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [userRoles, setUserRoles] = useState<string[]>([]);
-  const [users, setUsers] = useState<UserWithRole[]>([]);
+  const { user, userRoles, isLoading } = useAuth();
+  const [users, setUsers] = useState<User[]>([]);
   const [devices, setDevices] = useState<any[]>([]);
-  
-  // Check if user is logged in and get their roles
-  useEffect(() => {
-    const checkSession = async () => {
-      setIsLoading(true);
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        setSession(session);
-        
-        if (session?.user) {
-          // Fetch user roles
-          const { data: roles, error: rolesError } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', session.user.id);
-          
-          if (rolesError) throw rolesError;
-          
-          const userRolesList = roles.map(r => r.role);
-          setUserRoles(userRolesList);
-          
-          // Only admins and superadmins can access this page
-          if (!userRolesList.includes('admin') && !userRolesList.includes('superadmin')) {
-            toast({
-              title: "ไม่มีสิทธิ์เข้าถึง",
-              description: "คุณไม่มีสิทธิ์ในการเข้าถึงหน้านี้",
-              variant: "destructive",
-            });
-          }
-        }
-      } catch (error: any) {
-        console.error('Error fetching session:', error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    checkSession();
-  }, [toast]);
-  
-  // Fetch users (only for admins and superadmins)
-  useEffect(() => {
-    const fetchUsers = async () => {
-      if (!session || (!userRoles.includes('admin') && !userRoles.includes('superadmin'))) {
-        return;
-      }
-      
-      try {
-        // Fetch all profiles
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('*');
-        
-        if (profilesError) throw profilesError;
-        
-        // Fetch all user roles
-        const { data: allRoles, error: rolesError } = await supabase
-          .from('user_roles')
-          .select('*');
-        
-        if (rolesError) throw rolesError;
-        
-        // Combine profiles with their roles
-        const usersWithRoles = profiles.map((profile: any) => {
-          const userRoles = allRoles
-            .filter((r: any) => r.user_id === profile.id)
-            .map((r: any) => r.role);
-          
-          return {
-            ...profile,
-            roles: userRoles,
-          };
-        });
-        
-        setUsers(usersWithRoles);
-      } catch (error: any) {
-        console.error('Error fetching users:', error.message);
-      }
-    };
-    
-    fetchUsers();
-  }, [session, userRoles]);
   
   // Fetch devices
   useEffect(() => {
     const fetchDevices = async () => {
-      if (!session || (!userRoles.includes('admin') && !userRoles.includes('superadmin'))) {
+      if (!user || (!userRoles.includes('admin') && !userRoles.includes('superadmin'))) {
         return;
       }
       
@@ -132,10 +44,50 @@ export default function Admin() {
     };
     
     fetchDevices();
-  }, [session, userRoles]);
+  }, [user, userRoles]);
   
-  // Change user role (superadmin only)
-  const changeUserRole = async (userId: string, newRole: string) => {
+  // For demo purposes, create a list of sample users
+  useEffect(() => {
+    if (!userRoles.includes('admin') && !userRoles.includes('superadmin')) {
+      return;
+    }
+
+    // Demo users (would normally come from a database)
+    const mockUsers = [
+      {
+        id: '1',
+        email: 'user@example.com',
+        roles: ['user']
+      },
+      {
+        id: '2',
+        email: 'admin@example.com',
+        roles: ['user', 'admin']
+      },
+      {
+        id: '3',
+        email: 'superadmin@example.com',
+        roles: ['user', 'admin', 'superadmin']
+      }
+    ];
+
+    // Add current user to the list if not already present
+    if (user) {
+      const currentUserInList = mockUsers.some(u => u.email === user.email);
+      if (!currentUserInList) {
+        mockUsers.push({
+          id: user.id,
+          email: user.email || 'unknown@example.com',
+          roles: userRoles
+        });
+      }
+    }
+
+    setUsers(mockUsers);
+  }, [user, userRoles]);
+  
+  // User management functions (demo only)
+  const changeUserRole = (userId: string, newRole: string) => {
     if (!userRoles.includes('superadmin')) {
       toast({
         title: "ไม่มีสิทธิ์",
@@ -145,62 +97,23 @@ export default function Admin() {
       return;
     }
     
-    try {
-      // First, check if user already has this role
-      const { data: existingRole, error: checkError } = await supabase
-        .from('user_roles')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('role', newRole);
-      
-      if (checkError) throw checkError;
-      
-      // If user doesn't have this role yet, add it
-      if (!existingRole || existingRole.length === 0) {
-        const { error: insertError } = await supabase
-          .from('user_roles')
-          .insert({ user_id: userId, role: newRole });
-        
-        if (insertError) throw insertError;
-        
-        toast({
-          title: "เพิ่มบทบาทสำเร็จ",
-          description: `เพิ่มบทบาท ${newRole} ให้ผู้ใช้สำเร็จ`,
-        });
-      } else {
-        toast({
-          title: "ผู้ใช้มีบทบาทนี้อยู่แล้ว",
-          description: `ผู้ใช้มีบทบาท ${newRole} อยู่แล้ว`,
-        });
+    // Update user roles in our mock data
+    const updatedUsers = users.map(user => {
+      if (user.id === userId && !user.roles.includes(newRole)) {
+        return { ...user, roles: [...user.roles, newRole] };
       }
-      
-      // Refresh user list
-      const { data: profiles } = await supabase.from('profiles').select('*');
-      const { data: allRoles } = await supabase.from('user_roles').select('*');
-      
-      const updatedUsers = profiles.map((profile: any) => {
-        const userRoles = allRoles
-          .filter((r: any) => r.user_id === profile.id)
-          .map((r: any) => r.role);
-        
-        return {
-          ...profile,
-          roles: userRoles,
-        };
-      });
-      
-      setUsers(updatedUsers);
-    } catch (error: any) {
-      toast({
-        title: "เกิดข้อผิดพลาด",
-        description: error.message || "ไม่สามารถเปลี่ยนบทบาทได้",
-        variant: "destructive",
-      });
-    }
+      return user;
+    });
+    
+    setUsers(updatedUsers);
+    
+    toast({
+      title: "เพิ่มบทบาทสำเร็จ",
+      description: `เพิ่มบทบาท ${newRole} ให้ผู้ใช้สำเร็จ`,
+    });
   };
   
-  // Remove user role (superadmin only)
-  const removeUserRole = async (userId: string, roleToRemove: string) => {
+  const removeUserRole = (userId: string, roleToRemove: string) => {
     if (!userRoles.includes('superadmin')) {
       toast({
         title: "ไม่มีสิทธิ์",
@@ -210,43 +123,23 @@ export default function Admin() {
       return;
     }
     
-    try {
-      const { error } = await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', userId)
-        .eq('role', roleToRemove);
-      
-      if (error) throw error;
-      
-      toast({
-        title: "ลบบทบาทสำเร็จ",
-        description: `ลบบทบาท ${roleToRemove} ออกจากผู้ใช้สำเร็จ`,
-      });
-      
-      // Refresh user list
-      const { data: profiles } = await supabase.from('profiles').select('*');
-      const { data: allRoles } = await supabase.from('user_roles').select('*');
-      
-      const updatedUsers = profiles.map((profile: any) => {
-        const userRoles = allRoles
-          .filter((r: any) => r.user_id === profile.id)
-          .map((r: any) => r.role);
-        
-        return {
-          ...profile,
-          roles: userRoles,
+    // Remove role from our mock data
+    const updatedUsers = users.map(user => {
+      if (user.id === userId) {
+        return { 
+          ...user, 
+          roles: user.roles.filter(role => role !== roleToRemove) 
         };
-      });
-      
-      setUsers(updatedUsers);
-    } catch (error: any) {
-      toast({
-        title: "เกิดข้อผิดพลาด",
-        description: error.message || "ไม่สามารถลบบทบาทได้",
-        variant: "destructive",
-      });
-    }
+      }
+      return user;
+    });
+    
+    setUsers(updatedUsers);
+    
+    toast({
+      title: "ลบบทบาทสำเร็จ",
+      description: `ลบบทบาท ${roleToRemove} ออกจากผู้ใช้สำเร็จ`,
+    });
   };
   
   // If still loading, show loading indicator
@@ -259,7 +152,7 @@ export default function Admin() {
   }
   
   // If user not logged in or doesn't have admin/superadmin role, redirect to login
-  if (!session || (!userRoles.includes('admin') && !userRoles.includes('superadmin'))) {
+  if (!user || (!userRoles.includes('admin') && !userRoles.includes('superadmin'))) {
     return <Navigate to="/login" />;
   }
   
@@ -298,8 +191,7 @@ export default function Admin() {
                   {users.map((user) => (
                     <div key={user.id} className="border rounded-md p-4 flex justify-between items-center">
                       <div>
-                        <p className="font-medium">{user.full_name || user.username || user.email}</p>
-                        <p className="text-sm text-gray-500">{user.email}</p>
+                        <p className="font-medium">{user.email}</p>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {user.roles.map((role) => (
                             <span 

@@ -1,234 +1,239 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { LogIn, User } from "lucide-react";
+import { useAuth } from "@/components/AuthProvider";
 
 export default function Login() {
+  const { user, isLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
   
-  // Login form states
-  const [loginEmail, setLoginEmail] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Signup form states
-  const [signupEmail, setSignupEmail] = useState("");
-  const [signupPassword, setSignupPassword] = useState("");
-  const [signupUsername, setSignupUsername] = useState("");
-  const [signupFullName, setSignupFullName] = useState("");
-
-  // Handle login submission
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: loginEmail,
-        password: loginPassword,
+    if (!email || !password) {
+      toast({
+        title: "กรุณากรอกข้อมูลให้ครบ",
+        description: "ใส่อีเมลและรหัสผ่านเพื่อเข้าสู่ระบบ",
+        variant: "destructive",
       });
-
-      if (error) {
-        throw error;
-      }
-
+      return;
+    }
+    
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) throw error;
+      
       toast({
         title: "เข้าสู่ระบบสำเร็จ",
         description: "ยินดีต้อนรับกลับมา",
       });
       
-      // Redirect to home page after successful login
       navigate("/");
     } catch (error: any) {
       toast({
-        title: "เข้าสู่ระบบล้มเหลว",
-        description: error.message || "กรุณาตรวจสอบอีเมลและรหัสผ่านของคุณ",
+        title: "เข้าสู่ระบบไม่สำเร็จ",
+        description: error.message || "กรุณาตรวจสอบอีเมลและรหัสผ่าน",
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
-
-  // Handle signup submission
-  const handleSignup = async (e: React.FormEvent) => {
+  
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
+    if (!email || !password) {
+      toast({
+        title: "กรุณากรอกข้อมูลให้ครบ",
+        description: "ใส่อีเมลและรหัสผ่านเพื่อลงทะเบียน",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (password !== confirmPassword) {
+      toast({
+        title: "รหัสผ่านไม่ตรงกัน",
+        description: "กรุณาตรวจสอบรหัสผ่านอีกครั้ง",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email: signupEmail,
-        password: signupPassword,
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
         options: {
-          data: {
-            username: signupUsername,
-            full_name: signupFullName,
-          },
+          emailRedirectTo: `${window.location.origin}/login`,
         },
       });
-
-      if (error) {
-        throw error;
-      }
-
-      toast({
-        title: "สมัครสมาชิกสำเร็จ",
-        description: "โปรดตรวจสอบอีเมลของคุณเพื่อยืนยันการสมัคร",
-      });
       
-      // Clear form fields
-      setSignupEmail("");
-      setSignupPassword("");
-      setSignupUsername("");
-      setSignupFullName("");
+      if (error) throw error;
+      
+      toast({
+        title: "ลงทะเบียนสำเร็จ",
+        description: "กรุณาตรวจสอบอีเมลเพื่อยืนยันตัวตน",
+      });
     } catch (error: any) {
       toast({
-        title: "สมัครสมาชิกล้มเหลว",
+        title: "ลงทะเบียนไม่สำเร็จ",
         description: error.message || "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
-
+  
+  // If already logged in, redirect to home
+  if (!isLoading && user) {
+    return <Navigate to="/" replace />;
+  }
+  
+  // If still loading, show loading spinner
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center bg-gradient-to-b from-emerald-50 to-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+      </div>
+    );
+  }
+  
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-emerald-50 to-gray-50 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">ยินดีต้อนรับ</CardTitle>
-          <CardDescription>
-            เข้าสู่ระบบเพื่อจัดการข้อมูล
-          </CardDescription>
+    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader>
+          <CardTitle className="text-2xl text-center">ระบบจัดการข้าว</CardTitle>
+          <CardDescription className="text-center">เข้าสู่ระบบหรือลงทะเบียนเพื่อใช้งาน</CardDescription>
         </CardHeader>
-        <CardContent className="pt-0">
-          <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="login">เข้าสู่ระบบ</TabsTrigger>
-              <TabsTrigger value="signup">สมัครสมาชิก</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="login">
-              <form onSubmit={handleLogin} className="space-y-4">
+        
+        <Tabs defaultValue="login" className="w-full">
+          <TabsList className="grid grid-cols-2 mb-4 mx-4">
+            <TabsTrigger value="login">เข้าสู่ระบบ</TabsTrigger>
+            <TabsTrigger value="register">ลงทะเบียน</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="login">
+            <form onSubmit={handleSignIn}>
+              <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="login-email">อีเมล</Label>
-                  <Input
+                  <Input 
                     id="login-email"
                     type="email"
-                    placeholder="you@example.com"
+                    placeholder="อีเมลของคุณ"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
-                    value={loginEmail}
-                    onChange={(e) => setLoginEmail(e.target.value)}
                   />
                 </div>
+                
                 <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <Label htmlFor="login-password">รหัสผ่าน</Label>
-                    <a href="#" className="text-xs text-emerald-600 hover:underline">
-                      ลืมรหัสผ่าน?
-                    </a>
-                  </div>
-                  <Input
+                  <Label htmlFor="login-password">รหัสผ่าน</Label>
+                  <Input 
                     id="login-password"
                     type="password"
+                    placeholder="รหัสผ่านของคุณ"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
                   />
                 </div>
+              </CardContent>
+              
+              <CardFooter>
                 <Button 
                   type="submit" 
                   className="w-full bg-emerald-600 hover:bg-emerald-700"
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                 >
-                  <LogIn className="mr-2 h-4 w-4" />
-                  {isLoading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
+                  {isSubmitting ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
                 </Button>
-              </form>
-            </TabsContent>
+              </CardFooter>
+            </form>
             
-            <TabsContent value="signup">
-              <form onSubmit={handleSignup} className="space-y-4">
+            <div className="px-6 pb-4 text-center">
+              <p className="text-sm text-muted-foreground mt-2">
+                <span className="block text-xs text-gray-500 mt-4">
+                  สำหรับการทดสอบ: ลงทะเบียนด้วย <br />
+                  user@example.com, admin@example.com หรือ superadmin@example.com <br />
+                  เพื่อทดสอบสิทธิ์แต่ละระดับ
+                </span>
+              </p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="register">
+            <form onSubmit={handleSignUp}>
+              <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="signup-email">อีเมล</Label>
-                  <Input
-                    id="signup-email"
+                  <Label htmlFor="register-email">อีเมล</Label>
+                  <Input 
+                    id="register-email"
                     type="email"
-                    placeholder="you@example.com"
+                    placeholder="อีเมลของคุณ"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
-                    value={signupEmail}
-                    onChange={(e) => setSignupEmail(e.target.value)}
                   />
                 </div>
+                
                 <div className="space-y-2">
-                  <Label htmlFor="signup-username">ชื่อผู้ใช้</Label>
-                  <Input
-                    id="signup-username"
-                    type="text"
-                    required
-                    value={signupUsername}
-                    onChange={(e) => setSignupUsername(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-fullname">ชื่อ-นามสกุล</Label>
-                  <Input
-                    id="signup-fullname"
-                    type="text"
-                    required
-                    value={signupFullName}
-                    onChange={(e) => setSignupFullName(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">รหัสผ่าน</Label>
-                  <Input
-                    id="signup-password"
+                  <Label htmlFor="register-password">รหัสผ่าน</Label>
+                  <Input 
+                    id="register-password"
                     type="password"
+                    placeholder="รหัสผ่านของคุณ"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
-                    value={signupPassword}
-                    onChange={(e) => setSignupPassword(e.target.value)}
                   />
                 </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-password">ยืนยันรหัสผ่าน</Label>
+                  <Input 
+                    id="confirm-password"
+                    type="password"
+                    placeholder="ยืนยันรหัสผ่านของคุณ"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                </div>
+              </CardContent>
+              
+              <CardFooter>
                 <Button 
                   type="submit" 
                   className="w-full bg-emerald-600 hover:bg-emerald-700"
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                 >
-                  <User className="mr-2 h-4 w-4" />
-                  {isLoading ? "กำลังสมัคร..." : "สมัครสมาชิก"}
+                  {isSubmitting ? "กำลังลงทะเบียน..." : "ลงทะเบียน"}
                 </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-        <CardFooter className="flex justify-center">
-          <p className="text-xs text-center text-gray-500">
-            การเข้าสู่ระบบถือว่าคุณยอมรับ{" "}
-            <a href="#" className="text-emerald-600 hover:underline">
-              ข้อกำหนดการใช้งาน
-            </a>
-            {" "}และ{" "}
-            <a href="#" className="text-emerald-600 hover:underline">
-              นโยบายความเป็นส่วนตัว
-            </a>
-          </p>
-        </CardFooter>
+              </CardFooter>
+            </form>
+          </TabsContent>
+        </Tabs>
       </Card>
     </div>
   );
