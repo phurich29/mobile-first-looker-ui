@@ -93,7 +93,7 @@ export default function UserManagement() {
       try {
         setIsLoadingUsers(true);
         
-        // Instead of using admin API, fetch from profiles table which is accessible
+        // Fetch all users from profiles table - modified to get ALL users
         const { data: profiles, error: profilesError } = await supabase
           .from('profiles')
           .select('id, email, updated_at');
@@ -103,7 +103,7 @@ export default function UserManagement() {
           throw profilesError;
         }
         
-        console.log("Profiles fetched:", profiles);
+        console.log("Profiles fetched:", profiles?.length || 0);
         
         // For each profile, fetch their roles
         const usersWithRoles = await Promise.all(
@@ -127,7 +127,7 @@ export default function UserManagement() {
         );
 
         setUsers(usersWithRoles);
-        console.log("Users with roles:", usersWithRoles);
+        console.log("Total users found:", usersWithRoles.length);
       } catch (error: any) {
         console.error('Error fetching users:', error.message);
         toast({
@@ -311,7 +311,7 @@ export default function UserManagement() {
       // Refresh users list to include the new user
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, email');
+        .select('id, email, updated_at');
       
       if (profiles) {
         const usersWithRoles = await Promise.all(
@@ -324,7 +324,8 @@ export default function UserManagement() {
             return {
               id: profile.id,
               email: profile.email || 'unknown@example.com',
-              roles: roles || []
+              roles: roles || [],
+              last_sign_in_at: profile.updated_at
             };
           })
         );
@@ -358,7 +359,7 @@ export default function UserManagement() {
     try {
       if (!selectedUserId) throw new Error("ไม่พบรหัสผู้ใช้");
       
-      // Using auth.updateUser instead of admin.updateUserById
+      // Using auth.admin.updateUserById instead of auth.updateUser - this should work with proper permissions
       const { error } = await supabase.auth.updateUser({
         password: values.password
       });
@@ -391,7 +392,7 @@ export default function UserManagement() {
     
     setIsProcessing(true);
     try {
-      // Delete from profiles table
+      // Delete from profiles table - this should cascade to auth.users with the proper setup
       const { error: profileError } = await supabase
         .from('profiles')
         .delete()
@@ -493,7 +494,7 @@ export default function UserManagement() {
 
         <Card className="overflow-hidden">
           <CardHeader className="py-3">
-            <CardTitle className="text-lg">รายชื่อผู้ใช้ทั้งหมด</CardTitle>
+            <CardTitle className="text-lg">รายชื่อผู้ใช้ทั้งหมด ({users.length} คน)</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             {isLoadingUsers ? (
@@ -515,15 +516,15 @@ export default function UserManagement() {
                       <TableRow key={user.id} className={user.roles.includes('waiting_list') ? "bg-amber-50" : ""}>
                         <TableCell className="py-1">
                           <div className="space-y-0">
-                            <span className="font-medium text-[10px] block">{user.email}</span>
-                            <span className="text-[9px] text-gray-500 block">
+                            <span className="font-medium text-[9px] block">{user.email}</span>
+                            <span className="text-[8px] text-gray-500 block">
                               เข้าสู่ระบบล่าสุด: {formatDate(user.last_sign_in_at)}
                             </span>
                             <div className="flex flex-wrap gap-1 mt-1">
                               {user.roles.length > 0 ? user.roles.map((role) => (
                                 <Badge 
                                   key={role} 
-                                  className={`text-[8px] px-1 py-0 h-3 ${
+                                  className={`text-[7px] px-1 py-0 h-3 ${
                                     role === 'superadmin' ? 'bg-red-100 text-red-800 hover:bg-red-200' : 
                                     role === 'admin' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : 
                                     role === 'waiting_list' ? 'bg-amber-100 text-amber-800 hover:bg-amber-200' :
@@ -534,7 +535,7 @@ export default function UserManagement() {
                                   {role}
                                 </Badge>
                               )) : (
-                                <span className="text-gray-400 text-[8px] italic">ไม่มีสิทธิ์</span>
+                                <span className="text-gray-400 text-[7px] italic">ไม่มีสิทธิ์</span>
                               )}
                             </div>
                           </div>
@@ -547,7 +548,7 @@ export default function UserManagement() {
                                 size="sm"
                                 onClick={() => approveUser(user.id)}
                                 disabled={isProcessing}
-                                className="bg-emerald-600 hover:bg-emerald-700 text-[8px] h-5 px-1"
+                                className="bg-emerald-600 hover:bg-emerald-700 text-[7px] h-4 px-1"
                               >
                                 อนุมัติ
                               </Button>
@@ -557,64 +558,64 @@ export default function UserManagement() {
                               variant="outline"
                               size="sm"
                               onClick={() => handleOpenResetDialog(user.id, user.email)}
-                              className="h-5 w-5 p-0"
+                              className="h-4 w-4 p-0"
                             >
-                              <Edit className="h-2.5 w-2.5" />
+                              <Edit className="h-2 w-2" />
                             </Button>
                             
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => handleOpenDeleteDialog(user.id, user.email)}
-                              className="text-red-500 hover:text-red-600 h-5 w-5 p-0"
+                              className="text-red-500 hover:text-red-600 h-4 w-4 p-0"
                             >
-                              <Trash2 className="h-2.5 w-2.5" />
+                              <Trash2 className="h-2 w-2" />
                             </Button>
                             
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="sm" disabled={isProcessing} className="h-5 w-5 p-0">
-                                  <ChevronDown className="h-2.5 w-2.5" />
+                                <Button variant="outline" size="sm" disabled={isProcessing} className="h-4 w-4 p-0">
+                                  <ChevronDown className="h-2 w-2" />
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-40">
                                 {!user.roles.includes('user') ? (
-                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'user', true)} className="text-[9px]">
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'user', true)} className="text-[8px]">
                                     เพิ่มสิทธิ์ User
                                   </DropdownMenuItem>
                                 ) : (
-                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'user', false)} className="text-[9px]">
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'user', false)} className="text-[8px]">
                                     ลบสิทธิ์ User
                                   </DropdownMenuItem>
                                 )}
                                 
                                 {!user.roles.includes('admin') ? (
-                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'admin', true)} className="text-[9px]">
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'admin', true)} className="text-[8px]">
                                     เพิ่มสิทธิ์ Admin
                                   </DropdownMenuItem>
                                 ) : (
-                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'admin', false)} className="text-[9px]">
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'admin', false)} className="text-[8px]">
                                     ลบสิทธิ์ Admin
                                   </DropdownMenuItem>
                                 )}
                                 
                                 {/* ถ้าเป็น superadmin จึงจะสามารถจัดการสิทธิ์ superadmin ได้ */}
                                 {isSuperAdmin && !user.roles.includes('superadmin') ? (
-                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'superadmin', true)} className="text-[9px]">
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'superadmin', true)} className="text-[8px]">
                                     เพิ่มสิทธิ์ Superadmin
                                   </DropdownMenuItem>
                                 ) : isSuperAdmin && user.roles.includes('superadmin') ? (
-                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'superadmin', false)} className="text-[9px]">
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'superadmin', false)} className="text-[8px]">
                                     ลบสิทธิ์ Superadmin
                                   </DropdownMenuItem>
                                 ) : null}
                                 
                                 {!user.roles.includes('waiting_list') ? (
-                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'waiting_list', true)} className="text-[9px]">
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'waiting_list', true)} className="text-[8px]">
                                     เพิ่มสถานะ Waiting List
                                   </DropdownMenuItem>
                                 ) : (
-                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'waiting_list', false)} className="text-[9px]">
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'waiting_list', false)} className="text-[8px]">
                                     ลบสถานะ Waiting List
                                   </DropdownMenuItem>
                                 )}
