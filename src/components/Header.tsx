@@ -1,16 +1,20 @@
-import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings } from "lucide-react";
+
+import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "./AuthProvider";
+
 export const Header = () => {
   const [open, setOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const isMobile = useIsMobile();
   const location = useLocation();
+  const { user } = useAuth();
 
   // ตรวจสอบหน้าที่ผู้ใช้กำลังอยู่เพื่อไฮไลท์เมนูที่ตรงกัน
   const isActive = (path: string) => location.pathname === path;
@@ -47,6 +51,7 @@ export const Header = () => {
     const seconds = currentTime.getSeconds().toString().padStart(2, '0');
     return `${hours}:${minutes}:${seconds}`;
   };
+  
   return <>
       {/* Sidebar for Desktop */}
       <div className={cn("fixed left-0 top-0 bottom-0 z-40 w-64 bg-white text-gray-800 transition-transform duration-300 ease-in-out shadow-sm border-r border-gray-100", sidebarOpen ? "translate-x-0" : "-translate-x-full", "md:translate-x-0" // แสดงเสมอในหน้าจอขนาดใหญ่
@@ -94,7 +99,25 @@ export const Header = () => {
               <BarChart2 className="h-5 w-5" />
               <span className="text-sm">รายการวัด</span>
             </Link>
+            
+            {user && (
+              <Link to="/logout" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors mt-auto text-red-600 hover:bg-red-50 hover:border hover:border-red-200")}>
+                <LogOut className="h-5 w-5" />
+                <span className="text-sm">ออกจากระบบ</span>
+              </Link>
+            )}
           </nav>
+          
+          <div className="mt-auto pt-4">
+            {user && (
+              <div className="border-t border-gray-200 pt-4">
+                <Link to="/logout" className="flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors text-red-600 hover:bg-red-50 hover:border hover:border-red-200">
+                  <LogOut className="h-5 w-5" />
+                  <span className="text-sm">ออกจากระบบ</span>
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
       
@@ -111,8 +134,15 @@ export const Header = () => {
           </div>
         </div>
       
-        <div className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center">
-          <Bell className="h-5 w-5 text-white" />
+        <div className="flex items-center gap-2">
+          {user && (
+            <Link to="/logout" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30">
+              <LogOut className="h-5 w-5 text-white" />
+            </Link>
+          )}
+          <div className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center">
+            <Bell className="h-5 w-5 text-white" />
+          </div>
         </div>
       </header>
     </>;
