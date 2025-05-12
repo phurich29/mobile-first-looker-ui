@@ -21,11 +21,11 @@ export default function Equipment() {
   const fetchDevices = async () => {
     setIsLoading(true);
     try {
-      // Query the device_settings table to get all device codes
+      // Query the rice_quality_analysis table to get all unique device codes
       const { data, error } = await supabase
-        .from("device_settings")
-        .select("device_code, updated_at")
-        .order("updated_at", { ascending: false });
+        .from("rice_quality_analysis")
+        .select("device_code, created_at")
+        .order("created_at", { ascending: false });
 
       if (error) {
         console.error("Error fetching devices:", error);
@@ -38,10 +38,21 @@ export default function Equipment() {
       }
 
       if (data) {
-        setDevices(data);
+        // Get unique device codes with their latest timestamps
+        const uniqueDevices = data.reduce((acc: DeviceInfo[], item) => {
+          if (item.device_code && !acc.some(device => device.device_code === item.device_code)) {
+            acc.push({
+              device_code: item.device_code,
+              updated_at: item.created_at
+            });
+          }
+          return acc;
+        }, []);
+
+        setDevices(uniqueDevices);
         toast({
           title: "สำเร็จ",
-          description: `พบ ${data.length} อุปกรณ์`,
+          description: `พบ ${uniqueDevices.length} อุปกรณ์`,
         });
       }
     } catch (error) {

@@ -35,4 +35,4 @@ export const EquipmentCard = ({ deviceCode, lastUpdated }: EquipmentCardProps) =
       </CardContent>
     </Card>
   );
-};
+}
