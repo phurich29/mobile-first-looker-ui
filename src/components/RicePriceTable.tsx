@@ -1,6 +1,7 @@
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { FileText, ExternalLink } from "lucide-react";
+import { FileText } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface RicePrice {
@@ -25,14 +26,17 @@ export function RicePriceTable() {
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-emerald-50">
               <TableHead className="w-3/4">วันที่</TableHead>
               <TableHead className="text-center">ราคาข้าว</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {ricePriceData.map((item, index) => (
-              <TableRow key={index}>
+              <TableRow 
+                key={index}
+                className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+              >
                 <TableCell className="font-medium">{item.date}</TableCell>
                 <TableCell className="text-center">
                   <TooltipProvider>
@@ -59,8 +63,6 @@ export function RicePriceTable() {
           </TableBody>
         </Table>
       </div>
-
-
     </div>
   );
 }
