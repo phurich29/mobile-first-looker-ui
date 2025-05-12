@@ -3,7 +3,7 @@ import { MeasurementItem } from "@/components/MeasurementItem";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRef, useState, useEffect } from "react";
-import { Square, Wheat, Blend, Circle } from "lucide-react";
+import { Square, Wheat, Circle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
@@ -94,7 +94,7 @@ export default function Measurements() {
     return data;
   };
 
-  // ใช้ React Query สำหรับดึงข้อมูล
+  // ใช้ React Query สำหรับ���ึงข้อมูล
   const { data: wholeGrainData, isLoading: isLoadingWholeGrain } = useQuery({
     queryKey: ['wholeGrainData'],
     queryFn: fetchWholeGrainData,
@@ -348,7 +348,7 @@ export default function Measurements() {
                     value="ingredients" 
                     className="whitespace-nowrap min-w-[130px] flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md px-4"
                   >
-                    <Blend className="h-4 w-4 flex-shrink-0" />
+                    <Wheat className="h-4 w-4 flex-shrink-0" />
                     <span>ส่วนผสม (%)</span>
                   </TabsTrigger>
                   <TabsTrigger 
