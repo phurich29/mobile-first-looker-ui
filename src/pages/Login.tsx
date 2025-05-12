@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState("login");
   
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,20 +80,37 @@ export default function Login() {
     
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.auth.signUp({
+      const { error, data } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/login`,
-        },
       });
       
       if (error) throw error;
       
+      if (data.user && data.user.identities && data.user.identities.length === 0) {
+        toast({
+          title: "อีเมลนี้มีผู้ใช้งานแล้ว",
+          description: "กรุณาลงชื่อเข้าใช้หรือใช้อีเมลอื่น",
+          variant: "destructive",
+        });
+        setActiveTab("login");
+        return;
+      }
+      
       toast({
         title: "ลงทะเบียนสำเร็จ",
-        description: "กรุณาตรวจสอบอีเมลเพื่อยืนยันตัวตน",
+        description: "กำลังนำท่านเข้าสู่ระบบ",
       });
+      
+      // Auto login after successful registration
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (!signInError) {
+        navigate("/");
+      }
     } catch (error: any) {
       toast({
         title: "ลงทะเบียนไม่สำเร็จ",
@@ -161,7 +180,12 @@ export default function Login() {
           <CardDescription className="text-center">เข้าสู่ระบบหรือลงทะเบียนเพื่อใช้งาน</CardDescription>
         </CardHeader>
         
-        <Tabs defaultValue="login" className="w-full">
+        <Tabs 
+          defaultValue="login" 
+          value={activeTab} 
+          onValueChange={setActiveTab}
+          className="w-full"
+        >
           <TabsList className="grid grid-cols-2 mb-4 mx-4">
             <TabsTrigger value="login">เข้าสู่ระบบ</TabsTrigger>
             <TabsTrigger value="register">ลงทะเบียน</TabsTrigger>
