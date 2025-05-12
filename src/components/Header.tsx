@@ -1,5 +1,5 @@
 
-import { Bell, Menu, Home, Rice } from "lucide-react";
+import { Bell, Menu, Home, Wheat } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -31,7 +31,7 @@ export const Header = () => {
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link to="/rice-prices" className="flex items-center gap-2 w-full">
-              <Rice className="h-4 w-4" />
+              <Wheat className="h-4 w-4" />
               <span>ราคาข้าว</span>
             </Link>
           </DropdownMenuItem>
@@ -45,7 +45,7 @@ export const Header = () => {
           <span>หน้าหลัก</span>
         </Link>
         <Link to="/rice-prices" className="flex items-center gap-2 hover:text-emerald-200 transition-colors">
-          <Rice className="h-5 w-5" />
+          <Wheat className="h-5 w-5" />
           <span>ราคาข้าว</span>
         </Link>
       </nav>
