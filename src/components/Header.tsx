@@ -1,5 +1,5 @@
 
-import { Bell, Menu, Home, Wheat, BarChart2, User, X } from "lucide-react";
+import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -79,6 +79,17 @@ export const Header = () => {
             >
               <Wheat className="h-5 w-5" />
               <span className="text-base">ราคาข้าว</span>
+            </Link>
+            
+            <Link 
+              to="/equipment" 
+              className={cn(
+                "flex items-center gap-3 py-2 px-3 rounded-lg transition-colors",
+                isActive("/equipment") ? "bg-emerald-700 text-white" : "hover:bg-emerald-700/50"
+              )}
+            >
+              <Settings className="h-5 w-5" />
+              <span className="text-base">อุปกรณ์</span>
             </Link>
             
             <Link 
