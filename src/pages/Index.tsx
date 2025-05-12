@@ -5,6 +5,7 @@ import { WatchlistItem } from "@/components/WatchlistItem";
 import { SectionHeader } from "@/components/SectionHeader";
 import { NewsCarousel } from "@/components/NewsCarousel";
 import { NewsSlider } from "@/components/NewsSlider";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import useEmblaCarousel from 'embla-carousel-react';
 import { useState, useEffect, useCallback } from 'react';
 
@@ -17,20 +18,29 @@ const Index = () => {
   });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
+  const [isStart, setIsStart] = useState(true);
+  const [isEnd, setIsEnd] = useState(false);
 
   useEffect(() => {
     if (!emblaApi) return;
     
     const onSelect = () => {
       setSelectedIndex(emblaApi.selectedScrollSnap());
+      setIsStart(emblaApi.scrollProgress() === 0);
+      setIsEnd(emblaApi.scrollProgress() === 1);
     };
     
     const onScroll = () => {
-      setScrollProgress(emblaApi.scrollProgress());
+      const progress = emblaApi.scrollProgress();
+      setScrollProgress(progress);
+      setIsStart(progress === 0);
+      setIsEnd(progress === 1);
     };
     
     emblaApi.on('select', onSelect);
     emblaApi.on('scroll', onScroll);
+    setScrollSnaps(emblaApi.scrollSnapList());
     
     // Sync initial states
     onSelect();
@@ -139,7 +149,7 @@ const Index = () => {
                 ))}
               </div>
             </div>
-            {/* Scroll bar แบบสมมาตรฐาน UI/UX และสามารถคลิกเพื่อเลื่อนได้ */}
+            {/* ปรับปรุง Scroll bar ให้สมมาตร และทำงานได้ถูกต้อง */}
             <div className="w-full px-8 mt-[-8px] mb-2">
               <div 
                 className="relative h-2 bg-gray-200/50 rounded-full cursor-pointer"
@@ -148,35 +158,26 @@ const Index = () => {
                   const rect = e.currentTarget.getBoundingClientRect();
                   const x = e.clientX - rect.left;
                   const percentPosition = x / rect.width;
-                  const slideCount = emblaApi.slideNodes().length;
-                  const targetIndex = Math.min(
-                    Math.floor(percentPosition * slideCount),
-                    slideCount - 1
-                  );
-                  emblaApi.scrollTo(targetIndex);
+                  emblaApi.scrollTo(Math.floor(percentPosition * scrollSnaps.length));
                 }}
               >
+                {/* ปรับปรุง scrollbar thumb สำหรับการแสดงตำแหน่งที่ถูกต้อง */}
                 {emblaApi && (() => {
-                  const slideCount = emblaApi.slideNodes().length;
+                  // คำนวณความกว้างของ thumb ตามสัดส่วนของเนื้อหาที่มองเห็น
+                  const thumbWidthPercent = Math.max(16, emblaApi.slideNodes().length > 0 
+                    ? (emblaApi.containerNode().clientWidth / (emblaApi.slideNodes().length * 193)) * 100
+                    : 16);
                   
-                  // ขนาด thumb คงที่ เพื่อความสวยงามและเป็นมาตรฐาน
-                  const thumbWidth = 16;
-                  
-                  // คำนวณตำแหน่งแบบ discrete steps ตาม selectedIndex
-                  // จำนวนตำแหน่งที่เป็นไปได้ = จำนวน slide ทั้งหมด
-                  const segments = slideCount - 1 || 1;
-                  const maxTranslate = 100 - thumbWidth;
-                  
-                  // ใช้ selectedIndex จะได้ตำแหน่งที่แม่นยำและสมมาตรกว่า
-                  const translatePercent = selectedIndex === 0 ? 0 : 
-                                         (selectedIndex / segments) * maxTranslate;
+                  // คำนวณตำแหน่งที่ถูกต้องตามความก้าวหน้าของการเลื่อน
+                  const maxThumbPosition = 100 - thumbWidthPercent;
+                  const thumbPosition = isStart ? 0 : isEnd ? maxThumbPosition : scrollProgress * maxThumbPosition;
                   
                   return (
                     <div
-                      className="absolute left-0 top-0 h-full bg-white rounded-full shadow-sm transition-transform duration-200"
+                      className="absolute left-0 top-0 h-full bg-emerald-500 rounded-full shadow-sm transition-transform duration-150"
                       style={{
-                        width: `${thumbWidth}%`,
-                        transform: `translateX(${translatePercent}%)`
+                        width: `${thumbWidthPercent}%`,
+                        transform: `translateX(${thumbPosition}%)`
                       }}
                     ></div>
                   );
