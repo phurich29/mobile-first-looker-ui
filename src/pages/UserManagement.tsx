@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { Header } from "@/components/Header";
@@ -108,7 +107,7 @@ export default function UserManagement() {
             user_id: userId, 
             role: role 
           });
-
+        
         if (error) {
           if (error.code === '23505') { // Unique violation - role already exists
             toast({
@@ -120,7 +119,7 @@ export default function UserManagement() {
           }
           throw error;
         }
-
+        
         toast({
           title: "เพิ่มบทบาทสำเร็จ",
           description: `เพิ่มบทบาท ${role} ให้ผู้ใช้สำเร็จ`,
@@ -131,15 +130,15 @@ export default function UserManagement() {
           .from('user_roles')
           .delete()
           .match({ user_id: userId, role: role });
-
+        
         if (error) throw error;
-
+        
         toast({
           title: "ลบบทบาทสำเร็จ",
           description: `ลบบทบาท ${role} ออกจากผู้ใช้สำเร็จ`,
         });
       }
-
+      
       // Refresh the users list
       const updatedUsers = await Promise.all(
         users.map(async (user) => {
@@ -153,12 +152,80 @@ export default function UserManagement() {
           return user;
         })
       );
-
+      
       setUsers(updatedUsers);
     } catch (error: any) {
       console.error('Error changing role:', error.message);
       toast({
         title: "เปลี่ยนบทบาทไม่สำเร็จ",
+        description: error.message || "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Approve a user from waiting list (add 'user' role and remove 'waiting_list')
+  const approveUser = async (userId: string) => {
+    if (!userRoles.includes('superadmin')) {
+      toast({
+        title: "ไม่มีสิทธิ์",
+        description: "เฉพาะ Superadmin เท่านั้นที่สามารถอนุมัติผู้ใช้",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      // First, add the 'user' role
+      const { error: addError } = await supabase
+        .from('user_roles')
+        .insert({ 
+          user_id: userId, 
+          role: 'user' as Database["public"]["Enums"]["app_role"]
+        });
+
+      if (addError && addError.code !== '23505') { // Ignore duplicate key errors
+        throw addError;
+      }
+      
+      // Then remove the 'waiting_list' role
+      const { error: removeError } = await supabase
+        .from('user_roles')
+        .delete()
+        .match({ 
+          user_id: userId, 
+          role: 'waiting_list' as Database["public"]["Enums"]["app_role"] 
+        });
+
+      if (removeError) throw removeError;
+      
+      toast({
+        title: "อนุมัติผู้ใช้สำเร็จ",
+        description: "ผู้ใช้ได้รับการอนุมัติและสามารถใช้งานระบบได้แล้ว",
+      });
+      
+      // Refresh the users list
+      const updatedUsers = await Promise.all(
+        users.map(async (user) => {
+          if (user.id === userId) {
+            const { data: roles } = await supabase.rpc(
+              'get_user_roles',
+              { user_id: userId }
+            );
+            return { ...user, roles: roles || [] };
+          }
+          return user;
+        })
+      );
+      
+      setUsers(updatedUsers);
+    } catch (error: any) {
+      console.error('Error approving user:', error.message);
+      toast({
+        title: "อนุมัติผู้ใช้ไม่สำเร็จ",
         description: error.message || "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
         variant: "destructive",
       });
@@ -299,9 +366,12 @@ export default function UserManagement() {
                 </TableHeader>
                 <TableBody>
                   {users.map((user) => (
-                    <TableRow key={user.id}>
+                    <TableRow key={user.id} className={user.roles.includes('waiting_list') ? "bg-amber-50" : ""}>
                       <TableCell>
                         <div className="font-medium">{user.email}</div>
+                        {user.roles.includes('waiting_list') && !user.roles.includes('user') && (
+                          <span className="text-xs text-amber-600 font-medium">รอการอนุมัติ</span>
+                        )}
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
@@ -311,6 +381,7 @@ export default function UserManagement() {
                               className={
                                 role === 'superadmin' ? 'bg-red-100 text-red-800 hover:bg-red-200' : 
                                 role === 'admin' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : 
+                                role === 'waiting_list' ? 'bg-amber-100 text-amber-800 hover:bg-amber-200' :
                                 'bg-green-100 text-green-800 hover:bg-green-200'
                               }
                               variant="outline"
@@ -323,6 +394,18 @@ export default function UserManagement() {
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
+                        {user.roles.includes('waiting_list') && !user.roles.includes('user') && (
+                          <Button 
+                            variant="default" 
+                            size="sm" 
+                            onClick={() => approveUser(user.id)}
+                            disabled={isProcessing}
+                            className="bg-emerald-600 hover:bg-emerald-700 mr-2"
+                          >
+                            {isProcessing ? "กำลังอนุมัติ..." : "อนุมัติ"}
+                          </Button>
+                        )}
+                        
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="outline" size="sm" disabled={isProcessing}>
@@ -364,6 +447,16 @@ export default function UserManagement() {
                             ) : (
                               <DropdownMenuItem onClick={() => changeUserRole(user.id, 'superadmin', false)}>
                                 ลบสิทธิ์ Superadmin
+                              </DropdownMenuItem>
+                            )}
+                            
+                            {!user.roles.includes('waiting_list') ? (
+                              <DropdownMenuItem onClick={() => changeUserRole(user.id, 'waiting_list', true)}>
+                                เพิ่มสถานะ Waiting List
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem onClick={() => changeUserRole(user.id, 'waiting_list', false)}>
+                                ลบสถานะ Waiting List
                               </DropdownMenuItem>
                             )}
                           </DropdownMenuContent>

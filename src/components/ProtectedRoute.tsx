@@ -29,15 +29,25 @@ export const ProtectedRoute = ({
     );
   }
 
-  // Check if the user is logged in and has the required role (if specified)
-  const hasRequiredRole =
-    requiredRoles.length === 0 ||
-    requiredRoles.some((role) => userRoles.includes(role));
-
+  // Check if the user is logged in
   if (!user) {
     console.log("User not logged in, redirecting to", redirectTo);
     return <Navigate to={redirectTo} replace />;
   }
+  
+  // If user is only in waiting_list (and doesn't have other roles), redirect to waiting page
+  if (userRoles.includes('waiting_list') && 
+      !userRoles.includes('user') && 
+      !userRoles.includes('admin') && 
+      !userRoles.includes('superadmin')) {
+    console.log("User is in waiting list only, redirecting to waiting page");
+    return <Navigate to="/waiting" replace />;
+  }
+
+  // Check if the user has the required role (if specified)
+  const hasRequiredRole =
+    requiredRoles.length === 0 ||
+    requiredRoles.some((role) => userRoles.includes(role));
   
   if (!hasRequiredRole) {
     console.log("User doesn't have required role, redirecting to", redirectTo);
