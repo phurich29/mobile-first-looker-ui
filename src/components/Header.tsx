@@ -1,3 +1,4 @@
+
 import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
@@ -63,22 +64,34 @@ export const Header = () => {
           </div>
           
           <nav className="flex flex-col space-y-1 mt-4">
-            <Link to="/" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/") ? "bg-emerald-50 text-emerald-600 font-medium" : "hover:bg-gray-50 text-gray-700")}>
+            <Link to="/" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
+              isActive("/") 
+                ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" 
+                : "hover:bg-gray-50 text-gray-700")}>
               <Home className="h-5 w-5" />
               <span className="text-sm">หน้าหลัก</span>
             </Link>
             
-            <Link to="/rice-prices" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/rice-prices") ? "bg-emerald-50 text-emerald-600 font-medium" : "hover:bg-gray-50 text-gray-700")}>
+            <Link to="/rice-prices" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
+              isActive("/rice-prices") 
+                ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" 
+                : "hover:bg-gray-50 text-gray-700")}>
               <Wheat className="h-5 w-5" />
               <span className="text-sm">ราคาข้าว</span>
             </Link>
             
-            <Link to="/equipment" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/equipment") ? "bg-emerald-50 text-emerald-600 font-medium" : "hover:bg-gray-50 text-gray-700")}>
+            <Link to="/equipment" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
+              isActive("/equipment") 
+                ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" 
+                : "hover:bg-gray-50 text-gray-700")}>
               <Settings className="h-5 w-5" />
               <span className="text-sm">อุปกรณ์</span>
             </Link>
             
-            <Link to="/measurements" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/measurements") ? "bg-emerald-50 text-emerald-600 font-medium" : "hover:bg-gray-50 text-gray-700")}>
+            <Link to="/measurements" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
+              isActive("/measurements") 
+                ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" 
+                : "hover:bg-gray-50 text-gray-700")}>
               <BarChart2 className="h-5 w-5" />
               <span className="text-sm">รายการวัด</span>
             </Link>
