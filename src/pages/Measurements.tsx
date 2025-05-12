@@ -145,7 +145,7 @@ export default function Measurements() {
         </div>
 
         {/* แท็บสำหรับเลือกประเภท */}
-        <div className="px-4 mb-4">
+        <div className="mb-4">
           <Tabs defaultValue="all" className="w-full">
             <div className="relative w-full overflow-hidden">
               <div 
@@ -161,7 +161,7 @@ export default function Measurements() {
                 style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
               >
                 <TabsList 
-                  className="flex min-w-max h-12 bg-white border border-gray-200 rounded-lg p-1 space-x-1 overflow-visible"
+                  className="flex min-w-max h-12 bg-white border-y border-gray-200 p-1 space-x-1 overflow-visible"
                   style={{ paddingLeft: '0.25rem', paddingRight: '0.25rem' }}
                 >
                   <TabsTrigger 
@@ -194,8 +194,6 @@ export default function Measurements() {
                   </TabsTrigger>
                 </TabsList>
               </div>
-              <div className="absolute top-0 right-0 h-full w-8 bg-gradient-to-l from-white to-transparent pointer-events-none opacity-70"></div>
-              <div className="absolute top-0 left-0 h-full w-8 bg-gradient-to-r from-white to-transparent pointer-events-none opacity-70"></div>
             </div>
             
             <TabsContent value="all" className="mt-4">
