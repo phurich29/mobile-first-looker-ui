@@ -14,11 +14,21 @@ import { useIsMobile } from "@/hooks/use-mobile";
 export const Header = () => {
   const [open, setOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const isMobile = useIsMobile();
   const location = useLocation();
   
   // ตรวจสอบหน้าที่ผู้ใช้กำลังอยู่เพื่อไฮไลท์เมนูที่ตรงกัน
   const isActive = (path: string) => location.pathname === path;
+  
+  // อัพเดทเวลาทุกๆ 1 วินาที
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, []);
   
   // ทำงานเมื่อหน้าจอเปลี่ยนขนาด
   useEffect(() => {
@@ -36,6 +46,14 @@ export const Header = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+  
+  // ฟังก์ชันแสดงเวลาในรูปแบบ HH:MM:SS
+  const formatTime = () => {
+    const hours = currentTime.getHours().toString().padStart(2, '0');
+    const minutes = currentTime.getMinutes().toString().padStart(2, '0');
+    const seconds = currentTime.getSeconds().toString().padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
+  };
   
   return (
     <>
@@ -112,13 +130,15 @@ export const Header = () => {
           <Menu className="h-6 w-6" />
         </Button>
 
+        {/* Minimal Digital Clock */}
+        <div className="bg-black/30 px-3 py-1 rounded-md backdrop-blur-sm flex-1 md:flex-none mx-2 md:mx-0">
+          <p className="text-sm font-medium tracking-wider text-center">{formatTime()}</p>
+        </div>
       
-      <h1 className="text-xl font-semibold text-center flex-1 md:text-left">Home</h1>
-      
-      <div className="bg-white rounded-full w-10 h-10 flex items-center justify-center shadow-sm">
-        <Bell className="h-5 w-5 text-emerald-600" />
-      </div>
-    </header>
+        <div className="bg-white rounded-full w-10 h-10 flex items-center justify-center shadow-sm">
+          <Bell className="h-5 w-5 text-emerald-600" />
+        </div>
+      </header>
     </>
   );
 };
