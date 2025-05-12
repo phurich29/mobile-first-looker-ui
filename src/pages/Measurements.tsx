@@ -5,6 +5,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRef, useState, useEffect } from "react";
 import { Square, Wheat, Blend, Circle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Measurements() {
   // สร้าง state และ ref สำหรับฟังก์ชันการลาก (Drag)
@@ -60,6 +62,71 @@ export default function Measurements() {
       document.removeEventListener('touchend', handleDragEnd);
     };
   }, []);
+
+  // ดึงข้อมูลจาก Supabase
+  const fetchWholeGrainData = async () => {
+    const { data, error } = await supabase
+      .from('rice_quality_analysis')
+      .select('id, class1, class2, class3, short_grain, slender_kernel, created_at')
+      .order('created_at', { ascending: false })
+      .limit(10);
+    
+    if (error) {
+      console.error('Error fetching whole grain data:', error);
+      throw new Error(error.message);
+    }
+    
+    return data;
+  };
+
+  // ใช้ React Query สำหรับดึงข้อมูล
+  const { data: wholeGrainData, isLoading: isLoadingWholeGrain } = useQuery({
+    queryKey: ['wholeGrainData'],
+    queryFn: fetchWholeGrainData,
+  });
+
+  // แปลงข้อมูลให้อยู่ในรูปแบบที่ใช้กับ MeasurementItem
+  const formatWholeGrainItems = () => {
+    if (!wholeGrainData) return [];
+    
+    return wholeGrainData.map(item => [
+      {
+        symbol: "CLASS1",
+        name: "ชั้นที่ 1",
+        price: item.class1?.toString() || "0",
+        percentageChange: 0,
+        iconColor: "#F7931A",
+      },
+      {
+        symbol: "CLASS2",
+        name: "ชั้นที่ 2",
+        price: item.class2?.toString() || "0",
+        percentageChange: 0,
+        iconColor: "#627EEA",
+      },
+      {
+        symbol: "CLASS3",
+        name: "ชั้นที่ 3",
+        price: item.class3?.toString() || "0",
+        percentageChange: 0,
+        iconColor: "#F3BA2F",
+      },
+      {
+        symbol: "SHORT GRAIN",
+        name: "เมล็ดสั้น",
+        price: item.short_grain?.toString() || "0",
+        percentageChange: 0,
+        iconColor: "#23292F",
+      },
+      {
+        symbol: "SLENDER KERNEL",
+        name: "เมล็ดยาวเรียว",
+        price: item.slender_kernel?.toString() || "0",
+        percentageChange: 0,
+        iconColor: "#345D9D",
+      },
+    ]).flat();
+  };
 
   // ข้อมูลทดสอบสำหรับรายการการวัด
   const measurements = [
@@ -214,17 +281,26 @@ export default function Measurements() {
             
             <TabsContent value="wholegrain" className="mt-4">
               <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
-                {/* แสดงเฉพาะรายการพื้นข้าวเต้มเมล็ด */}
-                {measurements.slice(0, 3).map((item, index) => (
-                  <MeasurementItem
-                    key={index}
-                    symbol={item.symbol}
-                    name={item.name}
-                    price={item.price}
-                    percentageChange={item.percentageChange}
-                    iconColor={item.iconColor}
-                  />
-                ))}
+                {isLoadingWholeGrain ? (
+                  <div className="flex justify-center items-center p-10">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+                  </div>
+                ) : formatWholeGrainItems().length > 0 ? (
+                  formatWholeGrainItems().map((item, index) => (
+                    <MeasurementItem
+                      key={index}
+                      symbol={item.symbol}
+                      name={item.name}
+                      price={item.price}
+                      percentageChange={item.percentageChange}
+                      iconColor={item.iconColor}
+                    />
+                  ))
+                ) : (
+                  <div className="p-6 text-center text-gray-500">
+                    ไม่พบข้อมูลพื้นข้าวเต็มเมล็ด
+                  </div>
+                )}
               </div>
             </TabsContent>
             
