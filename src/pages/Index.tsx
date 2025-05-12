@@ -1,4 +1,3 @@
-
 import { Header } from "@/components/Header";
 import { AssetCard } from "@/components/AssetCard";
 import { WatchlistItem } from "@/components/WatchlistItem";
@@ -28,14 +27,14 @@ const Index = () => {
     const onSelect = () => {
       setSelectedIndex(emblaApi.selectedScrollSnap());
       setIsStart(emblaApi.scrollProgress() === 0);
-      setIsEnd(emblaApi.scrollProgress() === 1);
+      setIsEnd(emblaApi.scrollProgress() >= 0.99); // ปรับให้ตรวจจับการเลื่อนใกล้สุด
     };
     
     const onScroll = () => {
       const progress = emblaApi.scrollProgress();
       setScrollProgress(progress);
       setIsStart(progress === 0);
-      setIsEnd(progress === 1);
+      setIsEnd(progress >= 0.99); // ปรับให้ตรวจจับการเลื่อนใกล้สุด
     };
     
     emblaApi.on('select', onSelect);
@@ -51,6 +50,7 @@ const Index = () => {
       emblaApi.off('scroll', onScroll);
     };
   }, [emblaApi]);
+  
   // Sample data for rice prices
   const riceUpdates = [
     {
@@ -173,22 +173,21 @@ const Index = () => {
                   // ประกันความกว้างน้อยสุดของ thumb
                   const thumbWidthPercent = Math.max(15, (visibleWidth / totalWidth) * 100);
                   
-                  // คำนวณตำแหน่งที่ถูกต้องสำหรับการเลื่อนสุด
-                  const maxScrollDistance = totalWidth - visibleWidth;
-                  const currentScrollDistance = maxScrollDistance * scrollProgress;
-                  const scrollProgressPercent = maxScrollDistance > 0 
-                    ? currentScrollDistance / maxScrollDistance 
-                    : 0;
-                  
-                  // คำนวณตำแหน่งสุดท้ายที่ thumb สามารถเลื่อนไปได้
+                  // แก้ไขการคำนวณตำแหน่งสุดท้าย
                   const maxThumbPosition = 100 - thumbWidthPercent;
-                  let thumbPosition = maxThumbPosition * scrollProgressPercent;
                   
-                  // ตรวจสอบว่าถ้าเลื่อนไปทางขวาสุดแล้วให้ติดขอบขวาพอดี
+                  // แก้ไขตำแหน่งของ thumb
+                  let thumbPosition;
+                  
                   if (isEnd) {
+                    // เมื่ออยู่ขวาสุดให้ตำแหน่ง thumb อยู่ขวาสุดพอดี
                     thumbPosition = maxThumbPosition;
                   } else if (isStart) {
+                    // เมื่ออยู่ซ้ายสุดให้ตำแหน่ง thumb อยู่ซ้ายสุดพอดี
                     thumbPosition = 0;
+                  } else {
+                    // คำนวณตำแหน่งกลาง
+                    thumbPosition = scrollProgress * maxThumbPosition;
                   }
                   
                   return (
