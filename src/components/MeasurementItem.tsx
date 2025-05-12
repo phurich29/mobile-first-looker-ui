@@ -1,6 +1,6 @@
 
 import React from "react";
-import { ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowUp, ArrowDown, Wheat } from "lucide-react";
 
 type MeasurementItemProps = {
   symbol: string;
@@ -27,6 +27,18 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
                 symbol.includes('BNB') ? 'bg-yellow-50' :
                 symbol.includes('XRP') ? 'bg-indigo-50' :
                 symbol.includes('LTC') ? 'bg-gray-50' : 'bg-purple-50';
+  
+  // Get icon based on category
+  const getIcon = () => {
+    if (symbol.includes('class') || 
+        symbol === 'short_grain' || 
+        symbol === 'slender_kernel' ||
+        symbol.includes('ข้าว')) {
+      return <Wheat className="w-5 h-5 text-white" />;
+    }
+    
+    return <span className="text-white font-bold text-sm relative z-10">{symbol.split('/')[0]}</span>;
+  };
   
   // Format the Bangkok time (+7)
   const formatBangkokTime = (date?: Date) => {
@@ -58,7 +70,7 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
         >
           <div className="absolute inset-0 bg-white/10"></div>
           <div className="absolute top-0 left-0 w-3 h-3 bg-white/30 rounded-full blur-sm"></div>
-          <span className="text-white font-bold text-sm relative z-10">{symbol.split('/')[0]}</span>
+          {getIcon()}
         </div>
         <div className="px-3 py-2">
           <div className="flex flex-col">
