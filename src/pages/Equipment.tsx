@@ -1,38 +1,101 @@
 
+import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
-import { Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { EquipmentCard } from "@/components/EquipmentCard";
+import { supabase } from "@/integrations/supabase/client";
+import { RefreshCw } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+interface DeviceInfo {
+  device_code: string;
+  updated_at: string | null;
+}
 
 export default function Equipment() {
+  const [devices, setDevices] = useState<DeviceInfo[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  // Function to fetch devices from Supabase
+  const fetchDevices = async () => {
+    setIsLoading(true);
+    try {
+      // Query the device_settings table to get all device codes
+      const { data, error } = await supabase
+        .from("device_settings")
+        .select("device_code, updated_at")
+        .order("updated_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching devices:", error);
+        toast({
+          title: "เกิดข้อผิดพลาด",
+          description: "ไม่สามารถดึงข้อมูลอุปกรณ์ได้",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data) {
+        setDevices(data);
+        toast({
+          title: "สำเร็จ",
+          description: `พบ ${data.length} อุปกรณ์`,
+        });
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "มีข้อผิดพลาดไม่คาดคิดเกิดขึ้น",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch devices on initial load
+  useEffect(() => {
+    fetchDevices();
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
       <Header />
       <main className="flex-1 p-4 pb-28">
-        <h1 className="text-2xl font-bold mb-4">อุปกรณ์</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-          <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
-            <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4">
-              <Settings className="h-6 w-6 text-emerald-600" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">เครื่องวัดความชื้น</h3>
-            <p className="text-gray-600">อุปกรณ์สำหรับวัดความชื้นในเมล็ดข้าว</p>
-          </div>
-          
-          <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
-            <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4">
-              <Settings className="h-6 w-6 text-emerald-600" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">เครื่องคัดแยกข้าว</h3>
-            <p className="text-gray-600">อุปกรณ์สำหรับคัดแยกเมล็ดข้าว</p>
-          </div>
-          
-          <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
-            <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4">
-              <Settings className="h-6 w-6 text-emerald-600" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">เครื่องวัดความขาว</h3>
-            <p className="text-gray-600">อุปกรณ์สำหรับวัดความขาวของเมล็ดข้าว</p>
-          </div>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">อุปกรณ์</h1>
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="flex items-center gap-2 border-emerald-200 bg-white hover:bg-emerald-50"
+            onClick={fetchDevices} 
+            disabled={isLoading}
+          >
+            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <span>รีเฟรช</span>
+          </Button>
         </div>
+        
+        {devices.length === 0 ? (
+          <div className="bg-white p-8 rounded-xl text-center shadow-sm">
+            <p className="text-gray-500">
+              {isLoading ? "กำลังดึงข้อมูลอุปกรณ์..." : "ไม่พบอุปกรณ์ กรุณากดปุ่มรีเฟรชเพื่อค้นหาอุปกรณ์"}
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+            {devices.map((device) => (
+              <EquipmentCard
+                key={device.device_code}
+                deviceCode={device.device_code}
+                lastUpdated={device.updated_at}
+              />
+            ))}
+          </div>
+        )}
       </main>
 
       {/* Navigation bar */}
