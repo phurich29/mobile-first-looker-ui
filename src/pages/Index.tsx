@@ -1,3 +1,4 @@
+
 import { Header } from "@/components/Header";
 import { AssetCard } from "@/components/AssetCard";
 import { WatchlistItem } from "@/components/WatchlistItem";
@@ -7,6 +8,7 @@ import { NewsSlider } from "@/components/NewsSlider";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import useEmblaCarousel from 'embla-carousel-react';
 import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 
 const Index = () => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
@@ -129,7 +131,7 @@ const Index = () => {
           
           <div className="px-4 mb-3 flex justify-between items-center">
             <h2 className="font-semibold text-gray-700">ราคาข้าว จากสมาคมโรงสีข้าวไทย</h2>
-            <button className="text-sm text-green-600 font-medium">ดูทั้งหมด</button>
+            <Link to="/rice-prices" className="text-sm text-green-600 font-medium">ดูทั้งหมด</Link>
           </div>
           <div className="mb-7 relative">
             {/* กรอบบังคับขอบการเลื่อน */}
