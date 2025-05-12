@@ -1,4 +1,3 @@
-
 import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
@@ -100,10 +99,14 @@ export const Header = () => {
               <span className="text-sm">รายการวัด</span>
             </Link>
             
+            {/* เพิ่มเมนูข้อมูลส่วนตัว */}
             {user && (
-              <Link to="/logout" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors mt-auto text-red-600 hover:bg-red-50 hover:border hover:border-red-200")}>
-                <LogOut className="h-5 w-5" />
-                <span className="text-sm">ออกจากระบบ</span>
+              <Link to="/profile" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
+                isActive("/profile") 
+                  ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" 
+                  : "hover:bg-gray-50 text-gray-700")}>
+                <User className="h-5 w-5" />
+                <span className="text-sm">ข้อมูลส่วนตัว</span>
               </Link>
             )}
           </nav>
@@ -135,6 +138,11 @@ export const Header = () => {
         </div>
       
         <div className="flex items-center gap-2">
+          {user && (
+            <Link to="/profile" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30">
+              <User className="h-5 w-5 text-white" />
+            </Link>
+          )}
           {user && (
             <Link to="/logout" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30">
               <LogOut className="h-5 w-5 text-white" />

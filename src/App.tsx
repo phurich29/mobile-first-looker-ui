@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
@@ -9,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import RicePrices from "./pages/RicePrices";
 import UserManagement from "./pages/UserManagement";
 import Waiting from "./pages/Waiting";
+import Profile from "./pages/Profile";
 import { AuthProvider, useAuth } from "./components/AuthProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useEffect } from "react";
@@ -32,33 +32,6 @@ function LogoutRoute() {
     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
   </div>;
 }
-
-// กำหนดให้เฉพาะผู้ที่ล็อกอินและมีสิทธิ์อนุมัติแล้วเท่านั้นที่สามารถเข้าถึงพื้นที่หวงห้ามได้
-// หากเป็น waiting_list จะถูกเปลี่ยนเส้นทางไปยังหน้า waiting
-// ไม่จำเป็นต้องมีแล้วเนื่องจากเราใช้ ProtectedRoute ที่ปรับปรุงแล้ว
-// function WaitingListGuard({ children }: { children: React.ReactNode }) {
-//   const { user, userRoles, isLoading } = useAuth();
-//   
-//   // If still loading, show loading indicator
-//   if (isLoading) {
-//     return (
-//       <div className="min-h-screen flex justify-center items-center bg-gradient-to-b from-emerald-50 to-gray-50">
-//         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
-//       </div>
-//     );
-//   }
-//   
-//   // If user is in waiting list only (and doesn't have other roles), redirect to waiting page
-//   if (user && userRoles.includes('waiting_list') && 
-//       !userRoles.includes('user') && 
-//       !userRoles.includes('admin') && 
-//       !userRoles.includes('superadmin')) {
-//     return <Navigate to="/waiting" replace />;
-//   }
-//   
-//   // Otherwise, render children
-//   return <>{children}</>;
-// }
 
 function App() {
   return (
@@ -93,6 +66,13 @@ function App() {
           <Route path="/equipment/:deviceCode?" element={
             <ProtectedRoute>
               <Equipment />
+            </ProtectedRoute>
+          } />
+          
+          {/* เพิ่มเส้���ทางใหม่สำหรับหน้า Profile */}
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <Profile />
             </ProtectedRoute>
           } />
           
