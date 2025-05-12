@@ -15,6 +15,25 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none; /* สำหรับ Chrome, Safari และ Opera */
   }
+  
+  /* แถบเลื่อนสีขาวขนาดเล็ก */
+  .custom-white-scrollbar {
+    scrollbar-width: thin; /* สำหรับ Firefox */
+    scrollbar-color: rgba(255, 255, 255, 0.5) transparent; /* สำหรับ Firefox */
+  }
+  
+  .custom-white-scrollbar::-webkit-scrollbar {
+    width: 4px; /* ขนาดความกว้างของแถบเลื่อน */
+  }
+  
+  .custom-white-scrollbar::-webkit-scrollbar-track {
+    background: transparent; /* สีพื้นหลังแถบเลื่อน */
+  }
+  
+  .custom-white-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.5); /* สีของแถบเลื่อน */
+    border-radius: 10px; /* ความโค้งมนของแถบเลื่อน */
+  }
 }
 
 @layer base {

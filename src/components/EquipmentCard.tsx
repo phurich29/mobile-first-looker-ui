@@ -1,7 +1,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Settings } from "lucide-react";
-import { formatDistance } from "date-fns";
+import { format } from "date-fns";
+import { th } from "date-fns/locale";
 
 interface EquipmentCardProps {
   deviceCode: string;
@@ -9,9 +10,9 @@ interface EquipmentCardProps {
 }
 
 export const EquipmentCard = ({ deviceCode, lastUpdated }: EquipmentCardProps) => {
-  // Format the last updated time to be relative to now (e.g., "2 hours ago")
+  // Format the last updated time to show exact date and time
   const formattedTime = lastUpdated 
-    ? formatDistance(new Date(lastUpdated), new Date(), { addSuffix: true })
+    ? format(new Date(lastUpdated), "dd MMMM yyyy HH:mm:ss น.", { locale: th })
     : "ไม่มีข้อมูล";
 
   return (
