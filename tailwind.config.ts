@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -51,6 +52,15 @@ export default {
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
+				},
+				crypto: {
+					blue: '#3A6AEE',
+					green: '#4BD16F',
+					red: '#FF5757',
+					cardBg: '#F8F8F8',
+					bitcoin: '#F7931A',
+					ethereum: '#627EEA',
+					cardano: '#8A33AE'
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
