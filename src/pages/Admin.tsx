@@ -1,6 +1,5 @@
-
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -190,7 +189,18 @@ export default function Admin() {
       <Header />
       
       <main className="flex-1 p-4 pb-28">
-        <h1 className="text-2xl font-bold mb-6">หน้าจัดการระบบ</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">หน้าจัดการระบบ</h1>
+          
+          {userRoles.includes('superadmin') && (
+            <Link to="/user-management">
+              <Button variant="outline" className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                จัดการสิทธิ์ผู้ใช้
+              </Button>
+            </Link>
+          )}
+        </div>
         
         <Tabs defaultValue="users" className="w-full">
           <TabsList className="mb-4">
@@ -239,24 +249,14 @@ export default function Admin() {
                       
                       {userRoles.includes('superadmin') && (
                         <div className="flex gap-2">
-                          {!user.roles.includes('admin') && (
+                          <Link to="/user-management">
                             <Button 
                               size="sm" 
                               variant="outline"
-                              onClick={() => changeUserRole(user.id, 'admin', true)}
                             >
-                              เพิ่มเป็น Admin
+                              จัดการสิทธิ์
                             </Button>
-                          )}
-                          {user.roles.includes('admin') && (
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => changeUserRole(user.id, 'admin', false)}
-                            >
-                              ลบออกจาก Admin
-                            </Button>
-                          )}
+                          </Link>
                         </div>
                       )}
                     </div>
@@ -309,6 +309,14 @@ export default function Admin() {
                           <p className="text-sm text-gray-600">สิทธิ์สูงสุด - สามารถจัดการทุกอย่างรวมถึงสิทธิ์ของผู้ใช้อื่น</p>
                         </div>
                       </div>
+                    </div>
+                    
+                    <div className="flex justify-end">
+                      <Link to="/user-management">
+                        <Button variant="default">
+                          ไปหน้าจัดการสิทธิ์
+                        </Button>
+                      </Link>
                     </div>
                   </div>
                 </CardContent>
