@@ -9,20 +9,36 @@ const Index = () => {
   // Sample data for rice prices
   const riceUpdates = [
     {
-      symbol: "ข้าวหอมมะลิ",
-      name: "คัดพิเศษ",
-      value: "15,500",
-      amount: "บาท/ตัน",
-      percentageChange: 2.1,
+      symbol: "ข้าวหอมมะลิ 100% ชั้น 2(66/67)",
+      name: "",
+      value: "3,700 - 3,850",
+      amount: "บาท/100ก.ก.",
+      percentageChange: 0,
       iconColor: "#8A33AE",
     },
     {
-      symbol: "ข้าวเหนียว",
-      name: "กข 6",
-      value: "12,900",
-      amount: "บาท/ตัน",
-      percentageChange: -0.8,
+      symbol: "ข้าวหอมมะลิ 100% ชั้น 2(67/68)",
+      name: "",
+      value: "3,000 - 3,166",
+      amount: "บาท/100ก.ก.",
+      percentageChange: 0,
       iconColor: "#F7931A",
+    },
+    {
+      symbol: "ปลายข้าวหอมมะลิ (67/68)",
+      name: "",
+      value: "1,300 - 1,320",
+      amount: "บาท/100ก.ก.",
+      percentageChange: 0,
+      iconColor: "#627EEA",
+    },
+    {
+      symbol: "ข้าวหอมมะลิจังหวัด(66/67)",
+      name: "",
+      value: "3,650 - 3,700",
+      amount: "บาท/100ก.ก.",
+      percentageChange: 0,
+      iconColor: "#8A33AE",
     },
   ];
 
