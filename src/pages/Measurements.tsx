@@ -4,7 +4,7 @@ import { MeasurementItem } from "@/components/MeasurementItem";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRef, useState, useEffect } from "react";
-import { Square, Wheat, Blend, Bug } from "lucide-react";
+import { Square, Wheat, Blend, Circle } from "lucide-react";
 
 export default function Measurements() {
   // สร้าง state และ ref สำหรับฟังก์ชันการลาก (Drag)
@@ -176,7 +176,7 @@ export default function Measurements() {
                     className="whitespace-nowrap min-w-[160px] flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md px-4"
                   >
                     <Wheat className="h-4 w-4 flex-shrink-0" />
-                    <span>พื้นข้าวเต้มเมล็ด (%)</span>
+                    <span>พื้นข้าวเต็มเมล็ด (%)</span>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="ingredients" 
@@ -189,7 +189,7 @@ export default function Measurements() {
                     value="impurities" 
                     className="whitespace-nowrap min-w-[130px] flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md px-4"
                   >
-                    <Bug className="h-4 w-4 flex-shrink-0" />
+                    <Circle className="h-4 w-4 flex-shrink-0" />
                     <span>สิ่งเจือปน (%)</span>
                   </TabsTrigger>
                 </TabsList>
