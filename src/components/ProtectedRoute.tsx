@@ -27,7 +27,15 @@ export const ProtectedRoute = ({
     requiredRoles.length === 0 ||
     requiredRoles.some((role) => userRoles.includes(role));
 
-  if (!user || !hasRequiredRole) {
+  if (!user) {
+    console.log("User not logged in, redirecting to", redirectTo);
+    return <Navigate to={redirectTo} replace />;
+  }
+  
+  if (!hasRequiredRole) {
+    console.log("User doesn't have required role, redirecting to", redirectTo);
+    console.log("User roles:", userRoles);
+    console.log("Required roles:", requiredRoles);
     return <Navigate to={redirectTo} replace />;
   }
 

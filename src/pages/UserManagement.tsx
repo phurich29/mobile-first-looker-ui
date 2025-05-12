@@ -24,6 +24,7 @@ export default function UserManagement() {
   const { toast } = useToast();
   const { user, userRoles, isLoading } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
   // Fetch users and their roles
   useEffect(() => {
@@ -33,23 +34,36 @@ export default function UserManagement() {
       }
 
       try {
+        console.log("Fetching users...");
+        
         // Fetch all users from profiles table
         const { data: profiles, error: profilesError } = await supabase
           .from('profiles')
           .select('id, email');
 
-        if (profilesError) throw profilesError;
+        if (profilesError) {
+          console.error("Profiles error:", profilesError);
+          throw profilesError;
+        }
+
+        console.log("Profiles fetched:", profiles?.length || 0);
 
         // For each profile, fetch their roles
         const usersWithRoles = await Promise.all(
           (profiles || []).map(async (profile) => {
+            console.log("Fetching roles for user:", profile.id);
+            
             const { data: roles, error: rolesError } = await supabase.rpc(
               'get_user_roles',
               { user_id: profile.id }
             );
 
-            if (rolesError) console.error('Error fetching roles:', rolesError);
+            if (rolesError) {
+              console.error('Error fetching roles for user:', profile.id, rolesError);
+            }
 
+            console.log("Roles for user:", profile.id, roles);
+            
             return {
               id: profile.id,
               email: profile.email || 'unknown@example.com',
@@ -58,6 +72,7 @@ export default function UserManagement() {
           })
         );
 
+        console.log("Users with roles processed:", usersWithRoles.length);
         setUsers(usersWithRoles);
       } catch (error: any) {
         console.error('Error fetching users:', error.message);
@@ -83,6 +98,7 @@ export default function UserManagement() {
       return;
     }
 
+    setIsProcessing(true);
     try {
       if (isAdding) {
         // Add the role
@@ -146,6 +162,8 @@ export default function UserManagement() {
         description: error.message || "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
         variant: "destructive",
       });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -160,6 +178,7 @@ export default function UserManagement() {
       return;
     }
 
+    setIsProcessing(true);
     try {
       const usersToUpdate = users.filter(u => u.roles.length === 0);
       
@@ -214,6 +233,8 @@ export default function UserManagement() {
         description: error.message || "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
         variant: "destructive",
       });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -227,8 +248,12 @@ export default function UserManagement() {
   }
 
   // If user not logged in or doesn't have superadmin role, redirect to login
-  if (!user || !userRoles.includes('superadmin')) {
+  if (!user) {
     return <Navigate to="/login" />;
+  }
+  
+  if (!userRoles.includes('superadmin')) {
+    return <Navigate to="/admin" />;
   }
 
   return (
@@ -245,8 +270,16 @@ export default function UserManagement() {
           <Button 
             onClick={initializeUserRoles}
             variant="outline"
+            disabled={isProcessing}
           >
-            กำหนดสิทธิ์เริ่มต้น
+            {isProcessing ? (
+              <>
+                <span className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-emerald-600"></span>
+                กำลังประมวลผล...
+              </>
+            ) : (
+              'กำหนดสิทธิ์เริ่มต้น'
+            )}
           </Button>
         </div>
 
@@ -255,83 +288,96 @@ export default function UserManagement() {
             <CardTitle>รายชื่อผู้ใช้ทั้งหมด</CardTitle>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>อีเมล</TableHead>
-                  <TableHead>บทบาทปัจจุบัน</TableHead>
-                  <TableHead className="text-right">จัดการ</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>
-                      <div className="font-medium">{user.email}</div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {user.roles.length > 0 ? user.roles.map((role) => (
-                          <Badge 
-                            key={role} 
-                            className={
-                              role === 'superadmin' ? 'bg-red-100 text-red-800 hover:bg-red-200' : 
-                              role === 'admin' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : 
-                              'bg-green-100 text-green-800 hover:bg-green-200'
-                            }
-                            variant="outline"
-                          >
-                            {role}
-                          </Badge>
-                        )) : (
-                          <span className="text-gray-400 text-sm italic">ไม่มีสิทธิ์</span>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="sm">
-                            จัดการสิทธิ์ <ChevronDown className="ml-1 h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          {!user.roles.includes('user') ? (
-                            <DropdownMenuItem onClick={() => changeUserRole(user.id, 'user', true)}>
-                              เพิ่มสิทธิ์ User
-                            </DropdownMenuItem>
-                          ) : (
-                            <DropdownMenuItem onClick={() => changeUserRole(user.id, 'user', false)}>
-                              ลบสิทธิ์ User
-                            </DropdownMenuItem>
-                          )}
-                          
-                          {!user.roles.includes('admin') ? (
-                            <DropdownMenuItem onClick={() => changeUserRole(user.id, 'admin', true)}>
-                              เพิ่มสิทธิ์ Admin
-                            </DropdownMenuItem>
-                          ) : (
-                            <DropdownMenuItem onClick={() => changeUserRole(user.id, 'admin', false)}>
-                              ลบสิทธิ์ Admin
-                            </DropdownMenuItem>
-                          )}
-                          
-                          {!user.roles.includes('superadmin') ? (
-                            <DropdownMenuItem onClick={() => changeUserRole(user.id, 'superadmin', true)}>
-                              เพิ่มสิทธิ์ Superadmin
-                            </DropdownMenuItem>
-                          ) : (
-                            <DropdownMenuItem onClick={() => changeUserRole(user.id, 'superadmin', false)}>
-                              ลบสิทธิ์ Superadmin
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+            {users.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>อีเมล</TableHead>
+                    <TableHead>บทบาทปัจจุบัน</TableHead>
+                    <TableHead className="text-right">จัดการ</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {users.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell>
+                        <div className="font-medium">{user.email}</div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {user.roles.length > 0 ? user.roles.map((role) => (
+                            <Badge 
+                              key={role} 
+                              className={
+                                role === 'superadmin' ? 'bg-red-100 text-red-800 hover:bg-red-200' : 
+                                role === 'admin' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : 
+                                'bg-green-100 text-green-800 hover:bg-green-200'
+                              }
+                              variant="outline"
+                            >
+                              {role}
+                            </Badge>
+                          )) : (
+                            <span className="text-gray-400 text-sm italic">ไม่มีสิทธิ์</span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm" disabled={isProcessing}>
+                              {isProcessing ? (
+                                <>
+                                  <span className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-current"></span>
+                                  กำลังดำเนินการ
+                                </>
+                              ) : (
+                                <>จัดการสิทธิ์ <ChevronDown className="ml-1 h-4 w-4" /></>
+                              )}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            {!user.roles.includes('user') ? (
+                              <DropdownMenuItem onClick={() => changeUserRole(user.id, 'user', true)}>
+                                เพิ่มสิทธิ์ User
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem onClick={() => changeUserRole(user.id, 'user', false)}>
+                                ลบสิทธิ์ User
+                              </DropdownMenuItem>
+                            )}
+                            
+                            {!user.roles.includes('admin') ? (
+                              <DropdownMenuItem onClick={() => changeUserRole(user.id, 'admin', true)}>
+                                เพิ่มสิทธิ์ Admin
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem onClick={() => changeUserRole(user.id, 'admin', false)}>
+                                ลบสิทธิ์ Admin
+                              </DropdownMenuItem>
+                            )}
+                            
+                            {!user.roles.includes('superadmin') ? (
+                              <DropdownMenuItem onClick={() => changeUserRole(user.id, 'superadmin', true)}>
+                                เพิ่มสิทธิ์ Superadmin
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem onClick={() => changeUserRole(user.id, 'superadmin', false)}>
+                                ลบสิทธิ์ Superadmin
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="p-8 text-center">
+                <p className="text-gray-500">ไม่พบข้อมูลผู้ใช้</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </main>

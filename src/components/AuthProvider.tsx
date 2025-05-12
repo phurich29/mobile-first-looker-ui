@@ -53,16 +53,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
+      async (_event, currentSession) => {
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
-        // If user is logged in, fetch roles from database
+        // Fetch roles outside the callback to prevent deadlocks
         if (currentSession?.user) {
-          const roles = await fetchUserRoles(currentSession.user.id);
-          setUserRoles(roles);
+          setTimeout(async () => {
+            const roles = await fetchUserRoles(currentSession.user.id);
+            setUserRoles(roles);
+            setIsLoading(false);
+          }, 0);
         } else {
           setUserRoles([]);
+          setIsLoading(false);
         }
       }
     );

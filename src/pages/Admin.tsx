@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Navigate, Link } from "react-router-dom";
 import { Header } from "@/components/Header";
@@ -23,6 +24,8 @@ export default function Admin() {
   const { user, userRoles, isLoading } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [devices, setDevices] = useState<any[]>([]);
+  const [isFetchingUsers, setIsFetchingUsers] = useState<boolean>(false);
+  const [isFetchingDevices, setIsFetchingDevices] = useState<boolean>(false);
   
   // Fetch users and their roles
   useEffect(() => {
@@ -31,6 +34,7 @@ export default function Admin() {
         return;
       }
       
+      setIsFetchingUsers(true);
       try {
         // Fetch all users from profiles table
         const { data: profiles, error: profilesError } = await supabase
@@ -65,6 +69,8 @@ export default function Admin() {
           description: "ไม่สามารถโหลดข้อมูลผู้ใช้ได้",
           variant: "destructive",
         });
+      } finally {
+        setIsFetchingUsers(false);
       }
     };
     
@@ -78,6 +84,7 @@ export default function Admin() {
         return;
       }
       
+      setIsFetchingDevices(true);
       try {
         const { data, error } = await supabase
           .from('device_settings')
@@ -87,6 +94,8 @@ export default function Admin() {
         setDevices(data || []);
       } catch (error: any) {
         console.error('Error fetching devices:', error.message);
+      } finally {
+        setIsFetchingDevices(false);
       }
     };
     
@@ -226,42 +235,50 @@ export default function Admin() {
                 <CardTitle>รายชื่อผู้ใช้งาน</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {users.map((user) => (
-                    <div key={user.id} className="border rounded-md p-4 flex justify-between items-center">
-                      <div>
-                        <p className="font-medium">{user.email}</p>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {user.roles.map((role) => (
-                            <span 
-                              key={role} 
-                              className={`text-xs px-2 py-0.5 rounded-full ${
-                                role === 'superadmin' ? 'bg-red-100 text-red-800' : 
-                                role === 'admin' ? 'bg-blue-100 text-blue-800' : 
-                                'bg-green-100 text-green-800'
-                              }`}
-                            >
-                              {role}
-                            </span>
-                          ))}
+                {isFetchingUsers ? (
+                  <div className="flex justify-center p-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {users.length > 0 ? users.map((user) => (
+                      <div key={user.id} className="border rounded-md p-4 flex justify-between items-center">
+                        <div>
+                          <p className="font-medium">{user.email}</p>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {user.roles.map((role) => (
+                              <span 
+                                key={role} 
+                                className={`text-xs px-2 py-0.5 rounded-full ${
+                                  role === 'superadmin' ? 'bg-red-100 text-red-800' : 
+                                  role === 'admin' ? 'bg-blue-100 text-blue-800' : 
+                                  'bg-green-100 text-green-800'
+                                }`}
+                              >
+                                {role}
+                              </span>
+                            ))}
+                          </div>
                         </div>
+                        
+                        {userRoles.includes('superadmin') && (
+                          <div className="flex gap-2">
+                            <Link to="/user-management">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                              >
+                                จัดการสิทธิ์
+                              </Button>
+                            </Link>
+                          </div>
+                        )}
                       </div>
-                      
-                      {userRoles.includes('superadmin') && (
-                        <div className="flex gap-2">
-                          <Link to="/user-management">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                            >
-                              จัดการสิทธิ์
-                            </Button>
-                          </Link>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                    )) : (
+                      <p className="text-center text-gray-500">ไม่พบข้อมูลผู้ใช้</p>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -272,15 +289,23 @@ export default function Admin() {
                 <CardTitle>อุปกรณ์ทั้งหมด</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {devices.map((device) => (
-                    <EquipmentCard 
-                      key={device.id}
-                      deviceCode={device.device_code}
-                      lastUpdated={device.updated_at}
-                    />
-                  ))}
-                </div>
+                {isFetchingDevices ? (
+                  <div className="flex justify-center p-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {devices.length > 0 ? devices.map((device) => (
+                      <EquipmentCard 
+                        key={device.id}
+                        deviceCode={device.device_code}
+                        lastUpdated={device.updated_at}
+                      />
+                    )) : (
+                      <p className="text-center text-gray-500 col-span-3">ไม่พบข้อมูลอุปกรณ์</p>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
