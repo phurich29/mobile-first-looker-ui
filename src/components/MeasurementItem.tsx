@@ -1,3 +1,4 @@
+
 import React from "react";
 import { ArrowUp, ArrowDown } from "lucide-react";
 
@@ -42,9 +43,9 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
         <div className="px-3 py-2">
           <div className="flex flex-col">
             <div className="flex items-center">
-              <h3 className="font-semibold text-base text-gray-800">{symbol}</h3>
+              <h3 className="font-bold text-base text-gray-800">{name}</h3>
             </div>
-            <span className="text-xs text-gray-500">{name}</span>
+            <span className="text-xs text-gray-500">{symbol}</span>
           </div>
         </div>
       </div>
