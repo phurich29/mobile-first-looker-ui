@@ -66,10 +66,12 @@ export const Header = () => {
         <div className="flex flex-col h-full p-4">
           <div className="flex justify-between items-center mb-8 mt-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-emerald-600 rounded-md flex items-center justify-center">
-                <Wheat className="h-4 w-4 text-white" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-800">RiceApp</h2>
+              <img 
+                src="/lovable-uploads/93c9c8f7-4897-4dae-b13b-462f7b25c39b.png" 
+                alt="RiceFlow Logo" 
+                className="h-8 w-auto"
+              />
+              <h2 className="text-xl font-semibold text-emerald-700">RiceFlow</h2>
             </div>
             <Button 
               variant="ghost" 
