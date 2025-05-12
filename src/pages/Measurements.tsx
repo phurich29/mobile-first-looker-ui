@@ -93,36 +93,38 @@ export default function Measurements() {
         <div className="px-4 mb-4">
           <Tabs defaultValue="all" className="w-full">
             <ScrollArea className="w-full">
-              <TabsList className="flex w-full h-12 bg-white border border-gray-200 rounded-lg p-1 space-x-1">
-                <TabsTrigger 
-                  value="all" 
-                  className="flex-1 flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md"
-                >
-                  <Square className="h-4 w-4" />
-                  <span>ทั้งหมด</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="wholegrain" 
-                  className="flex-1 flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md"
-                >
-                  <Wheat className="h-4 w-4" />
-                  <span>พื้นข้าวเต้มเมล็ด (%)</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="ingredients" 
-                  className="flex-1 flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md"
-                >
-                  <Blend className="h-4 w-4" />
-                  <span>ส่วนผสม (%)</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="impurities" 
-                  className="flex-1 flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md"
-                >
-                  <Bug className="h-4 w-4" />
-                  <span>สิ่งเจือปน (%)</span>
-                </TabsTrigger>
-              </TabsList>
+              <div className="min-w-full pb-2">
+                <TabsList className="inline-flex w-max min-w-full h-12 bg-white border border-gray-200 rounded-lg p-1 space-x-1">
+                  <TabsTrigger 
+                    value="all" 
+                    className="flex-1 min-w-[100px] flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md whitespace-nowrap"
+                  >
+                    <Square className="h-4 w-4" />
+                    <span>ทั้งหมด</span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="wholegrain" 
+                    className="flex-1 min-w-[160px] flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md whitespace-nowrap"
+                  >
+                    <Wheat className="h-4 w-4" />
+                    <span>พื้นข้าวเต้มเมล็ด (%)</span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="ingredients" 
+                    className="flex-1 min-w-[120px] flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md whitespace-nowrap"
+                  >
+                    <Blend className="h-4 w-4" />
+                    <span>ส่วนผสม (%)</span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="impurities" 
+                    className="flex-1 min-w-[120px] flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md whitespace-nowrap"
+                  >
+                    <Bug className="h-4 w-4" />
+                    <span>สิ่งเจือปน (%)</span>
+                  </TabsTrigger>
+                </TabsList>
+              </div>
             </ScrollArea>
             
             <TabsContent value="all" className="mt-4">
