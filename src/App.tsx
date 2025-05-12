@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
@@ -69,7 +70,7 @@ function App() {
             </ProtectedRoute>
           } />
           
-          {/* เพิ่มเส้���ทางใหม่สำหรับหน้า Profile */}
+          {/* เพิ่มเส้นทางใหม่สำหรับหน้า Profile */}
           <Route path="/profile" element={
             <ProtectedRoute>
               <Profile />
@@ -83,9 +84,9 @@ function App() {
             </ProtectedRoute>
           } />
           
-          {/* Superadmin routes */}
+          {/* User Management - สำหรับ admin และ superadmin */}
           <Route path="/user-management" element={
-            <ProtectedRoute requiredRoles={["superadmin"]}>
+            <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
               <UserManagement />
             </ProtectedRoute>
           } />
