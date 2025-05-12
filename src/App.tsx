@@ -68,28 +68,50 @@ function App() {
           <Route path="/logout" element={<LogoutRoute />} />
           
           {/* Routes that need protection from waiting_list users */}
-          <Route element={<WaitingListGuard>{/* Fix: Added children */}
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/rice-prices" element={<RicePrices />} />
-              
-              {/* Protected routes requiring authentication */}
-              <Route element={<ProtectedRoute />}>
-                <Route path="/measurements" element={<Measurements />} />
-                <Route path="/equipment/:deviceCode?" element={<Equipment />} />
-              </Route>
-              
-              {/* Admin routes */}
-              <Route element={<ProtectedRoute requiredRoles={["admin", "superadmin"]} redirectTo="/" />}>
-                <Route path="/admin" element={<Admin />} />
-              </Route>
-              
-              {/* Superadmin routes */}
-              <Route element={<ProtectedRoute requiredRoles={["superadmin"]} redirectTo="/" />}>
-                <Route path="/user-management" element={<UserManagement />} />
-              </Route>
-            </Routes>
-          </WaitingListGuard>} />
+          <Route path="/" element={
+            <WaitingListGuard>
+              <Index />
+            </WaitingListGuard>
+          } />
+          <Route path="/rice-prices" element={
+            <WaitingListGuard>
+              <RicePrices />
+            </WaitingListGuard>
+          } />
+          
+          {/* Protected routes requiring authentication */}
+          <Route path="/measurements" element={
+            <WaitingListGuard>
+              <ProtectedRoute>
+                <Measurements />
+              </ProtectedRoute>
+            </WaitingListGuard>
+          } />
+          <Route path="/equipment/:deviceCode?" element={
+            <WaitingListGuard>
+              <ProtectedRoute>
+                <Equipment />
+              </ProtectedRoute>
+            </WaitingListGuard>
+          } />
+          
+          {/* Admin routes */}
+          <Route path="/admin" element={
+            <WaitingListGuard>
+              <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
+                <Admin />
+              </ProtectedRoute>
+            </WaitingListGuard>
+          } />
+          
+          {/* Superadmin routes */}
+          <Route path="/user-management" element={
+            <WaitingListGuard>
+              <ProtectedRoute requiredRoles={["superadmin"]}>
+                <UserManagement />
+              </ProtectedRoute>
+            </WaitingListGuard>
+          } />
           
           <Route path="*" element={<NotFound />} />
         </Routes>

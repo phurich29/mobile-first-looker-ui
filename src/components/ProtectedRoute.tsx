@@ -1,13 +1,16 @@
 
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
+import React from "react";
 
 interface ProtectedRouteProps {
+  children: React.ReactNode;
   requiredRoles?: string[];
   redirectTo?: string;
 }
 
 export const ProtectedRoute = ({
+  children,
   requiredRoles = [],
   redirectTo = "/login",
 }: ProtectedRouteProps) => {
@@ -56,5 +59,5 @@ export const ProtectedRoute = ({
     return <Navigate to={redirectTo} replace />;
   }
 
-  return <Outlet />;
+  return <>{children}</>;
 };
