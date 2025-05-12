@@ -33,7 +33,12 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
     if (symbol.includes('class') || 
         symbol === 'short_grain' || 
         symbol === 'slender_kernel' ||
-        symbol.includes('ข้าว')) {
+        symbol.includes('ข้าว') ||
+        symbol === 'whole_kernels' ||
+        symbol === 'head_rice' ||
+        symbol === 'total_brokens' ||
+        symbol === 'small_brokens' ||
+        symbol === 'small_brokens_c1')) {
       return <Wheat className="w-5 h-5 text-white" />;
     }
     
