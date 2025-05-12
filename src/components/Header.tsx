@@ -1,4 +1,3 @@
-
 import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
@@ -138,7 +137,7 @@ export const Header = () => {
         </Button>
 
       
-      <div className="text-xl font-semibold text-center flex-1 md:text-left bg-emerald-700 px-4 py-1 rounded-lg">
+      <div className="text-base font-medium text-center flex-1 md:text-left bg-emerald-700/80 backdrop-blur-sm px-3 py-0.5 rounded-md shadow-sm transition-all duration-300">
         {currentTime}
       </div>
       
