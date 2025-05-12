@@ -7,12 +7,14 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredRoles?: string[];
   redirectTo?: string;
+  allowUnauthenticated?: boolean; // เพิ่มตัวเลือกสำหรับหน้าที่อนุญาตให้เข้าชมโดยไม่ต้องล็อกอิน
 }
 
 export const ProtectedRoute = ({
   children,
   requiredRoles = [],
   redirectTo = "/login",
+  allowUnauthenticated = false, // ค่าเริ่มต้นคือไม่อนุญาต
 }: ProtectedRouteProps) => {
   const { user, userRoles, isLoading } = useAuth();
 
@@ -22,6 +24,7 @@ export const ProtectedRoute = ({
   console.log("- Current user roles:", userRoles);
   console.log("- User authenticated:", !!user);
   console.log("- Is still loading auth:", isLoading);
+  console.log("- Allow unauthenticated:", allowUnauthenticated);
 
   // If auth is still loading, show loading indicator
   if (isLoading) {
@@ -32,14 +35,19 @@ export const ProtectedRoute = ({
     );
   }
 
-  // Check if the user is logged in
-  if (!user) {
+  // ตรวจสอบว่าอนุญาตให้ผู้ที่ไม่ได้ล็อกอินเข้าชมหน้านี้หรือไม่
+  if (!user && !allowUnauthenticated) {
     console.log("User not logged in, redirecting to", redirectTo);
     return <Navigate to={redirectTo} replace />;
   }
   
-  // If user is only in waiting_list (and doesn't have other roles), redirect to waiting page
-  if (userRoles.includes('waiting_list') && 
+  // ถ้าเข้าชมได้โดยไม่ต้องล็อกอินและผู้ใช้ไม่ได้ล็อกอิน ให้แสดงหน้า
+  if (!user && allowUnauthenticated) {
+    return <>{children}</>;
+  }
+  
+  // ถ้ามีการล็อกอินแล้วและผู้ใช้อยู่ในสถานะ waiting_list เท่านั้น ให้ไปที่หน้า waiting
+  if (user && userRoles.includes('waiting_list') && 
       !userRoles.includes('user') && 
       !userRoles.includes('admin') && 
       !userRoles.includes('superadmin')) {
@@ -47,7 +55,7 @@ export const ProtectedRoute = ({
     return <Navigate to="/waiting" replace />;
   }
 
-  // Check if the user has the required role (if specified)
+  // ตรวจสอบว่าผู้ใช้มีสิทธิ์ตามที่กำหนดหรือไม่ (ถ้ามีการกำหนด)
   const hasRequiredRole =
     requiredRoles.length === 0 ||
     requiredRoles.some((role) => userRoles.includes(role));
