@@ -12,6 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Header } from "@/components/Header";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 const passwordSchema = z.object({
   password: z.string().min(6, {
@@ -27,6 +28,9 @@ const Profile = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(passwordSchema),
@@ -45,22 +49,30 @@ const Profile = () => {
         password: values.password 
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Password update error:", error);
+        
+        // Check for the specific error message about same password
+        if (error.message.includes("same password")) {
+          setErrorMessage("รหัสผ่านใหม่ต้องไม่ซ้ำกับรหัสผ่านปัจจุบัน");
+        } else {
+          setErrorMessage(error.message || "ไม่สามารถเปลี่ยนรหัสผ่านได้ กรุณาลองใหม่อีกครั้ง");
+        }
+        
+        setShowErrorDialog(true);
+        return;
+      }
 
-      toast({
-        title: "เปลี่ยนรหัสผ่านสำเร็จ",
-        description: "รหัสผ่านของคุณถูกเปลี่ยนแล้ว",
-      });
+      // แสดง dialog สำเร็จ
+      setShowSuccessDialog(true);
       
       // ปิด dialog และ reset form
       setShowPasswordDialog(false);
       form.reset();
     } catch (error: any) {
-      toast({
-        title: "เกิดข้อผิดพลาด",
-        description: error.message || "ไม่สามารถเปลี่ยนรหัสผ่านได้ กรุณาลองใหม่อีกครั้ง",
-        variant: "destructive",
-      });
+      console.error("Unexpected error:", error);
+      setErrorMessage(error.message || "เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่อีกครั้ง");
+      setShowErrorDialog(true);
     } finally {
       setLoading(false);
     }
@@ -206,6 +218,36 @@ const Profile = () => {
             </Form>
           </DialogContent>
         </Dialog>
+
+        {/* Dialog แสดงผลสำเร็จ */}
+        <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>เปลี่ยนรหัสผ่านสำเร็จ</AlertDialogTitle>
+              <AlertDialogDescription>
+                รหัสผ่านของคุณถูกเปลี่ยนเรียบร้อยแล้ว คุณสามารถใช้รหัสผ่านใหม่ในการเข้าสู่ระบบครั้งต่อไป
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction>ตกลง</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Dialog แสดงข้อผิดพลาด */}
+        <AlertDialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>เกิดข้อผิดพลาด</AlertDialogTitle>
+              <AlertDialogDescription>
+                {errorMessage}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction onClick={() => setShowErrorDialog(false)}>ตกลง</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
