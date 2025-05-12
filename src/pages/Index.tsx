@@ -1,3 +1,4 @@
+
 import { Header } from "@/components/Header";
 import { AssetCard } from "@/components/AssetCard";
 import { WatchlistItem } from "@/components/WatchlistItem";
@@ -25,28 +26,28 @@ const Index = () => {
     },
   ];
 
-  // Rice price updates data
-  const ricePriceUpdates = [
+  // Sample data for watchlist
+  const watchlist = [
     {
-      symbol: "ข้าวหอมมะลิ",
-      name: "Premium Grade",
-      price: "18,500",
-      percentageChange: 2.3,
-      iconColor: "#69A47A",
+      symbol: "BTC/BUSD",
+      name: "Bitcoin",
+      price: "54,382.64",
+      percentageChange: 15.3,
+      iconColor: "#F7931A",
     },
     {
-      symbol: "ข้าวขาว 5%",
-      name: "White Rice",
-      price: "11,800",
-      percentageChange: -1.5,
-      iconColor: "#A8C9B3",
+      symbol: "ETH/BUSD",
+      name: "Ethereum",
+      price: "4,145.61",
+      percentageChange: -2.21,
+      iconColor: "#627EEA",
     },
     {
-      symbol: "ข้าวเหนียว",
-      name: "Glutinous Rice",
-      price: "14,250",
-      percentageChange: 0.8,
-      iconColor: "#1e6146",
+      symbol: "ADA/BUSD",
+      name: "Cardano",
+      price: "1.21",
+      percentageChange: 1.8,
+      iconColor: "#8A33AE",
     },
   ];
 
@@ -77,9 +78,9 @@ const Index = () => {
             ))}
           </div>
 
-          <SectionHeader title="ราคาข้าวจากสมาคมโรงสี" />
+          <SectionHeader title="Watchlist" />
           <div className="bg-white rounded-xl mx-4 overflow-hidden">
-            {ricePriceUpdates.map((item) => (
+            {watchlist.map((item) => (
               <WatchlistItem
                 key={item.symbol}
                 symbol={item.symbol}
