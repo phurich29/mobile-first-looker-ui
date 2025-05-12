@@ -161,16 +161,35 @@ const Index = () => {
                   emblaApi.scrollTo(Math.floor(percentPosition * scrollSnaps.length));
                 }}
               >
-                {/* ปรับปรุง scrollbar thumb สำหรับการแสดงตำแหน่งที่ถูกต้อง */}
+                {/* แก้ไขการคำนวณความกว้างและตำแหน่งของ thumb */}
                 {emblaApi && (() => {
                   // คำนวณความกว้างของ thumb ตามสัดส่วนของเนื้อหาที่มองเห็น
-                  const thumbWidthPercent = Math.max(16, emblaApi.slideNodes().length > 0 
-                    ? (emblaApi.containerNode().clientWidth / (emblaApi.slideNodes().length * 193)) * 100
-                    : 16);
+                  const visibleWidth = emblaApi.containerNode().clientWidth;
+                  const totalWidth = emblaApi.slideNodes().reduce(
+                    (acc, slide) => acc + slide.offsetWidth + 12, // +12 for margin-right of 3rem
+                    0
+                  );
                   
-                  // คำนวณตำแหน่งที่ถูกต้องตามความก้าวหน้าของการเลื่อน
+                  // ประกันความกว้างน้อยสุดของ thumb
+                  const thumbWidthPercent = Math.max(15, (visibleWidth / totalWidth) * 100);
+                  
+                  // คำนวณตำแหน่งที่ถูกต้องสำหรับการเลื่อนสุด
+                  const maxScrollDistance = totalWidth - visibleWidth;
+                  const currentScrollDistance = maxScrollDistance * scrollProgress;
+                  const scrollProgressPercent = maxScrollDistance > 0 
+                    ? currentScrollDistance / maxScrollDistance 
+                    : 0;
+                  
+                  // คำนวณตำแหน่งสุดท้ายที่ thumb สามารถเลื่อนไปได้
                   const maxThumbPosition = 100 - thumbWidthPercent;
-                  const thumbPosition = isStart ? 0 : isEnd ? maxThumbPosition : scrollProgress * maxThumbPosition;
+                  let thumbPosition = maxThumbPosition * scrollProgressPercent;
+                  
+                  // ตรวจสอบว่าถ้าเลื่อนไปทางขวาสุดแล้วให้ติดขอบขวาพอดี
+                  if (isEnd) {
+                    thumbPosition = maxThumbPosition;
+                  } else if (isStart) {
+                    thumbPosition = 0;
+                  }
                   
                   return (
                     <div
