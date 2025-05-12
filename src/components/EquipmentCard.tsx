@@ -1,8 +1,10 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button"; 
 import { Settings } from "lucide-react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
+import { useAuth } from "@/components/AuthProvider";
 
 interface EquipmentCardProps {
   deviceCode: string;
@@ -14,6 +16,10 @@ export const EquipmentCard = ({ deviceCode, lastUpdated }: EquipmentCardProps) =
   const formattedTime = lastUpdated 
     ? format(new Date(lastUpdated), "dd MMMM yyyy HH:mm:ss น.", { locale: th })
     : "ไม่มีข้อมูล";
+  
+  // Get user roles to determine if they can manage equipment
+  const { userRoles } = useAuth();
+  const canManageEquipment = userRoles.includes('admin') || userRoles.includes('superadmin');
 
   return (
     <Card className="hover:shadow-lg transition-shadow duration-300">
@@ -33,6 +39,18 @@ export const EquipmentCard = ({ deviceCode, lastUpdated }: EquipmentCardProps) =
           <p className="mb-0.5">อัพเดทล่าสุด:</p>
           <p className="font-medium">{formattedTime}</p>
         </div>
+        
+        {canManageEquipment && (
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="w-full mt-3 text-xs"
+            onClick={() => window.location.href = `/admin?device=${deviceCode}`}
+          >
+            <Settings className="h-3 w-3 mr-1" />
+            จัดการอุปกรณ์
+          </Button>
+        )}
       </CardContent>
     </Card>
   );
