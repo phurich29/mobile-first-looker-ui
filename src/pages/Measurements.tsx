@@ -1,11 +1,13 @@
-
 import { Header } from "@/components/Header";
 import { MeasurementItem } from "@/components/MeasurementItem";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Square, Wheat, Blend, Bug } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function Measurements() {
+  const isMobile = useIsMobile();
+  
   // ข้อมูลตัวอย่างสำหรับรายการวัด
   const measurements = [
     {
@@ -90,42 +92,44 @@ export default function Measurements() {
         </div>
 
         {/* แท็บสำหรับเลือกประเภท */}
-        <div className="px-4 mb-4">
+        <div className="px-4 mb-4 w-full">
           <Tabs defaultValue="all" className="w-full">
-            <ScrollArea className="w-full">
-              <div className="min-w-full pb-2">
-                <TabsList className="inline-flex w-max min-w-full h-12 bg-white border border-gray-200 rounded-lg p-1 space-x-1">
-                  <TabsTrigger 
-                    value="all" 
-                    className="flex-1 min-w-[100px] flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md whitespace-nowrap"
-                  >
-                    <Square className="h-4 w-4" />
-                    <span>ทั้งหมด</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="wholegrain" 
-                    className="flex-1 min-w-[160px] flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md whitespace-nowrap"
-                  >
-                    <Wheat className="h-4 w-4" />
-                    <span>พื้นข้าวเต้มเมล็ด (%)</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="ingredients" 
-                    className="flex-1 min-w-[120px] flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md whitespace-nowrap"
-                  >
-                    <Blend className="h-4 w-4" />
-                    <span>ส่วนผสม (%)</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="impurities" 
-                    className="flex-1 min-w-[120px] flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md whitespace-nowrap"
-                  >
-                    <Bug className="h-4 w-4" />
-                    <span>สิ่งเจือปน (%)</span>
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-            </ScrollArea>
+            <div className="w-full overflow-hidden">
+              <ScrollArea className="w-full">
+                <div className="w-full pb-2">
+                  <TabsList className="w-full flex h-12 bg-white border border-gray-200 rounded-lg p-1 space-x-1">
+                    <TabsTrigger 
+                      value="all" 
+                      className="flex-1 min-w-[100px] flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md whitespace-nowrap"
+                    >
+                      <Square className="h-4 w-4" />
+                      <span>ทั้งหมด</span>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="wholegrain" 
+                      className="flex-1 min-w-[160px] flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md whitespace-nowrap"
+                    >
+                      <Wheat className="h-4 w-4" />
+                      <span>พื้นข้าวเต้มเมล็ด (%)</span>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="ingredients" 
+                      className="flex-1 min-w-[120px] flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md whitespace-nowrap"
+                    >
+                      <Blend className="h-4 w-4" />
+                      <span>ส่วนผสม (%)</span>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="impurities" 
+                      className="flex-1 min-w-[120px] flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md whitespace-nowrap"
+                    >
+                      <Bug className="h-4 w-4" />
+                      <span>สิ่งเจือปน (%)</span>
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+              </ScrollArea>
+            </div>
             
             <TabsContent value="all" className="mt-4">
               {/* รายการการวัดทั้งหมด */}
