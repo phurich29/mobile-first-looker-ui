@@ -1,16 +1,9 @@
 
 import { Header } from "@/components/Header";
 import { MeasurementItem } from "@/components/MeasurementItem";
-import { 
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious
-} from "@/components/ui/carousel";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useEffect, useState } from "react";
+import { Square, Wheat, Blend, Bug } from "lucide-react";
 
 export default function Measurements() {
   // ข้อมูลตัวอย่างสำหรับรายการวัด
@@ -66,29 +59,6 @@ export default function Measurements() {
     }
   ];
 
-  const [activeTab, setActiveTab] = useState("all");
-  const [emblaApi, setEmblaApi] = useState(null);
-
-  // Sync tabs with carousel scroll
-  useEffect(() => {
-    if (emblaApi) {
-      emblaApi.on('select', () => {
-        const selectedIndex = emblaApi.selectedScrollSnap();
-        const tabs = ['all', 'rice', 'ingredients', 'contaminants'];
-        setActiveTab(tabs[selectedIndex]);
-      });
-    }
-  }, [emblaApi]);
-
-  const handleTabChange = (value) => {
-    setActiveTab(value);
-    const tabs = ['all', 'rice', 'ingredients', 'contaminants'];
-    const index = tabs.indexOf(value);
-    if (emblaApi && index !== -1) {
-      emblaApi.scrollTo(index);
-    }
-  };
-
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
       <Header />
@@ -119,112 +89,105 @@ export default function Measurements() {
           </div>
         </div>
 
-        {/* แท็บแบบเลื่อนได้ */}
+        {/* แท็บสำหรับเลือกประเภท */}
         <div className="px-4 mb-4">
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-            <div className="relative overflow-x-auto">
-              <ScrollArea className="w-full pb-4">
-                <TabsList className="h-12 inline-flex w-full min-w-max border-b">
-                  <TabsTrigger 
-                    value="all" 
-                    className="flex-1 min-w-[120px] data-[state=active]:text-emerald-600 data-[state=active]:border-b-2 data-[state=active]:border-emerald-600 rounded-none"
-                  >
-                    ทั้งหมด
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="rice" 
-                    className="flex-1 min-w-[150px] data-[state=active]:text-emerald-600 data-[state=active]:border-b-2 data-[state=active]:border-emerald-600 rounded-none"
-                  >
-                    พื้นข้าวเต้มเมล็ด (%)
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="ingredients" 
-                    className="flex-1 min-w-[120px] data-[state=active]:text-emerald-600 data-[state=active]:border-b-2 data-[state=active]:border-emerald-600 rounded-none"
-                  >
-                    ส่วนผสม (%)
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="contaminants" 
-                    className="flex-1 min-w-[120px] data-[state=active]:text-emerald-600 data-[state=active]:border-b-2 data-[state=active]:border-emerald-600 rounded-none"
-                  >
-                    สิ่งเจือปน (%)
-                  </TabsTrigger>
-                </TabsList>
-              </ScrollArea>
-            </div>
+          <Tabs defaultValue="all" className="w-full">
+            <ScrollArea className="w-full">
+              <TabsList className="flex w-full h-12 bg-white border border-gray-200 rounded-lg p-1 space-x-1">
+                <TabsTrigger 
+                  value="all" 
+                  className="flex-1 flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md"
+                >
+                  <Square className="h-4 w-4" />
+                  <span>ทั้งหมด</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="wholegrain" 
+                  className="flex-1 flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md"
+                >
+                  <Wheat className="h-4 w-4" />
+                  <span>พื้นข้าวเต้มเมล็ด (%)</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="ingredients" 
+                  className="flex-1 flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md"
+                >
+                  <Blend className="h-4 w-4" />
+                  <span>ส่วนผสม (%)</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="impurities" 
+                  className="flex-1 flex items-center justify-center gap-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white rounded-md"
+                >
+                  <Bug className="h-4 w-4" />
+                  <span>สิ่งเจือปน (%)</span>
+                </TabsTrigger>
+              </TabsList>
+            </ScrollArea>
             
-            <Carousel 
-              className="w-full mt-4"
-              setApi={setEmblaApi}
-              opts={{
-                align: "start",
-                loop: false,
-                skipSnaps: false,
-                dragFree: false
-              }}
-            >
-              <CarouselContent>
-                <CarouselItem className="basis-full">
-                  <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
-                    {measurements.map((item, index) => (
-                      <MeasurementItem
-                        key={index}
-                        symbol={item.symbol}
-                        name={item.name}
-                        price={item.price}
-                        percentageChange={item.percentageChange}
-                        iconColor={item.iconColor}
-                      />
-                    ))}
-                  </div>
-                </CarouselItem>
-                
-                <CarouselItem className="basis-full">
-                  <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
-                    {measurements.slice(0, 3).map((item, index) => (
-                      <MeasurementItem
-                        key={index}
-                        symbol={item.symbol}
-                        name={item.name}
-                        price={item.price}
-                        percentageChange={item.percentageChange}
-                        iconColor={item.iconColor}
-                      />
-                    ))}
-                  </div>
-                </CarouselItem>
-                
-                <CarouselItem className="basis-full">
-                  <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
-                    {measurements.slice(2, 5).map((item, index) => (
-                      <MeasurementItem
-                        key={index}
-                        symbol={item.symbol}
-                        name={item.name}
-                        price={item.price}
-                        percentageChange={item.percentageChange}
-                        iconColor={item.iconColor}
-                      />
-                    ))}
-                  </div>
-                </CarouselItem>
-                
-                <CarouselItem className="basis-full">
-                  <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
-                    {measurements.slice(4, 7).map((item, index) => (
-                      <MeasurementItem
-                        key={index}
-                        symbol={item.symbol}
-                        name={item.name}
-                        price={item.price}
-                        percentageChange={item.percentageChange}
-                        iconColor={item.iconColor}
-                      />
-                    ))}
-                  </div>
-                </CarouselItem>
-              </CarouselContent>
-            </Carousel>
+            <TabsContent value="all" className="mt-4">
+              {/* รายการการวัดทั้งหมด */}
+              <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
+                {measurements.map((item, index) => (
+                  <MeasurementItem
+                    key={index}
+                    symbol={item.symbol}
+                    name={item.name}
+                    price={item.price}
+                    percentageChange={item.percentageChange}
+                    iconColor={item.iconColor}
+                  />
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="wholegrain" className="mt-4">
+              <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
+                {/* แสดงเฉพาะรายการพื้นข้าวเต้มเมล็ด */}
+                {measurements.slice(0, 3).map((item, index) => (
+                  <MeasurementItem
+                    key={index}
+                    symbol={item.symbol}
+                    name={item.name}
+                    price={item.price}
+                    percentageChange={item.percentageChange}
+                    iconColor={item.iconColor}
+                  />
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="ingredients" className="mt-4">
+              <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
+                {/* แสดงเฉพาะรายการส่วนผสม */}
+                {measurements.slice(2, 5).map((item, index) => (
+                  <MeasurementItem
+                    key={index}
+                    symbol={item.symbol}
+                    name={item.name}
+                    price={item.price}
+                    percentageChange={item.percentageChange}
+                    iconColor={item.iconColor}
+                  />
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="impurities" className="mt-4">
+              <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
+                {/* แสดงเฉพาะรายการสิ่งเจือปน */}
+                {measurements.slice(4, 7).map((item, index) => (
+                  <MeasurementItem
+                    key={index}
+                    symbol={item.symbol}
+                    name={item.name}
+                    price={item.price}
+                    percentageChange={item.percentageChange}
+                    iconColor={item.iconColor}
+                  />
+                ))}
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
       </main>
