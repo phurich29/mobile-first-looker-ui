@@ -59,84 +59,91 @@ export const Header = () => {
     <>
       {/* Sidebar for Desktop */}
       <div className={cn(
-        "fixed left-0 top-0 bottom-0 z-40 w-64 bg-emerald-600 text-white transition-transform duration-300 ease-in-out shadow-xl",
+        "fixed left-0 top-0 bottom-0 z-40 w-64 bg-white text-gray-800 transition-transform duration-300 ease-in-out shadow-sm border-r border-gray-100",
         sidebarOpen ? "translate-x-0" : "-translate-x-full",
         "md:translate-x-0" // แสดงเสมอในหน้าจอขนาดใหญ่
       )}>
         <div className="flex flex-col h-full p-4">
           <div className="flex justify-between items-center mb-8 mt-4">
-            <h2 className="text-xl font-bold">เมนูหลัก</h2>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-emerald-600 rounded-md flex items-center justify-center">
+                <Wheat className="h-4 w-4 text-white" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-800">RiceApp</h2>
+            </div>
             <Button 
               variant="ghost" 
               size="icon" 
-              className="text-white md:hidden" 
+              className="text-gray-500 md:hidden" 
               onClick={() => setSidebarOpen(false)}
             >
               <X className="h-5 w-5" />
             </Button>
           </div>
           
-          <nav className="flex flex-col space-y-6 mt-4">
+          <nav className="flex flex-col space-y-1 mt-4">
             <Link 
               to="/" 
               className={cn(
-                "flex items-center gap-3 py-2 px-3 rounded-lg transition-colors",
-                isActive("/") ? "bg-emerald-700 text-white" : "hover:bg-emerald-700/50"
+                "flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors",
+                isActive("/") ? "bg-emerald-50 text-emerald-600 font-medium" : "hover:bg-gray-50 text-gray-700"
               )}
             >
               <Home className="h-5 w-5" />
-              <span className="text-base">หน้าหลัก</span>
+              <span className="text-sm">หน้าหลัก</span>
             </Link>
             
             <Link 
               to="/rice-prices" 
               className={cn(
-                "flex items-center gap-3 py-2 px-3 rounded-lg transition-colors",
-                isActive("/rice-prices") ? "bg-emerald-700 text-white" : "hover:bg-emerald-700/50"
+                "flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors",
+                isActive("/rice-prices") ? "bg-emerald-50 text-emerald-600 font-medium" : "hover:bg-gray-50 text-gray-700"
               )}
             >
               <Wheat className="h-5 w-5" />
-              <span className="text-base">ราคาข้าว</span>
+              <span className="text-sm">ราคาข้าว</span>
             </Link>
             
             <Link 
               to="/equipment" 
               className={cn(
-                "flex items-center gap-3 py-2 px-3 rounded-lg transition-colors",
-                isActive("/equipment") ? "bg-emerald-700 text-white" : "hover:bg-emerald-700/50"
+                "flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors",
+                isActive("/equipment") ? "bg-emerald-50 text-emerald-600 font-medium" : "hover:bg-gray-50 text-gray-700"
               )}
             >
               <Settings className="h-5 w-5" />
-              <span className="text-base">อุปกรณ์</span>
+              <span className="text-sm">อุปกรณ์</span>
             </Link>
             
             <Link 
               to="/measurements" 
               className={cn(
-                "flex items-center gap-3 py-2 px-3 rounded-lg transition-colors",
-                isActive("/measurements") ? "bg-emerald-700 text-white" : "hover:bg-emerald-700/50"
+                "flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors",
+                isActive("/measurements") ? "bg-emerald-50 text-emerald-600 font-medium" : "hover:bg-gray-50 text-gray-700"
               )}
             >
               <BarChart2 className="h-5 w-5" />
-              <span className="text-base">รายการวัด</span>
+              <span className="text-sm">รายการวัด</span>
             </Link>
           </nav>
         </div>
       </div>
       
-      <header className="flex items-center justify-between px-5 py-4 bg-emerald-600 text-white shadow-md md:ml-64">
+      <header className="flex items-center justify-between px-4 py-3 bg-white text-gray-800 shadow-sm border-b border-gray-100 md:ml-64">
         {/* Mobile Menu Trigger */}
-        <Button variant="ghost" size="icon" className="text-white p-1 md:hidden" onClick={() => setSidebarOpen(true)}>
-          <Menu className="h-6 w-6" />
+        <Button variant="ghost" size="icon" className="text-gray-500 p-1 md:hidden" onClick={() => setSidebarOpen(true)}>
+          <Menu className="h-5 w-5" />
         </Button>
 
         {/* Minimal Digital Clock */}
-        <div className="bg-black/30 px-3 py-1 rounded-md backdrop-blur-sm flex-1 md:flex-none mx-2 md:mx-0">
-          <p className="text-sm font-medium tracking-wider text-center">{formatTime()}</p>
+        <div className="flex items-center gap-2 mx-auto md:mx-0">
+          <div className="bg-gray-100 px-3 py-1 rounded-full flex items-center">
+            <p className="text-xs font-medium text-gray-600 tracking-wider">{formatTime()}</p>
+          </div>
         </div>
       
-        <div className="bg-white rounded-full w-10 h-10 flex items-center justify-center shadow-sm">
-          <Bell className="h-5 w-5 text-emerald-600" />
+        <div className="bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center">
+          <Bell className="h-4 w-4 text-gray-600" />
         </div>
       </header>
     </>
