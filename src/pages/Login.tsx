@@ -243,16 +243,6 @@ export default function Login() {
                 </Button>
               </CardFooter>
             </form>
-            
-            <div className="px-6 pb-4 text-center">
-              <p className="text-sm text-muted-foreground mt-2">
-                <span className="block text-xs text-gray-500 mt-4">
-                  สำหรับการทดสอบ: ลงทะเบียนด้วย <br />
-                  user@example.com, admin@example.com หรือ superadmin@example.com <br />
-                  เพื่อทดสอบสิทธิ์แต่ละระดับ
-                </span>
-              </p>
-            </div>
           </TabsContent>
           
           <TabsContent value="register">
