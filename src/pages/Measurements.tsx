@@ -123,7 +123,7 @@ export default function Measurements() {
         <div className="px-4 mb-4">
           <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
             <div className="relative overflow-x-auto">
-              <ScrollArea className="w-full pb-4" orientation="horizontal">
+              <ScrollArea className="w-full pb-4">
                 <TabsList className="h-12 inline-flex w-full min-w-max border-b">
                   <TabsTrigger 
                     value="all" 
