@@ -1,4 +1,3 @@
-
 import { Header } from "@/components/Header";
 import { MeasurementItem } from "@/components/MeasurementItem";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -67,7 +66,7 @@ export default function Measurements() {
   const fetchWholeGrainData = async () => {
     const { data, error } = await supabase
       .from('rice_quality_analysis')
-      .select('id, class1, class2, class3, short_grain, slender_kernel, created_at')
+      .select('id, class1, class2, class3, short_grain, slender_kernel, created_at, thai_datetime')
       .order('created_at', { ascending: false })
       .limit(10);
     
@@ -85,47 +84,65 @@ export default function Measurements() {
     queryFn: fetchWholeGrainData,
   });
 
-  // แปลงข้อมูลให้อยู่ในรูปแบบที่ใช้กับ MeasurementItem
+  // แปลงข้อมูลให้อยู่ในรูปแบบที่ใช้กับ MeasurementItem และคำนวณการเปลี่ยนแปลง
   const formatWholeGrainItems = () => {
-    if (!wholeGrainData) return [];
+    if (!wholeGrainData || wholeGrainData.length === 0) return [];
     
-    return wholeGrainData.map(item => [
+    // คำนวณการเปลี่ยนแปลงโดยเปรียบเทียบค่าล่าสุดกับค่าก่อนหน้า
+    const calculateChange = (current: number | null, previous: number | null) => {
+      if (current === null || previous === null) return 0;
+      return current - previous;
+    };
+    
+    // ข้อมูลล่าสุดและข้อมูลก่อนหน้า
+    const latestData = wholeGrainData[0];
+    const previousData = wholeGrainData.length > 1 ? wholeGrainData[1] : null;
+    
+    // แปลงข้อมูลเป็นรูปแบบของ MeasurementItem
+    const metrics = [
       {
         symbol: "class1",
         name: "ชั้น 1",
-        price: item.class1?.toString() || "0",
-        percentageChange: 0,
+        price: latestData.class1?.toString() || "0",
+        percentageChange: calculateChange(latestData.class1, previousData?.class1),
         iconColor: "#F7931A",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
       },
       {
         symbol: "class2",
         name: "ชั้น 2",
-        price: item.class2?.toString() || "0",
-        percentageChange: 0,
+        price: latestData.class2?.toString() || "0",
+        percentageChange: calculateChange(latestData.class2, previousData?.class2),
         iconColor: "#627EEA",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
       },
       {
         symbol: "class3",
         name: "ชั้น 3",
-        price: item.class3?.toString() || "0",
-        percentageChange: 0,
+        price: latestData.class3?.toString() || "0",
+        percentageChange: calculateChange(latestData.class3, previousData?.class3),
         iconColor: "#F3BA2F",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
       },
       {
         symbol: "short_grain",
         name: "เมล็ดสั้น",
-        price: item.short_grain?.toString() || "0",
-        percentageChange: 0,
+        price: latestData.short_grain?.toString() || "0",
+        percentageChange: calculateChange(latestData.short_grain, previousData?.short_grain),
         iconColor: "#23292F",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
       },
       {
         symbol: "slender_kernel",
         name: "ข้าวลีบ",
-        price: item.slender_kernel?.toString() || "0",
-        percentageChange: 0,
+        price: latestData.slender_kernel?.toString() || "0",
+        percentageChange: calculateChange(latestData.slender_kernel, previousData?.slender_kernel),
         iconColor: "#345D9D",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
       },
-    ]).flat();
+    ];
+
+    return metrics;
   };
 
   // ข้อมูลทดสอบสำหรับรายการการวัด
@@ -294,6 +311,7 @@ export default function Measurements() {
                       price={item.price}
                       percentageChange={item.percentageChange}
                       iconColor={item.iconColor}
+                      updatedAt={item.updatedAt}
                     />
                   ))
                 ) : (

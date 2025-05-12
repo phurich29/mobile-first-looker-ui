@@ -5,9 +5,10 @@ import { ArrowUp, ArrowDown } from "lucide-react";
 type MeasurementItemProps = {
   symbol: string;
   name: string;
-  price: string;
-  percentageChange: number;
+  price: string; // Latest value (percentage)
+  percentageChange: number; // Change compared to previous value
   iconColor: string;
+  updatedAt?: Date; // Updated timestamp
 };
 
 export const MeasurementItem: React.FC<MeasurementItemProps> = ({
@@ -16,6 +17,7 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
   price,
   percentageChange,
   iconColor,
+  updatedAt,
 }) => {
   const isPositive = percentageChange >= 0;
   
@@ -25,6 +27,24 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
                 symbol.includes('BNB') ? 'bg-yellow-50' :
                 symbol.includes('XRP') ? 'bg-indigo-50' :
                 symbol.includes('LTC') ? 'bg-gray-50' : 'bg-purple-50';
+  
+  // Format the Bangkok time (+7)
+  const formatBangkokTime = (date?: Date) => {
+    if (!date) return "ไม่มีข้อมูล";
+    
+    // Create a formatter with Bangkok timezone
+    const options: Intl.DateTimeFormatOptions = {
+      timeZone: 'Asia/Bangkok',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    };
+    
+    return new Intl.DateTimeFormat('th-TH', options).format(date);
+  };
   
   return (
     <div className={`flex items-center justify-between p-4 border-b border-gray-100 ${bgColor} hover:brightness-95 transition-all duration-300 relative overflow-hidden`}>
@@ -50,13 +70,11 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
         </div>
       </div>
       <div className="text-right flex flex-col items-end relative z-10">
-        <p className="font-bold text-base">${price}</p>
-        <div className={`flex items-center px-2 py-0.5 rounded-full ${isPositive ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-          {isPositive ? 
-            <ArrowUp className="w-3 h-3 mr-1" /> : 
-            <ArrowDown className="w-3 h-3 mr-1" />
-          }
-          <span className="text-xs font-medium">{Math.abs(percentageChange)}%</span>
+        <p className={`font-bold text-base ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+          {price}%
+        </p>
+        <div className="text-xs text-gray-500">
+          {formatBangkokTime(updatedAt)}
         </div>
       </div>
     </div>
