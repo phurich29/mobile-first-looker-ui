@@ -1,115 +1,94 @@
-import React from 'react';
-import useEmblaCarousel from 'embla-carousel-react';
-import { PromotionBanner } from '@/components/PromotionBanner';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import useEmblaCarousel from 'embla-carousel-react';
 
-// ข้อมูลข่าวเกี่ยวกับวงการข้าวไทย 4 ข่าว
-const riceNewsList = [
+// รายการข่าวเกี่ยวกับวงการข้าวไทย
+const newsItems = [
   {
     id: 1,
-    title: "กรมการข้าวเตรียมเพิ่มปริมาณข้าวเหนียว",
-    description: "กรมการข้าวประกาศนโยบายสนับสนุนเกษตรกรเพิ่มปริมาณการปลูกข้าวเหนียวเพื่อการส่งออก มุ่งเป้าเพิ่มรายได้เกษตรกร",
-    imageUrl: ""
+    title: 'แนวโน้มราคาข้าวไทยปี 2568 เพิ่มขึ้น 15%',
+    description: 'กรมการค้าต่างประเทศคาดการณ์ราคาข้าวไทยในตลาดโลกจะเพิ่มขึ้น 15% จากปัจจัยด้านความต้องการที่สูงขึ้น'
   },
   {
     id: 2,
-    title: "ราคาข้าวหอมมะลิทะยานสูงสุดในรอบ 3 ปี",
-    description: "ราคาข้าวหอมมะลิในตลาดปรับตัวสูงขึ้นกว่าร้อยละ 15 เนื่องจากผลผลิตลดลงจากภัยแล้ง นับเป็นราคาที่สูงที่สุดในรอบ 3 ปี",
-    imageUrl: ""
+    title: 'นาข้าวอินทรีย์ไทยได้รับการรับรองมาตรฐานสากล',
+    description: 'กลุ่มเกษตรกรภาคอีสานได้รับการรับรองมาตรฐานนาข้าวอินทรีย์ระดับสากล เพิ่มโอกาสส่งออกตลาดพรีเมี่ยม'
   },
   {
     id: 3,
-    title: "สมาคมโรงสีข้าวไทยประกาศมาตรฐานใหม่",
-    description: "สมาคมโรงสีข้าวไทยร่วมกับกระทรวงเกษตรและสหกรณ์ประกาศใช้มาตรฐานใหม่เพื่อยกระดับคุณภาพข้าวไทยสู่สากล",
-    imageUrl: ""
-  },
-  {
-    id: 4,
-    title: "ส่งออกข้าวไทยไตรมาสแรกทำสถิติใหม่",
-    description: "การส่งออกข้าวไทยในไตรมาสแรกของปีนี้ทำสถิติใหม่ มูลค่าสูงถึง 86,000 ล้านบาท เพิ่มขึ้นร้อยละ 22 จากช่วงเดียวกันของปีก่อน",
-    imageUrl: ""
+    title: 'เกษตรกรไทยนำเทคโนโลยีมาพัฒนาพันธุ์ข้าวใหม่',
+    description: 'เกษตรกรรุ่นใหม่ร่วมมือกับนักวิจัยนำเทคโนโลยีมาพัฒนาพันธุ์ข้าวทนแล้งที่ให้ผลผลิตสูงขึ้น 20%'
   }
 ];
 
 export const NewsSlider = () => {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: 'start' });
-  const [selectedIndex, setSelectedIndex] = React.useState(0);
-  const [scrollSnaps, setScrollSnaps] = React.useState<number[]>([]);
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
 
-  const scrollPrev = React.useCallback(() => {
+  const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev();
   }, [emblaApi]);
 
-  const scrollNext = React.useCallback(() => {
+  const scrollNext = useCallback(() => {
     if (emblaApi) emblaApi.scrollNext();
   }, [emblaApi]);
 
-  const onSelect = React.useCallback(() => {
+  const onSelect = useCallback(() => {
     if (!emblaApi) return;
     setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi, setSelectedIndex]);
+  }, [emblaApi]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!emblaApi) return;
     onSelect();
     setScrollSnaps(emblaApi.scrollSnapList());
     emblaApi.on('select', onSelect);
     
-    // Auto-play
-    const autoplayTimer = setInterval(() => {
-      if (emblaApi.canScrollNext()) {
-        emblaApi.scrollNext();
-      } else {
-        emblaApi.scrollTo(0);
-      }
+    // Auto-scroll every 5 seconds
+    const autoplayInterval = setInterval(() => {
+      emblaApi.scrollNext();
     }, 5000);
-
+    
     return () => {
-      clearInterval(autoplayTimer);
+      clearInterval(autoplayInterval);
       emblaApi.off('select', onSelect);
     };
   }, [emblaApi, onSelect]);
 
   return (
-    <div className="relative px-1">
+    <div className="relative mb-6">
       <div className="overflow-hidden rounded-2xl" ref={emblaRef}>
         <div className="flex">
-          {riceNewsList.map((news) => (
-            <div key={news.id} className="flex-shrink-0 min-w-full">
-              <PromotionBanner
-                title={news.title}
-                description={news.description}
-                imageUrl={news.imageUrl || undefined}
-              />
+          {newsItems.map((news) => (
+            <div key={news.id} className="relative min-w-full">
+              <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 p-4 text-white">
+                {/* องค์ประกอบตกแต่งเพื่อเพิ่มมิติ */}
+                <div className="absolute -bottom-6 -right-6 w-32 h-32 rounded-full bg-white/10 blur-xl"></div>
+                <div className="absolute -top-2 -left-2 w-16 h-16 rounded-full bg-emerald-400/30"></div>
+                
+                <div className="relative z-10">
+                  <div className="flex flex-col h-20">
+                    <h3 className="text-base font-bold mb-1 drop-shadow-md leading-tight">{news.title}</h3>
+                    <p className="text-xs font-medium opacity-90 line-clamp-2">{news.description}</p>
+                  </div>
+                </div>
+              </div>
             </div>
           ))}
         </div>
       </div>
       
-      {/* ปุ่มเลื่อนซ้าย-ขวา */}
-      <button 
-        className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-white/80 rounded-full shadow-md z-10 backdrop-blur-sm border border-emerald-100"
-        onClick={scrollPrev}
-      >
-        <ChevronLeft className="h-5 w-5 text-emerald-600" />
-      </button>
+      {/* ลบปุ่มเลื่อนซ้าย-ขวาตามคำขอ */}
       
-      <button 
-        className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-white/80 rounded-full shadow-md z-10 backdrop-blur-sm border border-emerald-100"
-        onClick={scrollNext}
-      >
-        <ChevronRight className="h-5 w-5 text-emerald-600" />
-      </button>
-      
-      {/* Dots indicator */}
-      <div className="flex justify-center mt-2">
+      {/* จุดแสดงตำแหน่งสไลด์ */}
+      <div className="flex justify-center mt-3 gap-2">
         {scrollSnaps.map((_, index) => (
-          <button
+          <div
             key={index}
-            className={`w-2 h-2 mx-1 rounded-full transition-colors ${
-              index === selectedIndex ? 'bg-emerald-600' : 'bg-emerald-200'
+            className={`w-2 h-2 rounded-full ${
+              index === selectedIndex ? 'bg-emerald-500' : 'bg-gray-300'
             }`}
-            onClick={() => emblaApi?.scrollTo(index)}
           />
         ))}
       </div>

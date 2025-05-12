@@ -3,12 +3,44 @@ import { Header } from "@/components/Header";
 import { AssetCard } from "@/components/AssetCard";
 import { WatchlistItem } from "@/components/WatchlistItem";
 import { SectionHeader } from "@/components/SectionHeader";
+import { NewsCarousel } from "@/components/NewsCarousel";
 import { NewsSlider } from "@/components/NewsSlider";
 import useEmblaCarousel from 'embla-carousel-react';
 import { useState, useEffect, useCallback } from 'react';
 
 const Index = () => {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ align: 'start', loop: false, dragFree: true });
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    align: 'start', 
+    loop: false, 
+    dragFree: true,
+    containScroll: 'trimSnaps' // ทำให้ไม่เลยขอบจอ
+  });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    
+    const onSelect = () => {
+      setSelectedIndex(emblaApi.selectedScrollSnap());
+    };
+    
+    const onScroll = () => {
+      setScrollProgress(emblaApi.scrollProgress());
+    };
+    
+    emblaApi.on('select', onSelect);
+    emblaApi.on('scroll', onScroll);
+    
+    // Sync initial states
+    onSelect();
+    onScroll();
+    
+    return () => {
+      emblaApi.off('select', onSelect);
+      emblaApi.off('scroll', onScroll);
+    };
+  }, [emblaApi]);
   // Sample data for rice prices
   const riceUpdates = [
     {
@@ -80,8 +112,8 @@ const Index = () => {
       
       <main className="flex-1 pb-28">
         <div className="mt-4">
-          {/* แสดงข่าวเกี่ยวกับวงการข้าวไทยแบบเลื่อนได้ 4 ข่าว */}
-          <div className="mb-6 mt-4">
+          {/* แสดงสไลด์ข่าวเกี่ยวกับวงการข้าวไทย */}
+          <div className="mt-4 mx-4">
             <NewsSlider />
           </div>
           
@@ -89,11 +121,12 @@ const Index = () => {
             <h2 className="font-semibold text-gray-700">ราคาข้าว จากสมาคมโรงสีข้าวไทย</h2>
             <button className="text-sm text-green-600 font-medium">ดูทั้งหมด</button>
           </div>
-          <div className="mb-7 overflow-visible px-4">
-            <div className="overflow-visible pt-3 pb-3" ref={emblaRef}>
+          <div className="mb-7 relative">
+            {/* กรอบบังคับขอบการเลื่อน */}
+            <div className="overflow-hidden px-4 pt-3 pb-8" ref={emblaRef}>
               <div className="flex">
                 {riceUpdates.map((rice) => (
-                  <div key={rice.symbol} className="min-w-[190px] mr-3 flex-shrink-0">
+                  <div key={rice.symbol} className="min-w-[190px] mr-3 flex-shrink-0 pl-0.5 pr-0.5">
                     <AssetCard
                       symbol={rice.symbol}
                       name={rice.name}
@@ -106,10 +139,54 @@ const Index = () => {
                 ))}
               </div>
             </div>
+            {/* Scroll bar แบบสมมาตรฐาน UI/UX และสามารถคลิกเพื่อเลื่อนได้ */}
+            <div className="w-full px-8 mt-[-8px] mb-2">
+              <div 
+                className="relative h-2 bg-gray-200/50 rounded-full cursor-pointer"
+                onClick={(e) => {
+                  if (!emblaApi) return;
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = e.clientX - rect.left;
+                  const percentPosition = x / rect.width;
+                  const slideCount = emblaApi.slideNodes().length;
+                  const targetIndex = Math.min(
+                    Math.floor(percentPosition * slideCount),
+                    slideCount - 1
+                  );
+                  emblaApi.scrollTo(targetIndex);
+                }}
+              >
+                {emblaApi && (() => {
+                  const slideCount = emblaApi.slideNodes().length;
+                  
+                  // ขนาด thumb คงที่ เพื่อความสวยงามและเป็นมาตรฐาน
+                  const thumbWidth = 16;
+                  
+                  // คำนวณตำแหน่งแบบ discrete steps ตาม selectedIndex
+                  // จำนวนตำแหน่งที่เป็นไปได้ = จำนวน slide ทั้งหมด
+                  const segments = slideCount - 1 || 1;
+                  const maxTranslate = 100 - thumbWidth;
+                  
+                  // ใช้ selectedIndex จะได้ตำแหน่งที่แม่นยำและสมมาตรกว่า
+                  const translatePercent = selectedIndex === 0 ? 0 : 
+                                         (selectedIndex / segments) * maxTranslate;
+                  
+                  return (
+                    <div
+                      className="absolute left-0 top-0 h-full bg-white rounded-full shadow-sm transition-transform duration-200"
+                      style={{
+                        width: `${thumbWidth}%`,
+                        transform: `translateX(${translatePercent}%)`
+                      }}
+                    ></div>
+                  );
+                })()}
+              </div>
+            </div>
           </div>
 
           <div className="px-4 mb-3 flex justify-between items-center">
-            <h2 className="font-semibold text-gray-700">Watchlist</h2>
+            <h2 className="font-semibold text-gray-700">รายการที่ติดตาม</h2>
           </div>
           <div className="bg-white rounded-xl mx-4 overflow-hidden shadow-md border border-gray-100 mb-8">
             {watchlist.map((item) => (

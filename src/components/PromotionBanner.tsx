@@ -18,7 +18,7 @@ export const PromotionBanner = ({
 }: PromotionBannerProps) => {
   return (
     <div 
-      className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl mx-auto w-[90%] max-w-xl px-10 py-7 shadow-xl mb-6 text-white relative overflow-hidden flex flex-col justify-center"
+      className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl mx-4 p-5 shadow-xl mb-6 text-white relative overflow-hidden"
       onClick={onAction}
     >
       {/* องค์ประกอบตกแต่งเพื่อเพิ่มมิติ */}
@@ -36,8 +36,8 @@ export const PromotionBanner = ({
       <div className="relative z-10">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-2xl font-bold mb-2 drop-shadow-md">{title}</h3>
-            <p className="text-base font-medium opacity-90 max-w-[90%]">{description}</p>
+            <h3 className="text-xl font-bold mb-2 drop-shadow-md">{title}</h3>
+            <p className="text-sm font-medium opacity-90 max-w-[70%]">{description}</p>
           </div>
           
           <div className="bg-white/20 backdrop-blur-sm rounded-xl p-2 flex items-center shadow-lg border border-white/30">
