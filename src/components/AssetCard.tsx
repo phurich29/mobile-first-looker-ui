@@ -19,12 +19,11 @@ export const AssetCard: React.FC<AssetCardProps> = ({
   iconColor,
 }) => {
   return (
-    <div className="bg-white rounded-xl p-4 shadow-sm">
+    <div className="bg-white rounded-xl p-4 shadow-sm border-l-4" style={{ borderLeftColor: iconColor }}>
       <div className="flex flex-col">
-        <h3 className="font-bold text-base mb-1">{symbol}</h3>
+        <h3 className="font-bold text-base text-gray-800 mb-2 truncate">{symbol}</h3>
         <div className="flex justify-between items-center">
-          <p className="text-sm text-gray-600">{name}</p>
-          <p className="font-bold text-right">{value} {amount.split('/')[0]}</p>
+          <p className="font-medium text-crypto-c2etech text-right">{value} {amount.split('/')[0]}</p>
         </div>
       </div>
     </div>
