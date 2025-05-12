@@ -4,39 +4,46 @@ import { Button } from "./ui/button";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "./ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const Header = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const isMobile = useIsMobile();
   
   return (
     <header className="flex items-center justify-between px-5 py-4 bg-emerald-600 text-white rounded-b-3xl shadow-md">
       {/* Mobile Menu */}
-      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <DropdownMenuTrigger asChild>
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetTrigger asChild>
           <Button variant="ghost" size="icon" className="text-white p-1 md:hidden">
             <Menu className="h-6 w-6" />
           </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-48 mt-2">
-          <DropdownMenuItem asChild>
-            <Link to="/" className="flex items-center gap-2 w-full">
-              <Home className="h-4 w-4" />
+        </SheetTrigger>
+        <SheetContent side="left" className="bg-emerald-600 text-white p-6 w-64">
+          <nav className="flex flex-col space-y-4 mt-8">
+            <Link 
+              to="/" 
+              className="flex items-center gap-2 hover:text-emerald-200 transition-colors text-lg"
+              onClick={() => setOpen(false)}
+            >
+              <Home className="h-5 w-5" />
               <span>หน้าหลัก</span>
             </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link to="/rice-prices" className="flex items-center gap-2 w-full">
-              <Wheat className="h-4 w-4" />
+            <Link 
+              to="/rice-prices" 
+              className="flex items-center gap-2 hover:text-emerald-200 transition-colors text-lg"
+              onClick={() => setOpen(false)}
+            >
+              <Wheat className="h-5 w-5" />
               <span>ราคาข้าว</span>
             </Link>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          </nav>
+        </SheetContent>
+      </Sheet>
       
       {/* Desktop Menu */}
       <nav className="hidden md:flex items-center space-x-6">
