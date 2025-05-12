@@ -8,7 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Shield, ChevronDown, UserPlus } from "lucide-react";
+import { Shield, ChevronDown, UserPlus, Edit, Trash2 } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
@@ -44,6 +44,15 @@ const newUserSchema = z.object({
   path: ["confirmPassword"]
 });
 
+// Schema for reset password form
+const resetPasswordSchema = z.object({
+  password: z.string().min(6, "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร"),
+  confirmPassword: z.string()
+}).refine(data => data.password === data.confirmPassword, {
+  message: "รหัสผ่านไม่ตรงกัน",
+  path: ["confirmPassword"]
+});
+
 export default function UserManagement() {
   const { toast } = useToast();
   const { user, userRoles, isLoading } = useAuth();
@@ -51,11 +60,23 @@ export default function UserManagement() {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(true);
   const [showAddUserDialog, setShowAddUserDialog] = useState<boolean>(false);
+  const [showResetPasswordDialog, setShowResetPasswordDialog] = useState<boolean>(false);
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
+  const [selectedUserEmail, setSelectedUserEmail] = useState<string>("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<boolean>(false);
 
-  const form = useForm<z.infer<typeof newUserSchema>>({
+  const newUserForm = useForm<z.infer<typeof newUserSchema>>({
     resolver: zodResolver(newUserSchema),
     defaultValues: {
       email: "",
+      password: "",
+      confirmPassword: ""
+    }
+  });
+
+  const resetPasswordForm = useForm<z.infer<typeof resetPasswordSchema>>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
       password: "",
       confirmPassword: ""
     }
@@ -280,7 +301,7 @@ export default function UserManagement() {
       
       // ปิด dialog และ reset form
       setShowAddUserDialog(false);
-      form.reset();
+      newUserForm.reset();
       
       // Refresh users list to include the new user
       const { data: profiles } = await supabase
@@ -325,6 +346,88 @@ export default function UserManagement() {
     }
   };
 
+  // Reset user password
+  const resetUserPassword = async (values: z.infer<typeof resetPasswordSchema>) => {
+    setIsProcessing(true);
+    
+    try {
+      if (!selectedUserId) throw new Error("ไม่พบรหัสผู้ใช้");
+      
+      // Reset password using admin API
+      const { error } = await supabase.auth.admin.updateUserById(
+        selectedUserId,
+        { password: values.password }
+      );
+      
+      if (error) throw error;
+      
+      toast({
+        title: "รีเซ็ตรหัสผ่านสำเร็จ",
+        description: "รหัสผ่านถูกเปลี่ยนเรียบร้อยแล้ว",
+      });
+      
+      setShowResetPasswordDialog(false);
+      resetPasswordForm.reset();
+    } catch (error: any) {
+      console.error("Error resetting password:", error);
+      
+      toast({
+        title: "รีเซ็ตรหัสผ่านไม่สำเร็จ",
+        description: error.message || "เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Delete user
+  const deleteUser = async () => {
+    if (!selectedUserId) return;
+    
+    setIsProcessing(true);
+    try {
+      const { error } = await supabase.auth.admin.deleteUser(selectedUserId);
+      
+      if (error) throw error;
+      
+      // Remove user from local state
+      setUsers(users.filter(user => user.id !== selectedUserId));
+      
+      toast({
+        title: "ลบผู้ใช้สำเร็จ",
+        description: "ผู้ใช้ถูกลบออกจากระบบแล้ว",
+      });
+      
+      setShowDeleteConfirm(false);
+    } catch (error: any) {
+      console.error("Error deleting user:", error);
+      
+      toast({
+        title: "ลบผู้ใช้ไม่สำเร็จ",
+        description: error.message || "เกิดข้อผิดพลาดในการลบผู้ใช้",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+  
+  // Handle opening reset password dialog
+  const handleOpenResetDialog = (userId: string, email: string) => {
+    setSelectedUserId(userId);
+    setSelectedUserEmail(email);
+    setShowResetPasswordDialog(true);
+    resetPasswordForm.reset();
+  };
+  
+  // Handle opening delete confirm dialog
+  const handleOpenDeleteDialog = (userId: string, email: string) => {
+    setSelectedUserId(userId);
+    setSelectedUserEmail(email);
+    setShowDeleteConfirm(true);
+  };
+
   // If still loading, show loading indicator
   if (isLoading) {
     return (
@@ -367,128 +470,143 @@ export default function UserManagement() {
           </Button>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>รายชื่อผู้ใช้ทั้งหมด</CardTitle>
+        <Card className="overflow-hidden">
+          <CardHeader className="py-4">
+            <CardTitle className="text-xl">รายชื่อผู้ใช้ทั้งหมด</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0">
             {isLoadingUsers ? (
-              <div className="p-8 text-center">
+              <div className="p-6 text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
                 <p className="text-gray-500 mt-4">กำลังโหลดข้อมูลผู้ใช้...</p>
               </div>
             ) : users.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>อีเมล</TableHead>
-                    <TableHead>บทบาทปัจจุบัน</TableHead>
-                    <TableHead className="text-right">จัดการ</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {users.map((user) => (
-                    <TableRow key={user.id} className={user.roles.includes('waiting_list') ? "bg-amber-50" : ""}>
-                      <TableCell>
-                        <div className="font-medium">{user.email}</div>
-                        {user.roles.includes('waiting_list') && !user.roles.includes('user') && (
-                          <span className="text-xs text-amber-600 font-medium">รอการอนุมัติ</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {user.roles.length > 0 ? user.roles.map((role) => (
-                            <Badge 
-                              key={role} 
-                              className={
-                                role === 'superadmin' ? 'bg-red-100 text-red-800 hover:bg-red-200' : 
-                                role === 'admin' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : 
-                                role === 'waiting_list' ? 'bg-amber-100 text-amber-800 hover:bg-amber-200' :
-                                'bg-green-100 text-green-800 hover:bg-green-200'
-                              }
-                              variant="outline"
-                            >
-                              {role}
-                            </Badge>
-                          )) : (
-                            <span className="text-gray-400 text-sm italic">ไม่มีสิทธิ์</span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {user.roles.includes('waiting_list') && !user.roles.includes('user') && (
-                          <Button 
-                            variant="default" 
-                            size="sm" 
-                            onClick={() => approveUser(user.id)}
-                            disabled={isProcessing}
-                            className="bg-emerald-600 hover:bg-emerald-700 mr-2"
-                          >
-                            {isProcessing ? "กำลังอนุมัติ..." : "อนุมัติ"}
-                          </Button>
-                        )}
-                        
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" disabled={isProcessing}>
-                              {isProcessing ? (
-                                <>
-                                  <span className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-current"></span>
-                                  กำลังดำเนินการ
-                                </>
-                              ) : (
-                                <>จัดการสิทธิ์ <ChevronDown className="ml-1 h-4 w-4" /></>
-                              )}
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48">
-                            {!user.roles.includes('user') ? (
-                              <DropdownMenuItem onClick={() => changeUserRole(user.id, 'user', true)}>
-                                เพิ่มสิทธิ์ User
-                              </DropdownMenuItem>
-                            ) : (
-                              <DropdownMenuItem onClick={() => changeUserRole(user.id, 'user', false)}>
-                                ลบสิทธิ์ User
-                              </DropdownMenuItem>
-                            )}
-                            
-                            {!user.roles.includes('admin') ? (
-                              <DropdownMenuItem onClick={() => changeUserRole(user.id, 'admin', true)}>
-                                เพิ่มสิทธิ์ Admin
-                              </DropdownMenuItem>
-                            ) : (
-                              <DropdownMenuItem onClick={() => changeUserRole(user.id, 'admin', false)}>
-                                ลบสิทธิ์ Admin
-                              </DropdownMenuItem>
-                            )}
-                            
-                            {/* ถ้าเป็น superadmin จึงจะสามารถจัดการสิทธิ์ superadmin ได้ */}
-                            {isSuperAdmin && !user.roles.includes('superadmin') ? (
-                              <DropdownMenuItem onClick={() => changeUserRole(user.id, 'superadmin', true)}>
-                                เพิ่มสิทธิ์ Superadmin
-                              </DropdownMenuItem>
-                            ) : isSuperAdmin && user.roles.includes('superadmin') ? (
-                              <DropdownMenuItem onClick={() => changeUserRole(user.id, 'superadmin', false)}>
-                                ลบสิทธิ์ Superadmin
-                              </DropdownMenuItem>
-                            ) : null}
-                            
-                            {!user.roles.includes('waiting_list') ? (
-                              <DropdownMenuItem onClick={() => changeUserRole(user.id, 'waiting_list', true)}>
-                                เพิ่มสถานะ Waiting List
-                              </DropdownMenuItem>
-                            ) : (
-                              <DropdownMenuItem onClick={() => changeUserRole(user.id, 'waiting_list', false)}>
-                                ลบสถานะ Waiting List
-                              </DropdownMenuItem>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-1/3 py-2">อีเมล</TableHead>
+                      <TableHead className="w-1/3 py-2">บทบาท</TableHead>
+                      <TableHead className="w-1/3 text-right py-2">จัดการ</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((user) => (
+                      <TableRow key={user.id} className={user.roles.includes('waiting_list') ? "bg-amber-50" : ""}>
+                        <TableCell className="py-2 text-sm">
+                          <div className="font-medium">{user.email}</div>
+                          {user.roles.includes('waiting_list') && !user.roles.includes('user') && (
+                            <span className="text-xs text-amber-600 font-medium">รอการอนุมัติ</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="py-2">
+                          <div className="flex flex-wrap gap-1">
+                            {user.roles.length > 0 ? user.roles.map((role) => (
+                              <Badge 
+                                key={role} 
+                                className={`text-xs px-1.5 py-0.5 ${
+                                  role === 'superadmin' ? 'bg-red-100 text-red-800 hover:bg-red-200' : 
+                                  role === 'admin' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : 
+                                  role === 'waiting_list' ? 'bg-amber-100 text-amber-800 hover:bg-amber-200' :
+                                  'bg-green-100 text-green-800 hover:bg-green-200'
+                                }`}
+                                variant="outline"
+                              >
+                                {role}
+                              </Badge>
+                            )) : (
+                              <span className="text-gray-400 text-xs italic">ไม่มีสิทธิ์</span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="py-2 text-right">
+                          <div className="flex items-center justify-end space-x-1">
+                            {user.roles.includes('waiting_list') && !user.roles.includes('user') && (
+                              <Button 
+                                variant="default" 
+                                size="sm"
+                                onClick={() => approveUser(user.id)}
+                                disabled={isProcessing}
+                                className="bg-emerald-600 hover:bg-emerald-700 text-xs h-7"
+                              >
+                                อนุมัติ
+                              </Button>
+                            )}
+                            
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleOpenResetDialog(user.id, user.email)}
+                              className="h-7"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleOpenDeleteDialog(user.id, user.email)}
+                              className="text-red-500 hover:text-red-600 h-7"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                            
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm" disabled={isProcessing} className="h-7">
+                                  <ChevronDown className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-48">
+                                {!user.roles.includes('user') ? (
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'user', true)} className="text-xs">
+                                    เพิ่มสิทธิ์ User
+                                  </DropdownMenuItem>
+                                ) : (
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'user', false)} className="text-xs">
+                                    ลบสิทธิ์ User
+                                  </DropdownMenuItem>
+                                )}
+                                
+                                {!user.roles.includes('admin') ? (
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'admin', true)} className="text-xs">
+                                    เพิ่มสิทธิ์ Admin
+                                  </DropdownMenuItem>
+                                ) : (
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'admin', false)} className="text-xs">
+                                    ลบสิทธิ์ Admin
+                                  </DropdownMenuItem>
+                                )}
+                                
+                                {/* ถ้าเป็น superadmin จึงจะสามารถจัดการสิทธิ์ superadmin ได้ */}
+                                {isSuperAdmin && !user.roles.includes('superadmin') ? (
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'superadmin', true)} className="text-xs">
+                                    เพิ่มสิทธิ์ Superadmin
+                                  </DropdownMenuItem>
+                                ) : isSuperAdmin && user.roles.includes('superadmin') ? (
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'superadmin', false)} className="text-xs">
+                                    ลบสิทธิ์ Superadmin
+                                  </DropdownMenuItem>
+                                ) : null}
+                                
+                                {!user.roles.includes('waiting_list') ? (
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'waiting_list', true)} className="text-xs">
+                                    เพิ่มสถานะ Waiting List
+                                  </DropdownMenuItem>
+                                ) : (
+                                  <DropdownMenuItem onClick={() => changeUserRole(user.id, 'waiting_list', false)} className="text-xs">
+                                    ลบสถานะ Waiting List
+                                  </DropdownMenuItem>
+                                )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             ) : (
               <div className="p-8 text-center">
                 <p className="text-gray-500">ไม่พบข้อมูลผู้ใช้</p>
@@ -508,10 +626,10 @@ export default function UserManagement() {
             </DialogDescription>
           </DialogHeader>
           
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(createUser)} className="space-y-6">
+          <Form {...newUserForm}>
+            <form onSubmit={newUserForm.handleSubmit(createUser)} className="space-y-6">
               <FormField
-                control={form.control}
+                control={newUserForm.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
@@ -529,7 +647,7 @@ export default function UserManagement() {
               />
               
               <FormField
-                control={form.control}
+                control={newUserForm.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem>
@@ -547,7 +665,7 @@ export default function UserManagement() {
               />
               
               <FormField
-                control={form.control}
+                control={newUserForm.control}
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
@@ -574,6 +692,94 @@ export default function UserManagement() {
               </DialogFooter>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog for resetting user password */}
+      <Dialog open={showResetPasswordDialog} onOpenChange={setShowResetPasswordDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>เปลี่ยนรหัสผ่านผู้ใช้</DialogTitle>
+            <DialogDescription>
+              กำหนดรหัสผ่านใหม่สำหรับผู้ใช้ {selectedUserEmail}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Form {...resetPasswordForm}>
+            <form onSubmit={resetPasswordForm.handleSubmit(resetUserPassword)} className="space-y-6">
+              <FormField
+                control={resetPasswordForm.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>รหัสผ่านใหม่</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="password" 
+                        placeholder="กำหนดรหัสผ่านใหม่" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={resetPasswordForm.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>ยืนยันรหัสผ่านใหม่</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="password" 
+                        placeholder="ยืนยันรหัสผ่านใหม่" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <DialogFooter>
+                <Button type="button" variant="outline" asChild>
+                  <DialogClose>ยกเลิก</DialogClose>
+                </Button>
+                <Button type="submit" disabled={isProcessing}>
+                  {isProcessing ? "กำลังดำเนินการ..." : "เปลี่ยนรหัสผ่าน"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog for confirming user deletion */}
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>ยืนยันการลบผู้ใช้</DialogTitle>
+            <DialogDescription>
+              คุณต้องการลบผู้ใช้ {selectedUserEmail} ออกจากระบบใช่หรือไม่?
+              การดำเนินการนี้ไม่สามารถย้อนกลับได้
+            </DialogDescription>
+          </DialogHeader>
+          
+          <DialogFooter>
+            <Button type="button" variant="outline" asChild>
+              <DialogClose>ยกเลิก</DialogClose>
+            </Button>
+            <Button 
+              type="button" 
+              variant="destructive" 
+              onClick={deleteUser} 
+              disabled={isProcessing}
+            >
+              {isProcessing ? "กำลังลบ..." : "ลบผู้ใช้"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
