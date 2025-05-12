@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { EquipmentCard } from "@/components/EquipmentCard";
 import { Settings, Users, Shield } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
+import { Database } from "@/integrations/supabase/types";
 
 // Define types for our user data
 interface User {
@@ -94,7 +95,7 @@ export default function Admin() {
   }, [user, userRoles]);
   
   // Add or remove a role for a user
-  const changeUserRole = async (userId: string, role: string, isAdding: boolean) => {
+  const changeUserRole = async (userId: string, role: Database["public"]["Enums"]["app_role"], isAdding: boolean) => {
     if (!userRoles.includes('superadmin')) {
       toast({
         title: "ไม่มีสิทธิ์",
@@ -109,7 +110,10 @@ export default function Admin() {
         // Add the role
         const { error } = await supabase
           .from('user_roles')
-          .insert({ user_id: userId, role });
+          .insert({ 
+            user_id: userId, 
+            role: role 
+          });
         
         if (error) {
           if (error.code === '23505') { // Unique violation - role already exists
@@ -132,7 +136,7 @@ export default function Admin() {
         const { error } = await supabase
           .from('user_roles')
           .delete()
-          .match({ user_id: userId, role });
+          .match({ user_id: userId, role: role });
         
         if (error) throw error;
         
