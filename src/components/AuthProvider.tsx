@@ -34,6 +34,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Function to fetch user roles from the database
   const fetchUserRoles = async (userId: string) => {
     try {
+      console.log("Fetching roles for user:", userId);
       const { data, error } = await supabase.rpc('get_user_roles', {
         user_id: userId
       });
@@ -43,6 +44,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return [];
       }
       
+      console.log("Roles retrieved for user:", data);
       return data || [];
     } catch (error) {
       console.error('Error in fetchUserRoles:', error);
@@ -51,9 +53,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   useEffect(() => {
+    console.log("Setting up AuthProvider");
+    setIsLoading(true);
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, currentSession) => {
+        console.log("Auth state changed, event:", _event);
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
@@ -73,14 +79,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     // Initial session check
     const initializeAuth = async () => {
-      setIsLoading(true);
+      console.log("Initializing auth");
       try {
         const { data: { session: initialSession } } = await supabase.auth.getSession();
+        console.log("Initial session retrieved:", !!initialSession);
         setSession(initialSession);
         setUser(initialSession?.user ?? null);
         
         // If user is logged in, fetch roles from database
         if (initialSession?.user) {
+          console.log("User is logged in, fetching roles");
           const roles = await fetchUserRoles(initialSession.user.id);
           setUserRoles(roles);
         }
@@ -88,6 +96,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         console.error('Error checking session:', error);
       } finally {
         setIsLoading(false);
+        console.log("Auth initialization complete");
       }
     };
 
