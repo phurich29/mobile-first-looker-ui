@@ -31,7 +31,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [userRoles, setUserRoles] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Function to fetch user roles from the database with caching
+  // Function to fetch user roles from the database
   const fetchUserRoles = async (userId: string) => {
     try {
       console.log("Fetching roles for user:", userId);
@@ -58,26 +58,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     // Set up auth state listener first - critical to avoid race conditions
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, currentSession) => {
+      async (_event, currentSession) => {
         console.log("Auth state changed, event:", _event);
         
-        // First update basic user data synchronously
+        // Update session and user state
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
-        // Then fetch additional data asynchronously using setTimeout to avoid deadlocks
+        // If user is logged in, fetch roles from database
         if (currentSession?.user) {
-          setTimeout(async () => {
-            try {
+          try {
+            // Using setTimeout to avoid deadlocks with Supabase client
+            setTimeout(async () => {
               const roles = await fetchUserRoles(currentSession.user.id);
               console.log("Setting user roles after auth change:", roles);
               setUserRoles(roles);
               setIsLoading(false);
-            } catch (err) {
-              console.error("Error fetching roles during auth change:", err);
-              setIsLoading(false);
-            }
-          }, 0);
+            }, 0);
+          } catch (error) {
+            console.error("Error fetching roles during auth change:", error);
+            setUserRoles([]);
+            setIsLoading(false);
+          }
         } else {
           setUserRoles([]);
           setIsLoading(false);

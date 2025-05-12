@@ -14,12 +14,11 @@ export const ProtectedRoute = ({
   const { user, userRoles, isLoading } = useAuth();
 
   // Show detailed console logs for debugging
-  if (requiredRoles.length > 0) {
-    console.log("Protected route requires roles:", requiredRoles);
-    console.log("Current user roles:", userRoles);
-    console.log("User authenticated:", !!user);
-    console.log("Is still loading auth:", isLoading);
-  }
+  console.log("Protected route checking access:");
+  console.log("- Required roles:", requiredRoles);
+  console.log("- Current user roles:", userRoles);
+  console.log("- User authenticated:", !!user);
+  console.log("- Is still loading auth:", isLoading);
 
   // If auth is still loading, show loading indicator
   if (isLoading) {
