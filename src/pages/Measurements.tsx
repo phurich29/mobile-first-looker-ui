@@ -62,7 +62,7 @@ export default function Measurements() {
     };
   }, []);
 
-  // ดึงข้อมูลจาก Supabase
+  // ดึงข้อมูลพื้นข้าวเต็มเมล็ดจาก Supabase
   const fetchWholeGrainData = async () => {
     const { data, error } = await supabase
       .from('rice_quality_analysis')
@@ -78,10 +78,31 @@ export default function Measurements() {
     return data;
   };
 
+  // ดึงข้อมูลส่วนผสมข้าวจาก Supabase
+  const fetchIngredientsData = async () => {
+    const { data, error } = await supabase
+      .from('rice_quality_analysis')
+      .select('id, whole_kernels, head_rice, total_brokens, small_brokens, small_brokens_c1, created_at, thai_datetime')
+      .order('created_at', { ascending: false })
+      .limit(10);
+    
+    if (error) {
+      console.error('Error fetching ingredients data:', error);
+      throw new Error(error.message);
+    }
+    
+    return data;
+  };
+
   // ใช้ React Query สำหรับดึงข้อมูล
   const { data: wholeGrainData, isLoading: isLoadingWholeGrain } = useQuery({
     queryKey: ['wholeGrainData'],
     queryFn: fetchWholeGrainData,
+  });
+
+  const { data: ingredientsData, isLoading: isLoadingIngredients } = useQuery({
+    queryKey: ['ingredientsData'],
+    queryFn: fetchIngredientsData,
   });
 
   // แปลงข้อมูลให้อยู่ในรูปแบบที่ใช้กับ MeasurementItem และคำนวณการเปลี่ยนแปลง
@@ -138,6 +159,67 @@ export default function Measurements() {
         price: latestData.slender_kernel?.toString() || "0",
         percentageChange: calculateChange(latestData.slender_kernel, previousData?.slender_kernel),
         iconColor: "#345D9D",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+      },
+    ];
+
+    return metrics;
+  };
+
+  // แปลงข้อ���ูลส่วนผสมให้อยู่ในรูปแบบที่ใช้กับ MeasurementItem และคำนวณการเปลี่ยนแปลง
+  const formatIngredientsItems = () => {
+    if (!ingredientsData || ingredientsData.length === 0) return [];
+    
+    // คำนวณการเปลี่ยนแปลงโดยเปรียบเทียบค่าล่าสุดกับค่าก่อนหน้า
+    const calculateChange = (current: number | null, previous: number | null) => {
+      if (current === null || previous === null) return 0;
+      return current - previous;
+    };
+    
+    // ข้อมูลล่าสุดและข้อมูลก่อนหน้า
+    const latestData = ingredientsData[0];
+    const previousData = ingredientsData.length > 1 ? ingredientsData[1] : null;
+    
+    // แปลงข้อมูลเป็นรูปแบบของ MeasurementItem
+    const metrics = [
+      {
+        symbol: "whole_kernels",
+        name: "เต็มเมล็ด",
+        price: latestData.whole_kernels?.toString() || "0",
+        percentageChange: calculateChange(latestData.whole_kernels, previousData?.whole_kernels),
+        iconColor: "#4CAF50",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+      },
+      {
+        symbol: "head_rice",
+        name: "ต้นข้าว",
+        price: latestData.head_rice?.toString() || "0",
+        percentageChange: calculateChange(latestData.head_rice, previousData?.head_rice),
+        iconColor: "#2196F3",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+      },
+      {
+        symbol: "total_brokens",
+        name: "ข้าวหักรวม",
+        price: latestData.total_brokens?.toString() || "0",
+        percentageChange: calculateChange(latestData.total_brokens, previousData?.total_brokens),
+        iconColor: "#FF9800",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+      },
+      {
+        symbol: "small_brokens",
+        name: "ปลายข้าว",
+        price: latestData.small_brokens?.toString() || "0",
+        percentageChange: calculateChange(latestData.small_brokens, previousData?.small_brokens),
+        iconColor: "#9C27B0",
+        updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+      },
+      {
+        symbol: "small_brokens_c1",
+        name: "ปลายข้าวC1",
+        price: latestData.small_brokens_c1?.toString() || "0",
+        percentageChange: calculateChange(latestData.small_brokens_c1, previousData?.small_brokens_c1),
+        iconColor: "#795548",
         updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
       },
     ];
@@ -324,17 +406,27 @@ export default function Measurements() {
             
             <TabsContent value="ingredients" className="mt-4">
               <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
-                {/* แสดงเฉพาะรายการส่วนผสม */}
-                {measurements.slice(2, 5).map((item, index) => (
-                  <MeasurementItem
-                    key={index}
-                    symbol={item.symbol}
-                    name={item.name}
-                    price={item.price}
-                    percentageChange={item.percentageChange}
-                    iconColor={item.iconColor}
-                  />
-                ))}
+                {isLoadingIngredients ? (
+                  <div className="flex justify-center items-center p-10">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+                  </div>
+                ) : formatIngredientsItems().length > 0 ? (
+                  formatIngredientsItems().map((item, index) => (
+                    <MeasurementItem
+                      key={index}
+                      symbol={item.symbol}
+                      name={item.name}
+                      price={item.price}
+                      percentageChange={item.percentageChange}
+                      iconColor={item.iconColor}
+                      updatedAt={item.updatedAt}
+                    />
+                  ))
+                ) : (
+                  <div className="p-6 text-center text-gray-500">
+                    ไม่พบข้อมูลส่วนผสม
+                  </div>
+                )}
               </div>
             </TabsContent>
             
