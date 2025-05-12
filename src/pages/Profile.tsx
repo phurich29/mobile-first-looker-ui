@@ -86,6 +86,15 @@ const Profile = () => {
     hour: '2-digit',
     minute: '2-digit'
   }) : "ไม่พบข้อมูลวันที่";
+  
+  // Format last sign in time
+  const lastSignIn = user?.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString('th-TH', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }) : "ไม่มีข้อมูล";
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50">
@@ -106,8 +115,8 @@ const Profile = () => {
                 <p className="text-lg font-medium">{userEmail}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">รหัสผู้ใช้</p>
-                <p className="text-lg font-medium break-all">{user?.id || "ไม่พบข้อมูล"}</p>
+                <p className="text-sm font-medium text-gray-500">เข้าสู่ระบบครั้งล่าสุด</p>
+                <p className="text-lg font-medium">{lastSignIn}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">สมัครเมื่อ</p>
