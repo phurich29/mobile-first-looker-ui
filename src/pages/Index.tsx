@@ -117,7 +117,7 @@ const Index = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
       <Header />
       
       <main className="flex-1 pb-28">
@@ -224,18 +224,22 @@ const Index = () => {
 
       {/* Navigation bar at bottom with shadow and rounded corners */}
       <nav className="fixed bottom-0 w-full bg-white border-t border-gray-100 flex justify-around py-4 shadow-xl rounded-t-3xl backdrop-blur-sm bg-white/90" style={{ maxHeight: '80px' }}>
-        <button className="flex flex-col items-center">
+        <a href="/" className="flex flex-col items-center">
           <div className="w-6 h-1 bg-emerald-600 rounded-full mx-auto mb-1"></div>
           <span className="text-xs text-emerald-600 font-medium">Home</span>
-        </button>
-        <button className="flex flex-col items-center">
+        </a>
+        <a href="/market" className="flex flex-col items-center">
           <div className="w-6 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
           <span className="text-xs text-gray-400">Market</span>
-        </button>
-        <button className="flex flex-col items-center">
+        </a>
+        <a href="/measurements" className="flex flex-col items-center">
+          <div className="w-6 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
+          <span className="text-xs text-gray-400">รายการวัด</span>
+        </a>
+        <a href="/profile" className="flex flex-col items-center">
           <div className="w-6 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
           <span className="text-xs text-gray-400">Profile</span>
-        </button>
+        </a>
       </nav>
     </div>
   );
