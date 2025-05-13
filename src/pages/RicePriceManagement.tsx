@@ -19,6 +19,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ResponsiveTable } from "@/components/ui/responsive-table";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function RicePriceManagement() {
   const { userRoles } = useAuth();
@@ -39,8 +40,9 @@ export default function RicePriceManagement() {
   
   const [priceFormValues, setPriceFormValues] = useState<RicePriceFormValues>({
     name: '',
-    price: 0,
-    category: 'กข'
+    price: '',
+    category: 'กข',
+    priceColor: 'black'
   });
 
   const [docFormValues, setDocFormValues] = useState<RicePriceDocumentFormValues>({
@@ -119,8 +121,9 @@ export default function RicePriceManagement() {
   const resetPriceForm = () => {
     setPriceFormValues({
       name: '',
-      price: 0,
-      category: 'กข'
+      price: '',
+      category: 'กข',
+      priceColor: 'black'
     });
     setSelectedPrice(null);
   };
@@ -139,8 +142,9 @@ export default function RicePriceManagement() {
     setSelectedPrice(price);
     setPriceFormValues({
       name: price.name,
-      price: price.price,
-      category: price.category
+      price: price.price ? price.price.toString() : '',
+      category: price.category,
+      priceColor: price.priceColor || 'black'
     });
     setIsEditDialogOpen(true);
   };
@@ -165,7 +169,8 @@ export default function RicePriceManagement() {
         .insert({
           name: priceFormValues.name,
           price: priceFormValues.price,
-          category: priceFormValues.category
+          category: priceFormValues.category,
+          priceColor: priceFormValues.priceColor
         });
       
       if (error) throw error;
@@ -226,7 +231,8 @@ export default function RicePriceManagement() {
         .update({
           name: priceFormValues.name,
           price: priceFormValues.price,
-          category: priceFormValues.category
+          category: priceFormValues.category,
+          priceColor: priceFormValues.priceColor
         })
         .eq('id', selectedPrice.id);
       
@@ -318,6 +324,15 @@ export default function RicePriceManagement() {
       });
     } catch (error) {
       return dateString;
+    }
+  };
+
+  // Get text color class based on price color
+  const getPriceColorClass = (color: string = 'black') => {
+    switch (color) {
+      case 'green': return 'text-emerald-600';
+      case 'red': return 'text-red-600';
+      default: return 'text-gray-900';
     }
   };
 
@@ -414,9 +429,8 @@ export default function RicePriceManagement() {
                       <Label htmlFor="price">ราคา (บาท/100กก.)</Label>
                       <Input
                         id="price"
-                        type="number"
                         value={priceFormValues.price}
-                        onChange={(e) => handlePriceFormChange('price', parseFloat(e.target.value))}
+                        onChange={(e) => handlePriceFormChange('price', e.target.value)}
                       />
                     </div>
                     <div className="grid gap-2">
@@ -435,6 +449,27 @@ export default function RicePriceManagement() {
                           <SelectItem value="อื่นๆ">อื่นๆ</SelectItem>
                         </SelectContent>
                       </Select>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>สีของราคา</Label>
+                      <RadioGroup 
+                        value={priceFormValues.priceColor} 
+                        onValueChange={(value) => handlePriceFormChange('priceColor', value)}
+                        className="flex space-x-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="black" id="color-black" />
+                          <Label htmlFor="color-black" className="font-normal">สีดำ</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="green" id="color-green" />
+                          <Label htmlFor="color-green" className="font-normal text-emerald-600">สีเขียว</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="red" id="color-red" />
+                          <Label htmlFor="color-red" className="font-normal text-red-600">สีแดง</Label>
+                        </div>
+                      </RadioGroup>
                     </div>
                   </div>
                   <DialogFooter>
@@ -470,7 +505,9 @@ export default function RicePriceManagement() {
                             <div className="font-medium">{price.name}</div>
                           </TableCell>
                           <TableCell>{price.category}</TableCell>
-                          <TableCell>{price.price.toLocaleString('th-TH')}</TableCell>
+                          <TableCell className={getPriceColorClass(price.priceColor)}>
+                            {price.price}
+                          </TableCell>
                           <TableCell className={isMobile ? "whitespace-normal" : "whitespace-nowrap"}>
                             {formatDate(price.updated_at)}
                           </TableCell>
@@ -633,9 +670,8 @@ export default function RicePriceManagement() {
               <Label htmlFor="edit-price">ราคา (บาท/100กก.)</Label>
               <Input
                 id="edit-price"
-                type="number"
                 value={priceFormValues.price}
-                onChange={(e) => handlePriceFormChange('price', parseFloat(e.target.value))}
+                onChange={(e) => handlePriceFormChange('price', e.target.value)}
               />
             </div>
             <div className="grid gap-2">
@@ -654,6 +690,27 @@ export default function RicePriceManagement() {
                   <SelectItem value="อื่นๆ">อื่นๆ</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label>สีของราคา</Label>
+              <RadioGroup 
+                value={priceFormValues.priceColor} 
+                onValueChange={(value) => handlePriceFormChange('priceColor', value)}
+                className="flex space-x-4"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="black" id="edit-color-black" />
+                  <Label htmlFor="edit-color-black" className="font-normal">สีดำ</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="green" id="edit-color-green" />
+                  <Label htmlFor="edit-color-green" className="font-normal text-emerald-600">สีเขียว</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="red" id="edit-color-red" />
+                  <Label htmlFor="edit-color-red" className="font-normal text-red-600">สีแดง</Label>
+                </div>
+              </RadioGroup>
             </div>
           </div>
           <DialogFooter>

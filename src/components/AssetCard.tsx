@@ -9,7 +9,8 @@ type AssetCardProps = {
   amount: string;
   percentageChange: number;
   iconColor: string;
-  date?: string; // Add optional date prop
+  date?: string;
+  priceColor?: string;
 };
 
 export const AssetCard: React.FC<AssetCardProps> = ({
@@ -20,6 +21,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({
   percentageChange,
   iconColor,
   date,
+  priceColor,
 }) => {
   // สร้าง shortcode จากชื่อสกุลเงิน ถ้าเป็นชื่อข้าวให้แสดงตัวอักษรแรกแทน
   const getSymbolShortcode = () => {
@@ -44,6 +46,15 @@ export const AssetCard: React.FC<AssetCardProps> = ({
     if (name === 'กข') return '#059669'; // สีเขียวเข้ม emerald-600
     if (name === 'ปทุมธานี') return '#047857'; // สีเขียวเข้มมาก emerald-700
     return '#10b981'; // ค่าเริ่มต้นเป็นสีเขียว emerald-500
+  };
+
+  // Get text color class based on price color
+  const getValueColorClass = () => {
+    switch (priceColor) {
+      case 'green': return 'text-emerald-600';
+      case 'red': return 'text-red-600';
+      default: return 'text-gray-900';
+    }
   };
 
   return (
@@ -78,7 +89,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({
         <div className="mt-auto bg-emerald-50 p-3 -mx-5 -mb-5 rounded-b-2xl border-t border-emerald-100">
           <p className="text-gray-500 text-xs mb-1">{symbol}</p>
           <div className="flex justify-between items-baseline">
-            <p className="font-bold text-lg">{getValueDisplay()}</p>
+            <p className={`font-bold text-lg ${getValueColorClass()}`}>{getValueDisplay()}</p>
             <p className="text-gray-500 text-xs">{amount}</p>
           </div>
         </div>
