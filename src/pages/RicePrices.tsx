@@ -9,6 +9,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { RicePrice, RicePriceDocument } from "@/features/user-management/types";
+import { SAMPLE_RICE_PRICES, SAMPLE_RICE_DOCUMENTS } from "@/features/rice-price/utils";
 
 export default function RicePrices() {
   const isMobile = useIsMobile();
