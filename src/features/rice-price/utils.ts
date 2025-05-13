@@ -36,10 +36,17 @@ export const getPriceColorClass = (priceColor?: string): string => {
   return 'text-gray-900';
 };
 
-// Function to format price or show a placeholder if price is null/undefined
-export const formatPrice = (price: number | null | undefined): string => {
+// Function to format price or show the price text as is
+export const formatPrice = (price: number | string | null | undefined): string => {
   if (price === null || price === undefined) {
     return "-";
   }
+  
+  // If price is already a string (text input), return it directly
+  if (typeof price === 'string') {
+    return price;
+  }
+  
+  // If it's a number, format it
   return price.toLocaleString('th-TH');
 };

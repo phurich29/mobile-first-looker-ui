@@ -24,15 +24,24 @@ export function usePriceUpdate(
         document_date: priceFormValues.document_date
       };
 
-      // Only update price if it's not empty
+      // Handle price field - it can now be any text
       if (priceFormValues.price && priceFormValues.price.trim() !== '') {
-        const priceValue = parseFloat(priceFormValues.price);
-        if (!isNaN(priceValue)) {
-          updateData.price = priceValue;
+        // Try to convert to number if possible
+        const priceAsNumber = parseFloat(priceFormValues.price);
+        if (!isNaN(priceAsNumber)) {
+          updateData.price = priceAsNumber;
+        } else {
+          // If it's not a number, store it as a string in the database
+          updateData.price = priceFormValues.price.trim();
         }
       } else {
         // If price is empty, set it to null
         updateData.price = null;
+      }
+      
+      // Store price color if provided
+      if (priceFormValues.priceColor) {
+        updateData.priceColor = priceFormValues.priceColor;
       }
       
       const { error } = await supabase

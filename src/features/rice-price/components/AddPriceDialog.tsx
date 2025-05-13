@@ -49,8 +49,6 @@ export function AddPriceDialog({
               <Label htmlFor="price">ราคา (บาท/100กก.)</Label>
               <Input
                 id="price"
-                type="number"
-                step="0.01"
                 value={formValues.price}
                 onChange={(e) => onValueChange('price', e.target.value)}
                 placeholder="เว้นว่างไว้หากยังไม่มีข้อมูลราคา"

@@ -17,15 +17,24 @@ export function usePriceAdd(refetchPrices: () => void, resetPriceForm: () => voi
         document_date: priceFormValues.document_date
       };
 
-      // Only add price if it's not empty
+      // Handle price field - it can now be any text
       if (priceFormValues.price && priceFormValues.price.trim() !== '') {
-        const priceValue = parseFloat(priceFormValues.price);
-        if (!isNaN(priceValue)) {
-          newRicePrice.price = priceValue;
+        // Try to convert to number if possible
+        const priceAsNumber = parseFloat(priceFormValues.price);
+        if (!isNaN(priceAsNumber)) {
+          newRicePrice.price = priceAsNumber;
+        } else {
+          // If it's not a number, store it as a string in the database
+          newRicePrice.price = priceFormValues.price.trim();
         }
       } else {
         // If price is empty, set it to null
         newRicePrice.price = null;
+      }
+      
+      // Store price color if provided
+      if (priceFormValues.priceColor) {
+        newRicePrice.priceColor = priceFormValues.priceColor;
       }
       
       console.log('Sending data to Supabase:', newRicePrice);
