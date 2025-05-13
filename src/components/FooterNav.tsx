@@ -1,5 +1,5 @@
 
-import { Home, GrainIcon, Hammer, User } from "lucide-react";
+import { Home, Wheat, Hammer, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 export const FooterNav = () => {
@@ -22,7 +22,7 @@ export const FooterNav = () => {
       
       <Link to="/rice-prices" className="flex flex-col items-center">
         <div className={`p-1.5 ${isActive('/rice-prices') ? 'bg-emerald-700 rounded-full' : ''}`}>
-          <GrainIcon className="w-5 h-5 text-white" />
+          <Wheat className="w-5 h-5 text-white" />
         </div>
         <span className={`text-xs mt-1 ${isActive('/rice-prices') ? 'text-white' : 'text-white/80'}`}>ราคาข้าว</span>
       </Link>
