@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { FooterNav } from "@/components/FooterNav";
 
 interface DeviceInfo {
   device_code: string;
@@ -111,25 +112,7 @@ export default function Equipment() {
         )}
       </main>
 
-      {/* Navigation bar */}
-      <nav className="fixed bottom-0 w-full bg-white border-t border-gray-100 flex justify-around py-3 shadow-xl rounded-t-3xl backdrop-blur-sm bg-white/90" style={{ maxHeight: '70px' }}>
-        <a href="/" className="flex flex-col items-center">
-          <div className="w-5 h-0.5 bg-gray-300 rounded-full mx-auto mb-1"></div>
-          <span className="text-xs text-gray-400">Home</span>
-        </a>
-        <a href="/market" className="flex flex-col items-center">
-          <div className="w-5 h-0.5 bg-gray-300 rounded-full mx-auto mb-1"></div>
-          <span className="text-xs text-gray-400">Market</span>
-        </a>
-        <a href="/measurements" className="flex flex-col items-center">
-          <div className="w-5 h-0.5 bg-gray-300 rounded-full mx-auto mb-1"></div>
-          <span className="text-xs text-gray-400">รายการวัด</span>
-        </a>
-        <a href="/profile" className="flex flex-col items-center">
-          <div className="w-5 h-0.5 bg-gray-300 rounded-full mx-auto mb-1"></div>
-          <span className="text-xs text-gray-400">Profile</span>
-        </a>
-      </nav>
+      <FooterNav />
     </div>
   );
 }

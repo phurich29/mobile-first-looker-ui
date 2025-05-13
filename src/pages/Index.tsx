@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import useEmblaCarousel from 'embla-carousel-react';
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { FooterNav } from "@/components/FooterNav";
 
 const Index = () => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
@@ -223,25 +224,7 @@ const Index = () => {
         </div>
       </main>
 
-      {/* Navigation bar at bottom with shadow and rounded corners */}
-      <nav className="fixed bottom-0 w-full bg-gradient-to-r from-emerald-500 to-emerald-600 border-t border-emerald-700 flex justify-around py-5 shadow-xl rounded-t-3xl backdrop-blur-sm" style={{ maxHeight: '90px' }}>
-        <a href="/" className="flex flex-col items-center">
-          <div className="w-6 h-1.5 bg-emerald-600 rounded-full mx-auto mb-1.5"></div>
-          <span className="text-xs text-white font-medium">Home</span>
-        </a>
-        <a href="/market" className="flex flex-col items-center">
-          <div className="w-6 h-1.5 bg-white/30 rounded-full mx-auto mb-1.5"></div>
-          <span className="text-xs text-white">Market</span>
-        </a>
-        <a href="/measurements" className="flex flex-col items-center">
-          <div className="w-6 h-1.5 bg-white/30 rounded-full mx-auto mb-1.5"></div>
-          <span className="text-xs text-white">รายการวัด</span>
-        </a>
-        <a href="/profile" className="flex flex-col items-center">
-          <div className="w-6 h-1.5 bg-white/30 rounded-full mx-auto mb-1.5"></div>
-          <span className="text-xs text-white">Profile</span>
-        </a>
-      </nav>
+      <FooterNav />
     </div>
   );
 };

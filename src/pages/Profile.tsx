@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Header } from "@/components/Header";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { FooterNav } from "@/components/FooterNav";
 
 const passwordSchema = z.object({
   password: z.string().min(6, {
@@ -258,6 +258,8 @@ const Profile = () => {
           </AlertDialogContent>
         </AlertDialog>
       </div>
+      
+      <FooterNav />
     </div>
   );
 };
