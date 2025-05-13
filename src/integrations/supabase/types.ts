@@ -189,7 +189,7 @@ export type Database = {
           document_date: string | null
           id: string
           name: string
-          price: number
+          price: number | null
           updated_at: string | null
         }
         Insert: {
@@ -198,7 +198,7 @@ export type Database = {
           document_date?: string | null
           id?: string
           name: string
-          price: number
+          price?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -207,7 +207,7 @@ export type Database = {
           document_date?: string | null
           id?: string
           name?: string
-          price?: number
+          price?: number | null
           updated_at?: string | null
         }
         Relationships: []

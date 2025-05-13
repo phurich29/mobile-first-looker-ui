@@ -3,7 +3,7 @@ import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/compon
 import { ResponsiveTable } from "@/components/ui/responsive-table";
 import { RicePrice } from "@/features/user-management/types";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { getPriceColorClass } from "../utils";
+import { getPriceColorClass, formatPrice } from "../utils";
 import { formatThaiDate, getLatestUpdateTimestamp } from "../utils/formatting";
 
 interface PriceTableTabProps {
@@ -38,7 +38,7 @@ export function PriceTableTab({ ricePrices }: PriceTableTabProps) {
                 <TableCell className={isMobile ? "whitespace-normal break-words" : "whitespace-nowrap"}>{price.name}</TableCell>
                 <TableCell>{price.document_date ? formatThaiDate(price.document_date) : '-'}</TableCell>
                 <TableCell className={`text-right font-medium ${getPriceColorClass(price.priceColor)}`}>
-                  {price.price.toLocaleString('th-TH')}
+                  {price.price !== null ? price.price.toLocaleString('th-TH') : "-"}
                 </TableCell>
               </TableRow>
             ))}

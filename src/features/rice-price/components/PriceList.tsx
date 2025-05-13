@@ -42,7 +42,7 @@ export function PriceList({ ricePrices, onEdit, onDelete }: PriceListProps) {
                     <div className="font-medium">{price.name}</div>
                   </TableCell>
                   <TableCell className={getPriceColorClass(price.priceColor)}>
-                    {price.price.toLocaleString('th-TH')}
+                    {price.price !== null ? price.price.toLocaleString('th-TH') : "-"}
                   </TableCell>
                   <TableCell className={isMobile ? "whitespace-normal" : "whitespace-nowrap"}>
                     {price.document_date ? formatThaiDate(price.document_date) : '-'}

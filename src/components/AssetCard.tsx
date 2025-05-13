@@ -32,6 +32,10 @@ export const AssetCard: React.FC<AssetCardProps> = ({
 
   // ดึงเอาเฉพาะตัวเลขเพื่อแสดงผล
   const getValueDisplay = () => {
+    if (value === "-") {
+      return value; // Return the hyphen for null/empty prices
+    }
+    
     if (value.includes('-')) {
       // สำหรับช่วงราคา เอาค่าล่าสุด
       const values = value.split('-');

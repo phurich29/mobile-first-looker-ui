@@ -1,3 +1,4 @@
+
 import { Header } from "@/components/Header";
 import { AssetCard } from "@/components/AssetCard";
 import { WatchlistItem } from "@/components/WatchlistItem";
@@ -149,7 +150,7 @@ const Index = () => {
                       <AssetCard
                         symbol={rice.name}
                         name={rice.name.substring(0, 1)} // Use first character of name instead of category
-                        value={rice.price.toString()} // Convert number to string
+                        value={rice.price !== null ? rice.price.toString() : "-"} // Handle null price
                         amount="บาท/100กก."
                         percentageChange={0}
                         iconColor={'#10b981'} // Default green color for all rice types
