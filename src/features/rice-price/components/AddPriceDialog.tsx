@@ -46,14 +46,14 @@ export function AddPriceDialog({
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="price">ราคา (บาท/100กก.) <span className="text-red-500">*</span></Label>
+              <Label htmlFor="price">ราคา (บาท/100กก.)</Label>
               <Input
                 id="price"
                 type="number"
                 step="0.01"
                 value={formValues.price}
                 onChange={(e) => onValueChange('price', e.target.value)}
-                required
+                placeholder="เว้นว่างไว้หากยังไม่มีข้อมูลราคา"
               />
             </div>
             <div className="grid gap-2">

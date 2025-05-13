@@ -23,19 +23,24 @@ export function usePriceOperations(
     try {
       console.log('Adding new rice price with values:', priceFormValues);
       
-      // Ensure price is a valid number
-      const priceValue = parseFloat(priceFormValues.price);
-      if (isNaN(priceValue)) {
-        throw new Error('ราคาไม่ถูกต้อง กรุณาระบุเป็นตัวเลขเท่านั้น');
-      }
-      
       // Prepare data for insertion
-      const newRicePrice = {
+      const newRicePrice: Record<string, any> = {
         name: priceFormValues.name,
-        price: priceValue,
         category: 'general', // Default category
-        document_date: priceFormValues.document_date
+        document_date: priceFormValues.document_date,
+        priceColor: priceFormValues.priceColor
       };
+
+      // Only add price if it's not empty
+      if (priceFormValues.price && priceFormValues.price.trim() !== '') {
+        const priceValue = parseFloat(priceFormValues.price);
+        if (!isNaN(priceValue)) {
+          newRicePrice.price = priceValue;
+        }
+      } else {
+        // If price is empty, set it to null
+        newRicePrice.price = null;
+      }
       
       console.log('Sending data to Supabase:', newRicePrice);
       
@@ -110,19 +115,27 @@ export function usePriceOperations(
     try {
       console.log('Updating rice price with values:', priceFormValues);
       
-      // Ensure price is a valid number
-      const priceValue = parseFloat(priceFormValues.price);
-      if (isNaN(priceValue)) {
-        throw new Error('ราคาไม่ถูกต้อง กรุณาระบุเป็นตัวเลขเท่านั้น');
+      // Prepare data for update
+      const updateData: Record<string, any> = {
+        name: priceFormValues.name,
+        document_date: priceFormValues.document_date,
+        priceColor: priceFormValues.priceColor
+      };
+
+      // Only update price if it's not empty
+      if (priceFormValues.price && priceFormValues.price.trim() !== '') {
+        const priceValue = parseFloat(priceFormValues.price);
+        if (!isNaN(priceValue)) {
+          updateData.price = priceValue;
+        }
+      } else {
+        // If price is empty, set it to null
+        updateData.price = null;
       }
       
       const { error } = await supabase
         .from('rice_prices')
-        .update({
-          name: priceFormValues.name,
-          price: priceValue,
-          document_date: priceFormValues.document_date
-        })
+        .update(updateData)
         .eq('id', selectedPrice.id);
       
       if (error) {

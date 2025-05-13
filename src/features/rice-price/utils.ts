@@ -1,3 +1,4 @@
+
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { RicePrice } from "@/features/user-management/types";
@@ -33,4 +34,12 @@ export const getPriceColorClass = (priceColor?: string): string => {
   if (priceColor === 'red') return 'text-red-600';
   // Default case
   return 'text-gray-900';
+};
+
+// Function to format price or show a placeholder if price is null/undefined
+export const formatPrice = (price: number | null | undefined): string => {
+  if (price === null || price === undefined) {
+    return "-";
+  }
+  return price.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
