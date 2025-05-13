@@ -7,7 +7,7 @@ import { ResponsiveTable } from "@/components/ui/responsive-table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDate } from "@/features/user-management/utils";
-import { formatThaiDate, getPriceColorClass } from "../utils";
+import { formatThaiDate, getPriceColorClass, formatPrice } from "../utils";
 
 interface PriceListProps {
   ricePrices: RicePrice[] | undefined;
@@ -42,7 +42,7 @@ export function PriceList({ ricePrices, onEdit, onDelete }: PriceListProps) {
                     <div className="font-medium">{price.name}</div>
                   </TableCell>
                   <TableCell className={getPriceColorClass(price.priceColor)}>
-                    {price.price !== null ? price.price.toLocaleString('th-TH') : "-"}
+                    {formatPrice(price.price)}
                   </TableCell>
                   <TableCell className={isMobile ? "whitespace-normal" : "whitespace-nowrap"}>
                     {price.document_date ? formatThaiDate(price.document_date) : '-'}

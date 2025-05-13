@@ -1,4 +1,3 @@
-
 import { Header } from "@/components/Header";
 import { AssetCard } from "@/components/AssetCard";
 import { WatchlistItem } from "@/components/WatchlistItem";
@@ -13,6 +12,7 @@ import { FooterNav } from "@/components/FooterNav";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { RicePrice } from "@/features/user-management/types";
+import { formatPrice } from "@/features/rice-price/utils";
 
 const Index = () => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
@@ -166,6 +166,7 @@ const Index = () => {
                 )}
               </div>
             </div>
+            
             {/* ปรับปรุง Scroll bar ให้สมมาตร และทำงานได้ถูกต้อง */}
             <div className="w-full px-8 mt-[-8px] mb-2">
               <div 
@@ -180,7 +181,7 @@ const Index = () => {
               >
                 {/* แก้ไขการคำนวณความกว้างและตำแหน่งของ thumb */}
                 {emblaApi && (() => {
-                  // คำนวณความกว้างของ thumb ตามส��ดส่วนของเนื้อหาที่มองเห็น
+                  // คำนวณความกว้างของ thumb ตามส��ดส่���นของเนื้อหาที่มองเห็น
                   const visibleWidth = emblaApi.containerNode().clientWidth;
                   const totalWidth = emblaApi.slideNodes().reduce(
                     (acc, slide) => acc + slide.offsetWidth + 12, // +12 for margin-right of 3rem

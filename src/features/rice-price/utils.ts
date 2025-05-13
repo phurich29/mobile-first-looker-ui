@@ -41,5 +41,5 @@ export const formatPrice = (price: number | null | undefined): string => {
   if (price === null || price === undefined) {
     return "-";
   }
-  return price.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return price.toLocaleString('th-TH');
 };

@@ -32,8 +32,8 @@ export const AssetCard: React.FC<AssetCardProps> = ({
 
   // ดึงเอาเฉพาะตัวเลขเพื่อแสดงผล
   const getValueDisplay = () => {
-    if (value === "-") {
-      return value; // Return the hyphen for null/empty prices
+    if (!value || value === "-") {
+      return "-"; // Return the hyphen for null/empty prices
     }
     
     if (value.includes('-')) {
@@ -74,7 +74,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({
           
           {/* Rice Name */}
           <div className="text-right">
-            <p className="font-medium text-sm">{name}</p>
+            <p className="font-medium text-sm">{symbol}</p>
           </div>
         </div>
         

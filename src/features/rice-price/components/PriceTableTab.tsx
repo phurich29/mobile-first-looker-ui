@@ -38,7 +38,7 @@ export function PriceTableTab({ ricePrices }: PriceTableTabProps) {
                 <TableCell className={isMobile ? "whitespace-normal break-words" : "whitespace-nowrap"}>{price.name}</TableCell>
                 <TableCell>{price.document_date ? formatThaiDate(price.document_date) : '-'}</TableCell>
                 <TableCell className={`text-right font-medium ${getPriceColorClass(price.priceColor)}`}>
-                  {price.price !== null ? price.price.toLocaleString('th-TH') : "-"}
+                  {formatPrice(price.price)}
                 </TableCell>
               </TableRow>
             ))}
