@@ -8,6 +8,7 @@ interface ProtectedRouteProps {
   requiredRoles?: string[];
   redirectTo?: string;
   allowUnauthenticated?: boolean; // เพิ่มตัวเลือกสำหรับหน้าที่อนุญาตให้เข้าชมโดยไม่ต้องล็อกอิน
+  path?: string; // เพิ่มตัวแปรเก็บเส้นทางปัจจุบันเพื่อใช้ในการตัดสินใจเรื่องการนำทาง
 }
 
 export const ProtectedRoute = ({
@@ -15,6 +16,7 @@ export const ProtectedRoute = ({
   requiredRoles = [],
   redirectTo = "/login",
   allowUnauthenticated = false, // ค่าเริ่มต้นคือไม่อนุญาต
+  path = window.location.pathname, // ใช้เส้นทางปัจจุบันเป็นค่าเริ่มต้น
 }: ProtectedRouteProps) => {
   const { user, userRoles, isLoading } = useAuth();
 
@@ -47,11 +49,15 @@ export const ProtectedRoute = ({
   }
   
   // ถ้ามีการล็อกอินแล้วและผู้ใช้อยู่ในสถานะ waiting_list เท่านั้น ให้ไปที่หน้า waiting
+  // ยกเว้นกรณีที่กำลังอยู่ที่หน้า user-management ซึ่งอาจมีการเพิ่มผู้ใช้ใหม่ที่ควรจะอยู่ที่หน้าเดิม
   if (user && userRoles.includes('waiting_list') && 
       !userRoles.includes('user') && 
       !userRoles.includes('admin') && 
-      !userRoles.includes('superadmin')) {
+      !userRoles.includes('superadmin') && 
+      path !== '/user-management' && 
+      !path.includes('/user-management')) { // เพิ่มการตรวจสอบว่าไม่ได้อยู่ที่หน้า user-management
     console.log("User is in waiting list only, redirecting to waiting page");
+    console.log("Current path:", path);
     return <Navigate to="/waiting" replace />;
   }
 

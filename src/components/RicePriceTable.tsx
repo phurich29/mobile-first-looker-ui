@@ -25,17 +25,17 @@ export function RicePriceTable() {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 sm:px-0">
-      <div className="rounded-xl border border-gray-200 shadow-lg overflow-hidden">
+    <div className="w-full max-w-5xl mx-auto px-3 sm:px-0">
+      <div className="rounded-xl border border-gray-200 shadow-lg overflow-hidden w-full">
         <Table>
           <TableHeader>
             <TableRow className="bg-gradient-to-r from-emerald-600 to-emerald-700">
-              <TableHead className="w-2/3 py-5 text-white font-bold text-base tracking-wide px-6">
+              <TableHead className="w-2/3 py-3 text-white font-bold text-base tracking-wide px-6">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">วันที่</span>
                 </div>
               </TableHead>
-              <TableHead className="text-center py-5 text-white font-bold text-base tracking-wide px-6">
+              <TableHead className="text-center py-3 text-white font-bold text-base tracking-wide px-6">
                 <div className="flex items-center justify-center gap-2">
                   <span className="text-lg">ราคาข้าว</span>
                 </div>
@@ -48,12 +48,12 @@ export function RicePriceTable() {
                 key={index}
                 className={index % 2 === 0 ? "bg-white hover:bg-gray-50" : "bg-gray-50 hover:bg-gray-100"}
               >
-                <TableCell className="font-medium text-gray-800 py-5 border-b px-6 text-base">
+                <TableCell className="font-medium text-gray-800 py-3 border-b px-6 text-base">
                   <div className="flex items-center">
                     {item.date}
                   </div>
                 </TableCell>
-                <TableCell className="text-center py-5 border-b px-6">
+                <TableCell className="text-center py-3 border-b px-6">
                   <div className="flex items-center justify-center">
                     <TooltipProvider>
                       <Tooltip>

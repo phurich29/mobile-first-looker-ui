@@ -1,8 +1,9 @@
 
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
+import { FooterNav } from "@/components/FooterNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -57,6 +58,7 @@ const resetPasswordSchema = z.object({
 export default function UserManagement() {
   const { toast } = useToast();
   const { user, userRoles, isLoading } = useAuth();
+  const navigate = useNavigate(); // เพิ่ม useNavigate เพื่อใช้สำหรับการนำทาง
   const [users, setUsers] = useState<User[]>([]);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(true);
@@ -294,28 +296,41 @@ export default function UserManagement() {
         throw new Error("ไม่สามารถสร้างผู้ใช้ได้");
       }
       
-      // เพิ่มบทบาท 'user' ให้กับผู้ใช้ใหม่โดยอัตโนมัติ
-      // เนื่องจากถูกสร้างโดย Admin หรือ Superadmin
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({ 
-          user_id: authData.user.id, 
-          role: 'user' as Database["public"]["Enums"]["app_role"]
-        });
+      // ตรวจสอบว่าผู้ใช้ปัจจุบันเป็น admin หรือ superadmin หรือไม่
+      const isAdminOrSuperAdmin = userRoles.includes('admin') || userRoles.includes('superadmin');
+      
+      // ถ้าเป็น admin หรือ superadmin ที่สร้างผู้ใช้ใหม่ ให้เพิ่มบทบาท 'user' โดยอัตโนมัติ
+      if (isAdminOrSuperAdmin) {
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .insert({ 
+            user_id: authData.user.id, 
+            role: 'user' as Database["public"]["Enums"]["app_role"]
+          });
 
-      if (roleError && roleError.code !== '23505') { // ข้ามกรณีที่มีบทบาทนี้อยู่แล้ว
-        console.error('Error assigning user role:', roleError);
-        // ไม่ throw error เพื่อให้โค้ดทำงานต่อไปได้
+        if (roleError && roleError.code !== '23505') { // ข้ามกรณีที่มีบทบาทนี้อยู่แล้ว
+          console.error('Error assigning user role:', roleError);
+          // ไม่ throw error เพื่อให้โค้ดทำงานต่อไปได้
+        }
       }
       
       toast({
         title: "สร้างผู้ใช้สำเร็จ",
-        description: "ผู้ใช้ใหม่ถูกสร้างและเพิ่มเข้าสู่ระบบพร้อมใช้งานทันที",
+        description: isAdminOrSuperAdmin 
+          ? "ผู้ใช้ใหม่ถูกสร้างและเพิ่มเข้าสู่ระบบพร้อมใช้งานทันที" 
+          : "ผู้ใช้ใหม่ถูกสร้างและเพิ่มเข้าสู่ waiting list รอการอนุมัติ",
       });
       
       // ปิด dialog และ reset form
       setShowAddUserDialog(false);
       newUserForm.reset();
+      
+      // ถ้าเป็น admin หรือ superadmin ให้อยู่ที่หน้าเดิม (ไม่ต้องนำทางไปที่ waiting list)
+      // นำทางกลับมาที่หน้าจัดการผู้ใช้เพื่อแน่ใจว่าไม่มีการนำทางไปที่อื่น
+      if (isAdminOrSuperAdmin) {
+        // นำทางกลับมาที่หน้าจัดการผู้ใช้อย่างชัดเจน
+        navigate('/user-management');
+      }
       
       // Refresh users list to include the new user
       const { data: profiles } = await supabase
@@ -333,7 +348,8 @@ export default function UserManagement() {
             return {
               id: profile.id,
               email: profile.email || 'unknown@example.com',
-              roles: roles || []
+              roles: roles || [],
+              last_sign_in_at: null
             };
           })
         );
@@ -811,25 +827,8 @@ export default function UserManagement() {
         </DialogContent>
       </Dialog>
 
-      {/* Bottom nav */}
-      <nav className="fixed bottom-0 w-full bg-white border-t border-gray-100 flex justify-around py-4 shadow-xl rounded-t-3xl backdrop-blur-sm bg-white/90" style={{ maxHeight: '80px' }}>
-        <a href="/" className="flex flex-col items-center">
-          <div className="w-6 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
-          <span className="text-xs text-gray-400">Home</span>
-        </a>
-        <a href="/rice-prices" className="flex flex-col items-center">
-          <div className="w-6 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
-          <span className="text-xs text-gray-400">Market</span>
-        </a>
-        <a href="/admin" className="flex flex-col items-center">
-          <div className="w-6 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
-          <span className="text-xs text-gray-400">จัดการ</span>
-        </a>
-        <a href="/user-management" className="flex flex-col items-center">
-          <div className="w-6 h-1 bg-emerald-600 rounded-full mx-auto mb-1"></div>
-          <span className="text-xs text-emerald-600 font-medium">จัดการผู้ใช้</span>
-        </a>
-      </nav>
+      {/* Footer Navigation */}
+      <FooterNav />
     </div>
   );
 }
