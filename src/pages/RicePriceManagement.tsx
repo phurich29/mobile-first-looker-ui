@@ -1,11 +1,9 @@
-
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Edit, Trash2, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -41,7 +39,6 @@ export default function RicePriceManagement() {
   const [priceFormValues, setPriceFormValues] = useState<RicePriceFormValues>({
     name: '',
     price: '',
-    category: 'กข',
     priceColor: 'black'
   });
 
@@ -55,14 +52,13 @@ export default function RicePriceManagement() {
     const { data, error } = await supabase
       .from('rice_prices')
       .select('*')
-      .order('category', { ascending: true })
       .order('name', { ascending: true });
     
     if (error) {
       throw error;
     }
     
-    return data as RicePrice[];
+    return data as unknown as RicePrice[];
   };
 
   // Function to fetch rice price documents
@@ -76,7 +72,7 @@ export default function RicePriceManagement() {
       throw error;
     }
     
-    return data as RicePriceDocument[];
+    return data as unknown as RicePriceDocument[];
   };
 
   // Use React Query to fetch and cache rice prices
@@ -102,7 +98,7 @@ export default function RicePriceManagement() {
   });
 
   // Handle rice price form input changes
-  const handlePriceFormChange = (field: keyof RicePriceFormValues, value: string | number) => {
+  const handlePriceFormChange = (field: keyof RicePriceFormValues, value: string) => {
     setPriceFormValues({
       ...priceFormValues,
       [field]: value
@@ -122,7 +118,6 @@ export default function RicePriceManagement() {
     setPriceFormValues({
       name: '',
       price: '',
-      category: 'กข',
       priceColor: 'black'
     });
     setSelectedPrice(null);
@@ -142,8 +137,7 @@ export default function RicePriceManagement() {
     setSelectedPrice(price);
     setPriceFormValues({
       name: price.name,
-      price: price.price ? price.price.toString() : '',
-      category: price.category,
+      price: price.price ? price.price : '',
       priceColor: price.priceColor || 'black'
     });
     setIsEditDialogOpen(true);
@@ -169,7 +163,6 @@ export default function RicePriceManagement() {
         .insert({
           name: priceFormValues.name,
           price: priceFormValues.price,
-          category: priceFormValues.category,
           priceColor: priceFormValues.priceColor
         });
       
@@ -231,7 +224,6 @@ export default function RicePriceManagement() {
         .update({
           name: priceFormValues.name,
           price: priceFormValues.price,
-          category: priceFormValues.category,
           priceColor: priceFormValues.priceColor
         })
         .eq('id', selectedPrice.id);
@@ -434,23 +426,6 @@ export default function RicePriceManagement() {
                       />
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="category">ประเภท</Label>
-                      <Select
-                        value={priceFormValues.category}
-                        onValueChange={(value) => handlePriceFormChange('category', value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="เลือกประเภทข้าว" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="กข">กข</SelectItem>
-                          <SelectItem value="หอมมะลิ">หอมมะลิ</SelectItem>
-                          <SelectItem value="ปทุมธานี">ปทุมธานี</SelectItem>
-                          <SelectItem value="อื่นๆ">อื่นๆ</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="grid gap-2">
                       <Label>สีของราคา</Label>
                       <RadioGroup 
                         value={priceFormValues.priceColor} 
@@ -491,7 +466,6 @@ export default function RicePriceManagement() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>ชื่อข้าว</TableHead>
-                      <TableHead>ประเภท</TableHead>
                       <TableHead>ราคา (บาท/100กก.)</TableHead>
                       <TableHead>อัพเดทเมื่อ</TableHead>
                       <TableHead className="text-right">การจัดการ</TableHead>
@@ -504,7 +478,6 @@ export default function RicePriceManagement() {
                           <TableCell className={isMobile ? "whitespace-normal" : "whitespace-nowrap"}>
                             <div className="font-medium">{price.name}</div>
                           </TableCell>
-                          <TableCell>{price.category}</TableCell>
                           <TableCell className={getPriceColorClass(price.priceColor)}>
                             {price.price}
                           </TableCell>
@@ -537,7 +510,7 @@ export default function RicePriceManagement() {
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center">ไม่พบข้อมูลราคาข้าว</TableCell>
+                        <TableCell colSpan={4} className="text-center">ไม่พบข้อมูลราคาข้าว</TableCell>
                       </TableRow>
                     )}
                   </TableBody>
@@ -673,23 +646,6 @@ export default function RicePriceManagement() {
                 value={priceFormValues.price}
                 onChange={(e) => handlePriceFormChange('price', e.target.value)}
               />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="edit-category">ประเภท</Label>
-              <Select
-                value={priceFormValues.category}
-                onValueChange={(value) => handlePriceFormChange('category', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="เลือกประเภทข้าว" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="กข">กข</SelectItem>
-                  <SelectItem value="หอมมะลิ">หอมมะลิ</SelectItem>
-                  <SelectItem value="ปทุมธานี">ปทุมธานี</SelectItem>
-                  <SelectItem value="อื่นๆ">อื่นๆ</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
             <div className="grid gap-2">
               <Label>สีของราคา</Label>

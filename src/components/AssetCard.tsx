@@ -42,10 +42,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({
 
   // เปลี่ยนค่า iconColor เพื่อให้สอดคล้องกับ theme สีเขียวพรีเมี่ยม
   const getBgColor = () => {
-    if (name === 'หอมมะลิ') return '#10b981'; // สีเขียว emerald-500
-    if (name === 'กข') return '#059669'; // สีเขียวเข้ม emerald-600
-    if (name === 'ปทุมธานี') return '#047857'; // สีเขียวเข้มมาก emerald-700
-    return '#10b981'; // ค่าเริ่มต้นเป็นสีเขียว emerald-500
+    return '#10b981'; // สีเขียว emerald-500 (default)
   };
 
   // Get text color class based on price color
@@ -71,9 +68,8 @@ export const AssetCard: React.FC<AssetCardProps> = ({
             <span className="relative z-10 text-base drop-shadow-sm">{name.charAt(0)}</span>
           </div>
           
-          {/* Rice Category */}
+          {/* Rice Name */}
           <div className="text-right">
-            <p className="text-xs text-gray-500">ประเภท</p>
             <p className="font-medium text-sm">{name}</p>
           </div>
         </div>

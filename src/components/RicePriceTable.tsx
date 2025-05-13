@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,14 +19,13 @@ export function RicePriceTable() {
     const { data, error } = await supabase
       .from('rice_prices')
       .select('*')
-      .order('category', { ascending: true })
       .order('name', { ascending: true });
     
     if (error) {
       throw error;
     }
     
-    return data as RicePrice[];
+    return data as unknown as RicePrice[];
   };
 
   // Function to fetch rice price documents
@@ -41,7 +39,7 @@ export function RicePriceTable() {
       throw error;
     }
     
-    return data as RicePriceDocument[];
+    return data as unknown as RicePriceDocument[];
   };
 
   // Use React Query to fetch and cache rice prices
@@ -77,21 +75,6 @@ export function RicePriceTable() {
       return dateString;
     }
   };
-
-  // Group rice prices by category
-  const groupedPrices = ricePrices?.reduce((acc, price) => {
-    if (!acc[price.category]) {
-      acc[price.category] = [];
-    }
-    acc[price.category].push(price);
-    return acc;
-  }, {} as Record<string, RicePrice[]>) || {};
-
-  // Sort categories in a specific order
-  const sortedCategories = Object.keys(groupedPrices).sort((a, b) => {
-    const order = ["กข", "หอมมะลิ", "ปทุมธานี", "อื่นๆ"];
-    return order.indexOf(a) - order.indexOf(b);
-  });
 
   // Get text color class based on price color
   const getPriceColorClass = (color: string = 'black') => {
@@ -134,33 +117,28 @@ export function RicePriceTable() {
           </TabsList>
           
           <TabsContent value="prices">
-            {sortedCategories.length > 0 ? (
+            {ricePrices && ricePrices.length > 0 ? (
               <div className="space-y-6">
-                {sortedCategories.map((category) => (
-                  <div key={category} className="rounded-md border">
-                    <div className="bg-gray-50 px-4 py-2 border-b">
-                      <h3 className="font-medium text-gray-700">ประเภทข้าว: {category}</h3>
-                    </div>
-                    <ResponsiveTable>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>ชื่อข้าว</TableHead>
-                          <TableHead className="text-right">ราคา (บาท/100กก.)</TableHead>
+                <div className="rounded-md border">
+                  <ResponsiveTable>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>ชื่อข้าว</TableHead>
+                        <TableHead className="text-right">ราคา (บาท/100กก.)</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {ricePrices.map((price) => (
+                        <TableRow key={price.id}>
+                          <TableCell className={isMobile ? "whitespace-normal break-words" : "whitespace-nowrap"}>{price.name}</TableCell>
+                          <TableCell className={`text-right font-medium ${getPriceColorClass(price.priceColor)}`}>
+                            {price.price}
+                          </TableCell>
                         </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {groupedPrices[category].map((price) => (
-                          <TableRow key={price.id}>
-                            <TableCell className={isMobile ? "whitespace-normal break-words" : "whitespace-nowrap"}>{price.name}</TableCell>
-                            <TableCell className={`text-right font-medium ${getPriceColorClass(price.priceColor)}`}>
-                              {price.price}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </ResponsiveTable>
-                  </div>
-                ))}
+                      ))}
+                    </TableBody>
+                  </ResponsiveTable>
+                </div>
                 <p className="text-xs text-gray-500 text-right mt-2 italic">
                   อัพเดทล่าสุด: {ricePrices && ricePrices.length > 0 && 
                     new Date(Math.max(...ricePrices.map(p => new Date(p.updated_at).getTime())))
