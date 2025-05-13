@@ -22,8 +22,6 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
-  const [isStart, setIsStart] = useState(true);
-  const [isEnd, setIsEnd] = useState(false);
 
   // Format date for display in Thai format
   const formatThaiDate = (dateString: string) => {
@@ -44,15 +42,11 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
     
     const onSelect = () => {
       setSelectedIndex(emblaApi.selectedScrollSnap());
-      setIsStart(emblaApi.scrollProgress() === 0);
-      setIsEnd(emblaApi.scrollProgress() >= 0.99);
     };
     
     const onScroll = () => {
       const progress = emblaApi.scrollProgress();
       setScrollProgress(progress);
-      setIsStart(progress === 0);
-      setIsEnd(progress >= 0.99);
     };
     
     emblaApi.on('select', onSelect);
@@ -110,10 +104,10 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
           </div>
         </div>
         
-        {/* Scrollbar */}
-        <div className="w-full px-8 mt-[-8px] mb-2">
+        {/* Scrollbar - แก้ไขแถบเลื่อนให้มีขนาดเหมาะสมและ responsive มากขึ้น */}
+        <div className="w-full px-4 mt-1">
           <div 
-            className="relative h-2 bg-gray-200/50 rounded-full cursor-pointer"
+            className="relative h-2 bg-gray-200/50 rounded-full overflow-hidden"
             onClick={(e) => {
               if (!emblaApi) return;
               const rect = e.currentTarget.getBoundingClientRect();
@@ -122,44 +116,19 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
               emblaApi.scrollTo(Math.floor(percentPosition * scrollSnaps.length));
             }}
           >
-            {emblaApi && (() => {
-              // Calculate thumb width based on visible content ratio
-              const visibleWidth = emblaApi.containerNode().clientWidth;
-              const totalWidth = emblaApi.slideNodes().reduce(
-                (acc, slide) => acc + slide.offsetWidth + 12,
-                0
-              );
-              
-              // Set minimum thumb width
-              const thumbWidthPercent = Math.max(15, (visibleWidth / totalWidth) * 100);
-              
-              // Calculate maximum thumb position
-              const maxThumbPosition = 100 - thumbWidthPercent;
-              
-              // Calculate thumb position
-              let thumbPosition;
-              
-              if (isEnd) {
-                thumbPosition = maxThumbPosition;
-              } else if (isStart) {
-                thumbPosition = 0;
-              } else {
-                thumbPosition = scrollProgress * maxThumbPosition;
-              }
-              
-              return (
-                <div
-                  className="absolute left-0 top-0 h-full bg-emerald-500 rounded-full shadow-sm transition-transform duration-150"
-                  style={{
-                    width: `${thumbWidthPercent}%`,
-                    transform: `translateX(${thumbPosition}%)`
-                  }}
-                ></div>
-              );
-            })()}
+            {emblaApi && scrollSnaps.length > 0 && (
+              <div
+                className="absolute left-0 top-0 h-full bg-emerald-500 rounded-full transition-all duration-150"
+                style={{
+                  width: `${Math.max(20, 100 / Math.max(1, scrollSnaps.length))}%`,
+                  transform: `translateX(${scrollProgress * (100 - Math.max(20, 100 / Math.max(1, scrollSnaps.length)))}%)`,
+                }}
+              ></div>
+            )}
           </div>
         </div>
       </div>
     </>
   );
 };
+
