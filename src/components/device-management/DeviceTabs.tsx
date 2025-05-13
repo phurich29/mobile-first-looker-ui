@@ -1,6 +1,6 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Monitor, Users, Filter } from "lucide-react";
+import { Database, Users, Filter } from "lucide-react";
 
 interface DeviceTabsProps {
   children: React.ReactNode;
@@ -12,7 +12,7 @@ export function DeviceTabs({ children, defaultValue = "devices" }: DeviceTabsPro
     <Tabs defaultValue={defaultValue}>
       <TabsList className="mb-6">
         <TabsTrigger value="devices" className="flex items-center gap-2">
-          <Monitor className="h-4 w-4" />
+          <Database className="h-4 w-4" />
           <span>อุปกรณ์</span>
         </TabsTrigger>
         <TabsTrigger value="users" className="flex items-center gap-2">
