@@ -189,7 +189,7 @@ export type Database = {
           document_date: string | null
           id: string
           name: string
-          price: number | null
+          price: string | null
           priceColor: string | null
           updated_at: string | null
         }
@@ -199,7 +199,7 @@ export type Database = {
           document_date?: string | null
           id?: string
           name: string
-          price?: number | null
+          price?: string | null
           priceColor?: string | null
           updated_at?: string | null
         }
@@ -209,7 +209,7 @@ export type Database = {
           document_date?: string | null
           id?: string
           name?: string
-          price?: number | null
+          price?: string | null
           priceColor?: string | null
           updated_at?: string | null
         }

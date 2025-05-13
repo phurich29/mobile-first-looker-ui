@@ -1,4 +1,3 @@
-
 // Format date for display in Thai format
 export const formatThaiDate = (dateString: string) => {
   try {
@@ -25,4 +24,19 @@ export const getLatestUpdateTimestamp = (ricePrices: any[]): string => {
       hour: '2-digit',
       minute: '2-digit'
     });
+};
+
+// Format price properly, now handling text values
+export const formatPrice = (price: string | number | null): string => {
+  if (price === null || price === undefined || price === '') {
+    return 'รอการอัพเดท';
+  }
+  
+  // If price is already a string (which could be a range like "3,500 - 4,500"), return it directly
+  if (typeof price === 'string') {
+    return price;
+  }
+  
+  // If price is a number, format it with Thai locale and currency
+  return new Intl.NumberFormat('th-TH').format(price);
 };

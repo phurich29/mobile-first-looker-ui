@@ -19,14 +19,8 @@ export function usePriceAdd(refetchPrices: () => void, resetPriceForm: () => voi
 
       // Handle price field - it can now be any text
       if (priceFormValues.price && priceFormValues.price.trim() !== '') {
-        // Try to convert to number if possible
-        const priceAsNumber = parseFloat(priceFormValues.price);
-        if (!isNaN(priceAsNumber)) {
-          newRicePrice.price = priceAsNumber;
-        } else {
-          // If it's not a number, store it as a string in the database
-          newRicePrice.price = priceFormValues.price.trim();
-        }
+        // Store price as text directly - no conversion needed anymore
+        newRicePrice.price = priceFormValues.price.trim();
       } else {
         // If price is empty, set it to null
         newRicePrice.price = null;
