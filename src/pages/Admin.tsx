@@ -11,6 +11,7 @@ import { EquipmentCard } from "@/components/EquipmentCard";
 import { Settings, Users, Shield } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { Database } from "@/integrations/supabase/types";
+import { FooterNav } from "@/components/FooterNav";
 
 // Define types for our user data
 interface User {
@@ -26,6 +27,9 @@ export default function Admin() {
   const [devices, setDevices] = useState<any[]>([]);
   const [isFetchingUsers, setIsFetchingUsers] = useState<boolean>(false);
   const [isFetchingDevices, setIsFetchingDevices] = useState<boolean>(false);
+  
+  // Check if current user is superadmin
+  const isSuperAdmin = userRoles.includes('superadmin');
   
   // Fetch users and their roles
   useEffect(() => {
@@ -61,7 +65,15 @@ export default function Admin() {
           })
         );
         
-        setUsers(usersWithRoles);
+        // Filter users based on current user's role
+        let filteredUsers = usersWithRoles;
+        
+        // If user is not a superadmin, filter out superadmins from the list
+        if (!isSuperAdmin) {
+          filteredUsers = usersWithRoles.filter(user => !user.roles.includes('superadmin'));
+        }
+        
+        setUsers(filteredUsers);
       } catch (error: any) {
         console.error('Error fetching users:', error.message);
         toast({
@@ -75,7 +87,7 @@ export default function Admin() {
     };
     
     fetchUsers();
-  }, [user, userRoles, toast]);
+  }, [user, userRoles, toast, isSuperAdmin]);
   
   // Fetch devices
   useEffect(() => {
@@ -168,7 +180,13 @@ export default function Admin() {
         })
       );
       
-      setUsers(updatedUsers);
+      // Re-apply filtering for non-superadmins
+      let filteredUsers = updatedUsers;
+      if (!isSuperAdmin) {
+        filteredUsers = updatedUsers.filter(user => !user.roles.includes('superadmin'));
+      }
+      
+      setUsers(filteredUsers);
     } catch (error: any) {
       console.error('Error changing role:', error.message);
       toast({
@@ -352,24 +370,7 @@ export default function Admin() {
       </main>
       
       {/* แถบนำทางด้านล่าง */}
-      <nav className="fixed bottom-0 w-full bg-white border-t border-gray-100 flex justify-around py-4 shadow-xl rounded-t-3xl backdrop-blur-sm bg-white/90" style={{ maxHeight: '80px' }}>
-        <a href="/" className="flex flex-col items-center">
-          <div className="w-6 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
-          <span className="text-xs text-gray-400">Home</span>
-        </a>
-        <a href="/market" className="flex flex-col items-center">
-          <div className="w-6 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
-          <span className="text-xs text-gray-400">Market</span>
-        </a>
-        <a href="/admin" className="flex flex-col items-center">
-          <div className="w-6 h-1 bg-emerald-600 rounded-full mx-auto mb-1"></div>
-          <span className="text-xs text-emerald-600 font-medium">จัดการ</span>
-        </a>
-        <a href="/profile" className="flex flex-col items-center">
-          <div className="w-6 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
-          <span className="text-xs text-gray-400">Profile</span>
-        </a>
-      </nav>
+      <FooterNav />
     </div>
   );
 }

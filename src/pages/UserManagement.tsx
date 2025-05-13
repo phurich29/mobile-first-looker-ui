@@ -58,7 +58,7 @@ const resetPasswordSchema = z.object({
 export default function UserManagement() {
   const { toast } = useToast();
   const { user, userRoles, isLoading } = useAuth();
-  const navigate = useNavigate(); // เพิ่ม useNavigate เพื่อใช้สำหรับการนำทาง
+  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(true);
@@ -67,6 +67,9 @@ export default function UserManagement() {
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [selectedUserEmail, setSelectedUserEmail] = useState<string>("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<boolean>(false);
+
+  // Check if current user is superadmin
+  const isSuperAdmin = userRoles.includes('superadmin');
 
   const newUserForm = useForm<z.infer<typeof newUserSchema>>({
     resolver: zodResolver(newUserSchema),
@@ -124,7 +127,15 @@ export default function UserManagement() {
           })
         );
 
-        setUsers(usersWithRoles);
+        // Filter users based on current user's role
+        let filteredUsers = usersWithRoles;
+        
+        // If user is not a superadmin, filter out superadmins from the list
+        if (!isSuperAdmin) {
+          filteredUsers = usersWithRoles.filter(user => !user.roles.includes('superadmin'));
+        }
+        
+        setUsers(filteredUsers);
       } catch (error: any) {
         console.error('Error fetching users:', error.message);
         toast({
@@ -138,15 +149,26 @@ export default function UserManagement() {
     };
 
     fetchUsers();
-  }, [user, userRoles, toast]);
+  }, [user, userRoles, toast, isSuperAdmin]);
 
   // Add or remove a role for a user
   const changeUserRole = async (userId: string, role: Database["public"]["Enums"]["app_role"], isAdding: boolean) => {
-    // ป้องกันการแก้ไขสิทธิ์ superadmin โดย admin
+    // Prevent non-superadmin from changing superadmin role
     if (role === 'superadmin' && !userRoles.includes('superadmin')) {
       toast({
         title: "ไม่มีสิทธิ์",
         description: "เฉพาะ Superadmin เท่านั้นที่สามารถจัดการสิทธิ์ Superadmin",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Prevent modification of users with superadmin role by non-superadmins
+    const targetUser = users.find(u => u.id === userId);
+    if (!isSuperAdmin && targetUser?.roles.includes('superadmin')) {
+      toast({
+        title: "ไม่มีสิทธิ์",
+        description: "ไม่สามารถแก้ไขสิทธิ์ของผู้ใช้ที่เป็น Superadmin ได้",
         variant: "destructive",
       });
       return;
@@ -208,7 +230,13 @@ export default function UserManagement() {
         })
       );
       
-      setUsers(updatedUsers);
+      // Re-apply filtering for non-superadmins
+      let filteredUsers = updatedUsers;
+      if (!isSuperAdmin) {
+        filteredUsers = updatedUsers.filter(user => !user.roles.includes('superadmin'));
+      }
+      
+      setUsers(filteredUsers);
     } catch (error: any) {
       console.error('Error changing role:', error.message);
       toast({
@@ -223,6 +251,17 @@ export default function UserManagement() {
 
   // Approve a user from waiting list (add 'user' role and remove 'waiting_list')
   const approveUser = async (userId: string) => {
+    // Prevent approval of users with superadmin role by non-superadmins
+    const targetUser = users.find(u => u.id === userId);
+    if (!isSuperAdmin && targetUser?.roles.includes('superadmin')) {
+      toast({
+        title: "ไม่มีสิทธิ์",
+        description: "ไม่สามารถอนุมัติผู้ใช้ที่เป็น Superadmin ได้",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsProcessing(true);
     try {
       // First, add the 'user' role
@@ -267,7 +306,13 @@ export default function UserManagement() {
         })
       );
       
-      setUsers(updatedUsers);
+      // Re-apply filtering for non-superadmins
+      let filteredUsers = updatedUsers;
+      if (!isSuperAdmin) {
+        filteredUsers = updatedUsers.filter(user => !user.roles.includes('superadmin'));
+      }
+      
+      setUsers(filteredUsers);
     } catch (error: any) {
       console.error('Error approving user:', error.message);
       toast({
@@ -333,28 +378,34 @@ export default function UserManagement() {
       }
       
       // Refresh users list to include the new user
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, email');
+      const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers();
       
-      if (profiles) {
+      if (authUsers?.users) {
         const usersWithRoles = await Promise.all(
-          profiles.map(async (profile) => {
+          authUsers.users.map(async (authUser) => {
             const { data: roles } = await supabase.rpc(
               'get_user_roles',
-              { user_id: profile.id }
+              { user_id: authUser.id }
             );
             
             return {
-              id: profile.id,
-              email: profile.email || 'unknown@example.com',
+              id: authUser.id,
+              email: authUser.email || 'unknown@example.com',
               roles: roles || [],
-              last_sign_in_at: null
+              last_sign_in_at: authUser.last_sign_in_at
             };
           })
         );
         
-        setUsers(usersWithRoles);
+        // Filter users based on current user's role
+        let filteredUsers = usersWithRoles;
+        
+        // If user is not a superadmin, filter out superadmins from the list
+        if (!isSuperAdmin) {
+          filteredUsers = usersWithRoles.filter(user => !user.roles.includes('superadmin'));
+        }
+        
+        setUsers(filteredUsers);
       }
     } catch (error: any) {
       console.error('Error creating user:', error);
@@ -378,6 +429,18 @@ export default function UserManagement() {
 
   // Reset user password
   const resetUserPassword = async (values: z.infer<typeof resetPasswordSchema>) => {
+    // Prevent password reset for superadmin users by non-superadmins
+    const targetUser = users.find(u => u.id === selectedUserId);
+    if (!isSuperAdmin && targetUser?.roles.includes('superadmin')) {
+      toast({
+        title: "ไม่มีสิทธิ์",
+        description: "ไม่สามารถรีเซ็ตรหัสผ่านของ Superadmin ได้",
+        variant: "destructive",
+      });
+      setShowResetPasswordDialog(false);
+      return;
+    }
+
     setIsProcessing(true);
     
     try {
@@ -414,6 +477,18 @@ export default function UserManagement() {
   // Delete user
   const deleteUser = async () => {
     if (!selectedUserId) return;
+    
+    // Prevent deletion of superadmin users by non-superadmins
+    const targetUser = users.find(u => u.id === selectedUserId);
+    if (!isSuperAdmin && targetUser?.roles.includes('superadmin')) {
+      toast({
+        title: "ไม่มีสิทธิ์",
+        description: "ไม่สามารถลบผู้ใช้ที่เป็น Superadmin ได้",
+        variant: "destructive",
+      });
+      setShowDeleteConfirm(false);
+      return;
+    }
     
     setIsProcessing(true);
     try {
@@ -488,9 +563,6 @@ export default function UserManagement() {
   if (!userRoles.includes('admin') && !userRoles.includes('superadmin')) {
     return <Navigate to="/" />;
   }
-
-  // Check if user is superadmin
-  const isSuperAdmin = userRoles.includes('superadmin');
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
