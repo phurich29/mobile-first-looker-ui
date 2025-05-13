@@ -7,9 +7,13 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { RicePrice, RicePriceDocument } from "@/features/user-management/types";
 import { ExternalLink, FileText } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { ResponsiveTable } from "./ui/responsive-table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 
 export function RicePriceTable() {
   const [activeTab, setActiveTab] = useState("prices");
+  const isMobile = useIsMobile();
 
   // Function to fetch rice prices
   const fetchRicePrices = async () => {
@@ -128,22 +132,22 @@ export function RicePriceTable() {
                     <div className="bg-gray-50 px-4 py-2 border-b">
                       <h3 className="font-medium text-gray-700">ประเภทข้าว: {category}</h3>
                     </div>
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อข้าว</th>
-                          <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">ราคา (บาท/100กก.)</th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+                    <ResponsiveTable>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>ชื่อข้าว</TableHead>
+                          <TableHead className="text-right">ราคา (บาท/100กก.)</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
                         {groupedPrices[category].map((price) => (
-                          <tr key={price.id}>
-                            <td className="px-4 py-3 text-sm text-gray-900">{price.name}</td>
-                            <td className="px-4 py-3 text-sm text-gray-900 text-right font-medium">{price.price.toLocaleString('th-TH')}</td>
-                          </tr>
+                          <TableRow key={price.id}>
+                            <TableCell className={isMobile ? "whitespace-normal break-words" : "whitespace-nowrap"}>{price.name}</TableCell>
+                            <TableCell className="text-right font-medium">{price.price.toLocaleString('th-TH')}</TableCell>
+                          </TableRow>
                         ))}
-                      </tbody>
-                    </table>
+                      </TableBody>
+                    </ResponsiveTable>
                   </div>
                 ))}
                 <p className="text-xs text-gray-500 text-right mt-2 italic">
@@ -172,12 +176,12 @@ export function RicePriceTable() {
                 {ricePriceDocuments.map((document) => (
                   <div 
                     key={document.id} 
-                    className="p-3 border rounded-md hover:bg-gray-50 transition-colors flex justify-between items-center"
+                    className="p-3 border rounded-md hover:bg-gray-50 transition-colors flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2"
                   >
                     <div className="flex items-center">
-                      <FileText size={20} className="text-emerald-600 mr-2" />
+                      <FileText size={20} className="text-emerald-600 mr-2 flex-shrink-0" />
                       <div>
-                        <p className="font-medium">
+                        <p className="font-medium break-words">
                           ราคาข้าวประจำวันที่ {formatThaiDate(document.document_date)}
                         </p>
                         <p className="text-xs text-gray-500">
@@ -189,7 +193,7 @@ export function RicePriceTable() {
                       href={document.file_url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800"
+                      className="text-blue-600 hover:text-blue-800 mt-2 sm:mt-0"
                     >
                       <Button variant="outline" size="sm" className="flex items-center gap-1">
                         <ExternalLink size={14} />

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Edit, Trash2, Upload, Calendar } from "lucide-react";
+import { Plus, Edit, Trash2, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
@@ -16,11 +16,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { formatDate } from "@/features/user-management/utils";
 import { useQuery } from "@tanstack/react-query";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ResponsiveTable } from "@/components/ui/responsive-table";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function RicePriceManagement() {
   const { userRoles } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("prices");
+  const isMobile = useIsMobile();
   
   // Rice Price Dialog States
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -448,57 +452,59 @@ export default function RicePriceManagement() {
                 <CardTitle>รายการราคาข้าว</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="rounded-md border">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อข้าว</th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ประเภท</th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ราคา (บาท/100กก.)</th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">อัพเดทเมื่อ</th>
-                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">การจัดการ</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {ricePrices && ricePrices.length > 0 ? (
-                        ricePrices.map((price) => (
-                          <tr key={price.id}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{price.name}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{price.category}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{price.price.toLocaleString('th-TH')}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(price.updated_at)}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                              <div className="flex justify-end space-x-2">
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
-                                  className="flex items-center text-blue-600 hover:text-blue-800"
-                                  onClick={() => openEditDialog(price)}
-                                >
-                                  <Edit size={16} className="mr-1" />
-                                  แก้ไข
-                                </Button>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
-                                  className="flex items-center text-red-600 hover:text-red-800"
-                                  onClick={() => openDeleteDialog(price)}
-                                >
-                                  <Trash2 size={16} className="mr-1" />
-                                  ลบ
-                                </Button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">ไม่พบข้อมูลราคาข้าว</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                <ResponsiveTable>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ชื่อข้าว</TableHead>
+                      <TableHead>ประเภท</TableHead>
+                      <TableHead>ราคา (บาท/100กก.)</TableHead>
+                      <TableHead>อัพเดทเมื่อ</TableHead>
+                      <TableHead className="text-right">การจัดการ</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {ricePrices && ricePrices.length > 0 ? (
+                      ricePrices.map((price) => (
+                        <TableRow key={price.id}>
+                          <TableCell className={isMobile ? "whitespace-normal" : "whitespace-nowrap"}>
+                            <div className="font-medium">{price.name}</div>
+                          </TableCell>
+                          <TableCell>{price.category}</TableCell>
+                          <TableCell>{price.price.toLocaleString('th-TH')}</TableCell>
+                          <TableCell className={isMobile ? "whitespace-normal" : "whitespace-nowrap"}>
+                            {formatDate(price.updated_at)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className={`flex ${isMobile ? "flex-col gap-1" : "justify-end space-x-2"}`}>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="flex items-center text-blue-600 hover:text-blue-800"
+                                onClick={() => openEditDialog(price)}
+                              >
+                                <Edit size={16} className="mr-1" />
+                                แก้ไข
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="flex items-center text-red-600 hover:text-red-800"
+                                onClick={() => openDeleteDialog(price)}
+                              >
+                                <Trash2 size={16} className="mr-1" />
+                                ลบ
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center">ไม่พบข้อมูลราคาข้าว</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </ResponsiveTable>
               </CardContent>
             </Card>
           </TabsContent>
@@ -553,57 +559,55 @@ export default function RicePriceManagement() {
                 <CardTitle>เอกสารราคาข้าวจากสมาคมโรงสีข้าวไทย</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="rounded-md border">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">วันที่</th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลิงก์เอกสาร</th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">อัพเดทเมื่อ</th>
-                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">การจัดการ</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {ricePriceDocuments && ricePriceDocuments.length > 0 ? (
-                        ricePriceDocuments.map((document) => (
-                          <tr key={document.id}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                              {formatThaiDate(document.document_date)}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-blue-600">
-                              <a 
-                                href={document.file_url} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="hover:underline flex items-center"
-                              >
-                                ดูเอกสาร
-                              </a>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {formatDate(document.updated_at)}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                className="flex items-center text-red-600 hover:text-red-800"
-                                onClick={() => openDeleteDocDialog(document)}
-                              >
-                                <Trash2 size={16} className="mr-1" />
-                                ลบ
-                              </Button>
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500">ไม่พบข้อมูลเอกสารราคาข้าว</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                <ResponsiveTable>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>วันที่</TableHead>
+                      <TableHead>ลิงก์เอกสาร</TableHead>
+                      <TableHead>อัพเดทเมื่อ</TableHead>
+                      <TableHead className="text-right">การจัดการ</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {ricePriceDocuments && ricePriceDocuments.length > 0 ? (
+                      ricePriceDocuments.map((document) => (
+                        <TableRow key={document.id}>
+                          <TableCell className={isMobile ? "whitespace-normal" : "whitespace-nowrap"}>
+                            {formatThaiDate(document.document_date)}
+                          </TableCell>
+                          <TableCell>
+                            <a 
+                              href={document.file_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline flex items-center"
+                            >
+                              ดูเอกสาร
+                            </a>
+                          </TableCell>
+                          <TableCell className={isMobile ? "whitespace-normal" : "whitespace-nowrap"}>
+                            {formatDate(document.updated_at)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="flex items-center text-red-600 hover:text-red-800"
+                              onClick={() => openDeleteDocDialog(document)}
+                            >
+                              <Trash2 size={16} className="mr-1" />
+                              ลบ
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center">ไม่พบข้อมูลเอกสารราคาข้าว</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </ResponsiveTable>
               </CardContent>
             </Card>
           </TabsContent>
