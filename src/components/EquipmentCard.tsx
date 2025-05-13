@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button"; 
-import { Settings, Users, UserPlus, X, CheckCircle } from "lucide-react";
+import { Users, UserPlus, X, CheckCircle, ChartBar } from "lucide-react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { useAuth } from "@/components/AuthProvider";
@@ -298,7 +298,7 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
         <CardHeader className="pb-1 p-4">
           <div className="flex items-start justify-between">
             <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center mb-2">
-              <Settings className="h-5 w-5 text-emerald-600" />
+              <ChartBar className="h-5 w-5 text-emerald-600" />
             </div>
             <span className="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-medium">
               อุปกรณ์
@@ -334,8 +334,8 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
               className="w-full text-xs"
               onClick={() => window.location.href = `/admin?device=${deviceCode}`}
             >
-              <Settings className="h-3 w-3 mr-1" />
-              จัดการอุปกรณ์
+              <ChartBar className="h-3 w-3 mr-1" />
+              ดูข้อมูล
             </Button>
           </div>
         </CardContent>
