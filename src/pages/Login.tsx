@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -212,12 +213,15 @@ export default function Login() {
           transition: 'transform 0.5s ease'
         }}
       >
-        <div className="w-32 h-32 rounded-full bg-white shadow-lg p-3 flex items-center justify-center">
-          <img 
-            src="/lovable-uploads/087210ab-061f-4b05-a6d9-e348861627d1.png" 
-            alt="Rice Flow" 
-            className="w-28 h-28 object-contain"
-          />
+        <div className="w-40 h-40 rounded-full bg-emerald-800 shadow-lg flex items-center justify-center overflow-hidden">
+          <div className="w-38 h-38 rounded-full bg-gradient-to-br from-yellow-300 to-emerald-600 flex items-center justify-center relative">
+            <div className="absolute inset-0 bg-gradient-to-t from-emerald-800/20 to-transparent"></div>
+            <img 
+              src="/lovable-uploads/087210ab-061f-4b05-a6d9-e348861627d1.png" 
+              alt="Rice Flow" 
+              className="w-32 h-32 object-contain relative z-10"
+            />
+          </div>
         </div>
       </div>
       
