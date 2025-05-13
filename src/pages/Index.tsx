@@ -1,3 +1,4 @@
+
 import { Header } from "@/components/Header";
 import { AssetCard } from "@/components/AssetCard";
 import { WatchlistItem } from "@/components/WatchlistItem";
@@ -9,6 +10,9 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { FooterNav } from "@/components/FooterNav";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { RicePrice } from "@/features/user-management/types";
 
 const Index = () => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
@@ -22,6 +26,27 @@ const Index = () => {
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
   const [isStart, setIsStart] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
+
+  // Function to fetch rice prices for the homepage
+  const fetchRicePrices = async () => {
+    const { data, error } = await supabase
+      .from('rice_prices')
+      .select('*')
+      .limit(8) // Limit to a reasonable number for display
+      .order('category');
+    
+    if (error) {
+      throw error;
+    }
+    
+    return data as RicePrice[];
+  };
+
+  // Use React Query to fetch rice prices
+  const { data: ricePrices, isLoading, error } = useQuery({
+    queryKey: ['homeRicePrices'],
+    queryFn: fetchRicePrices
+  });
 
   useEffect(() => {
     if (!emblaApi) return;
@@ -52,42 +77,6 @@ const Index = () => {
       emblaApi.off('scroll', onScroll);
     };
   }, [emblaApi]);
-  
-  // Sample data for rice prices
-  const riceUpdates = [
-    {
-      symbol: "ข้าวหอมมะลิ 100% ชั้น 2(66/67)",
-      name: "",
-      value: "3,700 - 3,850",
-      amount: "บาท/100ก.ก.",
-      percentageChange: 0,
-      iconColor: "#8A33AE",
-    },
-    {
-      symbol: "ข้าวหอมมะลิ 100% ชั้น 2(67/68)",
-      name: "",
-      value: "3,000 - 3,166",
-      amount: "บาท/100ก.ก.",
-      percentageChange: 0,
-      iconColor: "#F7931A",
-    },
-    {
-      symbol: "ปลายข้าวหอมมะลิ (67/68)",
-      name: "",
-      value: "1,300 - 1,320",
-      amount: "บาท/100ก.ก.",
-      percentageChange: 0,
-      iconColor: "#627EEA",
-    },
-    {
-      symbol: "ข้าวหอมมะลิจังหวัด(66/67)",
-      name: "",
-      value: "3,650 - 3,700",
-      amount: "บาท/100ก.ก.",
-      percentageChange: 0,
-      iconColor: "#8A33AE",
-    },
-  ];
 
   // Sample data for watchlist
   const watchlist = [
@@ -114,10 +103,6 @@ const Index = () => {
     },
   ];
 
-  const handleSeeAll = () => {
-    console.log("See all rice prices clicked");
-  };
-
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
       <Header />
@@ -137,18 +122,37 @@ const Index = () => {
             {/* กรอบบังคับขอบการเลื่อน */}
             <div className="overflow-hidden px-4 pt-3 pb-8" ref={emblaRef}>
               <div className="flex">
-                {riceUpdates.map((rice) => (
-                  <div key={rice.symbol} className="min-w-[190px] mr-3 flex-shrink-0 pl-0.5 pr-0.5">
-                    <AssetCard
-                      symbol={rice.symbol}
-                      name={rice.name}
-                      value={rice.value}
-                      amount={rice.amount}
-                      percentageChange={rice.percentageChange}
-                      iconColor={rice.iconColor}
-                    />
+                {isLoading ? (
+                  <div className="flex items-center justify-center min-w-[190px] mr-3 h-32">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600"></div>
                   </div>
-                ))}
+                ) : error ? (
+                  <div className="min-w-[190px] mr-3 p-4 bg-red-50 rounded-xl">
+                    <p className="text-sm text-red-500">ไม่สามารถโหลดข้อมูลได้</p>
+                  </div>
+                ) : ricePrices && ricePrices.length > 0 ? (
+                  ricePrices.map((rice) => (
+                    <div key={rice.id} className="min-w-[190px] mr-3 flex-shrink-0 pl-0.5 pr-0.5">
+                      <AssetCard
+                        symbol={rice.name}
+                        name={rice.category}
+                        value={rice.price.toLocaleString('th-TH')}
+                        amount="บาท/100กก."
+                        percentageChange={0}
+                        iconColor={
+                          rice.category === 'กข' ? '#8A33AE' :
+                          rice.category === 'หอมมะลิ' ? '#F7931A' :
+                          rice.category === 'ปทุมธานี' ? '#627EEA' : 
+                          '#2DABE2'
+                        }
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <div className="min-w-[190px] mr-3 p-4 bg-gray-50 rounded-xl text-center">
+                    <p className="text-sm text-gray-500">ไม่มีข้อมูลราคาข้าว</p>
+                  </div>
+                )}
               </div>
             </div>
             {/* ปรับปรุง Scroll bar ให้สมมาตร และทำงานได้ถูกต้อง */}

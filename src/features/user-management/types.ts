@@ -37,3 +37,16 @@ export type RicePriceFormValues = {
   price: number;
   category: string;
 };
+
+// Rice price document types
+export interface RicePriceDocument {
+  id: string;
+  document_date: string;
+  file_url: string;
+  updated_at: string;
+}
+
+export type RicePriceDocumentFormValues = {
+  document_date: string;
+  file_url: string;
+};
