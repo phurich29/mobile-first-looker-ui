@@ -25,16 +25,20 @@ export function RicePriceTable() {
   };
 
   return (
-    <div className="w-full">
-      <div className="rounded-lg border shadow-md overflow-hidden">
+    <div className="w-full max-w-4xl mx-auto px-4 sm:px-0">
+      <div className="rounded-xl border border-gray-200 shadow-lg overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gradient-to-r from-emerald-500 to-emerald-600">
-              <TableHead className="w-3/4 py-4 text-white font-bold text-base">
-                วันที่
+            <TableRow className="bg-gradient-to-r from-emerald-600 to-emerald-700">
+              <TableHead className="w-2/3 py-5 text-white font-bold text-base tracking-wide px-6">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">วันที่</span>
+                </div>
               </TableHead>
-              <TableHead className="text-center py-4 text-white font-bold text-base">
-                ราคาข้าว
+              <TableHead className="text-center py-5 text-white font-bold text-base tracking-wide px-6">
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-lg">ราคาข้าว</span>
+                </div>
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -44,28 +48,32 @@ export function RicePriceTable() {
                 key={index}
                 className={index % 2 === 0 ? "bg-white hover:bg-gray-50" : "bg-gray-50 hover:bg-gray-100"}
               >
-                <TableCell className="font-medium text-gray-700 py-4 border-b">
-                  {item.date}
+                <TableCell className="font-medium text-gray-800 py-5 border-b px-6 text-base">
+                  <div className="flex items-center">
+                    {item.date}
+                  </div>
                 </TableCell>
-                <TableCell className="text-center py-4 border-b">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          onClick={() => handlePdfClick(item.pdfUrl)}
-                          aria-label="ดูราคาข้าว"
-                          className={`flex items-center gap-2 ${isMobile ? 'px-2 py-1' : 'px-4 py-2'} bg-red-100 text-red-600 hover:bg-red-200 border-red-300 hover:text-red-700 rounded-md font-medium shadow-sm transition-all hover:shadow`}
-                        >
-                          <FileText className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6'}`} />
-                          <span className="font-bold">PDF</span>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-gray-800 text-white">
-                        <p>คลิกเพื่อดูราคาข้าว</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                <TableCell className="text-center py-5 border-b px-6">
+                  <div className="flex items-center justify-center">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="outline"
+                            onClick={() => handlePdfClick(item.pdfUrl)}
+                            aria-label="ดูราคาข้าว"
+                            className={`flex items-center gap-2 ${isMobile ? 'px-3 py-2' : 'px-5 py-2.5'} bg-red-100 text-red-600 hover:bg-red-200 border-red-300 hover:text-red-700 rounded-md font-medium shadow-sm transition-all hover:shadow-md`}
+                          >
+                            <FileText className={`${isMobile ? 'h-5 w-5' : 'h-5 w-5'}`} />
+                            <span className="font-bold text-sm">PDF</span>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-gray-800 text-white px-3 py-1.5 rounded-md">
+                          <p>คลิกเพื่อดูราคาข้าว</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

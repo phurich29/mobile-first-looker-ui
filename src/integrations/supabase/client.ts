@@ -4,8 +4,15 @@ import type { Database } from './types';
 
 const SUPABASE_URL = "https://tlnkyztazcsqybjigrpw.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRsbmt5enRhemNzcXliamlncnB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1OTc5MjMsImV4cCI6MjA2MTE3MzkyM30.TlNp_JJvmIX8YuMHWRuyBUQ1ZOsz6oAutGCZ_2-RfLE";
+const SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRsbmt5enRhemNzcXliamlncnB3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NTU5NzkyMywiZXhwIjoyMDYxMTczOTIzfQ.Ri_OcWAoLF-tF5MAD1MgH5yOq0Gwc1zHbCbMIjyAt8g";
 
 // Import the supabase client like this:
-// import { supabase } from "@/integrations/supabase/client";
+// import { supabase } from "@/integrations/supabase/client"
+// For admin operations, use:
+// import { supabaseAdmin } from "@/integrations/supabase/client"
 
+// Normal client for standard operations
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+// Admin client with full access for admin operations
+export const supabaseAdmin = createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);

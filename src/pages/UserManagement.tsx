@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Shield, ChevronDown, UserPlus, Edit, Trash2 } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, supabaseAdmin } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
 import { 
   Dialog, 
@@ -94,7 +94,7 @@ export default function UserManagement() {
         setIsLoadingUsers(true);
         
         // Fetch all users with last sign in details
-        const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+        const { data: authUsers, error: authError } = await supabaseAdmin.auth.admin.listUsers();
         
         if (authError) {
           console.error("Auth users error:", authError);
@@ -354,7 +354,7 @@ export default function UserManagement() {
       if (!selectedUserId) throw new Error("ไม่พบรหัสผู้ใช้");
       
       // Reset password using admin API
-      const { error } = await supabase.auth.admin.updateUserById(
+      const { error } = await supabaseAdmin.auth.admin.updateUserById(
         selectedUserId,
         { password: values.password }
       );
@@ -387,7 +387,7 @@ export default function UserManagement() {
     
     setIsProcessing(true);
     try {
-      const { error } = await supabase.auth.admin.deleteUser(selectedUserId);
+      const { error } = await supabaseAdmin.auth.admin.deleteUser(selectedUserId);
       
       if (error) throw error;
       
