@@ -31,12 +31,14 @@ export interface RicePrice {
   created_at: string;
   updated_at: string;
   priceColor?: string; // Color property for price display
+  document_date?: string; // Add document_date property
 }
 
 export type RicePriceFormValues = {
   name: string;
   price: string; // Store price as text
   priceColor: string; // Color property for price display
+  document_date: string; // Add document_date field to form values
 };
 
 export interface RicePriceDocument {

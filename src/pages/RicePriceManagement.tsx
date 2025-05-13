@@ -36,14 +36,18 @@ export default function RicePriceManagement() {
   const [isDeleteDocDialogOpen, setIsDeleteDocDialogOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<RicePriceDocument | null>(null);
   
+  // Initialize with today's date in YYYY-MM-DD format
+  const today = new Date().toISOString().split('T')[0];
+
   const [priceFormValues, setPriceFormValues] = useState<RicePriceFormValues>({
     name: '',
     price: '',
-    priceColor: 'black'
+    priceColor: 'black',
+    document_date: today
   });
 
   const [docFormValues, setDocFormValues] = useState<RicePriceDocumentFormValues>({
-    document_date: new Date().toISOString().split('T')[0],
+    document_date: today,
     file_url: ''
   });
 
@@ -113,12 +117,16 @@ export default function RicePriceManagement() {
     });
   };
 
-  // Reset price form values
+  // Reset price form values (keeping the date)
   const resetPriceForm = () => {
+    // Keep the current document_date value
+    const currentDate = priceFormValues.document_date;
+    
     setPriceFormValues({
       name: '',
       price: '',
-      priceColor: 'black'
+      priceColor: 'black',
+      document_date: currentDate // Preserve the date value
     });
     setSelectedPrice(null);
   };
@@ -138,7 +146,8 @@ export default function RicePriceManagement() {
     setPriceFormValues({
       name: price.name,
       price: price.price ? price.price : '',
-      priceColor: price.priceColor || 'black'
+      priceColor: price.priceColor || 'black',
+      document_date: price.document_date || today
     });
     setIsEditDialogOpen(true);
   };
@@ -163,7 +172,8 @@ export default function RicePriceManagement() {
         .insert({
           name: priceFormValues.name,
           price: priceFormValues.price,
-          priceColor: priceFormValues.priceColor
+          priceColor: priceFormValues.priceColor,
+          document_date: priceFormValues.document_date
         });
       
       if (error) throw error;
@@ -174,7 +184,6 @@ export default function RicePriceManagement() {
       });
       
       resetPriceForm();
-      setIsAddDialogOpen(false);
       refetchPrices();
     } catch (error: any) {
       toast({
@@ -224,7 +233,8 @@ export default function RicePriceManagement() {
         .update({
           name: priceFormValues.name,
           price: priceFormValues.price,
-          priceColor: priceFormValues.priceColor
+          priceColor: priceFormValues.priceColor,
+          document_date: priceFormValues.document_date
         })
         .eq('id', selectedPrice.id);
       
@@ -426,6 +436,15 @@ export default function RicePriceManagement() {
                       />
                     </div>
                     <div className="grid gap-2">
+                      <Label htmlFor="document_date">วันที่</Label>
+                      <Input
+                        id="document_date"
+                        type="date"
+                        value={priceFormValues.document_date}
+                        onChange={(e) => handlePriceFormChange('document_date', e.target.value)}
+                      />
+                    </div>
+                    <div className="grid gap-2">
                       <Label>สีของราคา</Label>
                       <RadioGroup 
                         value={priceFormValues.priceColor} 
@@ -467,6 +486,7 @@ export default function RicePriceManagement() {
                     <TableRow>
                       <TableHead>ชื่อข้าว</TableHead>
                       <TableHead>ราคา (บาท/100กก.)</TableHead>
+                      <TableHead>วันที่</TableHead>
                       <TableHead>อัพเดทเมื่อ</TableHead>
                       <TableHead className="text-right">การจัดการ</TableHead>
                     </TableRow>
@@ -480,6 +500,9 @@ export default function RicePriceManagement() {
                           </TableCell>
                           <TableCell className={getPriceColorClass(price.priceColor)}>
                             {price.price}
+                          </TableCell>
+                          <TableCell className={isMobile ? "whitespace-normal" : "whitespace-nowrap"}>
+                            {price.document_date ? formatThaiDate(price.document_date) : '-'}
                           </TableCell>
                           <TableCell className={isMobile ? "whitespace-normal" : "whitespace-nowrap"}>
                             {formatDate(price.updated_at)}
@@ -510,7 +533,7 @@ export default function RicePriceManagement() {
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center">ไม่พบข้อมูลราคาข้าว</TableCell>
+                        <TableCell colSpan={5} className="text-center">ไม่พบข้อมูลราคาข้าว</TableCell>
                       </TableRow>
                     )}
                   </TableBody>
@@ -645,6 +668,15 @@ export default function RicePriceManagement() {
                 id="edit-price"
                 value={priceFormValues.price}
                 onChange={(e) => handlePriceFormChange('price', e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="edit-document-date">วันที่</Label>
+              <Input
+                id="edit-document-date"
+                type="date" 
+                value={priceFormValues.document_date}
+                onChange={(e) => handlePriceFormChange('document_date', e.target.value)}
               />
             </div>
             <div className="grid gap-2">
