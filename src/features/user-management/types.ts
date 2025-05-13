@@ -1,4 +1,3 @@
-
 import { Database } from "@/integrations/supabase/types";
 
 // Define types for our user data
@@ -27,22 +26,25 @@ export type UserRole = Database["public"]["Enums"]["app_role"];
 export interface RicePrice {
   id: string;
   name: string;
-  price: number;
-  updated_at: string;
+  price: string; // Change from number to string since we want to store price as text
   category: string;
+  created_at: string;
+  updated_at: string;
+  priceColor?: string; // Add the priceColor property
 }
 
 export type RicePriceFormValues = {
   name: string;
-  price: number;
+  price: string; // Change from number to string since we want to store price as text
   category: string;
+  priceColor: string; // Add the priceColor property
 };
 
-// Rice price document types
 export interface RicePriceDocument {
   id: string;
   document_date: string;
   file_url: string;
+  created_at: string;
   updated_at: string;
 }
 

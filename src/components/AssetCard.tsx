@@ -96,4 +96,4 @@ export const AssetCard: React.FC<AssetCardProps> = ({
       </div>
     </div>
   );
-};
+}

@@ -93,6 +93,15 @@ export function RicePriceTable() {
     return order.indexOf(a) - order.indexOf(b);
   });
 
+  // Get text color class based on price color
+  const getPriceColorClass = (color: string = 'black') => {
+    switch (color) {
+      case 'green': return 'text-emerald-600';
+      case 'red': return 'text-red-600';
+      default: return 'text-gray-900';
+    }
+  };
+
   if (isPricesLoading || isDocsLoading) {
     return (
       <div className="flex justify-center py-8">
@@ -143,7 +152,9 @@ export function RicePriceTable() {
                         {groupedPrices[category].map((price) => (
                           <TableRow key={price.id}>
                             <TableCell className={isMobile ? "whitespace-normal break-words" : "whitespace-nowrap"}>{price.name}</TableCell>
-                            <TableCell className="text-right font-medium">{price.price.toLocaleString('th-TH')}</TableCell>
+                            <TableCell className={`text-right font-medium ${getPriceColorClass(price.priceColor)}`}>
+                              {price.price}
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
