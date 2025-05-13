@@ -9,7 +9,6 @@ import NotFound from "./pages/NotFound";
 import RicePrices from "./pages/RicePrices";
 import UserManagement from "./pages/UserManagement";
 import RicePriceManagement from "./pages/RicePriceManagement";
-import DeviceManagement from "./pages/DeviceManagement";
 import Waiting from "./pages/Waiting";
 import Profile from "./pages/Profile";
 import { AuthProvider, useAuth } from "./components/AuthProvider";
@@ -59,9 +58,9 @@ function App() {
               </ProtectedRoute>
             } />
             
-            {/* อนุญาตให้เข้าถึงราคาข้าวได้โดยไม่ต้องล็อกอิน */}
+            {/* Routes ที่ต้องล็อกอินเท่านั้น - แม้แต่ waiting_list ก็ไม่สามารถเข้าถึงได้ */}
             <Route path="/rice-prices" element={
-              <ProtectedRoute allowUnauthenticated={true}>
+              <ProtectedRoute>
                 <RicePrices />
               </ProtectedRoute>
             } />
@@ -103,13 +102,6 @@ function App() {
             <Route path="/rice-price-management" element={
               <ProtectedRoute requiredRoles={["superadmin"]}>
                 <RicePriceManagement />
-              </ProtectedRoute>
-            } />
-            
-            {/* Device Management - สำหรับ admin และ superadmin */}
-            <Route path="/device-management" element={
-              <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
-                <DeviceManagement />
               </ProtectedRoute>
             } />
             
