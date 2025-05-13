@@ -3,23 +3,37 @@ import { Button } from "@/components/ui/button";
 import { RicePriceDocument } from "@/features/user-management/types";
 import { ExternalLink, FileText } from "lucide-react";
 import { formatThaiDate } from "../utils/formatting";
+import { SAMPLE_RICE_DOCUMENTS } from "../utils";
+import { useEffect, useState } from "react";
 
 interface DocumentsTableTabProps {
   ricePriceDocuments: RicePriceDocument[] | undefined;
 }
 
 export function DocumentsTableTab({ ricePriceDocuments }: DocumentsTableTabProps) {
-  if (!ricePriceDocuments || ricePriceDocuments.length === 0) {
+  const [displayDocs, setDisplayDocs] = useState<RicePriceDocument[]>([]);
+
+  // Use sample data if no real data is available
+  useEffect(() => {
+    if (!ricePriceDocuments || ricePriceDocuments.length === 0) {
+      console.log('No real document data, using sample data');
+      setDisplayDocs(SAMPLE_RICE_DOCUMENTS as unknown as RicePriceDocument[]);
+    } else {
+      setDisplayDocs(ricePriceDocuments);
+    }
+  }, [ricePriceDocuments]);
+
+  if (displayDocs.length === 0) {
     return (
       <div className="text-center py-6">
-        <p className="text-gray-500">ไม่พบเอกสารราคาข้าว</p>
+        <p className="text-gray-500">กำลังโหลดข้อมูลเอกสาร...</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-2">
-      {ricePriceDocuments.map((document) => (
+      {displayDocs.map((document) => (
         <div 
           key={document.id} 
           className="p-3 border rounded-md hover:bg-gray-50 transition-colors flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2"
@@ -31,7 +45,7 @@ export function DocumentsTableTab({ ricePriceDocuments }: DocumentsTableTabProps
                 ราคาข้าวประจำวันที่ {formatThaiDate(document.document_date)}
               </p>
               <p className="text-xs text-gray-500">
-                อัพเดทเมื่อ: {new Date(document.updated_at).toLocaleDateString('th-TH')}
+                {document.id.startsWith('doc-') ? 'ข้อมูลตัวอย่าง' : `อัพเดทเมื่อ: ${new Date(document.updated_at).toLocaleDateString('th-TH')}`}
               </p>
             </div>
           </div>

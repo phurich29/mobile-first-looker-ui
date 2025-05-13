@@ -3,8 +3,9 @@ import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/compon
 import { ResponsiveTable } from "@/components/ui/responsive-table";
 import { RicePrice } from "@/features/user-management/types";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { getPriceColorClass, formatPrice } from "../utils";
+import { getPriceColorClass, formatPrice, SAMPLE_RICE_PRICES } from "../utils";
 import { formatThaiDate, getLatestUpdateTimestamp } from "../utils/formatting";
+import { useEffect, useState } from "react";
 
 interface PriceTableTabProps {
   ricePrices: RicePrice[] | undefined;
@@ -12,18 +13,29 @@ interface PriceTableTabProps {
 
 export function PriceTableTab({ ricePrices }: PriceTableTabProps) {
   const isMobile = useIsMobile();
+  const [displayPrices, setDisplayPrices] = useState<RicePrice[]>([]);
 
-  if (!ricePrices || ricePrices.length === 0) {
+  // Use sample data if no real data is available
+  useEffect(() => {
+    if (!ricePrices || ricePrices.length === 0) {
+      console.log('No real rice price data, using sample data');
+      setDisplayPrices(SAMPLE_RICE_PRICES as unknown as RicePrice[]);
+    } else {
+      setDisplayPrices(ricePrices);
+    }
+  }, [ricePrices]);
+
+  if (displayPrices.length === 0) {
     return (
       <div className="text-center py-6">
-        <p className="text-gray-500">ไม่พบข้อมูลราคาข้าว</p>
+        <p className="text-gray-500">กำลังโหลดข้อมูลราคาข้าว...</p>
       </div>
     );
   }
 
   // Get the document date from the first rice price entry
-  const documentDate = ricePrices[0]?.document_date 
-    ? formatThaiDate(ricePrices[0].document_date) 
+  const documentDate = displayPrices[0]?.document_date 
+    ? formatThaiDate(displayPrices[0].document_date) 
     : 'ไม่ระบุวันที่';
 
   return (
@@ -45,7 +57,7 @@ export function PriceTableTab({ ricePrices }: PriceTableTabProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {ricePrices.map((price, index) => (
+            {displayPrices.map((price, index) => (
               <TableRow key={price.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-emerald-50'} hover:bg-emerald-100`}>
                 <TableCell className={`${isMobile ? "whitespace-normal break-words" : "whitespace-nowrap"} text-sm py-3 border-b border-emerald-100`}>
                   {price.name}
@@ -59,7 +71,9 @@ export function PriceTableTab({ ricePrices }: PriceTableTabProps) {
         </ResponsiveTable>
       </div>
       <p className="text-xs text-gray-500 text-right mt-2 italic">
-        อัพเดทล่าสุด: {getLatestUpdateTimestamp(ricePrices)}
+        {!ricePrices || ricePrices.length === 0 
+          ? 'หมายเหตุ: กำลังแสดงข้อมูลตัวอย่าง' 
+          : `อัพเดทล่าสุด: ${getLatestUpdateTimestamp(ricePrices)}`}
       </p>
     </div>
   );
