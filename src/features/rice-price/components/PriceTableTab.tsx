@@ -5,6 +5,7 @@ import { RicePrice } from "@/features/user-management/types";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getPriceColorClass, formatPrice } from "../utils";
 import { formatThaiDate, getLatestUpdateTimestamp } from "../utils/formatting";
+import { Wheat } from "lucide-react";
 
 interface PriceTableTabProps {
   ricePrices: RicePrice[] | undefined;
@@ -48,7 +49,10 @@ export function PriceTableTab({ ricePrices }: PriceTableTabProps) {
             {ricePrices.map((price, index) => (
               <TableRow key={price.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-emerald-50'} hover:bg-emerald-100`}>
                 <TableCell className={`${isMobile ? "whitespace-normal break-words" : "whitespace-nowrap"} text-sm py-3 border-b border-emerald-100`}>
-                  {price.name}
+                  <div className="flex items-center gap-2">
+                    <Wheat size={16} className={index % 2 === 0 ? "text-emerald-600" : "text-amber-600"} />
+                    <span>{price.name}</span>
+                  </div>
                 </TableCell>
                 <TableCell className={`text-right font-medium text-sm py-3 border-b border-emerald-100 ${getPriceColorClass(price.priceColor)}`}>
                   {formatPrice(price.price)}
