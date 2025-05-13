@@ -18,7 +18,7 @@ const Index = () => {
     align: 'start', 
     loop: false, 
     dragFree: true,
-    containScroll: 'trimSnaps' // ทำให้ไม่เลยขอบจอ
+    containScroll: 'trimSnaps' // ทำให้ไ��่เลยขอบจอ
   });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -45,14 +45,14 @@ const Index = () => {
     const { data, error } = await supabase
       .from('rice_prices')
       .select('*')
-      .limit(8) // Limit to a reasonable number for display
-      .order('category');
+      .limit(8); // Limit to a reasonable number for display
     
     if (error) {
       throw error;
     }
     
-    return data as RicePrice[];
+    // Cast the data to match our RicePrice interface
+    return data as unknown as RicePrice[];
   };
 
   // Use React Query to fetch rice prices
@@ -148,17 +148,13 @@ const Index = () => {
                     <div key={rice.id} className="min-w-[190px] mr-3 flex-shrink-0 pl-0.5 pr-0.5">
                       <AssetCard
                         symbol={rice.name}
-                        name={rice.category}
-                        value={rice.price.toLocaleString('th-TH')}
+                        name={rice.name.substring(0, 1)} // Use first character of name instead of category
+                        value={rice.price.toString()} // Convert number to string
                         amount="บาท/100กก."
                         percentageChange={0}
-                        iconColor={
-                          rice.category === 'กข' ? '#8A33AE' :
-                          rice.category === 'หอมมะลิ' ? '#F7931A' :
-                          rice.category === 'ปทุมธานี' ? '#627EEA' : 
-                          '#2DABE2'
-                        }
-                        date={formatThaiDate(rice.updated_at)}
+                        iconColor={'#10b981'} // Default green color for all rice types
+                        date={rice.document_date ? formatThaiDate(rice.document_date) : undefined}
+                        priceColor={rice.priceColor}
                       />
                     </div>
                   ))
@@ -183,7 +179,7 @@ const Index = () => {
               >
                 {/* แก้ไขการคำนวณความกว้างและตำแหน่งของ thumb */}
                 {emblaApi && (() => {
-                  // คำนวณความกว้างของ thumb ตามสัดส่วนของเนื้อหาที่มองเห็น
+                  // คำนวณความกว้างของ thumb ตามส��ดส่วนของเนื้อหาที่มองเห็น
                   const visibleWidth = emblaApi.containerNode().clientWidth;
                   const totalWidth = emblaApi.slideNodes().reduce(
                     (acc, slide) => acc + slide.offsetWidth + 12, // +12 for margin-right of 3rem

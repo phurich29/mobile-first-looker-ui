@@ -27,18 +27,18 @@ export type UserRole = Database["public"]["Enums"]["app_role"];
 export interface RicePrice {
   id: string;
   name: string;
-  price: string; // Store price as text
+  price: number; // Store price as number
   created_at: string;
   updated_at: string;
   priceColor?: string; // Color property for price display
-  document_date?: string; // Add document_date property
+  document_date?: string; // Date property for the price
 }
 
 export type RicePriceFormValues = {
   name: string;
-  price: string; // Store price as text
+  price: string; // Store price as string for forms
   priceColor: string; // Color property for price display
-  document_date: string; // Add document_date field to form values
+  document_date: string; // Date field for the form
 };
 
 export interface RicePriceDocument {

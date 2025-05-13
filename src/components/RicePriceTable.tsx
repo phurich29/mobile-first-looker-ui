@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -124,6 +125,7 @@ export function RicePriceTable() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>ชื่อข้าว</TableHead>
+                        <TableHead>วันที่</TableHead>
                         <TableHead className="text-right">ราคา (บาท/100กก.)</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -131,8 +133,9 @@ export function RicePriceTable() {
                       {ricePrices.map((price) => (
                         <TableRow key={price.id}>
                           <TableCell className={isMobile ? "whitespace-normal break-words" : "whitespace-nowrap"}>{price.name}</TableCell>
+                          <TableCell>{price.document_date ? formatThaiDate(price.document_date) : '-'}</TableCell>
                           <TableCell className={`text-right font-medium ${getPriceColorClass(price.priceColor)}`}>
-                            {price.price}
+                            {price.price.toLocaleString('th-TH')}
                           </TableCell>
                         </TableRow>
                       ))}

@@ -1,3 +1,4 @@
+
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -145,7 +146,7 @@ export default function RicePriceManagement() {
     setSelectedPrice(price);
     setPriceFormValues({
       name: price.name,
-      price: price.price ? price.price : '',
+      price: price.price.toString(),
       priceColor: price.priceColor || 'black',
       document_date: price.document_date || today
     });
@@ -171,7 +172,7 @@ export default function RicePriceManagement() {
         .from('rice_prices')
         .insert({
           name: priceFormValues.name,
-          price: priceFormValues.price,
+          price: parseFloat(priceFormValues.price), // Convert to number
           priceColor: priceFormValues.priceColor,
           document_date: priceFormValues.document_date
         });
@@ -232,7 +233,7 @@ export default function RicePriceManagement() {
         .from('rice_prices')
         .update({
           name: priceFormValues.name,
-          price: priceFormValues.price,
+          price: parseFloat(priceFormValues.price), // Convert to number
           priceColor: priceFormValues.priceColor,
           document_date: priceFormValues.document_date
         })
@@ -499,7 +500,7 @@ export default function RicePriceManagement() {
                             <div className="font-medium">{price.name}</div>
                           </TableCell>
                           <TableCell className={getPriceColorClass(price.priceColor)}>
-                            {price.price}
+                            {price.price.toLocaleString('th-TH')}
                           </TableCell>
                           <TableCell className={isMobile ? "whitespace-normal" : "whitespace-nowrap"}>
                             {price.document_date ? formatThaiDate(price.document_date) : '-'}
