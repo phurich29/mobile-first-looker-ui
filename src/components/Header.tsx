@@ -1,5 +1,5 @@
 
-import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, DollarSign } from "lucide-react";
+import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, DollarSign, Devices } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -62,7 +62,7 @@ export const Header = () => {
       {/* Sidebar for Desktop */}
       <div className={cn("fixed left-0 top-0 bottom-0 z-40 w-64 bg-white text-gray-800 transition-transform duration-300 ease-in-out shadow-sm border-r border-gray-100", sidebarOpen ? "translate-x-0" : "-translate-x-full", "md:translate-x-0" // แสดงเสมอในหน้าจอขนาดใหญ่
     )}>
-        <div className="flex flex-col h-full p-4 bg-[fff9df] bg-[#fff9df]">
+        <div className="flex flex-col h-full p-4 bg-[#fff9df]">
           <div className="flex justify-between items-center mb-8 mt-4">
             <div className="flex items-center gap-2">
               <img src="/lovable-uploads/93c9c8f7-4897-4dae-b13b-462f7b25c39b.png" alt="RiceFlow Logo" className="h-8 w-auto" />
@@ -136,6 +136,17 @@ export const Header = () => {
                   : "hover:bg-gray-50 text-gray-700")}>
                 <DollarSign className="h-5 w-5" />
                 <span className="text-sm">จัดการราคาข้าว</span>
+              </Link>
+            )}
+            
+            {/* เพิ่มเมนูจัดการอุปกรณ์สำหรับ admin และ superadmin */}
+            {user && canAccessUserManagement && (
+              <Link to="/device-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
+                isActive("/device-management") 
+                  ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" 
+                  : "hover:bg-gray-50 text-gray-700")}>
+                <Devices className="h-5 w-5" />
+                <span className="text-sm">จัดการอุปกรณ์</span>
               </Link>
             )}
           </nav>
