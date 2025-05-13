@@ -19,7 +19,7 @@ export function usePriceAdd(refetchPrices: () => void, resetPriceForm: () => voi
 
       // Handle price field - it can now be any text
       if (priceFormValues.price && priceFormValues.price.trim() !== '') {
-        // Store price as text directly - no conversion needed anymore
+        // Store price as text directly
         newRicePrice.price = priceFormValues.price.trim();
       } else {
         // If price is empty, set it to null

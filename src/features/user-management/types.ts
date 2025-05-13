@@ -1,3 +1,4 @@
+
 export type Json =
   | string
   | number
@@ -501,7 +502,7 @@ export const Constants = {
 export type RicePrice = {
   id: string;
   name: string;
-  price: number;
+  price: string | number | null; // Updated to allow string values for price ranges
   category: string;
   document_date: string | null;
   created_at: string | null;
