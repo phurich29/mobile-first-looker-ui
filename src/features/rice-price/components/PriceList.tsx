@@ -20,73 +20,69 @@ export function PriceList({ ricePrices, onEdit, onDelete }: PriceListProps) {
   const isMobile = useIsMobile();
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>รายการราคาข้าว</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div className="bg-transparent">
+      <h3 className="text-lg font-semibold mb-3">รายการราคาข้าว</h3>
+      <div className="w-full">
         <ResponsiveTable>
           {!isMobile && (
             <TableHeader>
-              <TableRow>
-                <TableHead>ชื่อข้าว</TableHead>
-                <TableHead>ราคา (บาท/100กก.)</TableHead>
-                <TableHead>วันที่</TableHead>
-                <TableHead className="text-right">การจัดการ</TableHead>
+              <TableRow className="bg-emerald-600">
+                <TableHead className="py-2 text-sm font-bold text-white">ชื่อข้าว</TableHead>
+                <TableHead className="py-2 text-sm font-bold text-white">ราคา (บาท/ก.ก.)</TableHead>
+                <TableHead className="py-2 text-sm font-bold text-white">วันที่</TableHead>
+                <TableHead className="py-2 text-sm font-bold text-white text-right">การจัดการ</TableHead>
               </TableRow>
             </TableHeader>
           )}
           <TableBody>
             {ricePrices && ricePrices.length > 0 ? (
-              ricePrices.map((price) => (
+              ricePrices.map((price, index) => (
                 isMobile ? (
-                  <TableRow key={price.id} className="flex flex-col py-2 border-b">
-                    <div className="grid grid-cols-2 gap-x-2 gap-y-1 mb-1">
-                      <TableCell className="whitespace-normal p-2 border-0">
-                        <div className="text-xs font-semibold text-gray-500">ชื่อข้าว</div>
-                        <div className="font-medium">{price.name}</div>
-                      </TableCell>
-                      <TableCell className={cn("p-2 border-0", getPriceColorClass(price.priceColor))}>
-                        <div className="text-xs font-semibold text-gray-500">ราคา (บาท/100กก.)</div>
-                        <div className="font-medium">{formatPrice(price.price)}</div>
-                      </TableCell>
+                  <TableRow key={price.id} className="border-b py-2" style={{display: 'block'}}>
+                    <div className="flex justify-between items-center mb-1 px-2 pt-2">
+                      {/* บรรทัดแรก: ชื่อข้าวและราคา */}
+                      <div className="flex-grow">
+                        <div className="font-medium truncate" style={{maxWidth: '180px'}}>{price.name}</div>
+                      </div>
+                      <div className={cn("font-bold", getPriceColorClass(price.priceColor))}>
+                        {formatPrice(price.price)} <span className="text-xs font-normal text-gray-500">บาท/ก.ก.</span>
+                      </div>
                     </div>
-                    <div className="flex">
-                      <TableCell className="whitespace-normal p-2 border-0 flex-1">
-                        <div className="text-xs font-semibold text-gray-500">วันที่</div>
-                        <div>{price.document_date ? formatThaiDate(price.document_date) : '-'}</div>
-                      </TableCell>
-                    </div>
-                    <div className="flex justify-between border-0 mt-1 px-2">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="flex items-center text-blue-600 hover:text-blue-800"
-                        onClick={() => onEdit(price)}
-                      >
-                        <Edit size={16} className="mr-1" />
-                        แก้ไข
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="flex items-center text-red-600 hover:text-red-800"
-                        onClick={() => onDelete(price)}
-                      >
-                        <Trash2 size={16} className="mr-1" />
-                        ลบ
-                      </Button>
+                    
+                    <div className="flex justify-between items-center px-2 pb-2">
+                      {/* บรรทัดที่สอง: วันที่และปุ่มจัดการ */}
+                      <div className="text-xs text-gray-500">
+                        {price.document_date ? formatThaiDate(price.document_date) : '-'}
+                      </div>
+                      <div className="flex space-x-1">  
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-7 px-2 flex items-center text-blue-600 hover:text-blue-800"
+                          onClick={() => onEdit(price)}
+                        >
+                          <Edit size={14} />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-7 px-2 flex items-center text-red-600 hover:text-red-800"
+                          onClick={() => onDelete(price)}
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      </div>
                     </div>
                   </TableRow>
                 ) : (
-                  <TableRow key={price.id}>
-                    <TableCell className="whitespace-nowrap">
+                  <TableRow key={price.id} className={index % 2 === 0 ? 'bg-white' : 'bg-emerald-50'}>
+                    <TableCell className="whitespace-nowrap py-2.5">
                       <div className="font-medium">{price.name}</div>
                     </TableCell>
-                    <TableCell className={getPriceColorClass(price.priceColor)}>
+                    <TableCell className={`py-2.5 ${getPriceColorClass(price.priceColor)}`}>
                       {formatPrice(price.price)}
                     </TableCell>
-                    <TableCell className="whitespace-nowrap">
+                    <TableCell className="whitespace-nowrap py-2.5">
                       {price.document_date ? formatThaiDate(price.document_date) : '-'}
                     </TableCell>
                     <TableCell className="text-right">
@@ -121,7 +117,7 @@ export function PriceList({ ricePrices, onEdit, onDelete }: PriceListProps) {
             )}
           </TableBody>
         </ResponsiveTable>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

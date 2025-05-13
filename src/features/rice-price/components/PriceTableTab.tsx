@@ -27,20 +27,30 @@ export function PriceTableTab({ ricePrices }: PriceTableTabProps) {
     : 'ไม่ระบุวันที่';
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-md border">
+    <div className="space-y-5">
+      {/* หัวตารางแสดงวันที่ */}
+      <div className="flex justify-between items-center mb-1">
+        <h3 className="font-semibold text-base text-gray-800">ตารางราคาข้าว</h3>
+        <p className="text-sm font-medium text-gray-700">
+          ประจำวันที่: <span className="text-emerald-600">{documentDate}</span>
+        </p>
+      </div>
+
+      <div className="rounded-md">
         <ResponsiveTable>
           <TableHeader>
-            <TableRow>
-              <TableHead>ชื่อข้าว</TableHead>
-              <TableHead className="text-right">ราคา (บาท/100กก.)</TableHead>
+            <TableRow className="bg-emerald-600">
+              <TableHead className="py-3 text-sm font-bold text-white">ชื่อข้าว</TableHead>
+              <TableHead className="text-right py-3 text-sm font-bold text-white">ราคา (บาท/ก.ก.)</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {ricePrices.map((price) => (
-              <TableRow key={price.id}>
-                <TableCell className={isMobile ? "whitespace-normal break-words" : "whitespace-nowrap"}>{price.name}</TableCell>
-                <TableCell className={`text-right font-medium ${getPriceColorClass(price.priceColor)}`}>
+            {ricePrices.map((price, index) => (
+              <TableRow key={price.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-emerald-50'} hover:bg-emerald-100`}>
+                <TableCell className={`${isMobile ? "whitespace-normal break-words" : "whitespace-nowrap"} text-sm py-3 border-b border-emerald-100`}>
+                  {price.name}
+                </TableCell>
+                <TableCell className={`text-right font-medium text-sm py-3 border-b border-emerald-100 ${getPriceColorClass(price.priceColor)}`}>
                   {formatPrice(price.price)}
                 </TableCell>
               </TableRow>
@@ -48,9 +58,6 @@ export function PriceTableTab({ ricePrices }: PriceTableTabProps) {
           </TableBody>
         </ResponsiveTable>
       </div>
-      <p className="text-xs text-gray-500 text-center mt-2">
-        ราคาประจำวันที่: {documentDate}
-      </p>
       <p className="text-xs text-gray-500 text-right mt-2 italic">
         อัพเดทล่าสุด: {getLatestUpdateTimestamp(ricePrices)}
       </p>

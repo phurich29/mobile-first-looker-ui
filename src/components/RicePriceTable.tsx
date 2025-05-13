@@ -28,26 +28,23 @@ export function RicePriceTable() {
   }
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg text-center text-emerald-800">ราคาข้าวสมาคมโรงสีข้าวไทย</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div className="bg-transparent">
+      <div className="w-full">
         <Tabs defaultValue="prices" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value="prices">ราคาข้าว</TabsTrigger>
-            <TabsTrigger value="documents">เอกสารราคาข้าว</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 mb-4 bg-emerald-100">
+            <TabsTrigger value="prices" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white">ราคาข้าว</TabsTrigger>
+            <TabsTrigger value="documents" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white">เอกสารราคาข้าว</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="prices">
+          <TabsContent value="prices" className="px-0">
             <PriceTableTab ricePrices={ricePrices} />
           </TabsContent>
           
-          <TabsContent value="documents">
+          <TabsContent value="documents" className="px-0">
             <DocumentsTableTab ricePriceDocuments={ricePriceDocuments} />
           </TabsContent>
         </Tabs>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
