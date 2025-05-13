@@ -21,16 +21,35 @@ export function usePriceOperations(
   // Add new rice price
   const handleAddPrice = async (priceFormValues: PriceFormValues) => {
     try {
-      const { error } = await supabase
-        .from('rice_prices')
-        .insert({
-          name: priceFormValues.name,
-          price: parseFloat(priceFormValues.price), // Convert to number
-          category: 'general', // Default category
-          document_date: priceFormValues.document_date
-        });
+      console.log('Adding new rice price with values:', priceFormValues);
       
-      if (error) throw error;
+      // Ensure price is a valid number
+      const priceValue = parseFloat(priceFormValues.price);
+      if (isNaN(priceValue)) {
+        throw new Error('ราคาไม่ถูกต้อง กรุณาระบุเป็นตัวเลขเท่านั้น');
+      }
+      
+      // Prepare data for insertion
+      const newRicePrice = {
+        name: priceFormValues.name,
+        price: priceValue,
+        category: 'general', // Default category
+        document_date: priceFormValues.document_date
+      };
+      
+      console.log('Sending data to Supabase:', newRicePrice);
+      
+      const { data, error } = await supabase
+        .from('rice_prices')
+        .insert(newRicePrice)
+        .select();
+      
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+      
+      console.log('Successfully added rice price, response:', data);
       
       toast({
         title: "เพิ่มข้อมูลสำเร็จ",
@@ -40,6 +59,7 @@ export function usePriceOperations(
       resetPriceForm();
       refetchPrices();
     } catch (error: any) {
+      console.error('Error in handleAddPrice:', error);
       toast({
         title: "เกิดข้อผิดพลาด",
         description: error.message || "ไม่สามารถเพิ่มข้อมูลได้",
@@ -51,6 +71,8 @@ export function usePriceOperations(
   // Add new rice price document
   const handleAddDocument = async (docFormValues: DocumentFormValues) => {
     try {
+      console.log('Adding new rice price document with values:', docFormValues);
+      
       const { error } = await supabase
         .from('rice_price_documents')
         .insert({
@@ -58,7 +80,10 @@ export function usePriceOperations(
           file_url: docFormValues.file_url
         });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
       
       toast({
         title: "เพิ่มเอกสารสำเร็จ",
@@ -69,6 +94,7 @@ export function usePriceOperations(
       setIsAddDocDialogOpen(false);
       refetchDocs();
     } catch (error: any) {
+      console.error('Error in handleAddDocument:', error);
       toast({
         title: "เกิดข้อผิดพลาด",
         description: error.message || "ไม่สามารถเพิ่มเอกสารได้",
@@ -82,16 +108,27 @@ export function usePriceOperations(
     if (!selectedPrice) return;
     
     try {
+      console.log('Updating rice price with values:', priceFormValues);
+      
+      // Ensure price is a valid number
+      const priceValue = parseFloat(priceFormValues.price);
+      if (isNaN(priceValue)) {
+        throw new Error('ราคาไม่ถูกต้อง กรุณาระบุเป็นตัวเลขเท่านั้น');
+      }
+      
       const { error } = await supabase
         .from('rice_prices')
         .update({
           name: priceFormValues.name,
-          price: parseFloat(priceFormValues.price), // Convert to number
+          price: priceValue,
           document_date: priceFormValues.document_date
         })
         .eq('id', selectedPrice.id);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
       
       toast({
         title: "อัพเดทข้อมูลสำเร็จ",
@@ -103,6 +140,7 @@ export function usePriceOperations(
       setIsEditDialogOpen(false);
       refetchPrices();
     } catch (error: any) {
+      console.error('Error in handleUpdatePrice:', error);
       toast({
         title: "เกิดข้อผิดพลาด",
         description: error.message || "ไม่สามารถอัพเดทข้อมูลได้",
@@ -116,12 +154,17 @@ export function usePriceOperations(
     if (!selectedPrice) return;
     
     try {
+      console.log('Deleting rice price:', selectedPrice);
+      
       const { error } = await supabase
         .from('rice_prices')
         .delete()
         .eq('id', selectedPrice.id);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
       
       toast({
         title: "ลบข้อมูลสำเร็จ",
@@ -133,6 +176,7 @@ export function usePriceOperations(
       setIsDeleteDialogOpen(false);
       refetchPrices();
     } catch (error: any) {
+      console.error('Error in handleDeletePrice:', error);
       toast({
         title: "เกิดข้อผิดพลาด",
         description: error.message || "ไม่สามารถลบข้อมูลได้",
@@ -146,12 +190,17 @@ export function usePriceOperations(
     if (!selectedDocument) return;
     
     try {
+      console.log('Deleting rice price document:', selectedDocument);
+      
       const { error } = await supabase
         .from('rice_price_documents')
         .delete()
         .eq('id', selectedDocument.id);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
       
       toast({
         title: "ลบเอกสารสำเร็จ",
@@ -163,6 +212,7 @@ export function usePriceOperations(
       setIsDeleteDocDialogOpen(false);
       refetchDocs();
     } catch (error: any) {
+      console.error('Error in handleDeleteDocument:', error);
       toast({
         title: "เกิดข้อผิดพลาด",
         description: error.message || "ไม่สามารถลบเอกสารได้",

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { PriceFormValues, DocumentFormValues } from "../types";
 
@@ -21,6 +22,7 @@ export function usePriceFormState() {
 
   // Handle rice price form input changes
   const handlePriceFormChange = (field: keyof PriceFormValues, value: string) => {
+    console.log(`Updating price form field ${field} to:`, value);
     setPriceFormValues({
       ...priceFormValues,
       [field]: value
@@ -29,6 +31,7 @@ export function usePriceFormState() {
 
   // Handle document form input changes
   const handleDocFormChange = (field: keyof DocumentFormValues, value: string) => {
+    console.log(`Updating document form field ${field} to:`, value);
     setDocFormValues({
       ...docFormValues,
       [field]: value
@@ -40,6 +43,7 @@ export function usePriceFormState() {
     // Keep the current document_date value
     const currentDate = priceFormValues.document_date;
     
+    console.log('Resetting price form, keeping date:', currentDate);
     setPriceFormValues({
       name: '',
       price: '',
@@ -50,6 +54,7 @@ export function usePriceFormState() {
 
   // Reset document form values
   const resetDocForm = () => {
+    console.log('Resetting document form');
     setDocFormValues({
       document_date: new Date().toISOString().split('T')[0],
       file_url: ''

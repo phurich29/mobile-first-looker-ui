@@ -6,29 +6,35 @@ import { RicePrice, RicePriceDocument } from "@/features/user-management/types";
 export function usePriceData() {
   // Function to fetch rice prices
   const fetchRicePrices = async () => {
+    console.log('Fetching rice prices...');
     const { data, error } = await supabase
       .from('rice_prices')
       .select('*')
       .order('name', { ascending: true });
     
     if (error) {
+      console.error('Error fetching rice prices:', error);
       throw error;
     }
     
+    console.log('Rice prices data:', data);
     return data as unknown as RicePrice[];
   };
 
   // Function to fetch rice price documents
   const fetchRicePriceDocuments = async () => {
+    console.log('Fetching rice price documents...');
     const { data, error } = await supabase
       .from('rice_price_documents')
       .select('*')
       .order('document_date', { ascending: false });
     
     if (error) {
+      console.error('Error fetching rice price documents:', error);
       throw error;
     }
     
+    console.log('Rice price documents data:', data);
     return data as unknown as RicePriceDocument[];
   };
 
