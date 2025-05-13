@@ -13,6 +13,50 @@ interface RicePriceCarouselProps {
   error: Error | null;
 }
 
+// Sample rice price data to display when no real data is available
+const SAMPLE_RICE_PRICES = [
+  {
+    id: 'sample-1',
+    name: 'ข้าวหอมมะลิ 100% ชั้น 2 (66/67)',
+    price: '3,700 - 3,850',
+    document_date: '2568-04-29',
+    priceColor: 'black',
+    category: 'white-rice',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 'sample-2',
+    name: 'ข้าวหอมมะลิ 100% (67/68)',
+    price: '3,000 - 3,166',
+    document_date: '2568-04-29',
+    priceColor: 'green',
+    category: 'white-rice',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 'sample-3',
+    name: 'ข้าวหอมปทุมธานี',
+    price: '2,500 - 2,650',
+    document_date: '2568-04-29',
+    priceColor: 'red',
+    category: 'white-rice',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 'sample-4',
+    name: 'ข้าวเหนียว กข.6',
+    price: '3,200 - 3,300',
+    document_date: '2568-04-29',
+    priceColor: 'black',
+    category: 'sticky-rice',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }
+];
+
 export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCarouselProps) => {
   const { toast } = useToast();
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
@@ -25,6 +69,7 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
   const [scrollProgress, setScrollProgress] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
   const [hasData, setHasData] = useState(false);
+  const [displayData, setDisplayData] = useState<RicePrice[]>([]);
 
   // Format date for display in Thai format
   const formatThaiDate = (dateString: string) => {
@@ -49,15 +94,22 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
       error
     });
 
-    // Check if we have data to display
-    setHasData(ricePrices && ricePrices.length > 0);
+    // Check if we have data to display, if not use sample data
+    if (ricePrices && ricePrices.length > 0) {
+      setHasData(true);
+      setDisplayData(ricePrices);
+    } else {
+      // Use sample data when real data isn't available
+      setDisplayData(SAMPLE_RICE_PRICES as unknown as RicePrice[]);
+      setHasData(false);
+    }
 
     // Display a toast for error, only once per error
     if (error) {
       toast({
         title: "ไม่สามารถโหลดข้อมูลราคาข้าวได้",
-        description: "กรุณาลองใหม่อีกครั้งในภายหลัง",
-        variant: "destructive"
+        description: "กำลังแสดงข้อมูลตัวอย่างแทน",
+        variant: "default"
       });
     }
   }, [ricePrices, isLoading, error, toast]);
@@ -102,12 +154,8 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
               <div className="flex items-center justify-center min-w-[190px] mr-3 h-32">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600"></div>
               </div>
-            ) : error ? (
-              <div className="min-w-[190px] mr-3 p-4 bg-red-50 rounded-xl">
-                <p className="text-sm text-red-500">ไม่สามารถโหลดข้อมูลได้</p>
-              </div>
-            ) : ricePrices && ricePrices.length > 0 ? (
-              ricePrices.map((rice) => (
+            ) : displayData && displayData.length > 0 ? (
+              displayData.map((rice) => (
                 <div key={rice.id} className="min-w-[190px] mr-3 flex-shrink-0 pl-0.5 pr-0.5">
                   <AssetCard
                     symbol={rice.name}
@@ -122,8 +170,9 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
                 </div>
               ))
             ) : (
+              // This state should no longer show as we'll always have sample data
               <div className="min-w-[190px] mr-3 p-4 bg-amber-50 rounded-xl text-center">
-                <p className="text-sm text-amber-700">กำลังตรวจสอบข้อมูลราคาข้าว...</p>
+                <p className="text-sm text-amber-700">ยังไม่มีข้อมูลราคาข้าว</p>
                 <button 
                   className="mt-2 text-xs bg-emerald-500 text-white px-3 py-1 rounded-md hover:bg-emerald-600"
                   onClick={() => window.location.reload()}
@@ -148,4 +197,3 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
     </>
   );
 };
-
