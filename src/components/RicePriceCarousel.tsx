@@ -122,8 +122,14 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
                 </div>
               ))
             ) : (
-              <div className="min-w-[190px] mr-3 p-4 bg-gray-50 rounded-xl text-center">
-                <p className="text-sm text-gray-500">ขณะนี้ยังไม่มีข้อมูลราคาข้าว</p>
+              <div className="min-w-[190px] mr-3 p-4 bg-amber-50 rounded-xl text-center">
+                <p className="text-sm text-amber-700">กำลังตรวจสอบข้อมูลราคาข้าว...</p>
+                <button 
+                  className="mt-2 text-xs bg-emerald-500 text-white px-3 py-1 rounded-md hover:bg-emerald-600"
+                  onClick={() => window.location.reload()}
+                >
+                  รีเฟรช
+                </button>
               </div>
             )}
           </div>
@@ -142,3 +148,4 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
     </>
   );
 };
+
