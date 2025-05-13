@@ -1,4 +1,3 @@
-
 import { Header } from "@/components/Header";
 import { AssetCard } from "@/components/AssetCard";
 import { WatchlistItem } from "@/components/WatchlistItem";
@@ -26,6 +25,20 @@ const Index = () => {
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
   const [isStart, setIsStart] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
+
+  // Format date for display in Thai format
+  const formatThaiDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('th-TH', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch (error) {
+      return dateString;
+    }
+  };
 
   // Function to fetch rice prices for the homepage
   const fetchRicePrices = async () => {
@@ -145,6 +158,7 @@ const Index = () => {
                           rice.category === 'ปทุมธานี' ? '#627EEA' : 
                           '#2DABE2'
                         }
+                        date={formatThaiDate(rice.updated_at)}
                       />
                     </div>
                   ))
