@@ -294,9 +294,23 @@ export default function UserManagement() {
         throw new Error("ไม่สามารถสร้างผู้ใช้ได้");
       }
       
+      // เพิ่มบทบาท 'user' ให้กับผู้ใช้ใหม่โดยอัตโนมัติ
+      // เนื่องจากถูกสร้างโดย Admin หรือ Superadmin
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert({ 
+          user_id: authData.user.id, 
+          role: 'user' as Database["public"]["Enums"]["app_role"]
+        });
+
+      if (roleError && roleError.code !== '23505') { // ข้ามกรณีที่มีบทบาทนี้อยู่แล้ว
+        console.error('Error assigning user role:', roleError);
+        // ไม่ throw error เพื่อให้โค้ดทำงานต่อไปได้
+      }
+      
       toast({
         title: "สร้างผู้ใช้สำเร็จ",
-        description: "ผู้ใช้ใหม่ถูกสร้างและเพิ่มเข้าสู่ระบบแล้ว",
+        description: "ผู้ใช้ใหม่ถูกสร้างและเพิ่มเข้าสู่ระบบพร้อมใช้งานทันที",
       });
       
       // ปิด dialog และ reset form

@@ -122,7 +122,7 @@ const Index = () => {
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
       <Header />
       
-      <main className="flex-1 pb-28">
+      <main className="flex-1 pb-32">
         <div className="mt-4">
           {/* แสดงสไลด์ข่าวเกี่ยวกับวงการข้าวไทย */}
           <div className="mt-4 mx-4">

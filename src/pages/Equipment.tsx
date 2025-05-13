@@ -78,7 +78,7 @@ export default function Equipment() {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
       <Header />
-      <main className="flex-1 p-4 pb-28">
+      <main className="flex-1 p-4 pb-32">
         <div className="flex justify-between items-center mb-4">
           <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>อุปกรณ์</h1>
           <Button 

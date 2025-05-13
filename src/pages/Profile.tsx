@@ -99,31 +99,31 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50">
       <Header />
-      <div className="container px-4 py-8 md:py-12 mx-auto max-w-5xl">
-        <h1 className="text-3xl font-bold mb-8 text-emerald-800">ข้อมูลส่วนตัว</h1>
+      <div className="container px-3 py-6 md:py-8 pb-24 mx-auto max-w-5xl">
+        <h1 className="text-2xl font-bold mb-4 text-emerald-800">ข้อมูลส่วนตัว</h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* ข้อมูลส่วนตัว */}
           <Card className="md:col-span-2">
             <CardHeader>
-              <CardTitle>ข้อมูลผู้ใช้</CardTitle>
+              <CardTitle className="text-xl">ข้อมูลผู้ใช้</CardTitle>
               <CardDescription>ข้อมูลบัญชีผู้ใช้ของคุณ</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <p className="text-sm font-medium text-gray-500">อีเมลผู้ใช้</p>
-                <p className="text-lg font-medium">{userEmail}</p>
+                <p className="text-base font-medium">{userEmail}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">เข้าสู่ระบบครั้งล่าสุด</p>
-                <p className="text-lg font-medium">{lastSignIn}</p>
+                <p className="text-base font-medium">{lastSignIn}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">สมัครเมื่อ</p>
-                <p className="text-lg font-medium">{created}</p>
+                <p className="text-base font-medium">{created}</p>
               </div>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="py-3">
               <Button 
                 onClick={() => setShowPasswordDialog(true)}
                 variant="outline"
@@ -137,17 +137,17 @@ const Profile = () => {
           {/* กล่องแสดงสถานะ */}
           <Card>
             <CardHeader>
-              <CardTitle>สถานะบัญชี</CardTitle>
+              <CardTitle className="text-xl">สถานะบัญชี</CardTitle>
               <CardDescription>สถานะการเข้าใช้งานปัจจุบัน</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-emerald-50 border border-emerald-200 rounded-md p-4 flex items-center justify-between">
+            <CardContent className="space-y-3 py-2">
+              <div className="bg-emerald-50 border border-emerald-200 rounded-md p-2 flex items-center justify-between">
                 <p className="text-emerald-800 font-medium">เข้าสู่ระบบแล้ว</p>
                 <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">อีเมลที่ยืนยันแล้ว</p>
-                <p className="text-lg font-medium">
+                <p className="text-base font-medium">
                   {user?.email_confirmed_at ? "ยืนยันแล้ว ✓" : "ยังไม่ได้ยืนยัน"}
                 </p>
               </div>
