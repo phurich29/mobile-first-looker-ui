@@ -14,6 +14,10 @@ import { AuthProvider, useAuth } from "./components/AuthProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// Create a QueryClient instance
+const queryClient = new QueryClient();
 
 // Logout component that will sign out users and redirect to login
 function LogoutRoute() {
@@ -36,65 +40,68 @@ function LogoutRoute() {
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Public routes - ไม่จำเป็นต้องล็อกอิน */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/waiting" element={<Waiting />} />
-          <Route path="/logout" element={<LogoutRoute />} />
-          
-          {/* หน้าแรก - อนุญาตให้เข้าชมได้โดยไม่ต้องล็อกอิน */}
-          <Route path="/" element={
-            <ProtectedRoute allowUnauthenticated={true}>
-              <Index />
-            </ProtectedRoute>
-          } />
-          
-          {/* Routes ที่ต้องล็อกอินเท่านั้น - แม้แต่ waiting_list ก็ไม่สามารถเข้าถึงได้ */}
-          <Route path="/rice-prices" element={
-            <ProtectedRoute>
-              <RicePrices />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/measurements" element={
-            <ProtectedRoute>
-              <Measurements />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/equipment/:deviceCode?" element={
-            <ProtectedRoute>
-              <Equipment />
-            </ProtectedRoute>
-          } />
-          
-          {/* เพิ่มเส้นทางใหม่สำหรับหน้า Profile */}
-          <Route path="/profile" element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          } />
-          
-          {/* Admin routes */}
-          <Route path="/admin" element={
-            <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
-              <Admin />
-            </ProtectedRoute>
-          } />
-          
-          {/* User Management - สำหรับ admin และ superadmin */}
-          <Route path="/user-management" element={
-            <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
-              <UserManagement />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+    // Wrap the entire application with QueryClientProvider
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public routes - ไม่จำเป็นต้องล็อกอิน */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/waiting" element={<Waiting />} />
+            <Route path="/logout" element={<LogoutRoute />} />
+            
+            {/* หน้าแรก - อนุญาตให้เข้าชมได้โดยไม่ต้องล็อกอิน */}
+            <Route path="/" element={
+              <ProtectedRoute allowUnauthenticated={true}>
+                <Index />
+              </ProtectedRoute>
+            } />
+            
+            {/* Routes ที่ต้องล็อกอินเท่านั้น - แม้แต่ waiting_list ก็ไม่สามารถเข้าถึงได้ */}
+            <Route path="/rice-prices" element={
+              <ProtectedRoute>
+                <RicePrices />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/measurements" element={
+              <ProtectedRoute>
+                <Measurements />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/equipment/:deviceCode?" element={
+              <ProtectedRoute>
+                <Equipment />
+              </ProtectedRoute>
+            } />
+            
+            {/* เพิ่มเส้นทางใหม่สำหรับหน้า Profile */}
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } />
+            
+            {/* Admin routes */}
+            <Route path="/admin" element={
+              <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
+                <Admin />
+              </ProtectedRoute>
+            } />
+            
+            {/* User Management - สำหรับ admin และ superadmin */}
+            <Route path="/user-management" element={
+              <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
+                <UserManagement />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
