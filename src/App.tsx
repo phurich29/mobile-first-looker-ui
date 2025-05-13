@@ -11,6 +11,7 @@ import UserManagement from "./pages/UserManagement";
 import RicePriceManagement from "./pages/RicePriceManagement";
 import Waiting from "./pages/Waiting";
 import Profile from "./pages/Profile";
+import DeviceManagement from "./pages/DeviceManagement";
 import { AuthProvider, useAuth } from "./components/AuthProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useEffect } from "react";
@@ -81,6 +82,13 @@ function App() {
             <Route path="/profile" element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            } />
+            
+            {/* Device Management - สำหรับ admin และ superadmin */}
+            <Route path="/device-management" element={
+              <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
+                <DeviceManagement />
               </ProtectedRoute>
             } />
             
