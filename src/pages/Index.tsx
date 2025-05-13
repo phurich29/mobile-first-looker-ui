@@ -11,23 +11,30 @@ import { RicePrice } from "@/features/user-management/types";
 const Index = () => {
   // Function to fetch rice prices for the homepage
   const fetchRicePrices = async () => {
+    console.log('Fetching home rice prices...');
     const { data, error } = await supabase
       .from('rice_prices')
       .select('*')
+      .order('name', { ascending: true })
       .limit(8); // Limit to a reasonable number for display
     
     if (error) {
+      console.error('Error fetching home rice prices:', error);
       throw error;
     }
     
+    console.log('Home rice prices fetched successfully:', data);
     // Cast the data to match our RicePrice interface
     return data as unknown as RicePrice[];
   };
 
-  // Use React Query to fetch rice prices
+  // Use React Query to fetch rice prices with retry logic for better reliability
   const { data: ricePrices, isLoading, error } = useQuery({
     queryKey: ['homeRicePrices'],
-    queryFn: fetchRicePrices
+    queryFn: fetchRicePrices,
+    retry: 2, // Retry failed requests up to 2 times
+    staleTime: 1000 * 60 * 5, // Consider data fresh for 5 minutes
+    refetchOnWindowFocus: false // Don't refetch when window regains focus
   });
 
   return (

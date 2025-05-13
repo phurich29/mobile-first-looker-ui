@@ -5,6 +5,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { AssetCard } from "@/components/AssetCard";
 import { RicePrice } from "@/features/user-management/types";
 import { formatPrice } from "@/features/rice-price/utils";
+import { useToast } from "@/components/ui/use-toast";
 
 interface RicePriceCarouselProps {
   ricePrices: RicePrice[] | undefined;
@@ -13,6 +14,7 @@ interface RicePriceCarouselProps {
 }
 
 export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCarouselProps) => {
+  const { toast } = useToast();
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     align: 'start', 
     loop: false, 
@@ -22,6 +24,7 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
+  const [hasData, setHasData] = useState(false);
 
   // Format date for display in Thai format
   const formatThaiDate = (dateString: string) => {
@@ -36,6 +39,28 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
       return dateString;
     }
   };
+
+  useEffect(() => {
+    // Log component render state for debugging
+    console.log("RicePriceCarousel rendered with:", {
+      hasRicePrices: ricePrices && ricePrices.length > 0,
+      ricePricesCount: ricePrices?.length,
+      isLoading,
+      error
+    });
+
+    // Check if we have data to display
+    setHasData(ricePrices && ricePrices.length > 0);
+
+    // Display a toast for error, only once per error
+    if (error) {
+      toast({
+        title: "ไม่สามารถโหลดข้อมูลราคาข้าวได้",
+        description: "กรุณาลองใหม่อีกครั้งในภายหลัง",
+        variant: "destructive"
+      });
+    }
+  }, [ricePrices, isLoading, error, toast]);
 
   useEffect(() => {
     if (!emblaApi) return;
@@ -98,7 +123,7 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
               ))
             ) : (
               <div className="min-w-[190px] mr-3 p-4 bg-gray-50 rounded-xl text-center">
-                <p className="text-sm text-gray-500">ไม่มีข้อมูลราคาข้าว</p>
+                <p className="text-sm text-gray-500">ขณะนี้ยังไม่มีข้อมูลราคาข้าว</p>
               </div>
             )}
           </div>
