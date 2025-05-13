@@ -1,4 +1,3 @@
-
 // Get text color class based on price color
 export const getPriceColorClass = (color: string = 'black') => {
   switch (color) {
@@ -8,16 +7,6 @@ export const getPriceColorClass = (color: string = 'black') => {
   }
 };
 
-// Format date for display in Thai format
-export const formatThaiDate = (dateString: string) => {
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('th-TH', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  } catch (error) {
-    return dateString;
-  }
-};
+// These functions are moved to formatting.ts
+// Keeping the exports here to maintain backward compatibility
+export { formatThaiDate, getLatestUpdateTimestamp } from './utils/formatting';
