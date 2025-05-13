@@ -35,19 +35,23 @@ export function DeviceManagementView({
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   
   const handleSelectDevice = (deviceCode: string) => {
-    setSelectedDevice(deviceCode);
+    setSelectedDevice(prev => prev === deviceCode ? null : deviceCode);
     setSelectedUser(null);
-    document.querySelector('[data-value="mapping"]')?.dispatchEvent(
-      new MouseEvent('click', { bubbles: true })
-    );
+    if (selectedDevice !== deviceCode) {
+      document.querySelector('[data-value="mapping"]')?.dispatchEvent(
+        new MouseEvent('click', { bubbles: true })
+      );
+    }
   };
   
   const handleSelectUser = (userId: string) => {
-    setSelectedUser(userId);
+    setSelectedUser(prev => prev === userId ? null : userId);
     setSelectedDevice(null);
-    document.querySelector('[data-value="mapping"]')?.dispatchEvent(
-      new MouseEvent('click', { bubbles: true })
-    );
+    if (selectedUser !== userId) {
+      document.querySelector('[data-value="mapping"]')?.dispatchEvent(
+        new MouseEvent('click', { bubbles: true })
+      );
+    }
   };
   
   return (
