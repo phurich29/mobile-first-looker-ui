@@ -14,8 +14,7 @@ export function usePriceAdd(refetchPrices: () => void, resetPriceForm: () => voi
       const newRicePrice: any = {
         name: priceFormValues.name,
         category: 'general', // Default category
-        document_date: priceFormValues.document_date,
-        priceColor: priceFormValues.priceColor
+        document_date: priceFormValues.document_date
       };
 
       // Only add price if it's not empty

@@ -21,8 +21,7 @@ export function usePriceUpdate(
       // Prepare data for update
       const updateData: any = {
         name: priceFormValues.name,
-        document_date: priceFormValues.document_date,
-        priceColor: priceFormValues.priceColor
+        document_date: priceFormValues.document_date
       };
 
       // Only update price if it's not empty
