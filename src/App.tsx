@@ -59,13 +59,14 @@ function App() {
               </ProtectedRoute>
             } />
             
-            {/* Routes ที่ต้องล็อกอินเท่านั้น - แม้แต่ waiting_list ก็ไม่สามารถเข้าถึงได้ */}
+            {/* ทำให้หน้า rice-prices สามารถเข้าถึงได้โดยไม่ต้องล็อกอิน */}
             <Route path="/rice-prices" element={
-              <ProtectedRoute>
+              <ProtectedRoute allowUnauthenticated={true}>
                 <RicePrices />
               </ProtectedRoute>
             } />
             
+            {/* Routes ที่ต้องล็อกอินเท่านั้น */}
             <Route path="/measurements" element={
               <ProtectedRoute>
                 <Measurements />
