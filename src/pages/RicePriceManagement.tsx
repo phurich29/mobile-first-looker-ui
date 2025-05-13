@@ -701,4 +701,5 @@ export default function RicePriceManagement() {
 
       <FooterNav />
     </div>
-  
+  );
+}
