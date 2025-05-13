@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
+import { cn } from "@/lib/utils";
 
 export default function Login() {
   const { user, isLoading } = useAuth();
@@ -20,6 +20,22 @@ export default function Login() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
+  
+  // Animation state for the floating logo
+  const [floatPosition, setFloatPosition] = useState(0);
+  
+  // Simple floating animation effect
+  useEffect(() => {
+    const floatInterval = setInterval(() => {
+      setFloatPosition(prev => {
+        // Create a gentle floating effect using sine wave
+        // Value oscillates between -5 and 5 pixels
+        return Math.sin(Date.now() / 1000) * 5;
+      });
+    }, 50); // Update every 50ms for smooth animation
+    
+    return () => clearInterval(floatInterval);
+  }, []);
   
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -188,7 +204,24 @@ export default function Login() {
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md mx-auto">
+      {/* Floating Logo */}
+      <div 
+        className="absolute top-20"
+        style={{ 
+          transform: `translateY(${floatPosition}px)`,
+          transition: 'transform 0.5s ease'
+        }}
+      >
+        <div className="w-32 h-32 rounded-full bg-white shadow-lg p-3 flex items-center justify-center">
+          <img 
+            src="/lovable-uploads/087210ab-061f-4b05-a6d9-e348861627d1.png" 
+            alt="Rice Flow" 
+            className="w-28 h-28 object-contain"
+          />
+        </div>
+      </div>
+      
+      <Card className="w-full max-w-md mx-auto mt-24">
         <CardHeader>
           <CardTitle className="text-2xl text-center">ระบบจัดการข้าว</CardTitle>
           <CardDescription className="text-center">เข้าสู่ระบบหรือลงทะเบียนเพื่อใช้งาน</CardDescription>
