@@ -11,3 +11,9 @@ export const formatDate = (dateString?: string | null): string => {
     minute: '2-digit'
   }).format(date);
 };
+
+// Format price for display
+export const formatPrice = (price?: number | null): string => {
+  if (price === undefined || price === null) return "-";
+  return price.toLocaleString('th-TH');
+};

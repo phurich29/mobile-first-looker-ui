@@ -8,6 +8,7 @@ import Measurements from "./pages/Measurements";
 import NotFound from "./pages/NotFound";
 import RicePrices from "./pages/RicePrices";
 import UserManagement from "./pages/UserManagement";
+import RicePriceManagement from "./pages/RicePriceManagement";
 import Waiting from "./pages/Waiting";
 import Profile from "./pages/Profile";
 import { AuthProvider, useAuth } from "./components/AuthProvider";
@@ -94,6 +95,13 @@ function App() {
             <Route path="/user-management" element={
               <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
                 <UserManagement />
+              </ProtectedRoute>
+            } />
+            
+            {/* Rice Price Management - เฉพาะ superadmin เท่านั้น */}
+            <Route path="/rice-price-management" element={
+              <ProtectedRoute requiredRoles={["superadmin"]}>
+                <RicePriceManagement />
               </ProtectedRoute>
             } />
             

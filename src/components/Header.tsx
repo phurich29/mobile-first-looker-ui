@@ -1,5 +1,5 @@
 
-import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users } from "lucide-react";
+import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, DollarSign } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -54,6 +54,9 @@ export const Header = () => {
   
   // ตรวจสอบว่าผู้ใช้มีสิทธิ์ในการเข้าถึงหน้าจัดการผู้ใช้งานหรือไม่
   const canAccessUserManagement = userRoles.includes('admin') || userRoles.includes('superadmin');
+  
+  // ตรวจสอบว่าผู้ใช้มีสิทธิ์ในการเข้าถึงหน้าจัดการราคาข้าวหรือไม่
+  const canAccessRicePriceManagement = userRoles.includes('superadmin');
   
   return <>
       {/* Sidebar for Desktop */}
@@ -122,6 +125,17 @@ export const Header = () => {
                   : "hover:bg-gray-50 text-gray-700")}>
                 <Users className="h-5 w-5" />
                 <span className="text-sm">จัดการผู้ใช้งาน</span>
+              </Link>
+            )}
+            
+            {/* เพิ่มเมนูจัดการราคาข้าวสำหรับ superadmin เท่านั้น */}
+            {user && canAccessRicePriceManagement && (
+              <Link to="/rice-price-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
+                isActive("/rice-price-management") 
+                  ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" 
+                  : "hover:bg-gray-50 text-gray-700")}>
+                <DollarSign className="h-5 w-5" />
+                <span className="text-sm">จัดการราคาข้าว</span>
               </Link>
             )}
           </nav>

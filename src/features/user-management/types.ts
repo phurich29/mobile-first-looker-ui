@@ -22,3 +22,18 @@ export type ResetPasswordFormValues = {
 };
 
 export type UserRole = Database["public"]["Enums"]["app_role"];
+
+// Rice price management types
+export interface RicePrice {
+  id: string;
+  name: string;
+  price: number;
+  updated_at: string;
+  category: string;
+}
+
+export type RicePriceFormValues = {
+  name: string;
+  price: number;
+  category: string;
+};
