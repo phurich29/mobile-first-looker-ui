@@ -58,7 +58,6 @@ export default function UserManagement() {
   const { toast } = useToast();
   const { user, userRoles, isLoading } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(true);
   const [showAddUserDialog, setShowAddUserDialog] = useState<boolean>(false);
@@ -66,7 +65,6 @@ export default function UserManagement() {
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [selectedUserEmail, setSelectedUserEmail] = useState<string>("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<boolean>(false);
-  const [showWaitingListOnly, setShowWaitingListOnly] = useState<boolean>(true);
 
   const newUserForm = useForm<z.infer<typeof newUserSchema>>({
     resolver: zodResolver(newUserSchema),
@@ -95,64 +93,36 @@ export default function UserManagement() {
       try {
         setIsLoadingUsers(true);
         
-        // Fetch all profiles from the profiles table
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, email');
+        // Fetch all users with last sign in details
+        const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
         
-        if (profilesError) {
-          console.error("Error fetching profiles:", profilesError);
-          throw profilesError;
+        if (authError) {
+          console.error("Auth users error:", authError);
+          throw authError;
         }
         
-        if (!profiles) {
-          console.log("No profiles found");
-          setUsers([]);
-          setFilteredUsers([]);
-          setIsLoadingUsers(false);
-          return;
-        }
-        
-        // For each profile, fetch their roles and last sign-in time
-        const usersWithDetails = await Promise.all(
-          profiles.map(async (profile) => {
-            // Get user roles
+        // For each user, fetch their roles
+        const usersWithRoles = await Promise.all(
+          (authUsers?.users || []).map(async (authUser) => {
             const { data: roles, error: rolesError } = await supabase.rpc(
               'get_user_roles',
-              { user_id: profile.id }
+              { user_id: authUser.id }
             );
-            
+
             if (rolesError) {
-              console.error('Error fetching roles for user:', profile.id, rolesError);
-            }
-            
-            // Get auth details if possible (may not have access depending on permissions)
-            let lastSignIn = null;
-            try {
-              const { data: authUser } = await supabase.auth.admin.getUserById(profile.id);
-              lastSignIn = authUser?.user?.last_sign_in_at;
-            } catch (error) {
-              // Silently catch this error as we may not have admin access
-              console.log("Could not get auth details for user", profile.id);
+              console.error('Error fetching roles for user:', authUser.id, rolesError);
             }
             
             return {
-              id: profile.id,
-              email: profile.email || 'unknown@example.com',
+              id: authUser.id,
+              email: authUser.email || 'unknown@example.com',
               roles: roles || [],
-              last_sign_in_at: lastSignIn
+              last_sign_in_at: authUser.last_sign_in_at
             };
           })
         );
-        
-        setUsers(usersWithDetails);
-        
-        // Filter users to show only waiting list users if flag is set
-        if (showWaitingListOnly) {
-          setFilteredUsers(usersWithDetails.filter(user => user.roles.includes('waiting_list')));
-        } else {
-          setFilteredUsers(usersWithDetails);
-        }
+
+        setUsers(usersWithRoles);
       } catch (error: any) {
         console.error('Error fetching users:', error.message);
         toast({
@@ -166,12 +136,7 @@ export default function UserManagement() {
     };
 
     fetchUsers();
-  }, [user, userRoles, toast, showWaitingListOnly]);
-
-  // Toggle between showing all users or only waiting list users
-  const toggleWaitingListView = () => {
-    setShowWaitingListOnly(!showWaitingListOnly);
-  };
+  }, [user, userRoles, toast]);
 
   // Add or remove a role for a user
   const changeUserRole = async (userId: string, role: Database["public"]["Enums"]["app_role"], isAdding: boolean) => {
@@ -242,13 +207,6 @@ export default function UserManagement() {
       );
       
       setUsers(updatedUsers);
-      
-      // Update filtered users as well
-      if (showWaitingListOnly) {
-        setFilteredUsers(updatedUsers.filter(user => user.roles.includes('waiting_list')));
-      } else {
-        setFilteredUsers(updatedUsers);
-      }
     } catch (error: any) {
       console.error('Error changing role:', error.message);
       toast({
@@ -308,13 +266,6 @@ export default function UserManagement() {
       );
       
       setUsers(updatedUsers);
-      
-      // Update filtered users as well
-      if (showWaitingListOnly) {
-        setFilteredUsers(updatedUsers.filter(user => user.roles.includes('waiting_list')));
-      } else {
-        setFilteredUsers(updatedUsers);
-      }
     } catch (error: any) {
       console.error('Error approving user:', error.message);
       toast({
@@ -374,13 +325,6 @@ export default function UserManagement() {
         );
         
         setUsers(usersWithRoles);
-        
-        // Update filtered users as well
-        if (showWaitingListOnly) {
-          setFilteredUsers(usersWithRoles.filter(user => user.roles.includes('waiting_list')));
-        } else {
-          setFilteredUsers(usersWithRoles);
-        }
       }
     } catch (error: any) {
       console.error('Error creating user:', error);
@@ -448,15 +392,7 @@ export default function UserManagement() {
       if (error) throw error;
       
       // Remove user from local state
-      const updatedUsers = users.filter(user => user.id !== selectedUserId);
-      setUsers(updatedUsers);
-      
-      // Update filtered users as well
-      if (showWaitingListOnly) {
-        setFilteredUsers(updatedUsers.filter(user => user.roles.includes('waiting_list')));
-      } else {
-        setFilteredUsers(updatedUsers);
-      }
+      setUsers(users.filter(user => user.id !== selectedUserId));
       
       toast({
         title: "ลบผู้ใช้สำเร็จ",
@@ -534,34 +470,22 @@ export default function UserManagement() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <Shield className="h-6 w-6 text-emerald-600" />
-            <h1 className="text-2xl font-bold">จัดการผู้ใช้งานรอการอนุมัติ</h1>
+            <h1 className="text-2xl font-bold">จัดการผู้ใช้งาน</h1>
           </div>
           
-          <div className="flex gap-2">
-            <Button 
-              onClick={toggleWaitingListView}
-              variant="outline"
-              className={showWaitingListOnly ? "border-amber-500 text-amber-700" : ""}
-            >
-              {showWaitingListOnly ? "แสดงเฉพาะรายชื่อรอการอนุมัติ" : "แสดงผู้ใช้ทั้งหมด"}
-            </Button>
-            
-            <Button 
-              onClick={() => setShowAddUserDialog(true)}
-              variant="default"
-              className="bg-emerald-600 hover:bg-emerald-700"
-            >
-              <UserPlus className="h-4 w-4 mr-2" />
-              เพิ่มผู้ใช้ใหม่
-            </Button>
-          </div>
+          <Button 
+            onClick={() => setShowAddUserDialog(true)}
+            variant="default"
+            className="bg-emerald-600 hover:bg-emerald-700"
+          >
+            <UserPlus className="h-4 w-4 mr-2" />
+            เพิ่มผู้ใช้ใหม่
+          </Button>
         </div>
 
         <Card className="overflow-hidden">
           <CardHeader className="py-3">
-            <CardTitle className="text-xl">
-              {showWaitingListOnly ? "รายชื่อผู้ใช้รอการอนุมัติ" : "รายชื่อผู้ใช้ทั้งหมด"}
-            </CardTitle>
+            <CardTitle className="text-xl">รายชื่อผู้ใช้ทั้งหมด</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             {isLoadingUsers ? (
@@ -569,7 +493,7 @@ export default function UserManagement() {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
                 <p className="text-gray-500 mt-4">กำลังโหลดข้อมูลผู้ใช้...</p>
               </div>
-            ) : filteredUsers.length > 0 ? (
+            ) : users.length > 0 ? (
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -579,7 +503,7 @@ export default function UserManagement() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredUsers.map((user) => (
+                    {users.map((user) => (
                       <TableRow key={user.id} className={user.roles.includes('waiting_list') ? "bg-amber-50" : ""}>
                         <TableCell className="py-1">
                           <div className="space-y-1">
@@ -699,11 +623,7 @@ export default function UserManagement() {
               </div>
             ) : (
               <div className="p-8 text-center">
-                <p className="text-gray-500">
-                  {showWaitingListOnly 
-                    ? "ไม่พบผู้ใช้ที่รอการอนุมัติ" 
-                    : "ไม่พบข้อมูลผู้ใช้"}
-                </p>
+                <p className="text-gray-500">ไม่พบข้อมูลผู้ใช้</p>
               </div>
             )}
           </CardContent>
