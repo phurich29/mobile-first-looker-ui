@@ -1,1 +1,4 @@
+
 project_id = "tlnkyztazcsqybjigrpw"
+
+[functions.get_users_not_in_waiting_list]

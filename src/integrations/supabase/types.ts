@@ -341,6 +341,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_device_access: {
+        Row: {
+          created_at: string
+          created_by: string
+          device_code: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          device_code: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          device_code?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
