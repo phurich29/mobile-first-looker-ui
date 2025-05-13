@@ -50,9 +50,11 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
     
     setIsLoading(true);
     try {
-      // Fetch all users who are not on waiting list
+      // Fetch all users who are not on waiting list using direct query instead of RPC
       const { data: usersData, error: usersError } = await supabase
-        .rpc('get_users_not_in_waiting_list');
+        .from('profiles')
+        .select('id, email')
+        .order('email');
         
       if (usersError) {
         console.error("Error fetching users:", usersError);
@@ -63,6 +65,19 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
         });
         return;
       }
+      
+      // Filter out users on waiting list
+      const { data: waitingListUsers, error: waitingListError } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('role', 'waiting_list');
+        
+      if (waitingListError) {
+        console.error("Error fetching waiting list users:", waitingListError);
+      }
+      
+      const waitingListUserIds = new Set(waitingListUsers?.map(u => u.user_id) || []);
+      const filteredUsers = usersData?.filter(u => !waitingListUserIds.has(u.id)) || [];
       
       // Fetch device access records for this device
       const { data: accessData, error: accessError } = await supabase
@@ -84,11 +99,11 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
       const userIdsWithAccess = new Set(accessData?.map(record => record.user_id) || []);
       
       // Combine the data
-      const usersWithAccess = usersData?.map(userData => ({
+      const usersWithAccess = filteredUsers.map(userData => ({
         id: userData.id,
         email: userData.email || "ไม่มีอีเมล",
         hasAccess: userIdsWithAccess.has(userData.id)
-      })) || [];
+      }));
       
       setUsers(usersWithAccess);
     } catch (error) {
@@ -135,13 +150,40 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
         return;
       }
       
-      // Fetch device access records for found users
+      // Check if users are on waiting list
       const userIds = userData.map(u => u.id);
+      const { data: waitingListUsers, error: waitingListError } = await supabase
+        .from('user_roles')
+        .select('user_id, role')
+        .in('user_id', userIds)
+        .eq('role', 'waiting_list');
+        
+      if (waitingListError) {
+        console.error("Error checking user roles:", waitingListError);
+      }
+      
+      // Create a set of waiting list user IDs
+      const waitingListUserIds = new Set(waitingListUsers?.map(u => u.user_id) || []);
+      
+      // Filter out waiting list users
+      const filteredUsers = userData.filter(u => !waitingListUserIds.has(u.id));
+      
+      if (filteredUsers.length === 0) {
+        toast({
+          title: "ไม่พบผู้ใช้",
+          description: "ผู้ใช้ที่ค้นพบยังอยู่ในรายชื่อรอสิทธิ์การใช้งาน",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Fetch device access records for found users
+      const filteredUserIds = filteredUsers.map(u => u.id);
       const { data: accessData, error: accessError } = await supabase
         .from('user_device_access')
         .select('user_id')
         .eq('device_code', deviceCode)
-        .in('user_id', userIds);
+        .in('user_id', filteredUserIds);
         
       if (accessError) {
         console.error("Error fetching device access:", accessError);
@@ -152,7 +194,7 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
       const userIdsWithAccess = new Set(accessData?.map(record => record.user_id) || []);
       
       // Combine the data
-      const searchResults = userData.map(u => ({
+      const searchResults = filteredUsers.map(u => ({
         id: u.id,
         email: u.email || "ไม่มีอีเมล",
         hasAccess: userIdsWithAccess.has(u.id)
