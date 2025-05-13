@@ -506,6 +506,7 @@ export type RicePrice = {
   document_date: string | null;
   created_at: string | null;
   updated_at: string | null;
+  priceColor?: string; // Added missing priceColor property
 };
 
 export type RicePriceDocument = {
@@ -514,4 +515,25 @@ export type RicePriceDocument = {
   file_url: string;
   created_at: string | null;
   updated_at: string | null;
+};
+
+// Add missing user management type definitions
+export type UserRole = Database["public"]["Enums"]["app_role"];
+
+export type User = {
+  id: string;
+  email: string;
+  roles: UserRole[];
+  last_sign_in_at?: string | null;
+};
+
+export type NewUserFormValues = {
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
+
+export type ResetPasswordFormValues = {
+  password: string;
+  confirmPassword: string;
 };
