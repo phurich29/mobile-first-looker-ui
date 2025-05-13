@@ -63,6 +63,16 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
     };
   }, [emblaApi]);
 
+  // Debug logging
+  useEffect(() => {
+    console.log('RicePriceCarousel rendered with:', { 
+      hasRicePrices: ricePrices && ricePrices.length > 0,
+      ricePricesCount: ricePrices?.length,
+      isLoading, 
+      error: error?.message 
+    });
+  }, [ricePrices, isLoading, error]);
+
   return (
     <>
       <div className="px-[5%] mb-3 flex justify-between items-center" style={{ width: '100%', boxSizing: 'border-box' }}>
@@ -80,6 +90,7 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
             ) : error ? (
               <div className="min-w-[190px] mr-3 p-4 bg-red-50 rounded-xl">
                 <p className="text-sm text-red-500">ไม่สามารถโหลดข้อมูลได้</p>
+                <p className="text-xs text-red-400 mt-1">{error.message}</p>
               </div>
             ) : ricePrices && ricePrices.length > 0 ? (
               ricePrices.map((rice) => (
@@ -97,22 +108,25 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
                 </div>
               ))
             ) : (
-              <div className="min-w-[190px] mr-3 p-4 bg-gray-50 rounded-xl text-center">
-                <p className="text-sm text-gray-500">ไม่มีข้อมูลราคาข้าว</p>
+              <div className="min-w-[100%] p-8 bg-gray-50 rounded-xl text-center">
+                <p className="text-sm text-gray-500 mb-2">ไม่มีข้อมูลราคาข้าวในขณะนี้</p>
+                <p className="text-xs text-gray-400">ระบบกำลังปรับปรุงข้อมูล โปรดกลับมาใหม่ในภายหลัง</p>
               </div>
             )}
           </div>
         </div>
         
         {/* Progress indicator - optional scrollbar for UI feedback */}
-        <div className="px-[5%] mt-3">
-          <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-emerald-500 transition-all duration-200"
-              style={{ width: `${scrollProgress * 100}%` }}
-            ></div>
+        {ricePrices && ricePrices.length > 0 && (
+          <div className="px-[5%] mt-3">
+            <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-emerald-500 transition-all duration-200"
+                style={{ width: `${scrollProgress * 100}%` }}
+              ></div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </>
   );

@@ -3,3 +3,6 @@ project_id = "tlnkyztazcsqybjigrpw"
 
 [functions.get_users_not_in_waiting_list]
 schema = "public"
+
+[functions.get_public_rice_prices]
+schema = "public"
