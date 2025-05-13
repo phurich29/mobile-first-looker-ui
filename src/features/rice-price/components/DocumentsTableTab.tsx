@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { RicePriceDocument } from "@/features/user-management/types";
-import { ExternalLink, FileText } from "lucide-react";
+import { FileText, FileType } from "lucide-react";
 import { formatThaiDate } from "../utils/formatting";
 
 interface DocumentsTableTabProps {
@@ -39,10 +39,10 @@ export function DocumentsTableTab({ ricePriceDocuments }: DocumentsTableTabProps
             href={document.file_url} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 mt-2 sm:mt-0"
+            className="text-blue-600 hover:text-blue-800 mt-2 sm:mt-0 ml-auto"
           >
             <Button variant="outline" size="sm" className="flex items-center gap-1">
-              <ExternalLink size={14} />
+              <FileType size={14} className="text-red-600" />
               ดูเอกสาร
             </Button>
           </a>
