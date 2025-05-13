@@ -27,7 +27,7 @@ export function UserList({
   deviceUserMap,
   isLoading,
   onRefresh,
-  onSelectUser
+  onSelectUser 
 }: UserListProps) {
   const [userFilter, setUserFilter] = useState("");
   

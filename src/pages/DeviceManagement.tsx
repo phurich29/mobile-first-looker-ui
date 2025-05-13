@@ -5,7 +5,7 @@ import { FooterNav } from "@/components/FooterNav";
 import { useAuth } from "@/components/AuthProvider";
 import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { DeviceManagementView } from "@/components/DeviceManagementView";
 
 export default function DeviceManagement() {
@@ -43,31 +43,18 @@ export default function DeviceManagement() {
     }
   };
   
-  // Fetch all users (excluding those on waiting list)
+  // Fetch ALL users - updated to match the approach in UserManagement
   const fetchUsers = async () => {
     try {
-      // Get all profiles
+      // Get all profiles instead of filtering by waiting_list
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('id, email');
       
       if (profilesError) throw profilesError;
       
-      // Get user IDs that are on waiting list
-      const { data: waitingListData, error: waitingListError } = await supabase
-        .from('user_roles')
-        .select('user_id')
-        .eq('role', 'waiting_list');
-      
-      if (waitingListError) throw waitingListError;
-      
-      // Create a set of waiting list user IDs for quick lookup
-      const waitingListUserIds = new Set(waitingListData?.map(item => item.user_id) || []);
-      
-      // Filter out users that are on the waiting list
-      const filteredUsers = profilesData?.filter(profile => !waitingListUserIds.has(profile.id)) || [];
-      
-      setUsers(filteredUsers);
+      // No filtering by waiting_list, show all users
+      setUsers(profilesData || []);
     } catch (error) {
       console.error("Error fetching users:", error);
       toast({

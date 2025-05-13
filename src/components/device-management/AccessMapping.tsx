@@ -51,7 +51,7 @@ export function AccessMapping({
     device.device_code.toLowerCase().includes(deviceFilter.toLowerCase())
   );
   
-  // Filter users based on search input
+  // Filter users based on search input - this will show all users
   const filteredUsers = users.filter(user => 
     user.email.toLowerCase().includes(userFilter.toLowerCase())
   );
