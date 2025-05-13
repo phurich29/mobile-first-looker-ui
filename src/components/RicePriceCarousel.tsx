@@ -103,9 +103,17 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
             )}
           </div>
         </div>
-        {/* ลบส่วนการนำทางออกตามที่ผู้ใช้ต้องการ */}
+        
+        {/* Progress indicator - optional scrollbar for UI feedback */}
+        <div className="px-[5%] mt-3">
+          <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-emerald-500 transition-all duration-200"
+              style={{ width: `${scrollProgress * 100}%` }}
+            ></div>
+          </div>
+        </div>
       </div>
     </>
   );
 };
-
