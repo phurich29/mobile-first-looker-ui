@@ -16,19 +16,53 @@ interface DeviceInfo {
 
 export default function Equipment() {
   const [devices, setDevices] = useState<DeviceInfo[]>([]);
+  const [totalUniqueDevices, setTotalUniqueDevices] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
-  // Function to fetch devices from Supabase
+  // ฟังก์ชันรับจำนวนอุปกรณ์ที่ไม่ซ้ำกันทั้งหมด
+  const getUniqueDevicesCount = async () => {
+    try {
+      // ใช้การคิวรี่โดยตรงแทนการใช้ RPC function
+      const { data, error } = await supabase
+        .from('rice_quality_analysis')
+        .select('device_code')
+        .not('device_code', 'is', null);
+      
+      if (error) {
+        console.error("Error counting unique devices:", error);
+        return 0;
+      }
+      
+      // ใช้ Set เพื่อนับ device_code ที่ไม่ซ้ำกัน
+      const uniqueDeviceCodes = new Set();
+      data?.forEach(item => {
+        if (item.device_code) {
+          uniqueDeviceCodes.add(item.device_code);
+        }
+      });
+      
+      const count = uniqueDeviceCodes.size;
+      setTotalUniqueDevices(count);
+      return count;
+    } catch (error) {
+      console.error("Unexpected error counting devices:", error);
+      return 0;
+    }
+  };
+
+  // ฟังก์ชันดึงข้อมูลอุปกรณ์ทั้งหมดที่ไม่ซ้ำกัน
   const fetchDevices = async () => {
     setIsLoading(true);
     try {
-      // Query the rice_quality_analysis table to get all unique device codes
+      // ดึงข้อมูลจากตาราง rice_quality_analysis ทั้งหมด
       const { data, error } = await supabase
-        .from("rice_quality_analysis")
-        .select("device_code, created_at")
-        .order("created_at", { ascending: false });
+        .from('rice_quality_analysis')
+        .select('device_code, created_at')
+        .not('device_code', 'is', null) // เลือกเฉพาะอุปกรณ์ที่มี device_code
+        .order('device_code', { ascending: true }) // เรียงตามรหัสอุปกรณ์
+        .order('created_at', { ascending: false }); // เรียงตามวันที่ล่าสุดก่อน
 
       if (error) {
         console.error("Error fetching devices:", error);
@@ -37,26 +71,41 @@ export default function Equipment() {
           description: "ไม่สามารถดึงข้อมูลอุปกรณ์ได้",
           variant: "destructive",
         });
+        setIsLoading(false);
         return;
       }
 
       if (data) {
-        // Get unique device codes with their latest timestamps
-        const uniqueDevices = data.reduce((acc: DeviceInfo[], item) => {
-          if (item.device_code && !acc.some(device => device.device_code === item.device_code)) {
-            acc.push({
+        // ใช้วิธีเดียวกับ getUniqueDevicesCount แต่เก็บข้อมูลทั้งหมดของอุปกรณ์
+        const deviceMap = new Map<string, DeviceInfo>();
+        
+        // จัดเรียงข้อมูลตามรหัสอุปกรณ์ โดยเก็บเฉพาะข้อมูลล่าสุดของแต่ละอุปกรณ์
+        for (const item of data) {
+          if (item.device_code && !deviceMap.has(item.device_code)) {
+            deviceMap.set(item.device_code, {
               device_code: item.device_code,
               updated_at: item.created_at
             });
           }
-          return acc;
-        }, []);
-
+        }
+        
+        // แปลง Map เป็นอาเรย์ของอุปกรณ์ที่ไม่ซ้ำกัน
+        const uniqueDevices: DeviceInfo[] = Array.from(deviceMap.values());
+        
+        // ดึงจำนวนอุปกรณ์ทั้งหมดที่ไม่ซ้ำกัน
+        const totalCount = await getUniqueDevicesCount();
+        
         setDevices(uniqueDevices);
+        
         toast({
           title: "สำเร็จ",
-          description: `พบ ${uniqueDevices.length} อุปกรณ์`,
+          description: `พบ ${uniqueDevices.length} อุปกรณ์จาก ${totalCount} เครื่องในระบบ`,
         });
+        
+        // ตรวจสอบว่าจำนวนอุปกรณ์ที่ดึงมาตรงกับจำนวนทั้งหมดหรือไม่
+        if (uniqueDevices.length !== totalCount) {
+          console.warn(`จำนวนอุปกรณ์ที่ดึงมา (${uniqueDevices.length}) ไม่ตรงกับจำนวนทั้งหมด (${totalCount})`); 
+        }
       }
     } catch (error) {
       console.error("Unexpected error:", error);
@@ -70,9 +119,10 @@ export default function Equipment() {
     }
   };
 
-  // Fetch devices on initial load
+  // Fetch devices and count on initial load
   useEffect(() => {
     fetchDevices();
+    getUniqueDevicesCount();
   }, []);
 
   return (
@@ -80,7 +130,12 @@ export default function Equipment() {
       <Header />
       <main className="flex-1 p-4 pb-32">
         <div className="flex justify-between items-center mb-4">
-          <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>อุปกรณ์</h1>
+          <div>
+            <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>อุปกรณ์</h1>
+            {totalUniqueDevices > 0 && (
+              <p className="text-xs text-gray-500 mt-1">จำนวนอุปกรณ์ทั้งหมดในระบบ: {totalUniqueDevices} เครื่อง</p>
+            )}
+          </div>
           <Button 
             variant="outline" 
             size="sm"

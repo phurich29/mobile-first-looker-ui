@@ -1,11 +1,9 @@
-
 import { useIsMobile } from "@/hooks/use-mobile";
 import { RicePrice } from "@/features/user-management/types";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, Wheat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ResponsiveTable } from "@/components/ui/responsive-table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDate } from "@/features/user-management/utils";
 import { formatThaiDate, getPriceColorClass, formatPrice } from "../utils";
 import { cn } from "@/lib/utils";
@@ -41,8 +39,11 @@ export function PriceList({ ricePrices, onEdit, onDelete }: PriceListProps) {
                   <TableRow key={price.id} className="border-b py-2" style={{display: 'block'}}>
                     <div className="flex justify-between items-center mb-1 px-2 pt-2">
                       {/* บรรทัดแรก: ชื่อข้าวและราคา */}
-                      <div className="flex-grow">
-                        <div className="font-medium truncate" style={{maxWidth: '180px'}}>{price.name}</div>
+                      <div className="flex-grow flex items-center">
+                        <div className="w-5 h-5 flex items-center justify-center rounded-full bg-emerald-100 mr-2 flex-shrink-0">
+                          <Wheat className="w-3 h-3 text-emerald-600" />
+                        </div>
+                        <div className="font-medium truncate" style={{maxWidth: '160px'}}>{price.name}</div>
                       </div>
                       <div className={cn("font-bold", getPriceColorClass(price.priceColor))}>
                         {formatPrice(price.price)} <span className="text-xs font-normal text-gray-500">บาท/ก.ก.</span>
@@ -77,7 +78,12 @@ export function PriceList({ ricePrices, onEdit, onDelete }: PriceListProps) {
                 ) : (
                   <TableRow key={price.id} className={index % 2 === 0 ? 'bg-white' : 'bg-emerald-50'}>
                     <TableCell className="whitespace-nowrap py-2.5">
-                      <div className="font-medium">{price.name}</div>
+                      <div className="flex items-center">
+                        <div className="w-5 h-5 flex items-center justify-center rounded-full bg-emerald-50 mr-2 flex-shrink-0">
+                          <Wheat className="w-3 h-3 text-emerald-600" />
+                        </div>
+                        <div className="font-medium">{price.name}</div>
+                      </div>
                     </TableCell>
                     <TableCell className={`py-2.5 ${getPriceColorClass(price.priceColor)}`}>
                       {formatPrice(price.price)}
