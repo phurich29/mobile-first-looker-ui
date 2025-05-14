@@ -4,18 +4,43 @@ import { useParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { format, parseISO } from "date-fns";
-import { th } from "date-fns/locale";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export default function DeviceDetails() {
   const { deviceCode } = useParams();
   const isMobile = useIsMobile();
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const { toast } = useToast();
 
-  // Format Thai time if available
-  const formattedTime = lastUpdated 
-    ? format(parseISO(lastUpdated), "dd MMMM yyyy HH:mm:ss น.", { locale: th })
-    : "ไม่มีข้อมูล";
+  // Fetch device details on component mount
+  useEffect(() => {
+    const fetchDeviceData = async () => {
+      if (!deviceCode) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('rice_quality_analysis')
+          .select('thai_datetime')
+          .eq('device_code', deviceCode)
+          .order('created_at', { ascending: false })
+          .limit(1);
+          
+        if (error) {
+          console.error("Error fetching device data:", error);
+          return;
+        }
+        
+        if (data && data.length > 0) {
+          setLastUpdated(data[0].thai_datetime);
+        }
+      } catch (error) {
+        console.error("Unexpected error:", error);
+      }
+    };
+    
+    fetchDeviceData();
+  }, [deviceCode]);
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
@@ -27,7 +52,7 @@ export default function DeviceDetails() {
               อุปกรณ์: {deviceCode}
             </h1>
             <p className="text-xs text-gray-500 mt-1">
-              อัพเดทล่าสุด: {formattedTime}
+              อัพเดทล่าสุด: {lastUpdated || "ไม่มีข้อมูล"}
             </p>
           </div>
         </div>

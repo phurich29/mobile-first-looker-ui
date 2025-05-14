@@ -39,10 +39,8 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
   const { user } = useAuth();
   const { toast } = useToast();
   
-  // Format the last updated time to show exact date and time in Thai format
-  const formattedTime = lastUpdated 
-    ? format(parseISO(lastUpdated), "dd MMMM yyyy HH:mm:ss น.", { locale: th })
-    : "ไม่มีข้อมูล";
+  // Use Thai datetime directly without additional formatting
+  const formattedTime = lastUpdated || "ไม่มีข้อมูล";
   
   // Load users with their device access status
   const loadUsers = async () => {
@@ -212,7 +210,7 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
       
       toast({
         title: "ค้นหาสำเร็จ",
-        description: `พบผู้ใช้ ${searchResults.length} คน`,
+        description: `พบผู้ใ��้ ${searchResults.length} คน`,
       });
     } catch (error) {
       console.error("Unexpected error:", error);
