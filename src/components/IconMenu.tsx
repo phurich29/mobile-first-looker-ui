@@ -3,10 +3,10 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { 
   HardDrive,
-  Thermometer,
   FileText,
   Bell,
-  Wheat 
+  Wheat,
+  ChartLine
 } from "lucide-react";
 
 type MenuItemProps = {
@@ -37,7 +37,7 @@ const MenuItem = ({ icon, label, to, iconColor }: MenuItemProps) => {
 export const IconMenu = () => {
   const menuItems = [
     { icon: <HardDrive />, label: "รายการอุปกรณ์", to: "/equipment", iconColor: "#22c55e" },
-    { icon: <Thermometer />, label: "ค่าวัดคุณภาพ", to: "/measurements", iconColor: "#8b5cf6" },
+    { icon: <ChartLine />, label: "ค่าวัดคุณภาพ", to: "/measurements", iconColor: "#8b5cf6" },
     { icon: <FileText />, label: "คู่มือการใช้งาน", to: "#", iconColor: "#f97316" },
     { icon: <Bell />, label: "ตั้งค่าการแจ้งเตือน", to: "/profile", iconColor: "#64748b" },
   ];
