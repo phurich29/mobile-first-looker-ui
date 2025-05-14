@@ -1,5 +1,5 @@
 
-import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, DollarSign, Database } from "lucide-react";
+import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, DollarSign, Database, FileText } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -134,6 +134,12 @@ export const Header = () => {
             {user && canAccessUserManagement && <Link to="/device-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/device-management") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
                 <Database className="h-5 w-5" />
                 <span className="text-sm">จัดการอุปกรณ์</span>
+              </Link>}
+              
+            {/* เพิ่มเมนูจัดการข่าวสารสำหรับ admin และ superadmin */}
+            {user && canAccessUserManagement && <Link to="/news-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/news-management") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
+                <FileText className="h-5 w-5" />
+                <span className="text-sm">จัดการข่าวสาร</span>
               </Link>}
           </nav>
           

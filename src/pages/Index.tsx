@@ -14,9 +14,9 @@ const Index = () => {
       <Header />
       
       <main className={`flex-1 ${isMobile ? 'pb-32' : 'pb-16 ml-64'}`}>
-        <div className={`mx-auto max-w-7xl px-4 ${!isMobile && 'py-8'}`}>
+        <div className={`mx-auto max-w-7xl px-4 ${!isMobile ? 'py-8' : 'pt-1'}`}>
           {/* News slider section */}
-          <div className={`${!isMobile && 'mb-8'} ${isMobile && 'mb-6'}`}>
+          <div className={`${!isMobile ? 'mb-8 mt-3' : 'mb-6 mt-3'}`}>
             <NewsSlider />
           </div>
           
