@@ -96,7 +96,7 @@ export const NewsSlider = () => {
             </CarouselItem>)}
         </CarouselContent>
         
-        <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2" />
+        
       </Carousel>
 
       {/* Dialog for displaying full news content */}
