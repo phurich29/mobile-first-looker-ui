@@ -1,3 +1,4 @@
+
 import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, DollarSign, Database } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
@@ -88,7 +89,7 @@ export const Header = () => {
             
             <Link to="/measurements" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/measurements") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
               <BarChart2 className="h-5 w-5" />
-              <span className="text-sm">รายการวัด</span>
+              <span className="text-sm">ค่าวัดคุณภาพ</span>
             </Link>
             
             {/* เพิ่มเมนูข้อมูลส่วนตัว */}
