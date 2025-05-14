@@ -9,13 +9,10 @@ import Measurements from "./pages/Measurements";
 import NotFound from "./pages/NotFound";
 import RicePrices from "./pages/RicePrices";
 import UserManagement from "./pages/UserManagement";
-import RicePriceManagement from "./pages/RicePriceManagement";
 import Waiting from "./pages/Waiting";
 import Profile from "./pages/Profile";
-import DeviceManagement from "./pages/DeviceManagement";
 import NewsManagement from "./pages/NewsManagement";
 import News from "./pages/News"; // เพิ่มหน้าข่าวสาร
-import NotificationManagement from "./pages/NotificationManagement"; // เพิ่มหน้าจัดการการแจ้งเตือน
 import { AuthProvider, useAuth } from "./components/AuthProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useEffect } from "react";
@@ -109,27 +106,6 @@ function App() {
               </ProtectedRoute>
             } />
             
-            {/* Device Management - สำหรับ admin และ superadmin */}
-            <Route path="/device-management" element={
-              <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
-                <DeviceManagement />
-              </ProtectedRoute>
-            } />
-            
-            {/* News Management - สำหรับ admin และ superadmin */}
-            <Route path="/news-management" element={
-              <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
-                <NewsManagement />
-              </ProtectedRoute>
-            } />
-            
-            {/* เพิ่มเส้นทางใหม่สำหรับหน้าจัดการการแจ้งเตือน */}
-            <Route path="/notification-management" element={
-              <ProtectedRoute>
-                <NotificationManagement />
-              </ProtectedRoute>
-            } />
-            
             {/* Admin routes */}
             <Route path="/admin" element={
               <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
@@ -144,10 +120,10 @@ function App() {
               </ProtectedRoute>
             } />
             
-            {/* Rice Price Management - เฉพาะ superadmin เท่านั้น */}
-            <Route path="/rice-price-management" element={
-              <ProtectedRoute requiredRoles={["superadmin"]}>
-                <RicePriceManagement />
+            {/* News Management - สำหรับ admin และ superadmin */}
+            <Route path="/news-management" element={
+              <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
+                <NewsManagement />
               </ProtectedRoute>
             } />
             

@@ -4,10 +4,8 @@ import { Link } from "react-router-dom";
 import { 
   HardDrive,
   FileText,
-  Bell,
   Wheat,
-  ChartLine,
-  BellDot
+  ChartLine
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -45,7 +43,6 @@ export const IconMenu = () => {
     { icon: <HardDrive />, label: "รายการอุปกรณ์", to: "/equipment", iconColor: "#22c55e" },
     { icon: <ChartLine />, label: "ค่าวัดคุณภาพ", to: "/measurements", iconColor: "#8b5cf6" },
     { icon: <FileText />, label: "คู่มือการใช้งาน", to: "#", iconColor: "#f97316" },
-    { icon: <BellDot />, label: "จัดการการแจ้งเตือน", to: "/notification-management", iconColor: "#ef4444" },
   ];
 
   return (
@@ -61,7 +58,7 @@ export const IconMenu = () => {
           <Wheat className="text-yellow-600 absolute -bottom-2 -right-3" size={12} strokeWidth={2.5} />
         </div>
       </div>
-      <div className={`rounded-lg p-3 ${isMobile ? 'grid grid-cols-4' : 'flex flex-wrap'} gap-2 md:bg-gray-50 md:p-6`}>
+      <div className={`rounded-lg p-3 ${isMobile ? 'grid grid-cols-3' : 'flex flex-wrap'} gap-2 md:bg-gray-50 md:p-6`}>
         {menuItems.map((item, index) => (
           <MenuItem
             key={index}
