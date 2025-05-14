@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { CalendarIcon, Loader2, Upload } from "lucide-react";
+import { CalendarIcon, Loader2, Upload, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 
@@ -41,6 +41,10 @@ export function NewsForm({
 }: NewsFormProps) {
   const isMobile = useIsMobile();
   const [previewImage, setPreviewImage] = useState<string | null>(currentNews.image_url || null);
+  const MAX_CHARS = 200;
+  
+  const currentLength = currentNews.content?.length || 0;
+  const isOverLimit = currentLength > MAX_CHARS;
 
   return (
     <div className={`flex flex-col ${!isMobile ? 'md:flex-row' : ''} gap-8`}>
@@ -58,15 +62,27 @@ export function NewsForm({
           </div>
           
           <div className="grid gap-2">
-            <Label htmlFor="content" className="text-base">เนื้อหาข่าวสาร</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="content" className="text-base">เนื้อหาข่าวสาร</Label>
+              <div className={`text-xs ${isOverLimit ? 'text-red-500 font-medium' : 'text-gray-500'}`}>
+                {currentLength}/{MAX_CHARS}
+              </div>
+            </div>
             <Textarea
               id="content"
               placeholder="ใส่เนื้อหาข่าวสาร"
               rows={8}
               value={currentNews.content || ""}
-              onChange={(e) => setCurrentNews({ ...currentNews, content: e.target.value })}
-              className="text-base resize-y min-h-[150px]"
+              onChange={(e) => {
+                const newContent = e.target.value;
+                setCurrentNews({ ...currentNews, content: newContent });
+              }}
+              className={`text-base resize-y min-h-[150px] ${isOverLimit ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+              maxLength={MAX_CHARS}
             />
+            {isOverLimit && (
+              <p className="text-xs text-red-500">เกินจำนวนตัวอักษรที่กำหนด ({MAX_CHARS})</p>
+            )}
           </div>
           
           <div className="grid gap-2">
@@ -135,7 +151,7 @@ export function NewsForm({
           </Button>
           <Button 
             onClick={onSave} 
-            disabled={isSubmitting}
+            disabled={isSubmitting || isOverLimit}
             className="bg-emerald-600 hover:bg-emerald-700 min-w-[120px]"
           >
             {isSubmitting ? (
