@@ -148,11 +148,11 @@ export const NewsSlider = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
                   </div> : null}
                 
-                <div className="p-4 relative z-10 backdrop-blur-[2px]">
+                <div className="p-4 relative z-10 bg-white shadow-lg rounded-b-xl text-gray-800 transform translate-y-0 hover:translate-y-[-2px] transition-all duration-300">
                   <h3 className="font-medium text-gray-900 mb-2 line-clamp-2 break-words">{item.title}</h3>
                   <p className="text-sm text-gray-600 line-clamp-3 mb-3 min-h-[4.5rem] break-words">{item.content}</p>
                   <div className="flex justify-between items-center">
-                    <div className="flex items-center text-xs text-gray-500 bg-white/50 px-2 py-1 rounded-full">
+                    <div className="flex items-center text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-full border border-gray-100">
                       <CalendarDays className="h-3 w-3 mr-1" />
                       <span>{format(new Date(item.publish_date), "d MMM yyyy", {
                         locale: th
