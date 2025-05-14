@@ -6,12 +6,16 @@ import { FooterNav } from "@/components/FooterNav";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { formatThaiDate } from "@/utils/dateFormatters";
 
 export default function DeviceDetails() {
   const { deviceCode } = useParams();
   const isMobile = useIsMobile();
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const { toast } = useToast();
+
+  // Format the Thai datetime to display in a standard format
+  const formattedTime = formatThaiDate(lastUpdated);
 
   // Fetch device details on component mount
   useEffect(() => {
@@ -52,7 +56,7 @@ export default function DeviceDetails() {
               อุปกรณ์: {deviceCode}
             </h1>
             <p className="text-xs text-gray-500 mt-1">
-              อัพเดทล่าสุด: {lastUpdated || "ไม่มีข้อมูล"}
+              อัพเดทล่าสุด: {formattedTime}
             </p>
           </div>
         </div>

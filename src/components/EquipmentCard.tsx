@@ -2,12 +2,11 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button"; 
 import { Users, UserPlus, X, CheckCircle, ChartBar } from "lucide-react";
-import { format, parseISO } from "date-fns";
-import { th } from "date-fns/locale";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+import { formatThaiDate } from "@/utils/dateFormatters";
 import {
   Dialog,
   DialogContent,
@@ -39,8 +38,8 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
   const { user } = useAuth();
   const { toast } = useToast();
   
-  // Use Thai datetime directly without additional formatting
-  const formattedTime = lastUpdated || "ไม่มีข้อมูล";
+  // Format Thai datetime using our utility function
+  const formattedTime = formatThaiDate(lastUpdated);
   
   // Load users with their device access status
   const loadUsers = async () => {
