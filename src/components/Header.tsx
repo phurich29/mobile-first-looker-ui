@@ -7,6 +7,7 @@ import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "./AuthProvider";
+
 export const Header = () => {
   const [open, setOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -54,11 +55,23 @@ export const Header = () => {
     return `${hours}:${minutes}:${seconds}`;
   };
 
+  // Format date for desktop header
+  const formatDate = () => {
+    const options: Intl.DateTimeFormatOptions = { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    };
+    return currentTime.toLocaleDateString('th-TH', options);
+  };
+
   // ตรวจสอบว่าผู้ใช้มีสิทธิ์ในการเข้าถึงหน้าจัดการผู้ใช้งานหรือไม่
   const canAccessUserManagement = userRoles.includes('admin') || userRoles.includes('superadmin');
 
   // ตรวจสอบว่าผู้ใช้มีสิทธิ์ในการเข้าถึงหน้าจัดการราคาข้าวหรือไม่
   const canAccessRicePriceManagement = userRoles.includes('superadmin');
+  
   return <>
       {/* Sidebar for Desktop */}
       <div className={cn("fixed left-0 top-0 bottom-0 z-40 w-64 bg-white text-gray-800 transition-transform duration-300 ease-in-out shadow-sm border-r border-gray-100", sidebarOpen ? "translate-x-0" : "-translate-x-full", "md:translate-x-0" // แสดงเสมอในหน้าจอขนาดใหญ่
@@ -74,13 +87,18 @@ export const Header = () => {
             </Button>
           </div>
           
+          {!isMobile && (
+            <div className="bg-emerald-600/10 rounded-lg p-4 mb-6">
+              <p className="text-xs text-emerald-800/70">{formatDate()}</p>
+              <p className="text-2xl font-semibold text-emerald-800 mt-1">{formatTime()}</p>
+            </div>
+          )}
+          
           <nav className="flex flex-col space-y-1 mt-4">
             <Link to="/" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
               <Home className="h-5 w-5" />
               <span className="text-sm">หน้าหลัก</span>
             </Link>
-            
-            
             
             <Link to="/equipment" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/equipment") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
               <Settings className="h-5 w-5" />
@@ -105,7 +123,12 @@ export const Header = () => {
               </Link>}
             
             {/* เพิ่มเมนูจัดการราคาข้าวสำหรับ superadmin เท่านั้น */}
-            {user && canAccessRicePriceManagement}
+            {user && canAccessRicePriceManagement && (
+              <Link to="/rice-price-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/rice-price-management") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
+                <DollarSign className="h-5 w-5" />
+                <span className="text-sm">จัดการราคาข้าว</span>
+              </Link>
+            )}
             
             {/* เพิ่มเมนูจัดการอุปกรณ์สำหรับ admin และ superadmin */}
             {user && canAccessUserManagement && <Link to="/device-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/device-management") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
@@ -125,7 +148,7 @@ export const Header = () => {
         </div>
       </div>
       
-      <header className="flex items-center justify-between px-4 py-5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md border-b border-emerald-700 md:ml-64">
+      <header className={`flex items-center justify-between px-4 py-5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md border-b border-emerald-700 md:ml-64 ${!isMobile && 'md:py-4'}`}>
         {/* Mobile Menu Trigger */}
         <Button variant="ghost" size="icon" className="text-white p-1 hover:bg-emerald-600 md:hidden" onClick={() => setSidebarOpen(true)}>
           <Menu className="h-5 w-5" />

@@ -74,7 +74,7 @@ export default function RicePrices() {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
       <Header />
-      <main className="flex-1 p-4 pb-32">
+      <main className="flex-1 p-4 pb-32 md:pb-16 md:mx-auto md:max-w-5xl md:px-8 w-full">
         <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold mb-4 text-emerald-800`}>
           ราคาข้าว สมาคมโรงสีข้าวไทย
         </h1>
@@ -85,7 +85,7 @@ export default function RicePrices() {
           </div>
         ) : (
           <div className="mt-4">
-            <Card className="border-emerald-100 mb-4 p-1">
+            <Card className="border-emerald-100 mb-4 p-1 overflow-x-auto">
               <div className="p-2">
                 <RicePriceTable />
               </div>

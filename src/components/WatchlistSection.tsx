@@ -2,10 +2,12 @@
 import React from "react";
 import { MeasurementItem } from "@/components/MeasurementItem";
 import { useAuth } from "@/components/AuthProvider";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const WatchlistSection = () => {
   // ตรวจสอบสถานะการเข้าสู่ระบบ
   const { user } = useAuth();
+  const isMobile = useIsMobile();
 
   // ข้อมูลตัวอย่างเกี่ยวกับชั้นคุณภาพข้าวและความขาว
   const currentDate = new Date();
@@ -48,14 +50,14 @@ export const WatchlistSection = () => {
 
   return (
     <>
-      <div className="px-[5%] mb-3 flex justify-between items-center" style={{ width: '100%', boxSizing: 'border-box' }}>
+      <div className="px-[5%] mb-3 flex justify-between items-center md:px-0" style={{ width: '100%', boxSizing: 'border-box' }}>
         <h2 className="font-semibold text-gray-700">{
           user ? "รายการที่ติดตาม" : "ตัวอย่างข้อมูล"
         }</h2>
         <a href="/measurements" className="text-sm text-green-600 font-medium">ดูทั้งหมด</a>
       </div>
 
-      <div className="bg-white">
+      <div className={`bg-white ${!isMobile && 'rounded-xl shadow-sm'}`}>
         {riceGrades.map((item) => (
           <MeasurementItem
             key={item.symbol}

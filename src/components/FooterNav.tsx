@@ -1,15 +1,22 @@
 
 import { Home, Hammer, Bell, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const FooterNav = () => {
   const location = useLocation();
   const currentPath = location.pathname;
+  const isMobile = useIsMobile();
   
   const isActive = (path: string) => {
     if (path === '/' && currentPath === '/') return true;
     return path !== '/' && currentPath.startsWith(path);
   };
+
+  // Don't show footer nav on desktop
+  if (!isMobile) {
+    return null;
+  }
 
   return (
     <nav className="fixed bottom-0 w-full bg-gradient-to-r from-emerald-500 to-emerald-600 border-t border-emerald-700 flex justify-around py-2 shadow-xl rounded-t-3xl backdrop-blur-sm z-50" style={{ maxHeight: '65px' }}>

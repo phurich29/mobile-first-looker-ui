@@ -57,7 +57,7 @@ export default function UserManagement() {
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
       <Header />
 
-      <main className="flex-1 p-4 pb-28">
+      <main className="flex-1 p-4 pb-28 md:pb-16 md:mx-auto md:max-w-6xl md:px-8 w-full">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <Shield className="h-6 w-6 text-emerald-600" />
@@ -78,7 +78,7 @@ export default function UserManagement() {
           <CardHeader className="py-3">
             <CardTitle className="text-xl">รายชื่อผู้ใช้ทั้งหมด</CardTitle>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="p-0 overflow-x-auto">
             {isLoadingUsers ? (
               <div className="p-6 text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>

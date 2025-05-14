@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -159,7 +160,7 @@ export default function Equipment() {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
       <Header />
-      <main className="flex-1 p-4 pb-32">
+      <main className="flex-1 p-4 pb-32 md:pb-16 md:mx-auto md:max-w-5xl md:px-8 w-full">
         <div className="flex justify-between items-center mb-4">
           <div>
             <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>อุปกรณ์</h1>
@@ -186,7 +187,7 @@ export default function Equipment() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 mt-4">
+          <div className="grid grid-cols-2 gap-3 mt-4 md:grid-cols-3 lg:grid-cols-4">
             {devices.map((device) => (
               <EquipmentCard
                 key={device.device_code}
