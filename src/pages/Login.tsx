@@ -190,7 +190,7 @@ export default function Login() {
     <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md mx-auto">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">ระบบจัดการข้าว</CardTitle>
+          <CardTitle className="text-2xl text-center">Riceflow Login</CardTitle>
           <CardDescription className="text-center">เข้าสู่ระบบหรือลงทะเบียนเพื่อใช้งาน</CardDescription>
         </CardHeader>
         
