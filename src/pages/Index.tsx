@@ -17,8 +17,8 @@ const Index = () => {
             <NewsSlider />
           </div>
           
-          {/* Menu icons - adjusted spacing */}
-          <div className="mb-6">
+          {/* Menu icons */}
+          <div className="my-6">
             <IconMenu />
           </div>
           
