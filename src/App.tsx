@@ -4,6 +4,7 @@ import Index from "./pages/Index";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
 import Equipment from "./pages/Equipment";
+import DeviceDetails from "./pages/DeviceDetails";
 import Measurements from "./pages/Measurements";
 import NotFound from "./pages/NotFound";
 import RicePrices from "./pages/RicePrices";
@@ -76,6 +77,13 @@ function App() {
             <Route path="/equipment/:deviceCode?" element={
               <ProtectedRoute>
                 <Equipment />
+              </ProtectedRoute>
+            } />
+            
+            {/* เพิ่มเส้นทางใหม่สำหรับหน้าแสดงรายละเอียดอุปกรณ์ */}
+            <Route path="/device/:deviceCode" element={
+              <ProtectedRoute>
+                <DeviceDetails />
               </ProtectedRoute>
             } />
             

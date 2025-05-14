@@ -8,6 +8,7 @@ import { th } from "date-fns/locale";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -332,10 +333,12 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
               variant="outline" 
               size="sm"
               className="w-full text-xs"
-              onClick={() => window.location.href = `/admin?device=${deviceCode}`}
+              asChild
             >
-              <ChartBar className="h-3 w-3 mr-1" />
-              ดูข้อมูล
+              <Link to={`/device/${deviceCode}`}>
+                <ChartBar className="h-3 w-3 mr-1" />
+                ดูข้อมูล
+              </Link>
             </Button>
           </div>
         </CardContent>
