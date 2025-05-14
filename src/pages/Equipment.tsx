@@ -24,49 +24,106 @@ export default function Equipment() {
   const { user, userRoles } = useAuth();
   
   const isAdmin = userRoles.includes('admin') || userRoles.includes('superadmin');
+  const isSuperAdmin = userRoles.includes('superadmin');
 
-  // Function to fetch device data - now uses direct SQL query instead of RPC
+  // Function to fetch device data based on user role
   const fetchDeviceData = useCallback(async () => {
     try {
       if (!user) return [];
 
       console.log('Fetching devices using direct query...');
+      console.log('User roles:', userRoles);
       
-      // Simplified query to get unique device codes with their latest data
-      const { data, error } = await supabase
-        .from('rice_quality_analysis')
-        .select('device_code, created_at')
-        .not('device_code', 'is', null)
-        .order('created_at', { ascending: false });
+      // สำหรับ superadmin สามารถเห็นอุปกรณ์ทั้งหมด
+      if (isSuperAdmin) {
+        console.log('Fetching all devices for superadmin...');
+        
+        // Simplified query to get unique device codes with their latest data
+        const { data, error } = await supabase
+          .from('rice_quality_analysis')
+          .select('device_code, created_at')
+          .not('device_code', 'is', null)
+          .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error("Error fetching devices:", error);
-        throw error;
-      }
-
-      // Process device data to get latest entry for each device
-      const deviceMap = new Map<string, DeviceInfo>();
-      data?.forEach(item => {
-        if (item.device_code && !deviceMap.has(item.device_code)) {
-          deviceMap.set(item.device_code, {
-            device_code: item.device_code,
-            updated_at: item.created_at
-          });
+        if (error) {
+          console.error("Error fetching devices for superadmin:", error);
+          throw error;
         }
-      });
 
-      console.log("Fetched devices:", deviceMap.size);
-      return Array.from(deviceMap.values());
+        // Process device data to get latest entry for each device
+        const deviceMap = new Map<string, DeviceInfo>();
+        data?.forEach(item => {
+          if (item.device_code && !deviceMap.has(item.device_code)) {
+            deviceMap.set(item.device_code, {
+              device_code: item.device_code,
+              updated_at: item.created_at
+            });
+          }
+        });
+
+        console.log("Fetched all devices for superadmin:", deviceMap.size);
+        return Array.from(deviceMap.values());
+      } 
+      // สำหรับ admin และ user ทั่วไป จะเห็นเฉพาะอุปกรณ์ที่ได้รับอนุญาต
+      else {
+        console.log('Fetching authorized devices for user...');
+        
+        // ดึงรายการอุปกรณ์ที่ user มีสิทธิ์เข้าถึง
+        const { data: userDevices, error: userDevicesError } = await supabase
+          .from('user_device_access')
+          .select('device_code')
+          .eq('user_id', user.id);
+
+        if (userDevicesError) {
+          console.error("Error fetching user device access:", userDevicesError);
+          throw userDevicesError;
+        }
+
+        if (!userDevices || userDevices.length === 0) {
+          console.log("User has no device access permissions.");
+          return [];
+        }
+
+        // สร้างรายการ device_code ที่ user มีสิทธิ์เข้าถึง
+        const authorizedDeviceCodes = userDevices.map(d => d.device_code);
+        console.log("Authorized device codes:", authorizedDeviceCodes);
+        
+        // ดึงข้อมูลล่าสุดของอุปกรณ์ที่ user มีสิทธิ์เข้าถึง
+        const { data: deviceData, error: deviceError } = await supabase
+          .from('rice_quality_analysis')
+          .select('device_code, created_at')
+          .in('device_code', authorizedDeviceCodes)
+          .order('created_at', { ascending: false });
+
+        if (deviceError) {
+          console.error("Error fetching authorized devices:", deviceError);
+          throw deviceError;
+        }
+
+        // Process device data to get latest entry for each authorized device
+        const deviceMap = new Map<string, DeviceInfo>();
+        deviceData?.forEach(item => {
+          if (item.device_code && !deviceMap.has(item.device_code)) {
+            deviceMap.set(item.device_code, {
+              device_code: item.device_code,
+              updated_at: item.created_at
+            });
+          }
+        });
+
+        console.log("Fetched authorized devices for user:", deviceMap.size);
+        return Array.from(deviceMap.values());
+      }
     } catch (error) {
       console.error("Error in fetchDeviceData:", error);
       throw error;
     }
-  }, [user]);
+  }, [user, userRoles, isSuperAdmin]);
 
-  // Count total unique devices
+  // Count total unique devices (for superadmin only)
   const getUniqueDevicesCount = useCallback(async () => {
     try {
-      if (!user) return 0;
+      if (!user || !isSuperAdmin) return 0;
       
       console.log('Counting unique devices...');
       
@@ -95,7 +152,7 @@ export default function Equipment() {
       console.error("Unexpected error counting devices:", error);
       return 0;
     }
-  }, [user]);
+  }, [user, isSuperAdmin]);
 
   // Use React Query for improved data fetching
   const { 
@@ -104,7 +161,7 @@ export default function Equipment() {
     error,
     refetch 
   } = useQuery({
-    queryKey: ['devices', user?.id],
+    queryKey: ['devices', user?.id, userRoles],
     queryFn: fetchDeviceData,
     enabled: !!user,
     staleTime: 1000 * 60 * 5 // 5 minutes
@@ -129,19 +186,21 @@ export default function Equipment() {
     }
   }, [deviceData]);
 
-  // Fetch total count on initial load
+  // Fetch total count on initial load (for superadmin only)
   useEffect(() => {
-    if (user) {
+    if (user && isSuperAdmin) {
       getUniqueDevicesCount().then(setTotalUniqueDevices);
     }
-  }, [user, getUniqueDevicesCount]);
+  }, [user, isSuperAdmin, getUniqueDevicesCount]);
 
   // Handle refresh
   const handleRefresh = async () => {
     try {
       await refetch();
-      const count = await getUniqueDevicesCount();
-      setTotalUniqueDevices(count);
+      if (isSuperAdmin) {
+        const count = await getUniqueDevicesCount();
+        setTotalUniqueDevices(count);
+      }
       
       toast({
         title: "อัพเดทข้อมูลสำเร็จ",
@@ -164,8 +223,11 @@ export default function Equipment() {
         <div className="flex justify-between items-center mb-4">
           <div>
             <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>อุปกรณ์</h1>
-            {totalUniqueDevices > 0 && (
+            {isSuperAdmin && totalUniqueDevices > 0 && (
               <p className="text-xs text-gray-500 mt-1">จำนวนอุปกรณ์ทั้งหมดในระบบ: {totalUniqueDevices} เครื่อง</p>
+            )}
+            {!isSuperAdmin && (
+              <p className="text-xs text-gray-500 mt-1">แสดงเฉพาะอุปกรณ์ที่คุณได้รับสิทธิ์การเข้าถึง</p>
             )}
           </div>
           <Button 
@@ -182,9 +244,15 @@ export default function Equipment() {
         
         {devices.length === 0 ? (
           <div className="bg-white p-6 rounded-xl text-center shadow-sm">
-            <p className="text-gray-500 text-sm">
-              {isLoading ? "กำลังดึงข้อมูลอุปกรณ์..." : "ไม่พบอุปกรณ์ กรุณากดปุ่มรีเฟรชเพื่อค้นหาอุปกรณ์"}
-            </p>
+            {isLoading ? (
+              <p className="text-gray-500 text-sm">กำลังดึงข้อมูลอุปกรณ์...</p>
+            ) : isSuperAdmin ? (
+              <p className="text-gray-500 text-sm">ไม่พบอุปกรณ์ กรุณากดปุ่มรีเฟรชเพื่อค้นหาอุปกรณ์</p>
+            ) : (
+              <p className="text-gray-500 text-sm">
+                คุณยังไม่ได้รับสิทธิ์ให้เข้าถึงอุปกรณ์ใดๆ กรุณาติดต่อ Super Admin เพื่อขอสิทธิ์การเข้าถึง
+              </p>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 mt-4 md:grid-cols-3 lg:grid-cols-4">
