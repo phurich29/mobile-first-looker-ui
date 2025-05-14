@@ -46,9 +46,13 @@ export const IconMenu = () => {
     <div className="px-4 mb-6">
       <div className="px-[5%] mb-3 flex justify-between items-center">
         <h2 className="font-semibold text-gray-700">บริการทั้งหมด</h2>
-        <div className="flex items-center">
+        <div className="flex items-center relative">
+          {/* Wheat icon group with varied sizes and positions */}
+          <Wheat className="text-amber-400 absolute -top-3 -left-8" size={16} strokeWidth={2.5} />
           <Wheat className="text-amber-500 mr-1" size={20} strokeWidth={2.5} />
           <Wheat className="text-amber-600" size={18} strokeWidth={2.5} />
+          <Wheat className="text-amber-700 ml-1" size={14} strokeWidth={2.5} />
+          <Wheat className="text-yellow-600 absolute -bottom-2 -right-3" size={12} strokeWidth={2.5} />
         </div>
       </div>
       <div className="rounded-lg p-3 grid grid-cols-4 gap-2">
