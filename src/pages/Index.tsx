@@ -11,14 +11,14 @@ const Index = () => {
       <Header />
       
       <main className="flex-1 pb-32">
-        <div className="mt-4">
+        <div className="mt-6">
           {/* News slider section */}
-          <div className="mt-4 mx-4">
+          <div className="mx-4 mb-6">
             <NewsSlider />
           </div>
           
           {/* Menu icons */}
-          <div className="my-4">
+          <div className="my-6">
             <IconMenu />
           </div>
           
