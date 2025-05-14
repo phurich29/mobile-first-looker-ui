@@ -7,6 +7,12 @@ import { th } from "date-fns/locale";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface NewsItemType {
   id: string;
@@ -19,6 +25,8 @@ interface NewsItemType {
 export const NewsSlider = () => {
   const [news, setNews] = useState<NewsItemType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedNews, setSelectedNews] = useState<NewsItemType | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -45,6 +53,11 @@ export const NewsSlider = () => {
     
     fetchNews();
   }, []);
+
+  const handleReadMore = (item: NewsItemType) => {
+    setSelectedNews(item);
+    setDialogOpen(true);
+  };
 
   if (loading) {
     return (
@@ -98,18 +111,18 @@ export const NewsSlider = () => {
                 ) : null}
                 <div className="p-4">
                   <h3 className="font-medium text-gray-900 mb-2 line-clamp-2">{item.title}</h3>
-                  <p className="text-sm text-gray-600 break-words whitespace-normal mb-3 min-h-[4.5rem]">{item.content}</p>
+                  <p className="text-sm text-gray-600 line-clamp-3 mb-3 min-h-[4.5rem]">{item.content}</p>
                   <div className="flex justify-between items-center">
                     <div className="flex items-center text-xs text-gray-500">
                       <CalendarDays className="h-3 w-3 mr-1" />
                       <span>{format(new Date(item.publish_date), "d MMM yyyy", { locale: th })}</span>
                     </div>
-                    <Link 
-                      to={`#news-${item.id}`} 
+                    <button 
+                      onClick={() => handleReadMore(item)}
                       className="text-xs text-emerald-600 hover:text-emerald-700"
                     >
                       อ่านเพิ่มเติม
-                    </Link>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -119,6 +132,51 @@ export const NewsSlider = () => {
         <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2" />
         <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2" />
       </Carousel>
+
+      {/* Dialog for displaying full news content */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          {selectedNews && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-xl">{selectedNews.title}</DialogTitle>
+              </DialogHeader>
+              <div className="mt-2">
+                <div className="flex items-center text-sm text-gray-500 mb-4">
+                  <CalendarDays className="h-4 w-4 mr-2" />
+                  <span>{format(new Date(selectedNews.publish_date), "d MMMM yyyy", { locale: th })}</span>
+                </div>
+                
+                {selectedNews.image_url && (
+                  <div className="mb-4">
+                    <img 
+                      src={selectedNews.image_url} 
+                      alt={selectedNews.title} 
+                      className="w-full h-auto rounded-lg"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  </div>
+                )}
+                
+                <div className="prose max-w-none mt-2">
+                  <p className="whitespace-pre-wrap text-gray-700">{selectedNews.content}</p>
+                </div>
+                
+                <div className="mt-6 text-right">
+                  <Link 
+                    to={`/news/${selectedNews.id}`} 
+                    className="text-sm text-emerald-600 hover:text-emerald-700"
+                  >
+                    ดูรายละเอียดเพิ่มเติม
+                  </Link>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
