@@ -54,6 +54,9 @@ interface MeasurementData {
   [key: string]: any; // For dynamic measurement values
 }
 
+// Define a type for error responses
+type GenericStringError = { error: true } & String;
+
 type MeasurementHistoryProps = {
   symbol: string;
   name: string;
@@ -104,9 +107,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
       
       if (error) {
         console.error("Error fetching measurement history:", error);
-        toast({
-          description: `ไม่สามารถดึงข้อมูลได้: ${error.message}`,
-        });
+        toast("ไม่สามารถดึงข้อมูลได้: " + error.message);
         return [];
       }
       

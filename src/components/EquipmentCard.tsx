@@ -64,9 +64,7 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
         
       if (usersError) {
         console.error("Error fetching users:", usersError);
-        toast({
-          description: "ไม่สามารถดึงข้อมูลผู้ใช้ได้",
-        });
+        toast("ไม่สามารถดึงข้อมูลผู้ใช้ได้");
         return;
       }
       
@@ -91,9 +89,7 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
         
       if (accessError) {
         console.error("Error fetching device access:", accessError);
-        toast({
-          description: "ไม่สามารถดึงข้อมูลการเข้าถึงอุปกรณ์ได้",
-        });
+        toast("ไม่สามารถดึงข้อมูลการเข้าถึงอุปกรณ์ได้");
         return;
       }
       
@@ -110,9 +106,7 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
       setUsers(usersWithAccess);
     } catch (error) {
       console.error("Unexpected error:", error);
-      toast({
-        description: "มีข้อผิดพลาดไม่คาดคิดเกิดขึ้น",
-      });
+      toast("มีข้อผิดพลาดไม่คาดคิดเกิดขึ้น");
     } finally {
       setIsLoading(false);
     }
@@ -133,16 +127,12 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
         
       if (userError) {
         console.error("Error searching for user:", userError);
-        toast({
-          description: "ไม่สามารถค้นหาผู้ใช้ได้",
-        });
+        toast("ไม่สามารถค้นหาผู้ใช้ได้");
         return;
       }
       
       if (!userData || userData.length === 0) {
-        toast({
-          description: "ไม่พบผู้ใช้ที่มีอีเมลตรงกับที่ค้นหา",
-        });
+        toast("ไม่พบผู้ใช้ที่มีอีเมลตรงกับที่ค้นหา");
         return;
       }
       
@@ -165,9 +155,7 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
       const filteredUsers = userData.filter(u => !waitingListUserIds.has(u.id));
       
       if (filteredUsers.length === 0) {
-        toast({
-          description: "ผู้ใช้ที่ค้นพบยังอยู่ในรายชื่อรอสิทธิ์การใช้งาน",
-        });
+        toast("ผู้ใช้ที่ค้นพบยังอยู่ในรายชื่อรอสิทธิ์การใช้งาน");
         return;
       }
       
@@ -204,14 +192,10 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
       setUsers(newUsers);
       setSearchEmail("");
       
-      toast({
-        description: `พบผู้ใช้ ${searchResults.length} คน`,
-      });
+      toast(`พบผู้ใช้ ${searchResults.length} คน`);
     } catch (error) {
       console.error("Unexpected error:", error);
-      toast({
-        description: "มีข้อผิดพลาดไม่คาดคิดเกิดขึ้น",
-      });
+      toast("มีข้อผิดพลาดไม่คาดคิดเกิดขึ้น");
     } finally {
       setIsSearching(false);
     }
@@ -232,9 +216,7 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
           
         if (error) {
           console.error("Error removing device access:", error);
-          toast({
-            description: "ไม่สามารถลบสิทธิ์การเข้าถึงอุปกรณ์ได้",
-          });
+          toast("ไม่สามารถลบสิทธิ์การเข้าถึงอุปกรณ์ได้");
           return;
         }
       } else {
@@ -249,9 +231,7 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
           
         if (error) {
           console.error("Error granting device access:", error);
-          toast({
-            description: "ไม่สามารถให้สิทธิ์การเข้าถึงอุปกรณ์ได้",
-          });
+          toast("ไม่สามารถให้สิทธิ์การเข้าถึงอุปกรณ์ได้");
           return;
         }
       }
@@ -263,16 +243,12 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
         )
       );
       
-      toast({
-        description: currentAccess 
-          ? "ลบสิทธิ์การเข้าถึงอุปกรณ์เรียบร้อยแล้ว" 
-          : "เพิ่มสิทธิ์การเข้าถึงอุปกรณ์เรียบร้อยแล้ว",
-      });
+      toast(currentAccess 
+        ? "ลบสิทธิ์การเข้าถึงอุปกรณ์เรียบร้อยแล้ว" 
+        : "เพิ่มสิทธิ์การเข้าถึงอุปกรณ์เรียบร้อยแล้ว");
     } catch (error) {
       console.error("Unexpected error:", error);
-      toast({
-        description: "มีข้อผิดพลาดไม่คาดคิดเกิดขึ้น",
-      });
+      toast("มีข้อผิดพลาดไม่คาดคิดเกิดขึ้น");
     }
   };
 

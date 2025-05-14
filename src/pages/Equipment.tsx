@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -76,11 +75,7 @@ export default function Equipment() {
 
       if (error) {
         console.error("Error fetching devices:", error);
-        toast({
-          title: "เกิดข้อผิดพลาด",
-          description: "ไม่สามารถดึงข้อมูลอุปกรณ์ได้",
-          variant: "destructive",
-        });
+        toast("เกิดข้อผิดพลาด: ไม่สามารถดึงข้อมูลอุปกรณ์ได้");
         setIsLoading(false);
         return;
       }
@@ -103,10 +98,7 @@ export default function Equipment() {
         
         setDevices(uniqueDevices);
         
-        toast({
-          title: "สำเร็จ",
-          description: `พบ ${uniqueDevices.length} อุปกรณ์ที่คุณมีสิทธิ์เข้าถึงจาก ${totalCount} เครื่องในระบบ`,
-        });
+        toast(`สำเร็จ: พบ ${uniqueDevices.length} อุปกรณ์ที่คุณมีสิทธิ์เข้าถึงจาก ${totalCount} เครื่องในระบบ`);
         
         if (isAdmin && uniqueDevices.length !== totalCount) {
           console.warn(`จำนวนอุปกรณ์ที่ดึงมา (${uniqueDevices.length}) ไม่ตรงกับจำนวนทั้งหมด (${totalCount})`); 
@@ -114,11 +106,7 @@ export default function Equipment() {
       }
     } catch (error) {
       console.error("Unexpected error:", error);
-      toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "มีข้อผิดพลาดไม่คาดคิดเกิดขึ้น",
-        variant: "destructive",
-      });
+      toast("เกิดข้อผิดพลาด: มีข้อผิดพลาดไม่คาดคิดเกิดขึ้น");
     } finally {
       setIsLoading(false);
     }

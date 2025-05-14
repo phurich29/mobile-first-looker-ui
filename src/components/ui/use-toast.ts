@@ -1,5 +1,5 @@
 
-import { toast as sonnerToast, Toast } from "sonner";
+import { toast as sonnerToast } from "sonner";
 
 // Export the toast function with proper type
 export const toast = sonnerToast;
