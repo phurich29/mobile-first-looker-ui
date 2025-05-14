@@ -1,14 +1,18 @@
 
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ArrowLeft, ChartLine, History } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { ChartContainer } from "@/components/ui/chart";
-import { ResponsiveTable } from "@/components/ui/responsive-table";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/AuthProvider";
+import { useToast } from "@/hooks/use-toast";
+import { MeasurementItem } from "@/components/MeasurementItem";
+import { Measurement, ALL_MEASUREMENTS } from "@/components/equipment/types";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Table, 
   TableHeader, 
@@ -17,32 +21,21 @@ import {
   TableHead, 
   TableCell 
 } from "@/components/ui/table";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/components/AuthProvider";
-import { useToast } from "@/components/ui/use-toast";
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  Legend
-} from 'recharts';
+import { ResponsiveTable } from "@/components/ui/responsive-table";
 
-// Timeframe options
-type TimeFrame = "1hour" | "24hours" | "7days" | "30days";
+// Tab types
+type TabValue = "latest" | "history";
 
 export default function DeviceDetails() {
   const { deviceCode } = useParams<{ deviceCode: string }>();
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
-  const [timeFrame, setTimeFrame] = useState<TimeFrame>("1hour");
-  const [measurementData, setMeasurementData] = useState<any[]>([]);
-  const [historyData, setHistoryData] = useState<any[]>([]);
+  const [tabView, setTabView] = useState<TabValue>("latest");
+  const [latestMeasurement, setLatestMeasurement] = useState<Measurement | null>(null);
+  const [historyData, setHistoryData] = useState<Measurement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deviceInfo, setDeviceInfo] = useState<any>(null);
 
@@ -71,7 +64,7 @@ export default function DeviceDetails() {
     fetchDeviceInfo();
   }, [deviceCode, user]);
 
-  // Fetch measurement data based on selected timeframe
+  // Fetch measurement data
   useEffect(() => {
     if (!deviceCode || !user) return;
     
@@ -79,69 +72,39 @@ export default function DeviceDetails() {
     
     const fetchMeasurementData = async () => {
       try {
-        // Calculate the date range based on the selected timeframe
-        const now = new Date();
-        let startDate = new Date();
-        
-        switch(timeFrame) {
-          case "1hour":
-            startDate.setHours(now.getHours() - 1);
-            break;
-          case "24hours":
-            startDate.setDate(now.getDate() - 1);
-            break;
-          case "7days":
-            startDate.setDate(now.getDate() - 7);
-            break;
-          case "30days":
-            startDate.setDate(now.getDate() - 30);
-            break;
-        }
-        
-        // Format dates for the query
-        const startDateStr = startDate.toISOString();
-        const endDateStr = now.toISOString();
-        
-        // Query data for the chart
-        let { data: chartData, error: chartError } = await supabase
+        // Query for latest measurement
+        let { data: latestData, error: latestError } = await supabase
           .from('rice_quality_analysis')
           .select('*')
           .eq('device_code', deviceCode)
-          .gte('created_at', startDateStr)
-          .lte('created_at', endDateStr)
-          .order('created_at', { ascending: false });
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
           
-        if (chartError) throw chartError;
-        
-        if (chartData) {
-          // Process data for chart display
-          const processedData = chartData.map(item => ({
-            ...item,
-            time: new Date(item.created_at).toLocaleTimeString(),
-            date: new Date(item.created_at).toLocaleDateString(),
-          }));
-          
-          setMeasurementData(processedData);
+        if (latestError) {
+          console.error("Error fetching latest measurement:", latestError);
+        } else if (latestData) {
+          setLatestMeasurement(latestData);
         }
         
-        // Query for history table (limit to most recent entries)
+        // Query for history
         let { data: historyData, error: historyError } = await supabase
           .from('rice_quality_analysis')
           .select('*')
           .eq('device_code', deviceCode)
           .order('created_at', { ascending: false })
-          .limit(10);
+          .limit(20);
           
-        if (historyError) throw historyError;
-        
-        if (historyData) {
+        if (historyError) {
+          console.error("Error fetching measurement history:", historyError);
+          toast({
+            title: "เกิดข้อผิดพลาด",
+            description: "ไม่สามารถโหลดข้อมูลการวัดได้",
+            variant: "destructive",
+          });
+        } else if (historyData) {
           setHistoryData(historyData);
         }
-        
-        toast({
-          title: "โหลดข้อมูลสำเร็จ",
-          description: `แสดงข้อมูลของอุปกรณ์ ${deviceCode}`,
-        });
         
       } catch (error) {
         console.error("Error fetching measurement data:", error);
@@ -156,11 +119,24 @@ export default function DeviceDetails() {
     };
     
     fetchMeasurementData();
-  }, [deviceCode, timeFrame, user, toast]);
+  }, [deviceCode, user, toast]);
 
-  // Get the color for the chart line from device settings or use default
-  const getChartColor = () => {
-    return deviceInfo?.graph_color || "#9b87f5";
+  // Handle click on measurement item
+  const handleMeasurementClick = (measurementKey: string) => {
+    navigate(`/device/${deviceCode}/measurement/${measurementKey}`);
+  };
+
+  // Format date for display
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return "-";
+    
+    return new Date(dateString).toLocaleString('th-TH', {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   return (
@@ -178,159 +154,127 @@ export default function DeviceDetails() {
           </Link>
           
           <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>
-            อุปกรณ์: {deviceCode}
+            อุปกรณ์: {deviceInfo?.display_name || deviceCode}
           </h1>
         </div>
         
-        {/* Section 2: Timeframe selection and device info card */}
-        <div className="grid grid-cols-1 gap-4 mb-4">
-          <Card className="overflow-hidden">
-            <CardHeader className="p-4 bg-white border-b">
-              {/* Timeframe selection tabs */}
-              <Tabs
-                defaultValue="1hour"
-                value={timeFrame}
-                onValueChange={(value) => setTimeFrame(value as TimeFrame)}
-                className="w-full"
-              >
-                <TabsList className="grid grid-cols-4 w-full">
-                  <TabsTrigger value="1hour">1 ชม.</TabsTrigger>
-                  <TabsTrigger value="24hours">24 ชม.</TabsTrigger>
-                  <TabsTrigger value="7days">7 วัน</TabsTrigger>
-                  <TabsTrigger value="30days">30 วัน</TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </CardHeader>
-            
-            <CardContent className="p-4">
-              <div className="flex items-center gap-4">
-                {/* Device icon/logo */}
-                <div className="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-full">
-                  <ChartLine size={24} className="text-orange-500" />
-                </div>
-                
-                {/* Device information */}
-                <div>
-                  <h3 className="font-semibold">{deviceInfo?.display_name || deviceCode}</h3>
-                  <p className="text-xs text-gray-500">
-                    {deviceInfo?.location || "ไม่ระบุตำแหน่ง"}
-                  </p>
-                </div>
-                
-                {/* Latest value */}
-                <div className="ml-auto text-right">
-                  <p className="text-xl font-bold">
-                    {measurementData[0]?.head_rice || "-"}
-                  </p>
-                  <p className="text-xs text-green-500">
-                    {measurementData[0] && "+0.5%"}
-                  </p>
-                </div>
+        {/* Device info card */}
+        <Card className="mb-4">
+          <CardContent className="p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+              <div className="flex-1">
+                <h3 className="font-semibold">{deviceInfo?.display_name || deviceCode}</h3>
+                <p className="text-xs text-gray-500">
+                  {deviceInfo?.location || "ไม่ระบุตำแหน่ง"}
+                </p>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-        
-        {/* Section 3: Chart */}
-        <div className="grid grid-cols-1 gap-4 mb-4">
-          <Card>
-            <CardContent className="p-4 pt-6">
-              {isLoading ? (
-                <div className="flex justify-center items-center h-64">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
-                </div>
-              ) : measurementData.length === 0 ? (
-                <div className="flex justify-center items-center h-64">
-                  <p className="text-gray-500">ไม่มีข้อมูลในช่วงเวลาที่เลือก</p>
-                </div>
-              ) : (
-                <div className="w-full h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart
-                      data={measurementData}
-                      margin={{ top: 5, right: 10, left: 10, bottom: 20 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis 
-                        dataKey={timeFrame === "30days" || timeFrame === "7days" ? "date" : "time"} 
-                        tick={{ fontSize: 10 }}
-                        tickFormatter={(value) => {
-                          // Format based on timeframe
-                          if (timeFrame === "1hour" || timeFrame === "24hours") {
-                            return value.split(":").slice(0, 2).join(":");
-                          }
-                          return value;
-                        }}
-                      />
-                      <YAxis tick={{ fontSize: 10 }} />
-                      <Tooltip />
-                      <Legend />
-                      <Line 
-                        type="monotone" 
-                        dataKey="head_rice" 
-                        name="ต้นข้าว" 
-                        stroke={getChartColor()} 
-                        activeDot={{ r: 8 }} 
-                        strokeWidth={2}
-                        dot={{ strokeWidth: 2 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-        
-        {/* Section 4: History table */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between p-4 border-b">
-            <div className="flex items-center gap-2">
-              <History size={18} />
-              <h2 className="font-semibold">ประวัติการวัด</h2>
+              
+              <div className="text-right">
+                <p className="text-xs text-gray-500">อัพเดทล่าสุด</p>
+                <p className="text-sm font-medium">
+                  {latestMeasurement ? formatDate(latestMeasurement.created_at) : "ไม่มีข้อมูล"}
+                </p>
+              </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Tabs for Latest and History */}
+        <Card className="mb-4">
+          <CardHeader className="p-0 border-b">
+            <Tabs
+              defaultValue="latest"
+              value={tabView}
+              onValueChange={(value) => setTabView(value as TabValue)}
+              className="w-full"
+            >
+              <TabsList className="grid grid-cols-2 w-full rounded-none">
+                <TabsTrigger value="latest">ค่าล่าสุด</TabsTrigger>
+                <TabsTrigger value="history">ประวัติการวัด</TabsTrigger>
+              </TabsList>
+            </Tabs>
           </CardHeader>
           
           <CardContent className="p-0">
-            <ResponsiveTable>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>เวลา</TableHead>
-                  <TableHead>ต้นข้าว (%)</TableHead>
-                  <TableHead>ปลายข้าว (%)</TableHead>
-                  <TableHead>เมล็ดเสีย (%)</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {historyData.length > 0 ? (
-                  historyData.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>
-                        {new Date(item.created_at).toLocaleString('th-TH', {
-                          day: 'numeric',
-                          month: 'numeric',
-                          year: '2-digit',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </TableCell>
-                      <TableCell>{item.head_rice || '-'}</TableCell>
-                      <TableCell>{item.total_brokens || '-'}</TableCell>
-                      <TableCell>{item.imperfection_rate || '-'}</TableCell>
-                    </TableRow>
-                  ))
-                ) : (
+            <TabsContent value="latest" className="m-0">
+              {isLoading ? (
+                <div className="flex justify-center items-center h-32">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+                </div>
+              ) : !latestMeasurement ? (
+                <div className="flex justify-center items-center h-32">
+                  <p className="text-gray-500">ไม่มีข้อมูลการวัดล่าสุด</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 divide-y">
+                  {ALL_MEASUREMENTS.map((measurementInfo) => {
+                    const value = latestMeasurement[measurementInfo.key as keyof Measurement];
+                    
+                    // ข้ามค่าที่ไม่มีข้อมูล
+                    if (value === undefined || value === null) return null;
+                    
+                    return (
+                      <div key={measurementInfo.key} onClick={() => handleMeasurementClick(measurementInfo.key)}>
+                        <MeasurementItem
+                          symbol={measurementInfo.key}
+                          name={measurementInfo.name}
+                          price={value.toString()}
+                          percentageChange={0} // ไม่มีข้อมูลการเปลี่ยนแปลง
+                          iconColor={measurementInfo.iconColor}
+                          updatedAt={latestMeasurement.created_at ? new Date(latestMeasurement.created_at) : undefined}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="history" className="m-0">
+              <ResponsiveTable>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-4">
-                      {isLoading ? 
-                        "กำลังโหลดข้อมูล..." : 
-                        "ไม่พบประวัติการวัด"
-                      }
-                    </TableCell>
+                    <TableHead>เวลา</TableHead>
+                    <TableHead>ต้นข้าว (%)</TableHead>
+                    <TableHead>ปลายข้าว (%)</TableHead>
+                    <TableHead>เมล็ดเสีย (%)</TableHead>
+                    <TableHead className="text-right">ดูเพิ่มเติม</TableHead>
                   </TableRow>
-                )}
-              </TableBody>
-            </ResponsiveTable>
+                </TableHeader>
+                <TableBody>
+                  {historyData.length > 0 ? (
+                    historyData.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell>
+                          {formatDate(item.created_at)}
+                        </TableCell>
+                        <TableCell>{item.head_rice ?? '-'}</TableCell>
+                        <TableCell>{item.total_brokens ?? '-'}</TableCell>
+                        <TableCell>{item.imperfection_rate ?? '-'}</TableCell>
+                        <TableCell className="text-right">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => navigate(`/device/${deviceCode}/detail/${item.id}`)}
+                          >
+                            ดูข้อมูล
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-4">
+                        {isLoading ? 
+                          "กำลังโหลดข้อมูล..." : 
+                          "ไม่พบประวัติการวัด"
+                        }
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </ResponsiveTable>
+            </TabsContent>
           </CardContent>
         </Card>
       </main>
