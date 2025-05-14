@@ -180,7 +180,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
         </Button>
         <div className="flex-1">
           <h1 className="text-lg font-bold text-gray-800">{name}</h1>
-          <p className="text-xs text-gray-500">ประวัติการวัด ({symbol}) - อุปกรณ์ {deviceCode}</p>
+          <p className="text-xs text-red-500">{deviceCode}</p>
         </div>
       </div>
       
