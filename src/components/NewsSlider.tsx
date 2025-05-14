@@ -98,7 +98,7 @@ export const NewsSlider = () => {
                 ) : null}
                 <div className="p-4">
                   <h3 className="font-medium text-gray-900 mb-2 line-clamp-2">{item.title}</h3>
-                  <p className="text-sm text-gray-600 line-clamp-3 mb-3 min-h-[4.5rem]">{item.content}</p>
+                  <p className="text-sm text-gray-600 break-words whitespace-normal mb-3 min-h-[4.5rem]">{item.content}</p>
                   <div className="flex justify-between items-center">
                     <div className="flex items-center text-xs text-gray-500">
                       <CalendarDays className="h-3 w-3 mr-1" />
