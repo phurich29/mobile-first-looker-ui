@@ -101,12 +101,12 @@ export const NewsSlider = () => {
 
       {/* Dialog for displaying full news content */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg rounded-xl overflow-hidden">
           {selectedNews && <>
               <DialogHeader>
                 <DialogTitle className="text-xl">{selectedNews.title}</DialogTitle>
               </DialogHeader>
-              <div className="mt-2">
+              <div className="mt-2 overflow-y-auto max-h-[70vh]">
                 <div className="flex items-center text-sm text-gray-500 mb-4">
                   <CalendarDays className="h-4 w-4 mr-2" />
                   <span>{format(new Date(selectedNews.publish_date), "d MMMM yyyy", {
@@ -121,7 +121,7 @@ export const NewsSlider = () => {
                   </div>}
                 
                 <div className="prose max-w-none mt-2">
-                  <p className="whitespace-pre-wrap text-gray-700">{selectedNews.content}</p>
+                  <p className="whitespace-pre-wrap text-gray-700 break-words">{selectedNews.content}</p>
                 </div>
                 
                 <div className="mt-6 text-right">
