@@ -1,11 +1,13 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveTable } from "@/components/ui/responsive-table";
 import { TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { RefreshCw, Search } from "lucide-react";
+import { useUserManagement } from "@/features/user-management/hooks/useUserManagement";
+import { useToast } from "@/components/ui/use-toast";
 
 interface User {
   id: string;
@@ -13,23 +15,42 @@ interface User {
 }
 
 interface UserListProps {
-  users: User[];
   deviceUserMap: Record<string, string[]>;
   devices: { device_code: string }[];
-  isLoading: boolean;
-  onRefresh: () => Promise<void>;
   onSelectUser: (userId: string) => void;
 }
 
 export function UserList({ 
-  users,
   devices,
   deviceUserMap,
-  isLoading,
-  onRefresh,
   onSelectUser 
 }: UserListProps) {
+  const { toast } = useToast();
   const [userFilter, setUserFilter] = useState("");
+  const { users, isLoadingUsers: isLoading } = useUserManagement();
+
+  // อัพเดตข้อมูลผู้ใช้เมื่อ component โหลด
+  useEffect(() => {
+    // ข้อมูลผู้ใช้จะถูกโหลดโดยอัตโนมัติจาก useUserManagement
+  }, []);
+  
+  // ฟังก์ชันรีเฟรชข้อมูล
+  const handleRefresh = async () => {
+    try {
+      // รีโหลดหน้าเพื่อดึงข้อมูลใหม่
+      window.location.reload();
+      toast({
+        title: "รีเฟรชข้อมูลสำเร็จ",
+        description: "ข้อมูลผู้ใช้อัพเดตแล้ว",
+      });
+    } catch (error) {
+      toast({
+        title: "รีเฟรชข้อมูลไม่สำเร็จ",
+        description: "เกิดข้อผิดพลาดในการอัพเดตข้อมูล",
+        variant: "destructive",
+      });
+    }
+  };
   
   // Filter users based on search input
   const filteredUsers = users.filter(user => 
@@ -44,22 +65,22 @@ export function UserList({
   };
   
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>รายการผู้ใช้งานทั้งหมด</CardTitle>
+    <div className="w-full">
+      <div className="flex flex-row items-center justify-between mb-4">
+        <h2 className="text-2xl font-semibold">รายการผู้ใช้งานทั้งหมด</h2>
         <div className="flex items-center gap-2">
           <Button 
             variant="outline" 
             size="sm"
-            onClick={onRefresh}
+            onClick={handleRefresh}
             disabled={isLoading}
           >
             <RefreshCw className={`h-4 w-4 mr-1 ${isLoading ? 'animate-spin' : ''}`} />
             <span>รีเฟรช</span>
           </Button>
         </div>
-      </CardHeader>
-      <CardContent>
+      </div>
+      <div className="w-full">
         <div className="mb-4">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
@@ -114,7 +135,7 @@ export function UserList({
             </TableBody>
           </ResponsiveTable>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
