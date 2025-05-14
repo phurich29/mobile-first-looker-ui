@@ -31,7 +31,7 @@ export const FooterNav = () => {
         <div className={`p-1 ${isActive('/notifications') ? 'bg-emerald-700 rounded-full' : ''}`}>
           <Bell className="w-5 h-5 text-white" />
         </div>
-        <span className={`text-xs mt-0.5 ${isActive('/notifications') ? 'text-white' : 'text-white/80'}`}>แจ้งเตือน</span>
+        <span className={`text-xs mt-0.5 ${isActive('/notifications') ? 'text-white' : 'text-white/80'}`}>ตั้งค่าการแจ้งเตือน</span>
       </Link>
       
       <Link to="/profile" className="flex flex-col items-center">
