@@ -148,7 +148,8 @@ export const Header = () => {
         </div>
       </div>
       
-      <header className={`flex items-center justify-between px-4 py-5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md border-b border-emerald-700 md:ml-64 ${!isMobile && 'md:py-4'}`}>
+      {/* Modified header to be full width on desktop and not sticky */}
+      <header className={`flex items-center justify-between px-4 py-5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md border-b border-emerald-700 ${isMobile ? '' : 'w-full md:ml-64'} ${!isMobile && 'md:py-4'}`}>
         {/* Mobile Menu Trigger */}
         <Button variant="ghost" size="icon" className="text-white p-1 hover:bg-emerald-600 md:hidden" onClick={() => setSidebarOpen(true)}>
           <Menu className="h-5 w-5" />
