@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from "react";
 import { ChevronLeft, Wheat, Circle, Blend } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -296,10 +295,14 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
                     stroke="#F97316" 
                     strokeDasharray="3 3"
                     label={{
-                      position: 'right',
-                      value: `ค่าเฉลี่ย: ${average.toFixed(2)}%`,
+                      position: 'top',
+                      value: `ค่าเฉลี่ย: ${average.toFixed(2)}% (ช่วง ${(average * 0.95).toFixed(2)} - ${(average * 1.05).toFixed(2)}%)`,
                       fill: '#F97316',
-                      fontSize: 10,
+                      fontSize: 12,
+                      offset: 0,
+                      dy: -10,
+                      dx: 150,
+                      textAnchor: 'end'
                     }}
                   />
                   <Line 

@@ -1,7 +1,6 @@
 
 import React, { useState } from "react";
 import { ArrowUp, ArrowDown, Wheat, Blend, Circle } from "lucide-react";
-import MeasurementHistory from "./MeasurementHistory";
 
 type MeasurementItemProps = {
   symbol: string;
@@ -114,14 +113,6 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
 
   return (
     <>
-      {showHistory && deviceCode && (
-        <MeasurementHistory
-          symbol={symbol}
-          name={name}
-          deviceCode={deviceCode}
-          onClose={handleCloseHistory}
-        />
-      )}
       <div 
         onClick={handleClick}
         className={`flex items-center justify-between p-4 border-b border-gray-100 ${bgColor} hover:brightness-95 transition-all duration-300 relative overflow-hidden ${deviceCode ? 'cursor-pointer active:bg-gray-100' : ''}`}
