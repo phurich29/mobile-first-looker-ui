@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Square, Wheat, Blend, Circle, ChevronLeft } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import MeasurementHistory from "@/components/MeasurementHistory";
 
 export default function DeviceDetails() {
   const { deviceCode } = useParams();
@@ -23,6 +24,10 @@ export default function DeviceDetails() {
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedMeasurement, setSelectedMeasurement] = useState<{
+    symbol: string;
+    name: string;
+  } | null>(null);
 
   // ฟังก์ชันจัดการการลาก (Drag)
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -172,6 +177,16 @@ export default function DeviceDetails() {
     queryFn: fetchAllData,
     enabled: !!deviceCode,
   });
+
+  // ฟังก์ชันจัดการคลิกที่รายการการวัด
+  const handleMeasurementClick = (symbol: string, name: string) => {
+    setSelectedMeasurement({ symbol, name });
+  };
+
+  // ฟังก์ชันปิดหน้าประวัติการวัด
+  const handleCloseHistory = () => {
+    setSelectedMeasurement(null);
+  };
 
   // แปลงข้อมูลให้อยู่ในรูปแบบที่ใช้กับ MeasurementItem และคำนวณการเปลี่ยนแปลง
   const formatWholeGrainItems = () => {
@@ -531,7 +546,7 @@ export default function DeviceDetails() {
       // หมวดหมู่ "สิ่งเจือปน"
       {
         symbol: "red_line_rate",
-        name: "สีต่ำกว่ามาตรฐาน",
+        name: "��ีต่ำกว่ามาตรฐาน",
         price: latestData.red_line_rate?.toString() || "0",
         percentageChange: calculateChange(latestData.red_line_rate, previousData?.red_line_rate),
         iconColor: "#9b87f5",
@@ -671,6 +686,18 @@ export default function DeviceDetails() {
     );
   };
 
+  // ถ้ามีการเลือกรายการวัด แสดงหน้าประวัติการวัด
+  if (selectedMeasurement && deviceCode) {
+    return (
+      <MeasurementHistory
+        symbol={selectedMeasurement.symbol}
+        name={selectedMeasurement.name}
+        deviceCode={deviceCode}
+        onClose={handleCloseHistory}
+      />
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
       <Header />
@@ -741,7 +768,7 @@ export default function DeviceDetails() {
                 style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
               >
                 <TabsList 
-                  className="flex min-w-max h-12 bg-white border-y border-gray-200 p-1 space-x-1 overflow-visible"
+                  className="flex min-w-max h-12 bg-white border-y border-gray-200 p-1 space-x-1 overflow-visible shadow-md"
                   style={{ paddingLeft: '0.25rem', paddingRight: '0.25rem' }}
                 >
                   <TabsTrigger 
@@ -778,80 +805,100 @@ export default function DeviceDetails() {
             
             <TabsContent value="all" className="mt-4">
               {/* รายการการวัดทั้งหมด */}
-              <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
+              <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100 mb-8 hover:shadow-xl transition-shadow">
                 {isLoadingAllData ? renderNoData(true) : 
                  formatAllItems().length > 0 ? (
                   filterData(formatAllItems()).map((item, index) => (
-                    <MeasurementItem
+                    <div 
                       key={index}
-                      symbol={item.symbol}
-                      name={item.name}
-                      price={item.price}
-                      percentageChange={item.percentageChange}
-                      iconColor={item.iconColor}
-                      updatedAt={item.updatedAt}
-                      deviceCode={deviceCode}
-                    />
+                      onClick={() => handleMeasurementClick(item.symbol, item.name)}
+                      className="cursor-pointer hover:bg-gray-50 transition-colors"
+                    >
+                      <MeasurementItem
+                        symbol={item.symbol}
+                        name={item.name}
+                        price={item.price}
+                        percentageChange={item.percentageChange}
+                        iconColor={item.iconColor}
+                        updatedAt={item.updatedAt}
+                        deviceCode={deviceCode}
+                      />
+                    </div>
                   ))
                 ) : renderNoData(false)}
               </div>
             </TabsContent>
             
             <TabsContent value="wholegrain" className="mt-4">
-              <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
+              <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100 mb-8 hover:shadow-xl transition-shadow">
                 {isLoadingWholeGrain ? renderNoData(true) : 
                  formatWholeGrainItems().length > 0 ? (
                   filterData(formatWholeGrainItems()).map((item, index) => (
-                    <MeasurementItem
+                    <div 
                       key={index}
-                      symbol={item.symbol}
-                      name={item.name}
-                      price={item.price}
-                      percentageChange={item.percentageChange}
-                      iconColor={item.iconColor}
-                      updatedAt={item.updatedAt}
-                      deviceCode={deviceCode}
-                    />
+                      onClick={() => handleMeasurementClick(item.symbol, item.name)}
+                      className="cursor-pointer hover:bg-gray-50 transition-colors"
+                    >
+                      <MeasurementItem
+                        symbol={item.symbol}
+                        name={item.name}
+                        price={item.price}
+                        percentageChange={item.percentageChange}
+                        iconColor={item.iconColor}
+                        updatedAt={item.updatedAt}
+                        deviceCode={deviceCode}
+                      />
+                    </div>
                   ))
                 ) : renderNoData(false)}
               </div>
             </TabsContent>
             
             <TabsContent value="ingredients" className="mt-4">
-              <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
+              <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100 mb-8 hover:shadow-xl transition-shadow">
                 {isLoadingIngredients ? renderNoData(true) : 
                  formatIngredientsItems().length > 0 ? (
                   filterData(formatIngredientsItems()).map((item, index) => (
-                    <MeasurementItem
+                    <div 
                       key={index}
-                      symbol={item.symbol}
-                      name={item.name}
-                      price={item.price}
-                      percentageChange={item.percentageChange}
-                      iconColor={item.iconColor}
-                      updatedAt={item.updatedAt}
-                      deviceCode={deviceCode}
-                    />
+                      onClick={() => handleMeasurementClick(item.symbol, item.name)}
+                      className="cursor-pointer hover:bg-gray-50 transition-colors"
+                    >
+                      <MeasurementItem
+                        symbol={item.symbol}
+                        name={item.name}
+                        price={item.price}
+                        percentageChange={item.percentageChange}
+                        iconColor={item.iconColor}
+                        updatedAt={item.updatedAt}
+                        deviceCode={deviceCode}
+                      />
+                    </div>
                   ))
                 ) : renderNoData(false)}
               </div>
             </TabsContent>
             
             <TabsContent value="impurities" className="mt-4">
-              <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
+              <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100 mb-8 hover:shadow-xl transition-shadow">
                 {isLoadingImpurities ? renderNoData(true) : 
                  formatImpuritiesItems().length > 0 ? (
                   filterData(formatImpuritiesItems()).map((item, index) => (
-                    <MeasurementItem
+                    <div 
                       key={index}
-                      symbol={item.symbol}
-                      name={item.name}
-                      price={item.price}
-                      percentageChange={item.percentageChange}
-                      iconColor={item.iconColor}
-                      updatedAt={item.updatedAt}
-                      deviceCode={deviceCode}
-                    />
+                      onClick={() => handleMeasurementClick(item.symbol, item.name)}
+                      className="cursor-pointer hover:bg-gray-50 transition-colors"
+                    >
+                      <MeasurementItem
+                        symbol={item.symbol}
+                        name={item.name}
+                        price={item.price}
+                        percentageChange={item.percentageChange}
+                        iconColor={item.iconColor}
+                        updatedAt={item.updatedAt}
+                        deviceCode={deviceCode}
+                      />
+                    </div>
                   ))
                 ) : renderNoData(false)}
               </div>

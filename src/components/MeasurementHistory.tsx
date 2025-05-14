@@ -254,7 +254,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
             ไม่พบข้อมูลการวัดสำหรับ {name} บนอุปกรณ์ {deviceCode}
           </div>
         ) : (
-          <div className="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 p-2">
+          <div className="flex-1 bg-white rounded-lg shadow-lg border border-gray-200 p-2 hover:shadow-xl transition-shadow duration-300">
             <div className="h-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
@@ -281,7 +281,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
                         return (
-                          <div className="bg-white p-2 border border-gray-200 rounded-md shadow-sm">
+                          <div className="bg-white p-2 border border-gray-200 rounded-md shadow-lg">
                             <p className="text-xs font-medium">{`เวลา: ${payload[0].payload.time} น.`}</p>
                             <p className="text-xs font-medium text-[#9b87f5]">{`ค่า: ${payload[0].value}%`}</p>
                             <p className="text-xs text-gray-500">{payload[0].payload.date}</p>
