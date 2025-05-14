@@ -106,6 +106,12 @@ export const Header = () => {
               <BarChart2 className="h-5 w-5" />
               <span className="text-sm">ค่าวัดคุณภาพ</span>
             </Link>
+
+            {/* Add notifications menu item */}
+            <Link to="/notifications" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/notifications") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
+              <Bell className="h-5 w-5" />
+              <span className="text-sm">การแจ้งเตือน</span>
+            </Link>
             
             {/* เพิ่มเมนูข้อมูลส่วนตัว */}
             {user && <Link to="/profile" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/profile") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
@@ -165,9 +171,11 @@ export const Header = () => {
           {user && <Link to="/logout" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30 transition-colors shadow-inner">
               <LogOut className="h-5 w-5 text-white" />
             </Link>}
-          <div className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30 transition-colors shadow-inner">
+          <Link to="/notifications" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30 transition-colors shadow-inner relative">
             <Bell className="h-5 w-5 text-white" />
-          </div>
+            {/* Add notification indicator dot */}
+            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          </Link>
         </div>
       </header>
     </>;

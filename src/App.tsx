@@ -12,7 +12,8 @@ import UserManagement from "./pages/UserManagement";
 import Waiting from "./pages/Waiting";
 import Profile from "./pages/Profile";
 import NewsManagement from "./pages/NewsManagement";
-import News from "./pages/News"; // เพิ่มหน้าข่าวสาร
+import News from "./pages/News";
+import Notifications from "./pages/Notifications"; // Import the new Notifications page
 import { AuthProvider, useAuth } from "./components/AuthProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useEffect } from "react";
@@ -76,6 +77,13 @@ function App() {
             <Route path="/news/:id" element={
               <ProtectedRoute allowUnauthenticated={true}>
                 <News />
+              </ProtectedRoute>
+            } />
+            
+            {/* Add notifications route */}
+            <Route path="/notifications" element={
+              <ProtectedRoute>
+                <Notifications />
               </ProtectedRoute>
             } />
             
