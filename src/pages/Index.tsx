@@ -1,9 +1,8 @@
-
 import { Header } from "@/components/Header";
 import { NewsSlider } from "@/components/NewsSlider";
-import { RicePriceCarousel } from "@/components/RicePriceCarousel";
 import { WatchlistSection } from "@/components/WatchlistSection";
 import { FooterNav } from "@/components/FooterNav";
+import { IconMenu } from "@/components/IconMenu";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { RicePrice } from "@/features/user-management/types";
@@ -87,12 +86,10 @@ const Index = () => {
             <NewsSlider />
           </div>
           
-          {/* Rice prices carousel */}
-          <RicePriceCarousel 
-            ricePrices={ricePrices} 
-            isLoading={isLoading} 
-            error={error as Error | null} 
-          />
+          {/* Replace RicePriceCarousel with IconMenu */}
+          <div className="my-4">
+            <IconMenu />
+          </div>
           
           {/* Watchlist section */}
           <WatchlistSection />
