@@ -104,10 +104,7 @@ export const Header = () => {
               </Link>}
             
             {/* เพิ่มเมนูจัดการราคาข้าวสำหรับ superadmin เท่านั้น */}
-            {user && canAccessRicePriceManagement && <Link to="/rice-price-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/rice-price-management") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
-                <DollarSign className="h-5 w-5" />
-                <span className="text-sm">จัดการราคาข้าว</span>
-              </Link>}
+            {user && canAccessRicePriceManagement}
             
             {/* เพิ่มเมนูจัดการอุปกรณ์สำหรับ admin และ superadmin */}
             {user && canAccessUserManagement && <Link to="/device-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/device-management") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
