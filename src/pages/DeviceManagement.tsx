@@ -18,33 +18,39 @@ export default function DeviceManagement() {
   
   const isAdmin = userRoles.includes('admin') || userRoles.includes('superadmin');
   
-  // Improved function to fetch all unique devices
+  // Updated function to fetch devices using the same method as Equipment page
   const fetchDevices = useCallback(async () => {
     try {
-      console.log('Fetching unique devices...');
+      if (!user) return [];
       
+      console.log('Fetching devices using direct query...');
+      
+      // Simplified query to get unique device codes with their latest data
       const { data, error } = await supabase
         .from('rice_quality_analysis')
-        .select('device_code')
-        .not('device_code', 'is', null);
-      
-      if (error) throw error;
-      
-      // Create a Set for unique device codes
-      const uniqueDeviceCodes = new Set<string>();
+        .select('device_code, created_at')
+        .not('device_code', 'is', null)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error("Error fetching devices:", error);
+        throw error;
+      }
+
+      // Process device data to get latest entry for each device
+      const deviceMap = new Map<string, { device_code: string }>();
       data?.forEach(item => {
-        if (item.device_code) {
-          uniqueDeviceCodes.add(item.device_code);
+        if (item.device_code && !deviceMap.has(item.device_code)) {
+          deviceMap.set(item.device_code, {
+            device_code: item.device_code
+          });
         }
       });
       
-      // Convert to array format expected by the components
-      const deviceList = Array.from(uniqueDeviceCodes).map(code => ({ device_code: code }));
-      console.log(`Found ${deviceList.length} unique devices`);
-      
-      return deviceList;
+      console.log("Fetched unique devices:", deviceMap.size);
+      return Array.from(deviceMap.values());
     } catch (error) {
-      console.error("Error fetching devices:", error);
+      console.error("Error in fetchDevices:", error);
       toast({
         title: "เกิดข้อผิดพลาด",
         description: "ไม่สามารถดึงข้อมูลอุปกรณ์ได้",
@@ -52,7 +58,7 @@ export default function DeviceManagement() {
       });
       return [];
     }
-  }, [toast]);
+  }, [user, toast]);
   
   // Improved function to fetch all users
   const fetchUsers = useCallback(async () => {
