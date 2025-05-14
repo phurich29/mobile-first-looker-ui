@@ -8,6 +8,7 @@ import { DeviceListSelector } from "./DeviceList";
 import { UserListSelector } from "./UserList";
 import { AccessMappingHeader } from "./AccessMappingHeader";
 import { DeviceUserTable } from "./DeviceUserTable";
+import { AddDeviceForm } from "../AddDeviceForm";
 
 interface User {
   id: string;
@@ -128,6 +129,11 @@ export function AccessMapping({
 
   return (
     <>
+      {/* Add device form */}
+      <div className="mb-6">
+        <AddDeviceForm onDeviceAdded={onRefresh} />
+      </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Device list section */}
         <div>
