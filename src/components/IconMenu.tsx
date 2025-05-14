@@ -5,7 +5,8 @@ import {
   HardDrive,
   Thermometer,
   FileText,
-  Bell
+  Bell,
+  Wheat 
 } from "lucide-react";
 
 type MenuItemProps = {
@@ -45,7 +46,10 @@ export const IconMenu = () => {
     <div className="px-4 mb-6">
       <div className="px-[5%] mb-3 flex justify-between items-center">
         <h2 className="font-semibold text-gray-700">บริการทั้งหมด</h2>
-        <a href="/services" className="text-sm text-green-600 font-medium">ดูทั้งหมด</a>
+        <div className="flex items-center">
+          <Wheat className="text-amber-500 mr-1" size={20} strokeWidth={2.5} />
+          <Wheat className="text-amber-600" size={18} strokeWidth={2.5} />
+        </div>
       </div>
       <div className="rounded-lg p-3 grid grid-cols-4 gap-2">
         {menuItems.map((item, index) => (
