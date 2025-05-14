@@ -1,8 +1,5 @@
-<<<<<<< HEAD
+
 import React, { useState, useMemo } from "react";
-=======
-import React, { useState } from "react";
->>>>>>> parent of 5a7a769 (จุดพักที่ 2)
 import { ChevronLeft, Wheat, Circle, Blend, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -35,10 +32,7 @@ type MeasurementHistoryProps = {
 };
 
 type TimeFrame = '1h' | '24h' | '7d' | '30d';
-<<<<<<< HEAD
-=======
 type RowLimit = 10 | 50 | 100 | 1000;
->>>>>>> parent of 5a7a769 (จุดพักที่ 2)
 
 const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
   symbol,
@@ -225,33 +219,10 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
         </div>
       </div>
       
-
-
-<<<<<<< HEAD
       {/* กราฟแสดงผล */}
-      <div className="flex-1 p-4">
-        <div className="flex justify-between items-center mb-4">
-          <div className="text-sm font-medium text-gray-700">กราฟแสดงการวัดทั้งหมด</div>
-=======
-      {/* Content */}
       <ScrollArea className="flex-1 p-4">
         <div className="flex justify-between items-center mb-4">
-          <div className="text-sm font-medium text-gray-700">ประวัติการวัดทั้งหมด</div>
-          <div className="flex items-center gap-2">
-            <div className="text-xs text-gray-500">จำนวนแถว:</div>
-            <Select value={rowLimit.toString()} onValueChange={(value) => handleRowLimitChange(parseInt(value) as RowLimit)}>
-              <SelectTrigger className="w-[100px] h-8 text-xs border-gray-200">
-                <SelectValue placeholder="เลือกจำนวนแถว" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="10">10 แถว</SelectItem>
-                <SelectItem value="50">50 แถว</SelectItem>
-                <SelectItem value="100">100 แถว</SelectItem>
-                <SelectItem value="1000">1000 แถว</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
->>>>>>> parent of 5a7a769 (จุดพักที่ 2)
+          <div className="text-sm font-medium text-gray-700">กราฟแสดงการวัดทั้งหมด</div>
         </div>
         <div className="flex justify-end items-center mb-2">
           {!isLoading && historyData ? (
@@ -355,11 +326,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
             </div>
           </div>
         )}
-<<<<<<< HEAD
-      </div>
-=======
       </ScrollArea>
->>>>>>> parent of 5a7a769 (จุดพักที่ 2)
     </div>
   );
 };
