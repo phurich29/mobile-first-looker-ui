@@ -325,7 +325,7 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
                 }}
               >
                 <Users className="h-3 w-3 mr-1" />
-                จัดการสิทธิ์การเข้าถึง
+                จัดการสิทธิ์
               </Button>
             )}
             
