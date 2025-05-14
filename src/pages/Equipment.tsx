@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { EquipmentCard } from "@/components/EquipmentCard";
@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { FooterNav } from "@/components/FooterNav";
 import { useAuth } from "@/components/AuthProvider";
+import { useQuery } from "@tanstack/react-query";
 
 interface DeviceInfo {
   device_code: string;
@@ -18,32 +19,68 @@ interface DeviceInfo {
 export default function Equipment() {
   const [devices, setDevices] = useState<DeviceInfo[]>([]);
   const [totalUniqueDevices, setTotalUniqueDevices] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const { user, userRoles } = useAuth();
   
   const isAdmin = userRoles.includes('admin') || userRoles.includes('superadmin');
-  
-  // ฟังก์ชันรับจำนวนอุปกรณ์ที่ไม่ซ้ำกันทั้งหมด
-  const getUniqueDevicesCount = async () => {
+
+  // Function to fetch device data - now uses direct SQL query instead of RPC
+  const fetchDeviceData = useCallback(async () => {
+    try {
+      if (!user) return [];
+
+      console.log('Fetching devices using direct query...');
+      
+      // Simplified query to get unique device codes with their latest data
+      const { data, error } = await supabase
+        .from('rice_quality_analysis')
+        .select('device_code, created_at')
+        .not('device_code', 'is', null)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error("Error fetching devices:", error);
+        throw error;
+      }
+
+      // Process device data to get latest entry for each device
+      const deviceMap = new Map<string, DeviceInfo>();
+      data?.forEach(item => {
+        if (item.device_code && !deviceMap.has(item.device_code)) {
+          deviceMap.set(item.device_code, {
+            device_code: item.device_code,
+            updated_at: item.created_at
+          });
+        }
+      });
+
+      console.log("Fetched devices:", deviceMap.size);
+      return Array.from(deviceMap.values());
+    } catch (error) {
+      console.error("Error in fetchDeviceData:", error);
+      throw error;
+    }
+  }, [user]);
+
+  // Count total unique devices
+  const getUniqueDevicesCount = useCallback(async () => {
     try {
       if (!user) return 0;
       
-      // ใช้การคิวรี่โดยตรงแทนการใช้ RPC function
-      let query = supabase
+      console.log('Counting unique devices...');
+      
+      const { data, error } = await supabase
         .from('rice_quality_analysis')
         .select('device_code')
         .not('device_code', 'is', null);
-      
-      const { data, error } = await query;
       
       if (error) {
         console.error("Error counting unique devices:", error);
         return 0;
       }
       
-      // ใช้ Set เพื่อนับ device_code ที่ไม่ซ้ำกัน
+      // Use Set to count unique device codes
       const uniqueDeviceCodes = new Set();
       data?.forEach(item => {
         if (item.device_code) {
@@ -52,85 +89,69 @@ export default function Equipment() {
       });
       
       const count = uniqueDeviceCodes.size;
-      setTotalUniqueDevices(count);
+      console.log(`Found ${count} unique devices`);
       return count;
     } catch (error) {
       console.error("Unexpected error counting devices:", error);
       return 0;
     }
-  };
+  }, [user]);
 
-  // ฟังก์ชันดึงข้อมูลอุปกรณ์ทั้งหมดที่ไม่ซ้ำกัน
-  const fetchDevices = async () => {
-    if (!user) return;
-    setIsLoading(true);
-    try {
-      // For admins and superadmins, we fetch all devices
-      // For regular users, RLS will automatically filter devices they have access to
-      const { data, error } = await supabase
-        .from('rice_quality_analysis')
-        .select('device_code, created_at')
-        .not('device_code', 'is', null)
-        .order('device_code', { ascending: true })
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error("Error fetching devices:", error);
-        toast({
-          title: "เกิดข้อผิดพลาด",
-          description: "ไม่สามารถดึงข้อมูลอุปกรณ์ได้",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      if (data) {
-        const deviceMap = new Map<string, DeviceInfo>();
-        
-        for (const item of data) {
-          if (item.device_code && !deviceMap.has(item.device_code)) {
-            deviceMap.set(item.device_code, {
-              device_code: item.device_code,
-              updated_at: item.created_at
-            });
-          }
-        }
-        
-        const uniqueDevices: DeviceInfo[] = Array.from(deviceMap.values());
-        
-        const totalCount = await getUniqueDevicesCount();
-        
-        setDevices(uniqueDevices);
-        
-        toast({
-          title: "สำเร็จ",
-          description: `พบ ${uniqueDevices.length} อุปกรณ์ที่คุณมีสิทธิ์เข้าถึงจาก ${totalCount} เครื่องในระบบ`,
-        });
-        
-        if (isAdmin && uniqueDevices.length !== totalCount) {
-          console.warn(`จำนวนอุปกรณ์ที่ดึงมา (${uniqueDevices.length}) ไม่ตรงกับจำนวนทั้งหมด (${totalCount})`); 
-        }
-      }
-    } catch (error) {
-      console.error("Unexpected error:", error);
+  // Use React Query for improved data fetching
+  const { 
+    data: deviceData,
+    isLoading, 
+    error,
+    refetch 
+  } = useQuery({
+    queryKey: ['devices', user?.id],
+    queryFn: fetchDeviceData,
+    enabled: !!user,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    onError: (err) => {
+      console.error('Device query error:', err);
       toast({
         title: "เกิดข้อผิดพลาด",
-        description: "มีข้อผิดพลาดไม่คาดคิดเกิดขึ้น",
+        description: "ไม่สามารถดึงข้อมูลอุปกรณ์ได้",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
-  };
+  });
 
-  // Fetch devices and count on initial load
+  // Update devices state when data changes
+  useEffect(() => {
+    if (deviceData) {
+      setDevices(deviceData);
+    }
+  }, [deviceData]);
+
+  // Fetch total count on initial load
   useEffect(() => {
     if (user) {
-      fetchDevices();
-      getUniqueDevicesCount();
+      getUniqueDevicesCount().then(setTotalUniqueDevices);
     }
-  }, [user]);
+  }, [user, getUniqueDevicesCount]);
+
+  // Handle refresh
+  const handleRefresh = async () => {
+    try {
+      await refetch();
+      const count = await getUniqueDevicesCount();
+      setTotalUniqueDevices(count);
+      
+      toast({
+        title: "อัพเดทข้อมูลสำเร็จ",
+        description: `พบ ${devices.length} อุปกรณ์ที่คุณมีสิทธิ์เข้าถึง`,
+      });
+    } catch (error) {
+      console.error("Refresh error:", error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถอัพเดทข้อมูลได้",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
@@ -147,7 +168,7 @@ export default function Equipment() {
             variant="outline" 
             size="sm"
             className="flex items-center gap-1 border-emerald-200 bg-white hover:bg-emerald-50"
-            onClick={fetchDevices} 
+            onClick={handleRefresh} 
             disabled={isLoading}
           >
             <RefreshCw className={`h-3 w-3 ${isLoading ? 'animate-spin' : ''}`} />

@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import { useAuth } from "@/components/AuthProvider";
@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { DeviceManagementView } from "@/components/DeviceManagementView";
 
 export default function DeviceManagement() {
-  const { user, userRoles, isLoading } = useAuth();
+  const { user, userRoles, isLoading: isAuthLoading } = useAuth();
   const { toast } = useToast();
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [devices, setDevices] = useState<any[]>([]);
@@ -18,21 +18,31 @@ export default function DeviceManagement() {
   
   const isAdmin = userRoles.includes('admin') || userRoles.includes('superadmin');
   
-  // Fetch all devices
-  const fetchDevices = async () => {
+  // Improved function to fetch all unique devices
+  const fetchDevices = useCallback(async () => {
     try {
-      const { data: deviceData, error } = await supabase
+      console.log('Fetching unique devices...');
+      
+      const { data, error } = await supabase
         .from('rice_quality_analysis')
         .select('device_code')
         .not('device_code', 'is', null);
       
       if (error) throw error;
       
-      // Extract unique device codes
-      const uniqueDevices = Array.from(new Set(deviceData?.map(item => item.device_code)))
-        .map(code => ({ device_code: code }));
+      // Create a Set for unique device codes
+      const uniqueDeviceCodes = new Set<string>();
+      data?.forEach(item => {
+        if (item.device_code) {
+          uniqueDeviceCodes.add(item.device_code);
+        }
+      });
       
-      setDevices(uniqueDevices);
+      // Convert to array format expected by the components
+      const deviceList = Array.from(uniqueDeviceCodes).map(code => ({ device_code: code }));
+      console.log(`Found ${deviceList.length} unique devices`);
+      
+      return deviceList;
     } catch (error) {
       console.error("Error fetching devices:", error);
       toast({
@@ -40,21 +50,25 @@ export default function DeviceManagement() {
         description: "ไม่สามารถดึงข้อมูลอุปกรณ์ได้",
         variant: "destructive",
       });
+      return [];
     }
-  };
+  }, [toast]);
   
-  // Fetch ALL users - updated to match the approach in UserManagement
-  const fetchUsers = async () => {
+  // Improved function to fetch all users
+  const fetchUsers = useCallback(async () => {
     try {
-      // Get all profiles instead of filtering by waiting_list
-      const { data: profilesData, error: profilesError } = await supabase
+      console.log('Fetching users...');
+      
+      // Directly query profiles table instead of using potentially problematic RPC
+      const { data, error } = await supabase
         .from('profiles')
-        .select('id, email');
+        .select('id, email')
+        .order('created_at', { ascending: false });
       
-      if (profilesError) throw profilesError;
+      if (error) throw error;
       
-      // No filtering by waiting_list, show all users
-      setUsers(profilesData || []);
+      console.log(`Found ${data?.length || 0} users`);
+      return data || [];
     } catch (error) {
       console.error("Error fetching users:", error);
       toast({
@@ -62,12 +76,15 @@ export default function DeviceManagement() {
         description: "ไม่สามารถดึงข้อมูลผู้ใช้ได้",
         variant: "destructive",
       });
+      return [];
     }
-  };
+  }, [toast]);
   
-  // Fetch device-user access mappings
-  const fetchDeviceUserMappings = async () => {
+  // Function to fetch device-user access mappings
+  const fetchDeviceUserMappings = useCallback(async () => {
     try {
+      console.log('Fetching device-user mappings...');
+      
       const { data, error } = await supabase
         .from('user_device_access')
         .select('device_code, user_id');
@@ -83,7 +100,8 @@ export default function DeviceManagement() {
         mappings[item.device_code].push(item.user_id);
       });
       
-      setDeviceUserMap(mappings);
+      console.log(`Processed device-user mappings for ${Object.keys(mappings).length} devices`);
+      return mappings;
     } catch (error) {
       console.error("Error fetching device-user mappings:", error);
       toast({
@@ -91,33 +109,55 @@ export default function DeviceManagement() {
         description: "ไม่สามารถดึงข้อมูลการเข้าถึงอุปกรณ์ได้",
         variant: "destructive",
       });
+      return {};
     }
-  };
+  }, [toast]);
   
-  // Fetch all data
-  const fetchAllData = async () => {
+  // Fetch all data with better error handling
+  const fetchAllData = useCallback(async () => {
     setIsLoadingData(true);
     try {
-      await Promise.all([
+      console.log("Fetching all device management data...");
+      
+      // Use Promise.all for parallel fetching
+      const [deviceList, userList, mappings] = await Promise.all([
         fetchDevices(),
         fetchUsers(),
         fetchDeviceUserMappings()
       ]);
+      
+      setDevices(deviceList);
+      setUsers(userList);
+      setDeviceUserMap(mappings);
+      
+      console.log("Successfully fetched all device management data");
+      
+      return {
+        devices: deviceList,
+        users: userList,
+        deviceUserMap: mappings
+      };
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error fetching all data:", error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถโหลดข้อมูลได้ครบถ้วน",
+        variant: "destructive",
+      });
     } finally {
       setIsLoadingData(false);
     }
-  };
+  }, [fetchDevices, fetchUsers, fetchDeviceUserMappings, toast]);
   
+  // Initial data loading
   useEffect(() => {
-    if (user && isAdmin) {
+    if (user && isAdmin && !isAuthLoading) {
       fetchAllData();
     }
-  }, [user, isAdmin]);
+  }, [user, isAdmin, isAuthLoading, fetchAllData]);
   
-  // If still loading, show loading indicator
-  if (isLoading) {
+  // If still loading auth, show loading indicator
+  if (isAuthLoading) {
     return (
       <div className="min-h-screen flex justify-center items-center bg-gradient-to-b from-emerald-50 to-gray-50">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>

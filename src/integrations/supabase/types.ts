@@ -394,6 +394,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_device_data: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          device_code: string
+          updated_at: string
+        }[]
+      }
       get_user_roles: {
         Args: { user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
