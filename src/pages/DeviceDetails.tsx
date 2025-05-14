@@ -22,6 +22,7 @@ export default function DeviceDetails() {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // ฟังก์ชันจัดการการลาก (Drag)
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -659,6 +660,17 @@ export default function DeviceDetails() {
     navigate("/equipment");
   };
 
+  // ฟังก์ชันกรองข้อมูลตามคำค้นหา
+  const filterData = (items: any[]) => {
+    if (!searchTerm.trim()) return items;
+    
+    return items.filter(item => 
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      item.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.price.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
       <Header />
@@ -686,11 +698,13 @@ export default function DeviceDetails() {
         </div>
 
         {/* แถบค้นหา */}
-        <div className="flex items-center justify-between p-4">
+        <div className="flex items-center justify-between p-4 mb-2">
           <div className="relative w-full">
             <input
               type="text"
               placeholder="ค้นหา..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full h-10 pl-10 pr-4 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
             />
             <svg
@@ -767,7 +781,7 @@ export default function DeviceDetails() {
               <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
                 {isLoadingAllData ? renderNoData(true) : 
                  formatAllItems().length > 0 ? (
-                  formatAllItems().map((item, index) => (
+                  filterData(formatAllItems()).map((item, index) => (
                     <MeasurementItem
                       key={index}
                       symbol={item.symbol}
@@ -786,7 +800,7 @@ export default function DeviceDetails() {
               <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
                 {isLoadingWholeGrain ? renderNoData(true) : 
                  formatWholeGrainItems().length > 0 ? (
-                  formatWholeGrainItems().map((item, index) => (
+                  filterData(formatWholeGrainItems()).map((item, index) => (
                     <MeasurementItem
                       key={index}
                       symbol={item.symbol}
@@ -805,7 +819,7 @@ export default function DeviceDetails() {
               <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
                 {isLoadingIngredients ? renderNoData(true) : 
                  formatIngredientsItems().length > 0 ? (
-                  formatIngredientsItems().map((item, index) => (
+                  filterData(formatIngredientsItems()).map((item, index) => (
                     <MeasurementItem
                       key={index}
                       symbol={item.symbol}
@@ -824,7 +838,7 @@ export default function DeviceDetails() {
               <div className="bg-white rounded-xl overflow-hidden shadow-md border border-gray-100 mb-8">
                 {isLoadingImpurities ? renderNoData(true) : 
                  formatImpuritiesItems().length > 0 ? (
-                  formatImpuritiesItems().map((item, index) => (
+                  filterData(formatImpuritiesItems()).map((item, index) => (
                     <MeasurementItem
                       key={index}
                       symbol={item.symbol}
