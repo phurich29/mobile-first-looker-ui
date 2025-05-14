@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button"; 
@@ -324,7 +325,7 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
                 }}
               >
                 <Users className="h-3 w-3 mr-1" />
-                จัดการสิทธิ์การเข้าถึง
+                จัดการสิทธิ์
               </Button>
             )}
             
