@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import { EquipmentCard } from "@/components/EquipmentCard";
+import { EquipmentCard } from "@/components/equipment/EquipmentCard";
 import { Settings, Users, Shield } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { Database } from "@/integrations/supabase/types";
