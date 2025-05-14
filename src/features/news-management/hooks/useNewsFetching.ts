@@ -1,8 +1,8 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import { NewsItem } from "../types";
+import * as newsService from "../services/newsService";
 
 export function useNewsFetching() {
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
@@ -13,18 +13,8 @@ export function useNewsFetching() {
     setIsLoading(true);
     
     try {
-      let { data, error } = await supabase
-        .from('news')
-        .select('*')
-        .order('publish_date', { ascending: false });
-      
-      if (error) {
-        throw error;
-      }
-      
-      if (data) {
-        setNewsItems(data as NewsItem[]);
-      }
+      const data = await newsService.fetchAllNews();
+      setNewsItems(data);
     } catch (error) {
       console.error('Error fetching news:', error);
       toast.error('ไม่สามารถโหลดข้อมูลข่าวสารได้');

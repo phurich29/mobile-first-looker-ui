@@ -1,8 +1,8 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import { NewsItem } from "../types";
+import * as newsService from "../services/newsService";
 
 type NewsOperationsProps = {
   fetchNews: () => Promise<void>;
@@ -32,34 +32,18 @@ export function useNewsOperations({
     setIsSubmitting(true);
     
     try {
+      const newsWithDate = {
+        ...currentNews,
+        publish_date: date.toISOString()
+      };
+
       if (isEditing && currentNews.id) {
         // Update existing news
-        const { error } = await supabase
-          .from('news')
-          .update({
-            title: currentNews.title,
-            content: currentNews.content,
-            publish_date: date.toISOString(),
-            published: currentNews.published,
-            image_url: currentNews.image_url
-          })
-          .eq('id', currentNews.id);
-          
-        if (error) throw error;
+        await newsService.updateNews(currentNews.id, newsWithDate);
         toast.success("อัพเดทข่าวสารเรียบร้อยแล้ว");
       } else {
         // Add new news
-        const { error } = await supabase
-          .from('news')
-          .insert({
-            title: currentNews.title,
-            content: currentNews.content,
-            publish_date: date.toISOString(),
-            published: currentNews.published || false,
-            image_url: currentNews.image_url
-          });
-          
-        if (error) throw error;
+        await newsService.createNews(newsWithDate);
         toast.success("เพิ่มข่าวสารใหม่เรียบร้อยแล้ว");
       }
       
@@ -83,12 +67,7 @@ export function useNewsOperations({
     setIsLoading(true);
     
     try {
-      const { error } = await supabase
-        .from('news')
-        .delete()
-        .eq('id', id);
-        
-      if (error) throw error;
+      await newsService.deleteNews(id);
       
       // Update news list after deletion
       setNewsItems(prevNews => prevNews.filter(news => news.id !== id));
@@ -104,12 +83,7 @@ export function useNewsOperations({
   // Handle toggling publish status
   const togglePublishStatus = async (id: string, currentStatus: boolean) => {
     try {
-      const { error } = await supabase
-        .from('news')
-        .update({ published: !currentStatus })
-        .eq('id', id);
-        
-      if (error) throw error;
+      await newsService.updatePublishStatus(id, !currentStatus);
       
       // Update news list after status change
       setNewsItems(prevNews => 
