@@ -38,7 +38,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
   onClose
 }) => {
   // State for timeframe selection
-  const [timeFrame, setTimeFrame] = useState<TimeFrame>('24h');
+  const [timeFrame, setTimeFrame] = useState<TimeFrame>('1h');
   
   // Function to get hours based on timeframe
   const getTimeFrameHours = (frame: TimeFrame): number => {
@@ -225,21 +225,41 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
       
       {/* Main content */}
       <div className="flex flex-col h-[calc(100vh-140px)] p-3">
-        {/* Measurement info */}
-        <div className="flex items-center mb-2">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center mr-3 shadow-sm bg-emerald-600">
-            {getIcon()}
-          </div>
-          <div>
-            <h2 className="text-base font-bold text-gray-800">{name}</h2>
-            <div className="flex items-center">
-              <p className="text-xs text-gray-500 mr-2">รหัส: {symbol}</p>
-              <p className="text-sm font-semibold text-emerald-600">
-                {!isLoading && historyData && historyData.length > 0 ? 
-                  `ค่าล่าสุด: ${(historyData[0] as any)[symbol]}%` : 
-                  'ไม่พบข้อมูล'}
-              </p>
+        {/* Measurement info - Row 1 */}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center mr-3 shadow-sm bg-emerald-600">
+              {getIcon()}
             </div>
+            <div>
+              <h2 className="text-base font-bold text-gray-800">{name}</h2>
+              <div className="flex items-center">
+                <p className="text-xs text-gray-500 mr-2">รหัส: {symbol}</p>
+                <p className="text-sm font-semibold text-emerald-600">
+                  {!isLoading && historyData && historyData.length > 0 ? 
+                    `ค่าล่าสุด: ${(historyData[0] as any)[symbol]}%` : 
+                    'ไม่พบข้อมูล'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Time frame selection - Row 2 */}
+        <div className="flex justify-end mb-3">
+          <div className="flex items-center gap-2">
+            <div className="text-xs text-gray-500">กรอบเวลา:</div>
+            <Select value={timeFrame} onValueChange={(value) => setTimeFrame(value as TimeFrame)}>
+              <SelectTrigger className="w-[100px] h-8 text-xs border-gray-200 bg-white">
+                <SelectValue placeholder="เลือกกรอบเวลา" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1h">1 ชั่วโมง</SelectItem>
+                <SelectItem value="24h">24 ชั่วโมง</SelectItem>
+                <SelectItem value="7d">7 วัน</SelectItem>
+                <SelectItem value="30d">30 วัน</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -260,7 +280,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
                   data={chartData}
                   margin={{ top: 10, right: 20, left: 10, bottom: 10 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                  <CartesianGrid strokeDasharray="3 3" vertical={true} stroke="#e0e0e0" strokeWidth={1} />
                   <XAxis 
                     dataKey="time" 
                     tick={{ fontSize: 10, fill: '#64748b' }} 
@@ -310,8 +330,8 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
                     dataKey="value" 
                     stroke="#9b87f5" 
                     strokeWidth={2}
-                    dot={{ stroke: '#9b87f5', strokeWidth: 2, r: 3, fill: '#fff' }}
-                    activeDot={{ stroke: '#9b87f5', strokeWidth: 2, r: 4, fill: '#fff' }}
+                    dot={false}
+                    activeDot={false}
                     animationDuration={500}
                   />
                 </LineChart>
