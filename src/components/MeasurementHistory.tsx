@@ -14,7 +14,6 @@ import {
   Tooltip,
   ResponsiveContainer,
   ReferenceLine,
-  Legend
 } from "recharts";
 import {
   Select,
@@ -23,7 +22,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 
 type MeasurementHistoryProps = {
   symbol: string;
@@ -33,7 +31,6 @@ type MeasurementHistoryProps = {
 };
 
 type TimeFrame = '1h' | '24h' | '7d' | '30d';
-type RowLimit = 10 | 50 | 100 | 1000;
 
 const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
   symbol,
@@ -41,9 +38,10 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
   deviceCode,
   onClose
 }) => {
-  // State สำหรับเลือกกรอบเวลา
+  // State for timeframe selection
   const [timeFrame, setTimeFrame] = useState<TimeFrame>('24h');
-  // สร้างฟังก์ชันสำหรับรับค่ากรอบเวลาเป็นชั่วโมง
+  
+  // Function to get hours based on timeframe
   const getTimeFrameHours = (frame: TimeFrame): number => {
     switch (frame) {
       case '1h': return 1;
@@ -54,15 +52,15 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
     }
   };
 
-  // ดึงข้อมูลประวัติการวัดของค่านี้เฉพาะอุปกรณ์นี้ตามกรอบเวลาที่เลือก
+  // Fetch measurement history data
   const fetchMeasurementHistory = async () => {
     if (!deviceCode || !symbol) throw new Error("Missing device code or measurement symbol");
     
     try {
-      // สร้างคำสั่ง select แบบไดนามิก
+      // Dynamic select query
       const selectQuery = `id, ${symbol}, created_at, thai_datetime`;
       
-      // คำนวณเวลาย้อนหลังตามกรอบเวลาที่เลือก
+      // Calculate cutoff date based on timeframe
       const hours = getTimeFrameHours(timeFrame);
       const cutoffDate = new Date();
       cutoffDate.setHours(cutoffDate.getHours() - hours);
@@ -86,21 +84,16 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
     }
   };
 
-  // ใช้ React Query สำหรับดึงข้อมูล
+  // Use React Query to fetch data
   const { data: historyData, isLoading } = useQuery({
     queryKey: ['measurementHistory', deviceCode, symbol, timeFrame],
     queryFn: fetchMeasurementHistory,
     enabled: !!deviceCode && !!symbol,
   });
   
-  // ฟังก์ชันสำหรับเลือกกรอบเวลา
-  const handleTimeFrameChange = (frame: TimeFrame) => {
-    setTimeFrame(frame);
-  };
-  
-  // ฟังก์ชันสำหรับแสดงไอคอนตามประเภทข้อมูล
+  // Get appropriate icon based on data type
   const getIcon = () => {
-    // สำหรับ "ส่วนผสม"
+    // For "ส่วนผสม"
     if (symbol === 'whole_kernels' ||
         symbol === 'head_rice' ||
         symbol === 'total_brokens' ||
@@ -109,7 +102,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
       return <Blend className="h-6 w-6 text-white" />;
     }
     
-    // สำหรับ "สิ่งเจือปน"
+    // For "สิ่งเจือปน"
     if (symbol === 'red_line_rate' ||
         symbol === 'parboiled_red_line' ||
         symbol === 'parboiled_white_rice' ||
@@ -127,7 +120,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
       return <Circle className="h-6 w-6 text-white" />;
     }
     
-    // สำหรับประเภทข้าว
+    // For rice types
     if (symbol.includes('class') || 
         symbol === 'short_grain' || 
         symbol === 'slender_kernel' ||
@@ -135,19 +128,17 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
       return <Wheat className="h-6 w-6 text-white" />;
     }
     
-    return <Wheat className="h-6 w-6 text-white" />; // ค่าเริ่มต้นใช้ไอคอนข้าว
+    return <Wheat className="h-6 w-6 text-white" />; // Default icon
   };
 
-  // Format the Bangkok time (+7)
+  // Format Bangkok time (+7)
   const formatBangkokTime = (dateString?: string): { thaiDate: string; thaiTime: string } => {
     if (!dateString) return { thaiDate: "ไม่มีข้อมูล", thaiTime: "ไม่มีข้อมูล" };
     
     const date = new Date(dateString);
-    // เพิ่มเวลาอีก 7 ชั่วโมง
     const adjustedDate = new Date(date);
     adjustedDate.setHours(adjustedDate.getHours() + 7);
     
-    // แยกวันที่และเวลาเป็นคนละบรรทัด
     const dateOptions: Intl.DateTimeFormatOptions = {
       day: '2-digit',
       month: '2-digit',
@@ -166,7 +157,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
     return { thaiDate, thaiTime };
   };
 
-  // คำนวณค่าเฉลี่ยจากข้อมูล
+  // Calculate average value
   const calculateAverage = () => {
     if (!historyData || historyData.length === 0) return 0;
     
@@ -180,7 +171,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
     return sum / values.length;
   };
 
-  // ข้อมูลสำหรับกราฟ
+  // Prepare data for the chart
   const chartData = useMemo(() => {
     if (!historyData || historyData.length === 0) return [];
     
@@ -194,45 +185,33 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
       .reverse();
   }, [historyData, symbol]);
 
-  // ค่าเฉลี่ย
+  // Calculate average
   const average = useMemo(() => calculateAverage(), [historyData, symbol]);
-
-  // กำหนดคอนฟิก
-  const chartConfig = {
-    value: {
-      label: "ค่าที่วัดได้",
-      theme: { light: "#9b87f5", dark: "#9b87f5" }
-    },
-    average: {
-      label: "ค่าเฉลี่ย",
-      theme: { light: "#F97316", dark: "#F97316" }
-    }
-  };
 
   return (
     <div className="fixed inset-0 z-50 bg-white flex flex-col">
-      {/* Main Header (Top menu) */}
+      {/* Header */}
       <Header />
       
-      {/* Sub-header for history */}
-      <div className="flex items-center p-4 border-b border-gray-200 bg-gray-50">
+      {/* Sub-header */}
+      <div className="flex items-center p-3 border-b border-gray-200 bg-gray-50">
         <Button 
           variant="outline" 
           onClick={onClose}
-          className="mr-4 flex items-center text-gray-600 hover:bg-gray-100"
+          className="mr-3 flex items-center text-gray-600 hover:bg-gray-100"
           size="sm"
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
           <span>กลับ</span>
         </Button>
         <div className="flex-1">
-          <h1 className="text-lg font-bold text-gray-800">{name}</h1>
+          <h1 className="text-base font-bold text-gray-800">{name}</h1>
           <p className="text-xs text-red-500">{deviceCode}</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="text-xs text-gray-500">กรอบเวลา:</div>
-          <Select value={timeFrame} onValueChange={(value) => handleTimeFrameChange(value as TimeFrame)}>
-            <SelectTrigger className="w-[120px] h-8 text-xs border-gray-200 bg-white">
+          <Select value={timeFrame} onValueChange={(value) => setTimeFrame(value as TimeFrame)}>
+            <SelectTrigger className="w-[100px] h-8 text-xs border-gray-200 bg-white">
               <SelectValue placeholder="เลือกกรอบเวลา" />
             </SelectTrigger>
             <SelectContent>
@@ -245,18 +224,17 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
         </div>
       </div>
       
-      <div className="p-4 flex flex-col h-full">
-        {/* แสดงไอคอนข้าวและรายละเอียด */}
-        <div className="flex items-center mb-3">
-          <div className="w-12 h-12 rounded-full flex items-center justify-center mr-3 shadow-md relative overflow-hidden bg-emerald-600">
-            <div className="absolute inset-0 bg-white/10"></div>
-            <div className="absolute top-0 left-0 w-4 h-4 bg-white/30 rounded-full blur-sm"></div>
+      {/* Main content */}
+      <div className="flex flex-col h-[calc(100vh-140px)] p-3">
+        {/* Measurement info */}
+        <div className="flex items-center mb-2">
+          <div className="w-10 h-10 rounded-full flex items-center justify-center mr-3 shadow-sm bg-emerald-600">
             {getIcon()}
           </div>
-          <div className="flex-1">
-            <h2 className="text-lg font-bold text-gray-800">{name}</h2>
+          <div>
+            <h2 className="text-base font-bold text-gray-800">{name}</h2>
             <div className="flex items-center">
-              <p className="text-xs text-gray-500 mr-3">รหัส: {symbol}</p>
+              <p className="text-xs text-gray-500 mr-2">รหัส: {symbol}</p>
               <p className="text-sm font-semibold text-emerald-600">
                 {!isLoading && historyData && historyData.length > 0 ? 
                   `ค่าล่าสุด: ${(historyData[0] as any)[symbol]}%` : 
@@ -266,117 +244,83 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
           </div>
         </div>
 
-        {/* กราฟแสดงผล */}
-        <div className="flex-1 flex flex-col h-full">
-          <div className="flex justify-between items-center mb-2">
-            <div className="text-sm font-medium text-gray-700">กราฟแสดงการวัดทั้งหมด</div>
-            {!isLoading && historyData ? (
-              <div className="text-xs text-gray-500">พบ {historyData.length} รายการ</div>
-            ) : null}
+        {/* Chart area */}
+        {isLoading ? (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="animate-spin h-8 w-8 border-2 border-emerald-600 rounded-full border-t-transparent"></div>
           </div>
-
-          {isLoading ? (
-            <div className="flex-1 flex items-center justify-center text-gray-500">
-              <div className="animate-pulse flex flex-col items-center">
-                <div className="h-10 w-10 rounded-full bg-gray-200 mb-4"></div>
-                <div className="h-4 w-32 bg-gray-200 mb-2 rounded"></div>
-                <div className="h-3 w-20 bg-gray-200 rounded"></div>
-              </div>
-              <p className="mt-4">กำลังโหลดข้อมูลสำหรับกราฟ...</p>
-            </div>
-          ) : !chartData || chartData.length === 0 ? (
-            <div className="flex-1 flex items-center justify-center text-gray-500">
-              ไม่พบข้อมูลการวัดสำหรับ {name} บนอุปกรณ์ {deviceCode}
-            </div>
-          ) : (
-            <div className="bg-white rounded-xl overflow-hidden shadow-md p-3 flex-1">
-              {/* กราฟเส้นแบบใหม่ */}
-              <div className="h-full">
-                <ChartContainer 
-                  config={chartConfig} 
-                  className="h-[calc(100vh-250px)]"
+        ) : !chartData || chartData.length === 0 ? (
+          <div className="flex-1 flex items-center justify-center text-gray-500">
+            ไม่พบข้อมูลการวัดสำหรับ {name} บนอุปกรณ์ {deviceCode}
+          </div>
+        ) : (
+          <div className="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 p-2">
+            <div className="h-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={chartData}
+                  margin={{ top: 10, right: 20, left: 10, bottom: 10 }}
                 >
-                  <LineChart
-                    data={chartData}
-                    margin={{ top: 20, right: 20, left: 0, bottom: 10 }}
-                  >
-                    <defs>
-                      <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#9b87f5" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#9b87f5" stopOpacity={0.2}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                    <XAxis 
-                      dataKey="time" 
-                      tick={{ fontSize: 12, fill: '#64748b' }} 
-                      axisLine={{ stroke: '#e2e8f0' }}
-                      tickLine={false}
-                      padding={{ left: 10, right: 10 }}
-                    />
-                    <YAxis 
-                      domain={['auto', 'auto']} 
-                      tick={{ fontSize: 12, fill: '#64748b' }} 
-                      tickFormatter={(value) => `${value}%`}
-                      axisLine={false}
-                      tickLine={false}
-                      width={40}
-                    />
-                    <Tooltip 
-                      content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
-                          return (
-                            <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-md">
-                              <p className="text-sm font-medium">{`เวลา: ${payload[0].payload.time} น.`}</p>
-                              <p className="text-sm font-medium text-[#9b87f5]">{`ค่าที่วัดได้: ${payload[0].value}%`}</p>
-                              <p className="text-xs text-gray-500">{payload[0].payload.date}</p>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-                    <Legend 
-                      verticalAlign="top"
-                      align="right"
-                      wrapperStyle={{ paddingBottom: 10 }}
-                    />
-                    <ReferenceLine 
-                      y={average} 
-                      stroke="#F97316" 
-                      strokeWidth={2}
-                      strokeDasharray="3 3"
-                      label={{
-                        position: 'right',
-                        value: `ค่าเฉลี่ย: ${average.toFixed(2)}%`,
-                        fill: '#F97316',
-                        fontSize: 12,
-                        fontWeight: 600
-                      }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="value" 
-                      stroke="#9b87f5" 
-                      strokeWidth={3} 
-                      name="ค่าที่วัดได้"
-                      dot={{ stroke: '#9b87f5', strokeWidth: 2, r: 4, fill: '#fff' }}
-                      activeDot={{ stroke: '#9b87f5', strokeWidth: 2, r: 6, fill: '#fff' }}
-                      isAnimationActive={true}
-                      animationDuration={1000}
-                      fill="url(#colorValue)"
-                      fillOpacity={0.2}
-                    />
-                  </LineChart>
-                </ChartContainer>
-              </div>
-
-              {/* คำอธิบายเพิ่มเติม */}
-              <div className="mt-2 text-xs text-gray-500 text-center">
-                แสดงข้อมูลการวัด {name} ย้อนหลัง {timeFrame === '1h' ? '1 ชั่วโมง' : timeFrame === '24h' ? '24 ชั่วโมง' : timeFrame === '7d' ? '7 วัน' : '30 วัน'}
-              </div>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                  <XAxis 
+                    dataKey="time" 
+                    tick={{ fontSize: 10, fill: '#64748b' }} 
+                    axisLine={{ stroke: '#e2e8f0' }}
+                    tickLine={false}
+                    padding={{ left: 10, right: 10 }}
+                  />
+                  <YAxis 
+                    domain={['auto', 'auto']} 
+                    tick={{ fontSize: 10, fill: '#64748b' }} 
+                    tickFormatter={(value) => `${value}%`}
+                    axisLine={false}
+                    tickLine={false}
+                    width={30}
+                  />
+                  <Tooltip 
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="bg-white p-2 border border-gray-200 rounded-md shadow-sm">
+                            <p className="text-xs font-medium">{`เวลา: ${payload[0].payload.time} น.`}</p>
+                            <p className="text-xs font-medium text-[#9b87f5]">{`ค่า: ${payload[0].value}%`}</p>
+                            <p className="text-xs text-gray-500">{payload[0].payload.date}</p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <ReferenceLine 
+                    y={average} 
+                    stroke="#F97316" 
+                    strokeDasharray="3 3"
+                    label={{
+                      position: 'right',
+                      value: `ค่าเฉลี่ย: ${average.toFixed(2)}%`,
+                      fill: '#F97316',
+                      fontSize: 10,
+                    }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="value" 
+                    stroke="#9b87f5" 
+                    strokeWidth={2}
+                    dot={{ stroke: '#9b87f5', strokeWidth: 2, r: 3, fill: '#fff' }}
+                    activeDot={{ stroke: '#9b87f5', strokeWidth: 2, r: 4, fill: '#fff' }}
+                    animationDuration={500}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
-          )}
+          </div>
+        )}
+        
+        {/* Footer info */}
+        <div className="mt-2 text-xs text-gray-500 text-center">
+          แสดงข้อมูลการวัด {name} ย้อนหลัง {timeFrame === '1h' ? '1 ชั่วโมง' : timeFrame === '24h' ? '24 ชั่วโมง' : timeFrame === '7d' ? '7 วัน' : '30 วัน'}
+          {historyData && ` (${historyData.length} รายการ)`}
         </div>
       </div>
     </div>
