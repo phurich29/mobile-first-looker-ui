@@ -6,14 +6,16 @@ import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "./AuthProvider";
-
 export const Header = () => {
   const [open, setOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const isMobile = useIsMobile();
   const location = useLocation();
-  const { user, userRoles } = useAuth();
+  const {
+    user,
+    userRoles
+  } = useAuth();
 
   // ตรวจสอบหน้าที่ผู้ใช้กำลังอยู่เพื่อไฮไลท์เมนูที่ตรงกัน
   const isActive = (path: string) => location.pathname === path;
@@ -50,13 +52,12 @@ export const Header = () => {
     const seconds = currentTime.getSeconds().toString().padStart(2, '0');
     return `${hours}:${minutes}:${seconds}`;
   };
-  
+
   // ตรวจสอบว่าผู้ใช้มีสิทธิ์ในการเข้าถึงหน้าจัดการผู้ใช้งานหรือไม่
   const canAccessUserManagement = userRoles.includes('admin') || userRoles.includes('superadmin');
-  
+
   // ตรวจสอบว่าผู้ใช้มีสิทธิ์ในการเข้าถึงหน้าจัดการราคาข้าวหรือไม่
   const canAccessRicePriceManagement = userRoles.includes('superadmin');
-  
   return <>
       {/* Sidebar for Desktop */}
       <div className={cn("fixed left-0 top-0 bottom-0 z-40 w-64 bg-white text-gray-800 transition-transform duration-300 ease-in-out shadow-sm border-r border-gray-100", sidebarOpen ? "translate-x-0" : "-translate-x-full", "md:translate-x-0" // แสดงเสมอในหน้าจอขนาดใหญ่
@@ -73,92 +74,55 @@ export const Header = () => {
           </div>
           
           <nav className="flex flex-col space-y-1 mt-4">
-            <Link to="/" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
-              isActive("/") 
-                ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" 
-                : "hover:bg-gray-50 text-gray-700")}>
+            <Link to="/" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
               <Home className="h-5 w-5" />
               <span className="text-sm">หน้าหลัก</span>
             </Link>
             
-            <Link to="/rice-prices" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
-              isActive("/rice-prices") 
-                ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" 
-                : "hover:bg-gray-50 text-gray-700")}>
-              <Wheat className="h-5 w-5" />
-              <span className="text-sm">ราคาข้าว</span>
-            </Link>
             
-            <Link to="/equipment" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
-              isActive("/equipment") 
-                ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" 
-                : "hover:bg-gray-50 text-gray-700")}>
+            
+            <Link to="/equipment" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/equipment") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
               <Settings className="h-5 w-5" />
               <span className="text-sm">อุปกรณ์</span>
             </Link>
             
-            <Link to="/measurements" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
-              isActive("/measurements") 
-                ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" 
-                : "hover:bg-gray-50 text-gray-700")}>
+            <Link to="/measurements" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/measurements") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
               <BarChart2 className="h-5 w-5" />
               <span className="text-sm">รายการวัด</span>
             </Link>
             
             {/* เพิ่มเมนูข้อมูลส่วนตัว */}
-            {user && (
-              <Link to="/profile" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
-                isActive("/profile") 
-                  ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" 
-                  : "hover:bg-gray-50 text-gray-700")}>
+            {user && <Link to="/profile" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/profile") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
                 <User className="h-5 w-5" />
                 <span className="text-sm">ข้อมูลส่วนตัว</span>
-              </Link>
-            )}
+              </Link>}
             
             {/* เพิ่มเมนูจัดการผู้ใช้งานสำหรับ admin และ superadmin */}
-            {user && canAccessUserManagement && (
-              <Link to="/user-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
-                isActive("/user-management") 
-                  ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" 
-                  : "hover:bg-gray-50 text-gray-700")}>
+            {user && canAccessUserManagement && <Link to="/user-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/user-management") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
                 <Users className="h-5 w-5" />
                 <span className="text-sm">จัดการผู้ใช้งาน</span>
-              </Link>
-            )}
+              </Link>}
             
             {/* เพิ่มเมนูจัดการราคาข้าวสำหรับ superadmin เท่านั้น */}
-            {user && canAccessRicePriceManagement && (
-              <Link to="/rice-price-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
-                isActive("/rice-price-management") 
-                  ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" 
-                  : "hover:bg-gray-50 text-gray-700")}>
+            {user && canAccessRicePriceManagement && <Link to="/rice-price-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/rice-price-management") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
                 <DollarSign className="h-5 w-5" />
                 <span className="text-sm">จัดการราคาข้าว</span>
-              </Link>
-            )}
+              </Link>}
             
             {/* เพิ่มเมนูจัดการอุปกรณ์สำหรับ admin และ superadmin */}
-            {user && canAccessUserManagement && (
-              <Link to="/device-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
-                isActive("/device-management") 
-                  ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" 
-                  : "hover:bg-gray-50 text-gray-700")}>
+            {user && canAccessUserManagement && <Link to="/device-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/device-management") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
                 <Database className="h-5 w-5" />
                 <span className="text-sm">จัดการอุปกรณ์</span>
-              </Link>
-            )}
+              </Link>}
           </nav>
           
           <div className="mt-auto pt-4">
-            {user && (
-              <div className="border-t border-gray-200 pt-4">
+            {user && <div className="border-t border-gray-200 pt-4">
                 <Link to="/logout" className="flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors text-red-600 hover:bg-red-50 hover:border hover:border-red-200">
                   <LogOut className="h-5 w-5" />
                   <span className="text-sm">ออกจากระบบ</span>
                 </Link>
-              </div>
-            )}
+              </div>}
           </div>
         </div>
       </div>
@@ -177,16 +141,12 @@ export const Header = () => {
         </div>
       
         <div className="flex items-center gap-2">
-          {user && (
-            <Link to="/profile" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30">
+          {user && <Link to="/profile" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30">
               <User className="h-5 w-5 text-white" />
-            </Link>
-          )}
-          {user && (
-            <Link to="/logout" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30">
+            </Link>}
+          {user && <Link to="/logout" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30">
               <LogOut className="h-5 w-5 text-white" />
-            </Link>
-          )}
+            </Link>}
           <div className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center">
             <Bell className="h-5 w-5 text-white" />
           </div>
