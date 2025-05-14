@@ -2,7 +2,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { 
-  Wheat, 
   Home, 
   Hammer, 
   Calendar, 
@@ -33,7 +32,6 @@ const MenuItem = ({ icon, label, to }: MenuItemProps) => {
 export const IconMenu = () => {
   const menuItems = [
     { icon: <Home size={24} />, label: "หน้าหลัก", to: "/" },
-    { icon: <Wheat size={24} />, label: "ราคาข้าว", to: "/rice-prices" },
     { icon: <Hammer size={24} />, label: "อุปกรณ์", to: "/equipment" },
     { icon: <Calendar size={24} />, label: "ปฏิทิน", to: "#" },
     { icon: <Users size={24} />, label: "กลุ่มสมาชิก", to: "#" },
