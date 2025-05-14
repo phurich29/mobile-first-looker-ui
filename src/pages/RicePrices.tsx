@@ -91,21 +91,6 @@ export default function RicePrices() {
               </div>
             </Card>
             
-            {/* Show example image of rice price document */}
-            <div className="mt-8">
-              <h2 className={`${isMobile ? 'text-lg' : 'text-xl'} font-semibold mb-4 text-emerald-800`}>
-                ตัวอย่างเอกสารราคาข้าว
-              </h2>
-              <Card className="border-emerald-100 overflow-hidden">
-                <div className="flex justify-center p-2">
-                  <img 
-                    src="/rice-prices/29-04-2568.jpg" 
-                    alt="ตัวอย่างเอกสารราคาข้าว" 
-                    className="max-w-full h-auto rounded-lg"
-                  />
-                </div>
-              </Card>
-            </div>
           </div>
         )}
       </main>

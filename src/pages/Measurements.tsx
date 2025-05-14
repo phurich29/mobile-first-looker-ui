@@ -166,7 +166,7 @@ export default function Measurements() {
     const metrics = [
       {
         symbol: "class1",
-        name: "ชั้น 1",
+        name: "ชั้น 1 (>7.0mm)",
         price: latestData.class1?.toString() || "0",
         percentageChange: calculateChange(latestData.class1, previousData?.class1),
         iconColor: "#F7931A",
@@ -174,7 +174,7 @@ export default function Measurements() {
       },
       {
         symbol: "class2",
-        name: "ชั้น 2",
+        name: "ชั้น 2 (>6.6-7.0mm)",
         price: latestData.class2?.toString() || "0",
         percentageChange: calculateChange(latestData.class2, previousData?.class2),
         iconColor: "#627EEA",
@@ -182,7 +182,7 @@ export default function Measurements() {
       },
       {
         symbol: "class3",
-        name: "ชั้น 3",
+        name: "ชั้น 3 (>6.2-6.6mm)",
         price: latestData.class3?.toString() || "0",
         percentageChange: calculateChange(latestData.class3, previousData?.class3),
         iconColor: "#F3BA2F",
@@ -422,7 +422,7 @@ export default function Measurements() {
       // หมวดหมู่ "พื้นข้าวเต็มเมล็ด"
       {
         symbol: "class1",
-        name: "ชั้น 1",
+        name: "ชั้น 1 (>7.0mm)",
         price: latestData.class1?.toString() || "0",
         percentageChange: calculateChange(latestData.class1, previousData?.class1),
         iconColor: "#F7931A",
@@ -430,7 +430,7 @@ export default function Measurements() {
       },
       {
         symbol: "class2",
-        name: "ชั้น 2",
+        name: "ชั้น 2 (>6.6-7.0mm)",
         price: latestData.class2?.toString() || "0",
         percentageChange: calculateChange(latestData.class2, previousData?.class2),
         iconColor: "#627EEA",
@@ -438,7 +438,7 @@ export default function Measurements() {
       },
       {
         symbol: "class3",
-        name: "ชั้น 3",
+        name: "ชั้น 3 (>6.2-6.6mm)",
         price: latestData.class3?.toString() || "0",
         percentageChange: calculateChange(latestData.class3, previousData?.class3),
         iconColor: "#F3BA2F",
