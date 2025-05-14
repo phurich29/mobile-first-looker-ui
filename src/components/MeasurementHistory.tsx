@@ -207,20 +207,6 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
           <h1 className="text-base font-bold text-gray-800">{name}</h1>
           <p className="text-xs text-red-500">{deviceCode}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="text-xs text-gray-500">กรอบเวลา:</div>
-          <Select value={timeFrame} onValueChange={(value) => setTimeFrame(value as TimeFrame)}>
-            <SelectTrigger className="w-[100px] h-8 text-xs border-gray-200 bg-white">
-              <SelectValue placeholder="เลือกกรอบเวลา" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1h">1 ชั่วโมง</SelectItem>
-              <SelectItem value="24h">24 ชั่วโมง</SelectItem>
-              <SelectItem value="7d">7 วัน</SelectItem>
-              <SelectItem value="30d">30 วัน</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
       </div>
       
       {/* Main content */}
