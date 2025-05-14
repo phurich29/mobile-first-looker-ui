@@ -148,28 +148,35 @@ export const Header = () => {
         </div>
       </div>
       
-      {/* Modified header to be full width on desktop and not sticky */}
-      <header className={`flex items-center justify-between px-4 py-5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md border-b border-emerald-700 ${isMobile ? '' : 'w-full md:ml-64'} ${!isMobile && 'md:py-4'}`}>
+      {/* Enhanced header for full-width on desktop with better aesthetics */}
+      <header className={`flex items-center justify-between bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-lg ${!isMobile ? 'w-full md:ml-64 md:py-6 px-8' : 'px-4 py-5'}`}>
         {/* Mobile Menu Trigger */}
-        <Button variant="ghost" size="icon" className="text-white p-1 hover:bg-emerald-600 md:hidden" onClick={() => setSidebarOpen(true)}>
+        <Button variant="ghost" size="icon" className="text-white p-1 hover:bg-emerald-600/70 md:hidden" onClick={() => setSidebarOpen(true)}>
           <Menu className="h-5 w-5" />
         </Button>
 
-        {/* Minimal Digital Clock */}
+        {/* Digital Clock with enhanced styling */}
         <div className="flex items-center gap-2 mx-auto md:mx-0">
-          <div className="bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center">
-            <p className="text-xs font-medium text-white tracking-wider">{formatTime()}</p>
+          <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full flex items-center shadow-inner">
+            <p className={`font-medium text-white tracking-wider ${!isMobile ? 'text-sm' : 'text-xs'}`}>{formatTime()}</p>
           </div>
+          
+          {/* Display date on desktop view */}
+          {!isMobile && (
+            <div className="ml-4 bg-white/10 px-4 py-2 rounded-full hidden md:block">
+              <p className="text-sm text-white/90">{formatDate()}</p>
+            </div>
+          )}
         </div>
       
-        <div className="flex items-center gap-2">
-          {user && <Link to="/profile" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30">
+        <div className="flex items-center gap-3">
+          {user && <Link to="/profile" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30 transition-colors shadow-inner">
               <User className="h-5 w-5 text-white" />
             </Link>}
-          {user && <Link to="/logout" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30">
+          {user && <Link to="/logout" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30 transition-colors shadow-inner">
               <LogOut className="h-5 w-5 text-white" />
             </Link>}
-          <div className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center">
+          <div className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30 transition-colors shadow-inner">
             <Bell className="h-5 w-5 text-white" />
           </div>
         </div>
