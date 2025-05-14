@@ -15,42 +15,24 @@ interface User {
 }
 
 interface UserListProps {
+  users: User[];  // Added this prop to fix the TypeScript error
   deviceUserMap: Record<string, string[]>;
   devices: { device_code: string }[];
   onSelectUser: (userId: string) => void;
+  isLoading: boolean;
+  onRefresh: () => Promise<void>;
 }
 
 export function UserList({ 
+  users,
   devices,
   deviceUserMap,
-  onSelectUser 
+  onSelectUser,
+  isLoading,
+  onRefresh
 }: UserListProps) {
   const { toast } = useToast();
   const [userFilter, setUserFilter] = useState("");
-  const { users, isLoadingUsers: isLoading } = useUserManagement();
-
-  // อัพเดตข้อมูลผู้ใช้เมื่อ component โหลด
-  useEffect(() => {
-    // ข้อมูลผู้ใช้จะถูกโหลดโดยอัตโนมัติจาก useUserManagement
-  }, []);
-  
-  // ฟังก์ชันรีเฟรชข้อมูล
-  const handleRefresh = async () => {
-    try {
-      // รีโหลดหน้าเพื่อดึงข้อมูลใหม่
-      window.location.reload();
-      toast({
-        title: "รีเฟรชข้อมูลสำเร็จ",
-        description: "ข้อมูลผู้ใช้อัพเดตแล้ว",
-      });
-    } catch (error) {
-      toast({
-        title: "รีเฟรชข้อมูลไม่สำเร็จ",
-        description: "เกิดข้อผิดพลาดในการอัพเดตข้อมูล",
-        variant: "destructive",
-      });
-    }
-  };
   
   // Filter users based on search input
   const filteredUsers = users.filter(user => 
@@ -72,7 +54,7 @@ export function UserList({
           <Button 
             variant="outline" 
             size="sm"
-            onClick={handleRefresh}
+            onClick={onRefresh}
             disabled={isLoading}
           >
             <RefreshCw className={`h-4 w-4 mr-1 ${isLoading ? 'animate-spin' : ''}`} />
