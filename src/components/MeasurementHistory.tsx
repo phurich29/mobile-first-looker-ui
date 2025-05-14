@@ -1,8 +1,7 @@
 
 import React, { useState, useMemo } from "react";
-import { ChevronLeft, Wheat, Circle, Blend, ChevronDown, Calendar, ArrowDownUp } from "lucide-react";
+import { ChevronLeft, Wheat, Circle, Blend, ArrowDownUp, Calendar, LayoutDashboard, History, BarChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/Header";
@@ -39,12 +38,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
 
 type MeasurementHistoryProps = {
   symbol: string;
@@ -54,6 +47,7 @@ type MeasurementHistoryProps = {
 };
 
 type TimeFrame = '1h' | '24h' | '7d' | '30d';
+type ViewMode = 'dashboard' | 'history' | 'graph';
 
 const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
   symbol,
@@ -61,9 +55,9 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
   deviceCode,
   onClose
 }) => {
-  // State สำหรับเลือกกรอบเวลา
   const [timeFrame, setTimeFrame] = useState<TimeFrame>('24h');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
   const { toast } = useToast();
 
   // สร้างฟังก์ชันสำหรับรับค่ากรอบเวลาเป็นชั่วโมง
@@ -261,55 +255,22 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
     setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
   };
 
-  return (
-    <div className="fixed inset-0 z-50 bg-white flex flex-col">
-      <Header />
-      
-      <div className="flex items-center p-4 border-b border-gray-200 bg-gray-50">
-        <Button 
-          variant="outline" 
-          onClick={onClose}
-          className="mr-4 flex items-center text-gray-600 hover:bg-gray-100"
-          size="sm"
-        >
-          <ChevronLeft className="h-4 w-4 mr-1" />
-          <span>กลับ</span>
-        </Button>
-        <div className="flex-1">
-          <h1 className="text-lg font-bold text-gray-800">{name}</h1>
-          <p className="text-xs text-gray-500">{deviceCode}</p>
+  // รูปแบบเนื้อหาแยกตาม viewMode
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center h-full">
+          <div className="animate-spin h-12 w-12 border-4 border-emerald-500 rounded-full border-t-transparent"></div>
         </div>
-      </div>
-      
-      <div className="flex-1 p-4 overflow-hidden">
-        <Tabs defaultValue="dashboard" className="h-full flex flex-col">
-          <div className="border-b pb-2 mb-4 flex items-center justify-between">
-            <TabsList>
-              <TabsTrigger value="dashboard" className="text-sm">แดชบอร์ด</TabsTrigger>
-              <TabsTrigger value="history" className="text-sm">ประวัติ</TabsTrigger>
-              <TabsTrigger value="graph" className="text-sm">กราฟ</TabsTrigger>
-            </TabsList>
-            
-            <div className="flex items-center gap-2">
-              <div className="text-xs text-gray-500">กรอบเวลา:</div>
-              <Select value={timeFrame} onValueChange={(value) => handleTimeFrameChange(value as TimeFrame)}>
-                <SelectTrigger className="w-[100px] h-8 text-xs border-gray-200 bg-white">
-                  <SelectValue placeholder="เลือกกรอบเวลา" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1h">1 ชั่วโมง</SelectItem>
-                  <SelectItem value="24h">24 ชั่วโมง</SelectItem>
-                  <SelectItem value="7d">7 วัน</SelectItem>
-                  <SelectItem value="30d">30 วัน</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          
-          {/* แดชบอร์ด */}
-          <TabsContent value="dashboard" className="flex-1 overflow-auto space-y-4">
+      );
+    }
+
+    switch (viewMode) {
+      case 'dashboard':
+        return (
+          <div className="space-y-4">
+            {/* ส่วนสรุป */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* ส่วนสรุป */}
               <Card>
                 <CardHeader className="pb-2">
                   <div className="flex items-center">
@@ -326,7 +287,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
                 <CardContent>
                   <div className="text-3xl font-bold text-emerald-600">{stats.current.toFixed(2)}%</div>
                   <p className="text-sm text-gray-500 mt-1">
-                    ค่าล่าสุด ({!isLoading && tableData.length > 0 ? `${tableData[0].time} น.` : 'ไม่มีข้อมูล'})
+                    ค่าล่าสุด ({tableData.length > 0 ? `${tableData[0].time} น.` : 'ไม่มีข้อมูล'})
                   </p>
                 </CardContent>
               </Card>
@@ -364,11 +325,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {isLoading ? (
-                  <div className="h-[150px] flex items-center justify-center">
-                    <div className="animate-spin h-8 w-8 border-4 border-emerald-500 rounded-full border-t-transparent"></div>
-                  </div>
-                ) : chartData.length === 0 ? (
+                {chartData.length === 0 ? (
                   <div className="h-[150px] flex items-center justify-center text-gray-500">
                     ไม่มีข้อมูลในช่วงเวลาที่เลือก
                   </div>
@@ -435,17 +392,10 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
                 </div>
               </CardHeader>
               <CardContent>
-                {isLoading ? (
-                  <div className="h-20 flex items-center justify-center">
-                    <div className="animate-pulse flex flex-col items-center">
-                      <div className="h-4 w-32 bg-gray-200 mb-2 rounded"></div>
-                      <div className="h-3 w-20 bg-gray-200 rounded"></div>
-                    </div>
-                  </div>
-                ) : tableData.length === 0 ? (
+                {tableData.length === 0 ? (
                   <div className="text-center py-4 text-gray-500">ไม่มีข้อมูลในช่วงเวลานี้</div>
                 ) : (
-                  <div className="overflow-hidden">
+                  <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -468,85 +418,79 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
-          
-          {/* ประวัติข้อมูลทั้งหมด */}
-          <TabsContent value="history" className="flex-1 overflow-hidden">
-            <Card className="h-full flex flex-col">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>ประวัติการวัด</CardTitle>
-                    <CardDescription>
-                      พบข้อมูล {tableData.length} รายการ
-                    </CardDescription>
-                  </div>
-                  <Button variant="outline" size="sm" className="h-8 text-xs flex items-center gap-1" onClick={toggleSortOrder}>
-                    <ArrowDownUp className="h-3.5 w-3.5" />
-                    <span>{sortOrder === 'desc' ? 'ล่าสุดขึ้นก่อน' : 'เก่าสุดขึ้นก่อน'}</span>
-                  </Button>
+          </div>
+        );
+
+      case 'history':
+        return (
+          <Card className="h-full flex flex-col">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>ประวัติการวัด</CardTitle>
+                  <CardDescription>
+                    พบข้อมูล {tableData.length} รายการ
+                  </CardDescription>
                 </div>
-              </CardHeader>
-              <CardContent className="flex-1 overflow-hidden p-0">
-                {isLoading ? (
-                  <div className="h-full flex items-center justify-center">
-                    <div className="animate-spin h-8 w-8 border-4 border-emerald-500 rounded-full border-t-transparent"></div>
-                  </div>
-                ) : tableData.length === 0 ? (
-                  <div className="h-full flex items-center justify-center text-gray-500">
-                    ไม่มีข้อมูลในช่วงเวลาที่เลือก
-                  </div>
-                ) : (
-                  <ScrollArea className="h-[calc(100%-1rem)] rounded-md border mx-4 mb-4">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[180px]">วันที่</TableHead>
-                          <TableHead className="w-[100px]">เวลา</TableHead>
-                          <TableHead className="text-right">ค่าที่วัดได้</TableHead>
+                <Button variant="outline" size="sm" className="h-8 text-xs flex items-center gap-1" onClick={toggleSortOrder}>
+                  <ArrowDownUp className="h-3.5 w-3.5" />
+                  <span>{sortOrder === 'desc' ? 'ล่าสุดขึ้นก่อน' : 'เก่าสุดขึ้นก่อน'}</span>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="flex-1 p-0">
+              {tableData.length === 0 ? (
+                <div className="h-full flex items-center justify-center text-gray-500">
+                  ไม่มีข้อมูลในช่วงเวลาที่เลือก
+                </div>
+              ) : (
+                <div className="px-4 pb-4 overflow-x-auto max-h-[calc(100vh-280px)]">
+                  <Table>
+                    <TableHeader className="sticky top-0 bg-white">
+                      <TableRow>
+                        <TableHead className="w-[180px]">วันที่</TableHead>
+                        <TableHead className="w-[100px]">เวลา</TableHead>
+                        <TableHead className="text-right">ค่าที่วัดได้</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {tableData.map((row) => (
+                        <TableRow key={row.id}>
+                          <TableCell>{row.date}</TableCell>
+                          <TableCell>{row.time} น.</TableCell>
+                          <TableCell className="text-right font-medium">{row.value !== null ? `${row.value}%` : "N/A"}</TableCell>
                         </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {tableData.map((row) => (
-                          <TableRow key={row.id}>
-                            <TableCell>{row.date}</TableCell>
-                            <TableCell>{row.time} น.</TableCell>
-                            <TableCell className="text-right font-medium">{row.value !== null ? `${row.value}%` : "N/A"}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </ScrollArea>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          {/* กราฟเต็มหน้าจอ */}
-          <TabsContent value="graph" className="flex-1 overflow-hidden">
-            <Card className="h-full flex flex-col">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>กราฟแสดงการวัด</CardTitle>
-                    <CardDescription>
-                      แสดงข้อมูลย้อนหลัง {timeFrame === '1h' ? '1 ชั่วโมง' : timeFrame === '24h' ? '24 ชั่วโมง' : timeFrame === '7d' ? '7 วัน' : '30 วัน'}
-                    </CardDescription>
-                  </div>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
-              </CardHeader>
-              <CardContent className="flex-1 overflow-hidden p-0">
-                {isLoading ? (
-                  <div className="h-full flex items-center justify-center">
-                    <div className="animate-spin h-8 w-8 border-4 border-emerald-500 rounded-full border-t-transparent"></div>
-                  </div>
-                ) : chartData.length === 0 ? (
-                  <div className="h-full flex items-center justify-center text-gray-500">
-                    ไม่มีข้อมูลในช่วงเวลาที่เลือก
-                  </div>
-                ) : (
-                  <div className="px-4 pb-4 h-full">
-                    <ResponsiveContainer width="100%" height={400}>
+              )}
+            </CardContent>
+          </Card>
+        );
+
+      case 'graph':
+        return (
+          <Card className="h-full flex flex-col">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>กราฟแสดงการวัด</CardTitle>
+                  <CardDescription>
+                    แสดงข้อมูลย้อนหลัง {timeFrame === '1h' ? '1 ชั่วโมง' : timeFrame === '24h' ? '24 ชั่วโมง' : timeFrame === '7d' ? '7 วัน' : '30 วัน'}
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="flex-1 pt-0">
+              {chartData.length === 0 ? (
+                <div className="h-full flex items-center justify-center text-gray-500">
+                  ไม่มีข้อมูลในช่วงเวลาที่เลือก
+                </div>
+              ) : (
+                <>
+                  <div className="h-[300px] md:h-[400px]">
+                    <ResponsiveContainer width="100%" height="100%">
                       <LineChart
                         data={chartData}
                         margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
@@ -605,27 +549,100 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
                         />
                       </LineChart>
                     </ResponsiveContainer>
-                    
-                    <div className="mt-4 grid grid-cols-3 gap-4 text-center">
-                      <div className="p-3 bg-gray-50 rounded-lg">
-                        <div className="text-sm text-gray-500">ค่าเฉลี่ย</div>
-                        <div className="text-lg font-semibold">{stats.avg.toFixed(2)}%</div>
-                      </div>
-                      <div className="p-3 bg-blue-50 rounded-lg">
-                        <div className="text-sm text-gray-500">ค่าต่ำสุด</div>
-                        <div className="text-lg font-semibold text-blue-600">{stats.min.toFixed(2)}%</div>
-                      </div>
-                      <div className="p-3 bg-red-50 rounded-lg">
-                        <div className="text-sm text-gray-500">ค่าสูงสุด</div>
-                        <div className="text-lg font-semibold text-red-600">{stats.max.toFixed(2)}%</div>
-                      </div>
+                  </div>
+                  
+                  <div className="mt-4 grid grid-cols-3 gap-4 text-center">
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <div className="text-sm text-gray-500">ค่าเฉลี่ย</div>
+                      <div className="text-lg font-semibold">{stats.avg.toFixed(2)}%</div>
+                    </div>
+                    <div className="p-3 bg-blue-50 rounded-lg">
+                      <div className="text-sm text-gray-500">ค่าต่ำสุด</div>
+                      <div className="text-lg font-semibold text-blue-600">{stats.min.toFixed(2)}%</div>
+                    </div>
+                    <div className="p-3 bg-red-50 rounded-lg">
+                      <div className="text-sm text-gray-500">ค่าสูงสุด</div>
+                      <div className="text-lg font-semibold text-red-600">{stats.max.toFixed(2)}%</div>
                     </div>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        );
+      
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-white flex flex-col">
+      <Header />
+      
+      <div className="flex items-center p-4 border-b border-gray-200 bg-gray-50 justify-between">
+        <div className="flex items-center">
+          <Button 
+            variant="outline" 
+            onClick={onClose}
+            className="mr-4 flex items-center text-gray-600 hover:bg-gray-100"
+            size="sm"
+          >
+            <ChevronLeft className="h-4 w-4 mr-1" />
+            <span>กลับ</span>
+          </Button>
+          <div>
+            <h1 className="text-lg font-bold text-gray-800">{name}</h1>
+            <p className="text-xs text-gray-500">{deviceCode}</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <Select value={timeFrame} onValueChange={(value) => handleTimeFrameChange(value as TimeFrame)}>
+            <SelectTrigger className="w-[100px] h-8 text-xs border-gray-200 bg-white">
+              <SelectValue placeholder="เลือกกรอบเวลา" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1h">1 ชั่วโมง</SelectItem>
+              <SelectItem value="24h">24 ชั่วโมง</SelectItem>
+              <SelectItem value="7d">7 วัน</SelectItem>
+              <SelectItem value="30d">30 วัน</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      
+      <div className="flex-1 flex flex-col">
+        <div className="flex justify-center border-b bg-white shadow-sm">
+          <Button
+            variant={viewMode === 'dashboard' ? 'default' : 'ghost'}
+            className={`flex-1 rounded-none border-b-2 ${viewMode === 'dashboard' ? 'border-emerald-500' : 'border-transparent'}`}
+            onClick={() => setViewMode('dashboard')}
+          >
+            <LayoutDashboard className="h-4 w-4 mr-1" />
+            <span className="hidden sm:inline">แดชบอร์ด</span>
+          </Button>
+          <Button
+            variant={viewMode === 'history' ? 'default' : 'ghost'}
+            className={`flex-1 rounded-none border-b-2 ${viewMode === 'history' ? 'border-emerald-500' : 'border-transparent'}`}
+            onClick={() => setViewMode('history')}
+          >
+            <History className="h-4 w-4 mr-1" />
+            <span className="hidden sm:inline">ประวัติ</span>
+          </Button>
+          <Button
+            variant={viewMode === 'graph' ? 'default' : 'ghost'}
+            className={`flex-1 rounded-none border-b-2 ${viewMode === 'graph' ? 'border-emerald-500' : 'border-transparent'}`}
+            onClick={() => setViewMode('graph')}
+          >
+            <BarChart className="h-4 w-4 mr-1" />
+            <span className="hidden sm:inline">กราฟ</span>
+          </Button>
+        </div>
+        
+        <div className="flex-1 p-4 overflow-auto">
+          {renderContent()}
+        </div>
       </div>
     </div>
   );
