@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { CalendarIcon, Loader2, Upload } from "lucide-react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 
@@ -10,7 +10,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { Separator } from "@/components/ui/separator";
 import { NewsItem } from "../types";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface NewsFormProps {
   currentNews: Partial<NewsItem>;
@@ -35,101 +38,154 @@ export function NewsForm({
   onCancel,
   onSave
 }: NewsFormProps) {
+  const isMobile = useIsMobile();
+  const [previewImage, setPreviewImage] = useState<string | null>(currentNews.image_url || null);
+
   return (
-    <div className="grid gap-4 py-4">
-      <div className="grid gap-2">
-        <Label htmlFor="title">หัวข้อข่าวสาร</Label>
-        <Input
-          id="title"
-          placeholder="ใส่หัวข้อข่าวสาร"
-          value={currentNews.title || ""}
-          onChange={(e) => setCurrentNews({ ...currentNews, title: e.target.value })}
-        />
-      </div>
-      
-      <div className="grid gap-2">
-        <Label htmlFor="content">เนื้อหาข่าวสาร</Label>
-        <Textarea
-          id="content"
-          placeholder="ใส่เนื้อหาข่าวสาร"
-          rows={6}
-          value={currentNews.content || ""}
-          onChange={(e) => setCurrentNews({ ...currentNews, content: e.target.value })}
-        />
-      </div>
-      
-      <div className="grid gap-2">
-        <Label htmlFor="image_url">URL รูปภาพ (ไม่บังคับ)</Label>
-        <Input
-          id="image_url"
-          placeholder="https://example.com/image.jpg"
-          value={currentNews.image_url || ""}
-          onChange={(e) => setCurrentNews({ ...currentNews, image_url: e.target.value })}
-        />
-      </div>
-      
-      <div className="grid gap-2">
-        <Label>วันที่เผยแพร่</Label>
-        <div className="relative">
-          <Popover open={showCalendar} onOpenChange={setShowCalendar}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full justify-start text-left font-normal text-gray-700"
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {date ? format(date, "PPP", { locale: th }) : "เลือกวันที่"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={(newDate) => {
-                  if (newDate) {
-                    setDate(newDate);
-                    setShowCalendar(false);
-                  }
-                }}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
+    <div className={`flex flex-col ${!isMobile ? 'md:flex-row' : ''} gap-8`}>
+      <div className={`${!isMobile ? 'md:w-2/3' : 'w-full'}`}>
+        <div className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="title" className="text-base">หัวข้อข่าวสาร</Label>
+            <Input
+              id="title"
+              placeholder="ใส่หัวข้อข่าวสาร"
+              value={currentNews.title || ""}
+              onChange={(e) => setCurrentNews({ ...currentNews, title: e.target.value })}
+              className="text-base"
+            />
+          </div>
+          
+          <div className="grid gap-2">
+            <Label htmlFor="content" className="text-base">เนื้อหาข่าวสาร</Label>
+            <Textarea
+              id="content"
+              placeholder="ใส่เนื้อหาข่าวสาร"
+              rows={8}
+              value={currentNews.content || ""}
+              onChange={(e) => setCurrentNews({ ...currentNews, content: e.target.value })}
+              className="text-base resize-y min-h-[150px]"
+            />
+          </div>
+          
+          <div className="grid gap-2">
+            <Label htmlFor="image_url" className="text-base">URL รูปภาพ (ไม่บังคับ)</Label>
+            <Input
+              id="image_url"
+              placeholder="https://example.com/image.jpg"
+              value={currentNews.image_url || ""}
+              onChange={(e) => {
+                setCurrentNews({ ...currentNews, image_url: e.target.value });
+                setPreviewImage(e.target.value);
+              }}
+              className="text-base"
+            />
+          </div>
+          
+          <div className="grid gap-2">
+            <Label className="text-base">วันที่เผยแพร่</Label>
+            <div className="relative">
+              <Popover open={showCalendar} onOpenChange={setShowCalendar}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal text-gray-700"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date ? format(date, "PPP", { locale: th }) : "เลือกวันที่"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={(newDate) => {
+                      if (newDate) {
+                        setDate(newDate);
+                        setShowCalendar(false);
+                      }
+                    }}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-2 mt-2">
+            <input
+              type="checkbox"
+              id="published"
+              checked={currentNews.published || false}
+              onChange={(e) => setCurrentNews({ ...currentNews, published: e.target.checked })}
+              className="rounded text-emerald-600 focus:ring-emerald-600 w-4 h-4"
+            />
+            <Label htmlFor="published" className="cursor-pointer">เผยแพร่ทันที</Label>
+          </div>
+        </div>
+        
+        <div className="flex justify-end gap-3 mt-8">
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={onCancel}
+          >
+            ยกเลิก
+          </Button>
+          <Button 
+            onClick={onSave} 
+            disabled={isSubmitting}
+            className="bg-emerald-600 hover:bg-emerald-700 min-w-[120px]"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                กำลังบันทึก...
+              </>
+            ) : "บันทึกข่าวสาร"}
+          </Button>
         </div>
       </div>
       
-      <div className="flex items-center space-x-2">
-        <input
-          type="checkbox"
-          id="published"
-          checked={currentNews.published || false}
-          onChange={(e) => setCurrentNews({ ...currentNews, published: e.target.checked })}
-          className="rounded text-emerald-600 focus:ring-emerald-600"
-        />
-        <Label htmlFor="published" className="cursor-pointer">เผยแพร่ทันที</Label>
-      </div>
-      
-      <div className="flex justify-end gap-2 mt-4">
-        <Button 
-          type="button" 
-          variant="outline" 
-          onClick={onCancel}
-        >
-          ยกเลิก
-        </Button>
-        <Button 
-          onClick={onSave} 
-          disabled={isSubmitting}
-          className="bg-emerald-600 hover:bg-emerald-700"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              กำลังบันทึก...
-            </>
-          ) : "บันทึกข่าวสาร"}
-        </Button>
-      </div>
+      {/* Preview panel for desktop */}
+      {!isMobile && (
+        <div className="md:w-1/3 bg-gray-50 rounded-lg p-4 border border-gray-100">
+          <h3 className="text-sm font-medium text-gray-600 mb-3">ตัวอย่าง</h3>
+          <div className="bg-white rounded-md p-4 shadow-sm">
+            <h4 className="font-medium mb-2">
+              {currentNews.title || "หัวข้อข่าวสาร"}
+            </h4>
+            
+            {previewImage && (
+              <div className="mb-3 border rounded-md overflow-hidden">
+                <img 
+                  src={previewImage} 
+                  alt="Preview" 
+                  className="w-full h-auto object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/placeholder.svg';
+                    setPreviewImage('/placeholder.svg');
+                  }} 
+                />
+              </div>
+            )}
+            
+            <div className="text-xs text-gray-500 mb-2">
+              {date ? format(date, "PPP", { locale: th }) : "วันที่จะแสดง"}
+            </div>
+            
+            <p className="text-sm text-gray-700 whitespace-pre-wrap line-clamp-5">
+              {currentNews.content || "เนื้อหาข่าวสารจะแสดงที่นี่"}
+            </p>
+            
+            <div className="flex justify-end mt-3">
+              <Badge variant={currentNews.published ? "default" : "outline"} className={`${currentNews.published ? 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200 border-0' : 'text-gray-500'}`}>
+                {currentNews.published ? "เผยแพร่แล้ว" : "ฉบับร่าง"}
+              </Badge>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

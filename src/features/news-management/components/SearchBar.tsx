@@ -13,7 +13,7 @@ export function SearchBar({ searchTerm, setSearchTerm }: SearchBarProps) {
       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
       <Input
         placeholder="ค้นหาข่าวสาร..."
-        className="pl-10"
+        className="pl-10 border-gray-200 focus-within:border-emerald-300 focus-within:ring-1 focus-within:ring-emerald-300"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
