@@ -33,14 +33,13 @@ export function DeviceManagementView({
   const [localDeviceUserMap, setLocalDeviceUserMap] = useState(deviceUserMap);
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("devices");
   
   const handleSelectDevice = (deviceCode: string) => {
     setSelectedDevice(prev => prev === deviceCode ? null : deviceCode);
     setSelectedUser(null);
     if (selectedDevice !== deviceCode) {
-      document.querySelector('[data-value="mapping"]')?.dispatchEvent(
-        new MouseEvent('click', { bubbles: true })
-      );
+      setActiveTab("mapping");
     }
   };
   
@@ -48,15 +47,12 @@ export function DeviceManagementView({
     setSelectedUser(prev => prev === userId ? null : userId);
     setSelectedDevice(null);
     if (selectedUser !== userId) {
-      document.querySelector('[data-value="mapping"]')?.dispatchEvent(
-        new MouseEvent('click', { bubbles: true })
-      );
+      setActiveTab("mapping");
     }
   };
   
   return (
-    <DeviceTabs>
-      {/* ส่วนแสดงข้อมูลอุปกรณ์ */}
+    <DeviceTabs value={activeTab} onValueChange={setActiveTab}>
       <TabsContent value="devices">
         <DeviceList 
           devices={devices}
@@ -67,7 +63,6 @@ export function DeviceManagementView({
         />
       </TabsContent>
       
-      {/* ส่วนแสดงข้อมูลผู้ใช้ */}
       <TabsContent value="users">
         <UserList 
           users={users}
@@ -79,7 +74,6 @@ export function DeviceManagementView({
         />
       </TabsContent>
       
-      {/* ส่วนจัดการการเข้าถึง */}
       <TabsContent value="mapping">
         <AccessMapping 
           devices={devices}

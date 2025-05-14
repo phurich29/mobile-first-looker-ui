@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
@@ -183,7 +182,6 @@ export default function DeviceDetails() {
         <Card className="mb-4">
           <CardHeader className="p-0 border-b">
             <Tabs
-              defaultValue="latest"
               value={tabView}
               onValueChange={(value) => setTabView(value as TabValue)}
               className="w-full"
@@ -192,89 +190,91 @@ export default function DeviceDetails() {
                 <TabsTrigger value="latest">ค่าล่าสุด</TabsTrigger>
                 <TabsTrigger value="history">ประวัติการวัด</TabsTrigger>
               </TabsList>
+            
+              <TabsContent value="latest" className="m-0">
+                {isLoading ? (
+                  <div className="flex justify-center items-center h-32">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+                  </div>
+                ) : !latestMeasurement ? (
+                  <div className="flex justify-center items-center h-32">
+                    <p className="text-gray-500">ไม่มีข้อมูลการวัดล่าสุด</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 divide-y">
+                    {ALL_MEASUREMENTS.map((measurementInfo) => {
+                      const value = latestMeasurement[measurementInfo.key as keyof Measurement];
+                      
+                      // ข้ามค่าที่ไม่มีข้อมูล
+                      if (value === undefined || value === null) return null;
+                      
+                      return (
+                        <div key={measurementInfo.key} onClick={() => handleMeasurementClick(measurementInfo.key)}>
+                          <MeasurementItem
+                            symbol={measurementInfo.key}
+                            name={measurementInfo.name}
+                            price={value.toString()}
+                            percentageChange={0} // ไม่มีข้อมูลการเปลี่ยนแปลง
+                            iconColor={measurementInfo.iconColor}
+                            updatedAt={latestMeasurement.created_at ? new Date(latestMeasurement.created_at) : undefined}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="history" className="m-0">
+                <ResponsiveTable>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>เวลา</TableHead>
+                      <TableHead>ต้นข้าว (%)</TableHead>
+                      <TableHead>ปลายข้าว (%)</TableHead>
+                      <TableHead>เมล็ดเสีย (%)</TableHead>
+                      <TableHead className="text-right">ดูเพิ่มเติม</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {historyData.length > 0 ? (
+                      historyData.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell>
+                            {formatDate(item.created_at)}
+                          </TableCell>
+                          <TableCell>{item.head_rice ?? '-'}</TableCell>
+                          <TableCell>{item.total_brokens ?? '-'}</TableCell>
+                          <TableCell>{item.imperfection_rate ?? '-'}</TableCell>
+                          <TableCell className="text-right">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => navigate(`/device/${deviceCode}/detail/${item.id}`)}
+                            >
+                              ดูข้อมูล
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-4">
+                          {isLoading ? 
+                            "กำลังโหลดข้อมูล..." : 
+                            "ไม่พบประวัติการวัด"
+                          }
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </ResponsiveTable>
+              </TabsContent>
             </Tabs>
           </CardHeader>
           
           <CardContent className="p-0">
-            <TabsContent value="latest" className="m-0">
-              {isLoading ? (
-                <div className="flex justify-center items-center h-32">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
-                </div>
-              ) : !latestMeasurement ? (
-                <div className="flex justify-center items-center h-32">
-                  <p className="text-gray-500">ไม่มีข้อมูลการวัดล่าสุด</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 divide-y">
-                  {ALL_MEASUREMENTS.map((measurementInfo) => {
-                    const value = latestMeasurement[measurementInfo.key as keyof Measurement];
-                    
-                    // ข้ามค่าที่ไม่มีข้อมูล
-                    if (value === undefined || value === null) return null;
-                    
-                    return (
-                      <div key={measurementInfo.key} onClick={() => handleMeasurementClick(measurementInfo.key)}>
-                        <MeasurementItem
-                          symbol={measurementInfo.key}
-                          name={measurementInfo.name}
-                          price={value.toString()}
-                          percentageChange={0} // ไม่มีข้อมูลการเปลี่ยนแปลง
-                          iconColor={measurementInfo.iconColor}
-                          updatedAt={latestMeasurement.created_at ? new Date(latestMeasurement.created_at) : undefined}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </TabsContent>
-            
-            <TabsContent value="history" className="m-0">
-              <ResponsiveTable>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>เวลา</TableHead>
-                    <TableHead>ต้นข้าว (%)</TableHead>
-                    <TableHead>ปลายข้าว (%)</TableHead>
-                    <TableHead>เมล็ดเสีย (%)</TableHead>
-                    <TableHead className="text-right">ดูเพิ่มเติม</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {historyData.length > 0 ? (
-                    historyData.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell>
-                          {formatDate(item.created_at)}
-                        </TableCell>
-                        <TableCell>{item.head_rice ?? '-'}</TableCell>
-                        <TableCell>{item.total_brokens ?? '-'}</TableCell>
-                        <TableCell>{item.imperfection_rate ?? '-'}</TableCell>
-                        <TableCell className="text-right">
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => navigate(`/device/${deviceCode}/detail/${item.id}`)}
-                          >
-                            ดูข้อมูล
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-4">
-                        {isLoading ? 
-                          "กำลังโหลดข้อมูล..." : 
-                          "ไม่พบประวัติการวัด"
-                        }
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </ResponsiveTable>
-            </TabsContent>
+            {/* Content is now inside the TabsContent components */}
           </CardContent>
         </Card>
       </main>

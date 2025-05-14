@@ -18,6 +18,7 @@ const SlideTabs = ({
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const [value, setValue] = useState(defaultValue);
 
   // จัดการการเลื่อนด้วยการลาก (drag)
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -57,6 +58,13 @@ const SlideTabs = ({
     setIsDragging(false);
   };
 
+  const handleValueChange = (val: string) => {
+    setValue(val);
+    if (onChange) {
+      onChange(val);
+    }
+  };
+
   useEffect(() => {
     // เพิ่ม event listeners สำหรับการจัดการ drag ที่นอกเหนือจาก component
     document.addEventListener("mouseup", handleDragEnd);
@@ -70,9 +78,9 @@ const SlideTabs = ({
 
   return (
     <Tabs
-      defaultValue={defaultValue}
+      value={value}
+      onValueChange={handleValueChange}
       className={cn("w-full", className)}
-      onValueChange={onChange}
     >
       <div 
         className="overflow-hidden"

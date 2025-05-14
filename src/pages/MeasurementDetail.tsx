@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Header } from "@/components/Header";
@@ -193,7 +192,6 @@ export default function MeasurementDetail() {
             <CardHeader className="p-4 bg-white border-b">
               {/* Timeframe selection tabs */}
               <Tabs
-                defaultValue="1hour"
                 value={timeFrame}
                 onValueChange={(value) => setTimeFrame(value as TimeFrame)}
                 className="w-full"
@@ -204,6 +202,19 @@ export default function MeasurementDetail() {
                   <TabsTrigger value="7days">7 วัน</TabsTrigger>
                   <TabsTrigger value="30days">30 วัน</TabsTrigger>
                 </TabsList>
+                
+                <TabsContent value="1hour" className="hidden">
+                  {/* We're using tabs for state, not for displaying content */}
+                </TabsContent>
+                <TabsContent value="24hours" className="hidden">
+                  {/* We're using tabs for state, not for displaying content */}
+                </TabsContent>
+                <TabsContent value="7days" className="hidden">
+                  {/* We're using tabs for state, not for displaying content */}
+                </TabsContent>
+                <TabsContent value="30days" className="hidden">
+                  {/* We're using tabs for state, not for displaying content */}
+                </TabsContent>
               </Tabs>
             </CardHeader>
             
