@@ -15,6 +15,7 @@ import Profile from "./pages/Profile";
 import DeviceManagement from "./pages/DeviceManagement";
 import NewsManagement from "./pages/NewsManagement";
 import News from "./pages/News"; // เพิ่มหน้าข่าวสาร
+import NotificationManagement from "./pages/NotificationManagement"; // เพิ่มหน้าจัดการการแจ้งเตือน
 import { AuthProvider, useAuth } from "./components/AuthProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useEffect } from "react";
@@ -119,6 +120,13 @@ function App() {
             <Route path="/news-management" element={
               <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
                 <NewsManagement />
+              </ProtectedRoute>
+            } />
+            
+            {/* เพิ่มเส้นทางใหม่สำหรับหน้าจัดการการแจ้งเตือน */}
+            <Route path="/notification-management" element={
+              <ProtectedRoute>
+                <NotificationManagement />
               </ProtectedRoute>
             } />
             

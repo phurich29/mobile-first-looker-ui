@@ -6,7 +6,8 @@ import {
   FileText,
   Bell,
   Wheat,
-  ChartLine
+  ChartLine,
+  BellDot
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -44,7 +45,7 @@ export const IconMenu = () => {
     { icon: <HardDrive />, label: "รายการอุปกรณ์", to: "/equipment", iconColor: "#22c55e" },
     { icon: <ChartLine />, label: "ค่าวัดคุณภาพ", to: "/measurements", iconColor: "#8b5cf6" },
     { icon: <FileText />, label: "คู่มือการใช้งาน", to: "#", iconColor: "#f97316" },
-    { icon: <Bell />, label: "ตั้งค่าการแจ้งเตือน", to: "/profile", iconColor: "#64748b" },
+    { icon: <BellDot />, label: "จัดการการแจ้งเตือน", to: "/notification-management", iconColor: "#ef4444" },
   ];
 
   return (

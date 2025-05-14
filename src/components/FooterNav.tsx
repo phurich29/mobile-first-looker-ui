@@ -34,11 +34,11 @@ export const FooterNav = () => {
         <span className={`text-xs mt-0.5 ${isActive('/equipment') ? 'text-white' : 'text-white/80'}`}>อุปกรณ์</span>
       </Link>
       
-      <Link to="/notifications" className="flex flex-col items-center w-1/4 justify-center">
-        <div className={`p-1 ${isActive('/notifications') ? 'bg-emerald-700 rounded-full' : ''}`}>
+      <Link to="/notification-management" className="flex flex-col items-center w-1/4 justify-center">
+        <div className={`p-1 ${isActive('/notification-management') ? 'bg-emerald-700 rounded-full' : ''}`}>
           <Bell className="w-5 h-5 text-white" />
         </div>
-        <span className={`text-xs mt-0.5 ${isActive('/notifications') ? 'text-white' : 'text-white/80'}`}>ตั้งค่าแจ้งเตือน</span>
+        <span className={`text-xs mt-0.5 ${isActive('/notification-management') ? 'text-white' : 'text-white/80'}`}>การแจ้งเตือน</span>
       </Link>
       
       <Link to="/profile" className="flex flex-col items-center w-1/4 justify-center">
