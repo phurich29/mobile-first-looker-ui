@@ -1,4 +1,3 @@
-
 import { useRef, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
@@ -442,7 +441,7 @@ export default function DeviceDetails() {
     const latestData = allData[0];
     const previousData = allData.length > 1 ? allData[1] : null;
     
-    // รวมข้อมูลทั้งสามประเภทเข้าด้วยกัน
+    // รวมข้อมูลทั้งสามประเภทเข��าด้วยกัน
     const metrics = [
       // หมวดหมู่ "พื้นข้าวเต็มเมล็ด"
       {
@@ -655,9 +654,9 @@ export default function DeviceDetails() {
     );
   };
 
-  // ฟังก์ชันสำหรับการกลับไปหน้าก่อนหน้า
+  // ฟังก์ชันสำหรับการกลับไปหน้าอุปกรณ์
   const handleGoBack = () => {
-    navigate(-1);
+    navigate("/equipment");
   };
 
   return (
