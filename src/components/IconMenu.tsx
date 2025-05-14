@@ -3,9 +3,9 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { 
   HardDrive,
-  Book,
-  Activity,
-  Settings
+  Thermometer,
+  FileText,
+  Bell
 } from "lucide-react";
 
 type MenuItemProps = {
@@ -40,9 +40,9 @@ const MenuItem = ({ icon, label, to, bgColor, iconColor }: MenuItemProps) => {
 export const IconMenu = () => {
   const menuItems = [
     { icon: <HardDrive />, label: "รายการอุปกรณ์", to: "/equipment", bgColor: "#f0fdf4", iconColor: "#22c55e" },
-    { icon: <Book />, label: "คู่มือการใช้งาน", to: "#", bgColor: "#fff7ed", iconColor: "#f97316" },
-    { icon: <Activity />, label: "ตัวบ่งชี้คุณภาพ", to: "#", bgColor: "#f5f3ff", iconColor: "#8b5cf6" },
-    { icon: <Settings />, label: "การตั้งค่า", to: "/profile", bgColor: "#f8fafc", iconColor: "#64748b" },
+    { icon: <Thermometer />, label: "ค่าวัดคุณภาพ", to: "/measurements", bgColor: "#f5f3ff", iconColor: "#8b5cf6" },
+    { icon: <FileText />, label: "คู่มือการใช้งาน", to: "#", bgColor: "#fff7ed", iconColor: "#f97316" },
+    { icon: <Bell />, label: "ตั้งค่าการแจ้งเตือน", to: "/profile", bgColor: "#f8fafc", iconColor: "#64748b" },
   ];
 
   return (
