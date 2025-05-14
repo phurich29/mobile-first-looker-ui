@@ -1,6 +1,6 @@
 
 import { useRef, useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -9,11 +9,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Square, Wheat, Blend, Circle } from "lucide-react";
+import { Square, Wheat, Blend, Circle, ChevronLeft } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
 
 export default function DeviceDetails() {
   const { deviceCode } = useParams();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   
   // สร้าง state และ ref สำหรับฟังก์ชันการลาก (Drag)
@@ -653,11 +655,26 @@ export default function DeviceDetails() {
     );
   };
 
+  // ฟังก์ชันสำหรับการกลับไปหน้าก่อนหน้า
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
       <Header />
 
       <main className="flex-1 p-4 pb-32">
+        {/* ปุ่มย้อนกลับ */}
+        <Button 
+          variant="outline" 
+          onClick={handleGoBack}
+          className="mb-4 flex items-center text-gray-600 hover:bg-gray-100"
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          <span>ย้อนกลับ</span>
+        </Button>
+
         <div className="flex justify-between items-center mb-4">
           <div>
             <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>
