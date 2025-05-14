@@ -5,7 +5,6 @@ import Admin from "./pages/Admin";
 import Login from "./pages/Login";
 import Equipment from "./pages/Equipment";
 import DeviceDetails from "./pages/DeviceDetails";
-import MeasurementDetail from "./pages/MeasurementDetail";
 import Measurements from "./pages/Measurements";
 import NotFound from "./pages/NotFound";
 import RicePrices from "./pages/RicePrices";
@@ -81,17 +80,10 @@ function App() {
               </ProtectedRoute>
             } />
             
-            {/* เส้นทางสำหรับหน้าแสดงรายละเอียดอุปกรณ์ */}
+            {/* เพิ่มเส้นทางใหม่สำหรับหน้าแสดงรายละเอียดอุปกรณ์ */}
             <Route path="/device/:deviceCode" element={
               <ProtectedRoute>
                 <DeviceDetails />
-              </ProtectedRoute>
-            } />
-            
-            {/* เพิ่มเส้นทางใหม่สำหรับหน้าแสดงกราฟข้อมูลรายละเอียดการวัด */}
-            <Route path="/device/:deviceCode/measurement/:measurementKey" element={
-              <ProtectedRoute>
-                <MeasurementDetail />
               </ProtectedRoute>
             } />
             

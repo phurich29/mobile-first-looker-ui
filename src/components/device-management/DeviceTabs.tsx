@@ -5,22 +5,11 @@ import { Database, Users, Filter } from "lucide-react";
 interface DeviceTabsProps {
   children: React.ReactNode;
   defaultValue?: string;
-  value?: string;
-  onValueChange?: (value: string) => void;
 }
 
-export function DeviceTabs({ 
-  children, 
-  defaultValue = "devices",
-  value,
-  onValueChange
-}: DeviceTabsProps) {
-  // The Tabs component should have either defaultValue or value+onValueChange
-  // This allows both controlled and uncontrolled usage
+export function DeviceTabs({ children, defaultValue = "devices" }: DeviceTabsProps) {
   return (
-    <Tabs defaultValue={value === undefined ? defaultValue : undefined} 
-          value={value} 
-          onValueChange={onValueChange}>
+    <Tabs defaultValue={defaultValue}>
       <TabsList className="mb-6">
         <TabsTrigger value="devices" className="flex items-center gap-2">
           <Database className="h-4 w-4" />

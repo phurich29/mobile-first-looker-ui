@@ -30,7 +30,7 @@ export function RicePriceTable() {
   return (
     <div className="bg-transparent">
       <div className="w-full">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs defaultValue="prices" value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2 mb-4 bg-emerald-100">
             <TabsTrigger value="prices" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white">ราคาข้าว</TabsTrigger>
             <TabsTrigger value="documents" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white">เอกสารราคาข้าว</TabsTrigger>

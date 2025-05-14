@@ -14,46 +14,31 @@ interface User {
   email: string;
 }
 
-interface Device {
-  device_code: string;
-}
-
 interface UserListProps {
-  users: User[];
-  devices: { device_code: string }[];
   deviceUserMap: Record<string, string[]>;
-  isLoading: boolean;
-  onRefresh: () => Promise<void>;
+  devices: { device_code: string }[];
   onSelectUser: (userId: string) => void;
 }
 
 export function UserList({ 
-  users,
   devices,
   deviceUserMap,
-  isLoading,
-  onRefresh,
   onSelectUser 
 }: UserListProps) {
   const { toast } = useToast();
   const [userFilter, setUserFilter] = useState("");
+  const { users, isLoadingUsers: isLoading } = useUserManagement();
+
+  // อัพเดตข้อมูลผู้ใช้เมื่อ component โหลด
+  useEffect(() => {
+    // ข้อมูลผู้ใช้จะถูกโหลดโดยอัตโนมัติจาก useUserManagement
+  }, []);
   
-  // Filter users based on search input
-  const filteredUsers = users.filter(user => 
-    user.email.toLowerCase().includes(userFilter.toLowerCase())
-  );
-  
-  // Get devices that a specific user has access to
-  const getDevicesForUser = (userId: string) => {
-    return devices.filter(device => 
-      (deviceUserMap[device.device_code] || []).includes(userId)
-    );
-  };
-  
-  // Handle refresh button click
+  // ฟังก์ชันรีเฟรชข้อมูล
   const handleRefresh = async () => {
     try {
-      await onRefresh();
+      // รีโหลดหน้าเพื่อดึงข้อมูลใหม่
+      window.location.reload();
       toast({
         title: "รีเฟรชข้อมูลสำเร็จ",
         description: "ข้อมูลผู้ใช้อัพเดตแล้ว",
@@ -65,6 +50,18 @@ export function UserList({
         variant: "destructive",
       });
     }
+  };
+  
+  // Filter users based on search input
+  const filteredUsers = users.filter(user => 
+    user.email.toLowerCase().includes(userFilter.toLowerCase())
+  );
+  
+  // Get devices that a specific user has access to
+  const getDevicesForUser = (userId: string) => {
+    return devices.filter(device => 
+      (deviceUserMap[device.device_code] || []).includes(userId)
+    );
   };
   
   return (

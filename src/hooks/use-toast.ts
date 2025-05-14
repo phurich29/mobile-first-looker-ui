@@ -1,11 +1,12 @@
 import * as React from "react"
-import { 
+
+import {
   Toast,
   ToastActionElement,
-  ToastProps
+  ToastProps,
 } from "@/components/ui/toast"
 
-const TOAST_LIMIT = 20
+const TOAST_LIMIT = 5
 const TOAST_REMOVE_DELAY = 1000000
 
 type ToasterToast = ToastProps & {
@@ -77,10 +78,10 @@ const reducer = (state: State, action: Action): State => {
       // ! Side effects ! - This could be extracted into a dismissToast() action,
       // but I'll keep it here for simplicity
       if (toastId) {
-        addToRemoveQueue(toastId)
+        setToastTimeout(toastId)
       } else {
         state.toasts.forEach((toast) => {
-          addToRemoveQueue(toast.id)
+          setToastTimeout(toast.id)
         })
       }
 
@@ -110,6 +111,22 @@ const reducer = (state: State, action: Action): State => {
   }
 }
 
+function setToastTimeout(id: string) {
+  if (toastTimeouts.has(id)) {
+    return
+  }
+
+  const timeout = setTimeout(() => {
+    toastTimeouts.delete(id)
+    dispatch({
+      type: actionTypes.REMOVE_TOAST,
+      toastId: id,
+    })
+  }, TOAST_REMOVE_DELAY)
+
+  toastTimeouts.set(id, timeout)
+}
+
 const listeners: Array<(state: State) => void> = []
 
 let memoryState: State = { toasts: [] }
@@ -121,23 +138,38 @@ function dispatch(action: Action) {
   })
 }
 
-function addToRemoveQueue(toastId: string) {
-  if (toastTimeouts.has(toastId)) {
-    return
-  }
+type Toast = Omit<ToasterToast, "id">
 
-  const timeout = setTimeout(() => {
-    toastTimeouts.delete(toastId)
+function toast({ ...props }: Toast) {
+  const id = genId()
+
+  const update = (props: ToasterToast) =>
     dispatch({
-      type: "REMOVE_TOAST",
-      toastId: toastId,
+      type: actionTypes.UPDATE_TOAST,
+      toast: { ...props, id },
     })
-  }, TOAST_REMOVE_DELAY)
+  const dismiss = () => dispatch({ type: actionTypes.DISMISS_TOAST, toastId: id })
 
-  toastTimeouts.set(toastId, timeout)
+  dispatch({
+    type: actionTypes.ADD_TOAST,
+    toast: {
+      ...props,
+      id,
+      open: true,
+      onOpenChange: (open) => {
+        if (!open) dismiss()
+      },
+    },
+  })
+
+  return {
+    id,
+    dismiss,
+    update,
+  }
 }
 
-export function useToast() {
+function useToast() {
   const [state, setState] = React.useState<State>(memoryState)
 
   React.useEffect(() => {
@@ -152,64 +184,9 @@ export function useToast() {
 
   return {
     ...state,
-    toast: (props: Omit<ToasterToast, "id">) => {
-      const id = genId()
-
-      dispatch({
-        type: "ADD_TOAST",
-        toast: {
-          ...props,
-          id,
-          open: true,
-          onOpenChange: (open) => {
-            if (!open) dispatch({ type: "DISMISS_TOAST", toastId: id })
-          },
-        },
-      })
-
-      return {
-        id,
-        dismiss: () => dispatch({ type: "DISMISS_TOAST", toastId: id }),
-        update: (props: ToasterToast) =>
-          dispatch({
-            type: "UPDATE_TOAST",
-            toast: { ...props, id },
-          }),
-      }
-    },
-    dismiss: (toastId?: string) => dispatch({ type: "DISMISS_TOAST", toastId }),
+    toast,
+    dismiss: (toastId?: string) => dispatch({ type: actionTypes.DISMISS_TOAST, toastId }),
   }
 }
 
-export type { ToasterToast }
-
-// Create a callable toast function 
-export const toast = (props: Omit<ToasterToast, "id">) => {
-  const id = genId()
-
-  dispatch({
-    type: "ADD_TOAST",
-    toast: {
-      ...props,
-      id,
-      open: true,
-      onOpenChange: (open) => {
-        if (!open) dispatch({ type: "DISMISS_TOAST", toastId: id })
-      },
-    },
-  })
-
-  return {
-    id,
-    dismiss: () => dispatch({ type: "DISMISS_TOAST", toastId: id }),
-    update: (props: ToasterToast) =>
-      dispatch({
-        type: "UPDATE_TOAST",
-        toast: { ...props, id },
-      }),
-  }
-}
-
-// Add variants as methods to the toast function
-toast.destructive = (props: Omit<ToasterToast, "id" | "variant">) => 
-  toast({ ...props, variant: "destructive" })
+export { useToast, toast }
