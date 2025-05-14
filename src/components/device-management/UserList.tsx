@@ -14,43 +14,29 @@ interface User {
   email: string;
 }
 
+interface Device {
+  device_code: string;
+}
+
 interface UserListProps {
-  deviceUserMap: Record<string, string[]>;
+  users: User[];
   devices: { device_code: string }[];
+  deviceUserMap: Record<string, string[]>;
+  isLoading: boolean;
+  onRefresh: () => Promise<void>;
   onSelectUser: (userId: string) => void;
 }
 
 export function UserList({ 
+  users,
   devices,
   deviceUserMap,
+  isLoading,
+  onRefresh,
   onSelectUser 
 }: UserListProps) {
   const { toast } = useToast();
   const [userFilter, setUserFilter] = useState("");
-  const { users, isLoadingUsers: isLoading } = useUserManagement();
-
-  // อัพเดตข้อมูลผู้ใช้เมื่อ component โหลด
-  useEffect(() => {
-    // ข้อมูลผู้ใช้จะถูกโหลดโดยอัตโนมัติจาก useUserManagement
-  }, []);
-  
-  // ฟังก์ชันรีเฟรชข้อมูล
-  const handleRefresh = async () => {
-    try {
-      // รีโหลดหน้าเพื่อดึงข้อมูลใหม่
-      window.location.reload();
-      toast({
-        title: "รีเฟรชข้อมูลสำเร็จ",
-        description: "ข้อมูลผู้ใช้อัพเดตแล้ว",
-      });
-    } catch (error) {
-      toast({
-        title: "รีเฟรชข้อมูลไม่สำเร็จ",
-        description: "เกิดข้อผิดพลาดในการอัพเดตข้อมูล",
-        variant: "destructive",
-      });
-    }
-  };
   
   // Filter users based on search input
   const filteredUsers = users.filter(user => 
@@ -62,6 +48,23 @@ export function UserList({
     return devices.filter(device => 
       (deviceUserMap[device.device_code] || []).includes(userId)
     );
+  };
+  
+  // Handle refresh button click
+  const handleRefresh = async () => {
+    try {
+      await onRefresh();
+      toast({
+        title: "รีเฟรชข้อมูลสำเร็จ",
+        description: "ข้อมูลผู้ใช้อัพเดตแล้ว",
+      });
+    } catch (error) {
+      toast({
+        title: "รีเฟรชข้อมูลไม่สำเร็จ",
+        description: "เกิดข้อผิดพลาดในการอัพเดตข้อมูล",
+        variant: "destructive",
+      });
+    }
   };
   
   return (
