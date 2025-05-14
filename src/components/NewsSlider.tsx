@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { CalendarDays } from "lucide-react";
@@ -20,6 +21,19 @@ export const NewsSlider = () => {
   const [selectedNews, setSelectedNews] = useState<NewsItemType | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const isMobile = useIsMobile();
+  const [api, setApi] = useState<any>(null);
+
+  // Auto-slide effect that runs every 6 seconds
+  useEffect(() => {
+    if (!api || news.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      api.scrollNext();
+    }, 6000);
+    
+    return () => clearInterval(interval);
+  }, [api, news.length]);
+
   useEffect(() => {
     const fetchNews = async () => {
       try {
@@ -68,7 +82,7 @@ export const NewsSlider = () => {
       <Carousel opts={{
       align: "start",
       loop: true
-    }} className="w-full">
+    }} setApi={setApi} className="w-full">
         <CarouselContent>
           {news.map(item => <CarouselItem key={item.id} className={isMobile ? "w-full" : "basis-1/2"}>
               <div className="bg-white rounded-xl overflow-hidden shadow-sm h-full">
@@ -78,8 +92,8 @@ export const NewsSlider = () => {
               }} />
                   </div> : null}
                 <div className="p-4">
-                  <h3 className="font-medium text-gray-900 mb-2 line-clamp-2">{item.title}</h3>
-                  <p className="text-sm text-gray-600 line-clamp-3 mb-3 min-h-[4.5rem]">{item.content}</p>
+                  <h3 className="font-medium text-gray-900 mb-2 line-clamp-2 break-words">{item.title}</h3>
+                  <p className="text-sm text-gray-600 line-clamp-3 mb-3 min-h-[4.5rem] break-words">{item.content}</p>
                   <div className="flex justify-between items-center">
                     <div className="flex items-center text-xs text-gray-500">
                       <CalendarDays className="h-3 w-3 mr-1" />
@@ -95,8 +109,8 @@ export const NewsSlider = () => {
               </div>
             </CarouselItem>)}
         </CarouselContent>
-        
-        
+        <CarouselPrevious className="hidden md:flex" />
+        <CarouselNext className="hidden md:flex" />
       </Carousel>
 
       {/* Dialog for displaying full news content */}
