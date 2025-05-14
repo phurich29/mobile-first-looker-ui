@@ -183,17 +183,33 @@ export function useToast() {
 
 export type { ToasterToast }
 
-// Create a simple toast utility function
-export const toast = {
-  // Basic toast function
-  default: (props: Omit<ToasterToast, "id">) => {
-    const { toast } = useToast();
-    return toast(props);
-  },
-  
-  // Variants
-  destructive: (props: Omit<ToasterToast, "id" | "variant">) => {
-    const { toast } = useToast();
-    return toast({ ...props, variant: "destructive" });
+// Create a callable toast function 
+export const toast = (props: Omit<ToasterToast, "id">) => {
+  const id = genId()
+
+  dispatch({
+    type: "ADD_TOAST",
+    toast: {
+      ...props,
+      id,
+      open: true,
+      onOpenChange: (open) => {
+        if (!open) dispatch({ type: "DISMISS_TOAST", toastId: id })
+      },
+    },
+  })
+
+  return {
+    id,
+    dismiss: () => dispatch({ type: "DISMISS_TOAST", toastId: id }),
+    update: (props: ToasterToast) =>
+      dispatch({
+        type: "UPDATE_TOAST",
+        toast: { ...props, id },
+      }),
   }
-};
+}
+
+// Add variants as methods to the toast function
+toast.destructive = (props: Omit<ToasterToast, "id" | "variant">) => 
+  toast({ ...props, variant: "destructive" })
