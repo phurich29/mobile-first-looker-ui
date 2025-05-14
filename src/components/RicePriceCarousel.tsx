@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import useEmblaCarousel from 'embla-carousel-react';
 import { AssetCard } from "@/components/AssetCard";
 import { RicePrice } from "@/features/user-management/types";
@@ -59,6 +59,7 @@ const SAMPLE_RICE_PRICES = [
 
 export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCarouselProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     align: 'start', 
     loop: false, 
@@ -166,6 +167,8 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
                     iconColor={'#10b981'}
                     date={rice.document_date ? formatThaiDate(rice.document_date) : undefined}
                     priceColor={rice.priceColor}
+                    clickable={true}
+                    onClick={() => navigate('/rice-prices')}
                   />
                 </div>
               ))
@@ -184,15 +187,7 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
           </div>
         </div>
         
-        {/* Progress indicator - optional scrollbar for UI feedback */}
-        <div className="px-[5%] mt-3">
-          <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-emerald-500 transition-all duration-200"
-              style={{ width: `${scrollProgress * 100}%` }}
-            ></div>
-          </div>
-        </div>
+        {/* Scrollbar has been removed as requested */}
       </div>
     </>
   );

@@ -1,6 +1,6 @@
 
 import React from "react";
-import { ArrowUpRight, ArrowDownRight, Wheat } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, Wheat, ExternalLink } from "lucide-react";
 
 type AssetCardProps = {
   symbol: string;
@@ -11,6 +11,8 @@ type AssetCardProps = {
   iconColor: string;
   date?: string;
   priceColor?: string;
+  clickable?: boolean;
+  onClick?: () => void;
 };
 
 export const AssetCard: React.FC<AssetCardProps> = ({
@@ -22,6 +24,8 @@ export const AssetCard: React.FC<AssetCardProps> = ({
   iconColor,
   date,
   priceColor,
+  clickable = false,
+  onClick,
 }) => {
   // สร้าง shortcode จากชื่อสกุลเงิน ถ้าเป็นชื่อข้าวให้แสดงตัวอักษรแรกแทน
   const getSymbolShortcode = () => {
@@ -56,7 +60,10 @@ export const AssetCard: React.FC<AssetCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md border border-emerald-100 hover:shadow-lg transition-all duration-300 relative overflow-hidden h-full flex flex-col">
+    <div 
+      className={`bg-white rounded-xl shadow-md border border-emerald-100 hover:shadow-lg transition-all duration-300 relative overflow-hidden h-full flex flex-col ${clickable ? 'cursor-pointer hover:border-emerald-300' : ''}`}
+      onClick={clickable && onClick ? onClick : undefined}
+    >
       {/* พื้นหลังรูปเมล็ดข้าว - ย้ายไปอยู่ด้านหลังและปรับขนาดให้เหมาะสม */}
       <div 
         className="absolute inset-0 opacity-5" 
@@ -67,6 +74,13 @@ export const AssetCard: React.FC<AssetCardProps> = ({
           backgroundRepeat: 'no-repeat'
         }}
       ></div>
+      
+      {/* สัญลักษณ์แสดงว่าคลิกได้ */}
+      {clickable && (
+        <div className="absolute top-2 right-2 z-20">
+          <ExternalLink className="w-3.5 h-3.5 text-emerald-500" />
+        </div>
+      )}
       
       {/* ส่วนหัว */}
       <div className="p-3 relative z-10 flex-grow">
@@ -81,7 +95,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({
           </div>
           
           {/* ชื่อข้าว */}
-          <div className="text-right flex-grow ml-2 truncate">
+          <div className="text-center flex-grow ml-2 truncate">
             <p className="font-bold text-sm truncate">{symbol}</p>
           </div>
         </div>
