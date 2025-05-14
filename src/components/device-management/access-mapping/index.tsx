@@ -1,6 +1,7 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { DeviceListSelector } from "./DeviceList";
@@ -84,7 +85,10 @@ export function AccessMapping({
           return newMap;
         });
         
-        toast("ลบสิทธิ์สำเร็จ: ลบสิทธิ์การเข้าถึงอุปกรณ์เรียบร้อยแล้ว");
+        toast({
+          title: "ลบสิทธิ์สำเร็จ",
+          description: "ลบสิทธิ์การเข้าถึงอุปกรณ์เรียบร้อยแล้ว",
+        });
       } else {
         // Grant access
         const { error } = await supabase
@@ -107,11 +111,18 @@ export function AccessMapping({
           return newMap;
         });
         
-        toast("เพิ่มสิทธิ์สำเร็จ: เพิ่มสิทธิ์การเข้าถึงอุปกรณ์เรียบร้อยแล้ว");
+        toast({
+          title: "เพิ่มสิทธิ์สำเร็จ",
+          description: "เพิ่มสิทธิ์การเข้าถึงอุปกรณ์เรียบร้อยแล้ว",
+        });
       }
     } catch (error) {
       console.error("Error toggling access:", error);
-      toast("เกิดข้อผิดพลาด: ไม่สามารถอัพเดทสิทธิ์การเข้าถึงได้");
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถอัพเดทสิทธิ์การเข้าถึงได้",
+        variant: "destructive",
+      });
     }
   };
 
