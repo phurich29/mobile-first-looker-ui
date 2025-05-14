@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button"; 
 import { Users, UserPlus, X, CheckCircle, ChartBar } from "lucide-react";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,9 +40,9 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
   const { user } = useAuth();
   const { toast } = useToast();
   
-  // Format the last updated time to show exact date and time in Thai format
+  // Format the last updated time to show exact date and time
   const formattedTime = lastUpdated 
-    ? format(parseISO(lastUpdated), "dd MMMM yyyy HH:mm:ss น.", { locale: th })
+    ? format(new Date(lastUpdated), "dd MMMM yyyy HH:mm:ss น.", { locale: th })
     : "ไม่มีข้อมูล";
   
   // Load users with their device access status
