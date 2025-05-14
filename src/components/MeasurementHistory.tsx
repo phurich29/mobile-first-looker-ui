@@ -45,6 +45,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+// Define the data structure expected from Supabase
+interface MeasurementData {
+  id: number;
+  created_at?: string;
+  thai_datetime?: string;
+  device_code?: string;
+  [key: string]: any; // For dynamic measurement values
+}
+
 type MeasurementHistoryProps = {
   symbol: string;
   name: string;
@@ -76,7 +85,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
   };
 
   // Fetch measurement history data
-  const fetchMeasurementHistory = async () => {
+  const fetchMeasurementHistory = async (): Promise<MeasurementData[]> => {
     if (!deviceCode || !symbol) throw new Error("Missing device code or measurement symbol");
     
     try {
@@ -97,11 +106,11 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
         toast({
           title: "เกิดข้อผิดพลาด",
           description: `ไม่สามารถดึงข้อมูลได้: ${error.message}`,
-          variant: "destructive",
         });
         throw error;
       }
       
+      // Ensure we return an empty array if data is null
       return data || [];
     } catch (err) {
       console.error('Error in fetchMeasurementHistory:', err);
@@ -140,14 +149,14 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
 
   // Prepare data for table
   const tableData = useMemo(() => {
-    if (!historyData) return [];
+    if (!historyData || !Array.isArray(historyData)) return [];
     
     return historyData.map(item => ({
       id: item.id,
       value: item[symbol] !== null && item[symbol] !== undefined ? item[symbol] : null,
       formattedDate: formatDate(item.created_at || item.thai_datetime).date,
       formattedTime: formatDate(item.created_at || item.thai_datetime).time,
-      timestamp: new Date(item.created_at || item.thai_datetime).getTime()
+      timestamp: new Date(item.created_at || item.thai_datetime || Date.now()).getTime()
     }));
   }, [historyData, symbol]);
 
