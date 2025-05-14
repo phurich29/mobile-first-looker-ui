@@ -14,7 +14,8 @@ import Waiting from "./pages/Waiting";
 import Profile from "./pages/Profile";
 import DeviceManagement from "./pages/DeviceManagement";
 import NewsManagement from "./pages/NewsManagement";
-import News from "./pages/News"; // เพิ่มหน้าข่าวสาร
+import News from "./pages/News";
+import NotificationsManagement from "./pages/NotificationsManagement"; // เพิ่มหน้าจัดการแจ้งเตือน
 import { AuthProvider, useAuth } from "./components/AuthProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useEffect } from "react";
@@ -105,6 +106,13 @@ function App() {
             <Route path="/profile" element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            } />
+            
+            {/* เพิ่มเส้นทางใหม่สำหรับหน้าจัดการแจ้งเตือน */}
+            <Route path="/notifications-management" element={
+              <ProtectedRoute>
+                <NotificationsManagement />
               </ProtectedRoute>
             } />
             
