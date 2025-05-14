@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { RicePrice, RicePriceDocument } from "@/features/user-management/types";
 import { useToast } from "@/components/ui/use-toast";
+import { useEffect } from "react";
 
 export function usePriceData() {
   const { toast } = useToast();
@@ -62,15 +63,7 @@ export function usePriceData() {
     queryFn: fetchRicePrices,
     retry: 3,
     staleTime: 1000 * 60 * 5, // Consider data fresh for 5 minutes
-    refetchOnWindowFocus: false, // Don't refetch when window regains focus
-    onError: (error) => {
-      console.error('Error in ricePrices query:', error);
-      toast({
-        title: "ไม่สามารถโหลดข้อมูลราคาข้าวได้",
-        description: "กรุณาลองใหม่อีกครั้งในภายหลัง",
-        variant: "destructive"
-      });
-    }
+    refetchOnWindowFocus: false // Don't refetch when window regains focus
   });
 
   // Use React Query to fetch and cache rice price documents
@@ -84,16 +77,32 @@ export function usePriceData() {
     queryFn: fetchRicePriceDocuments,
     retry: 3,
     staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
-    onError: (error) => {
-      console.error('Error in ricePriceDocuments query:', error);
+    refetchOnWindowFocus: false
+  });
+
+  // Show error toast if there's an error after retry attempts
+  useEffect(() => {
+    if (pricesError) {
+      console.error('Error in ricePrices query:', pricesError);
+      toast({
+        title: "ไม่สามารถโหลดข้อมูลราคาข้าวได้",
+        description: "กรุณาลองใหม่อีกครั้งในภายหลัง",
+        variant: "destructive"
+      });
+    }
+  }, [pricesError, toast]);
+
+  // Show error toast if there's an error after retry attempts
+  useEffect(() => {
+    if (docsError) {
+      console.error('Error in ricePriceDocuments query:', docsError);
       toast({
         title: "ไม่สามารถโหลดข้อมูลเอกสารได้",
         description: "กรุณาลองใหม่อีกครั้งในภายหลัง",
         variant: "destructive"
       });
     }
-  });
+  }, [docsError, toast]);
 
   return {
     ricePrices,

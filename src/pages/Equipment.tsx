@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -107,16 +106,20 @@ export default function Equipment() {
     queryKey: ['devices', user?.id],
     queryFn: fetchDeviceData,
     enabled: !!user,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    onError: (err) => {
-      console.error('Device query error:', err);
+    staleTime: 1000 * 60 * 5 // 5 minutes
+  });
+
+  // Show error toast if there's an error
+  useEffect(() => {
+    if (error) {
+      console.error('Device query error:', error);
       toast({
         title: "เกิดข้อผิดพลาด",
         description: "ไม่สามารถดึงข้อมูลอุปกรณ์ได้",
         variant: "destructive",
       });
     }
-  });
+  }, [error, toast]);
 
   // Update devices state when data changes
   useEffect(() => {

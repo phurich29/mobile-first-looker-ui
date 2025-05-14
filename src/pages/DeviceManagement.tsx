@@ -132,11 +132,6 @@ export default function DeviceManagement() {
       
       console.log("Successfully fetched all device management data");
       
-      return {
-        devices: deviceList,
-        users: userList,
-        deviceUserMap: mappings
-      };
     } catch (error) {
       console.error("Error fetching all data:", error);
       toast({

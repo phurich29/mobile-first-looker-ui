@@ -2,8 +2,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { RicePrice, RicePriceDocument } from "@/features/user-management/types";
+import { useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 export function usePriceData() {
+  const { toast } = useToast();
+  
   // Function to fetch rice prices
   const fetchRicePrices = async () => {
     console.log('Fetching rice prices...');
@@ -46,7 +50,10 @@ export function usePriceData() {
     refetch: refetchPrices 
   } = useQuery({
     queryKey: ['ricePrices'],
-    queryFn: fetchRicePrices
+    queryFn: fetchRicePrices,
+    retry: 3,
+    staleTime: 1000 * 60 * 5, // Consider data fresh for 5 minutes
+    refetchOnWindowFocus: false // Don't refetch when window regains focus
   });
 
   // Use React Query to fetch and cache rice price documents
@@ -57,8 +64,33 @@ export function usePriceData() {
     refetch: refetchDocs 
   } = useQuery({
     queryKey: ['ricePriceDocuments'],
-    queryFn: fetchRicePriceDocuments
+    queryFn: fetchRicePriceDocuments,
+    retry: 3,
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false
   });
+
+  // Show error toast if there's an error after retry attempts
+  useEffect(() => {
+    if (pricesError) {
+      toast({
+        title: "ไม่สามารถโหลดข้อมูลราคาข้าวได้",
+        description: "กรุณาลองใหม่อีกครั้งในภายหลัง",
+        variant: "destructive"
+      });
+    }
+  }, [pricesError, toast]);
+
+  // Show error toast if there's an error after retry attempts
+  useEffect(() => {
+    if (docsError) {
+      toast({
+        title: "ไม่สามารถโหลดข้อมูลเอกสารได้",
+        description: "กรุณาลองใหม่อีกครั้งในภายหลัง",
+        variant: "destructive"
+      });
+    }
+  }, [docsError, toast]);
 
   return {
     ricePrices,
