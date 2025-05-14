@@ -790,6 +790,7 @@ export default function DeviceDetails() {
                       percentageChange={item.percentageChange}
                       iconColor={item.iconColor}
                       updatedAt={item.updatedAt}
+                      deviceCode={deviceCode}
                     />
                   ))
                 ) : renderNoData(false)}
@@ -809,6 +810,7 @@ export default function DeviceDetails() {
                       percentageChange={item.percentageChange}
                       iconColor={item.iconColor}
                       updatedAt={item.updatedAt}
+                      deviceCode={deviceCode}
                     />
                   ))
                 ) : renderNoData(false)}
@@ -828,6 +830,7 @@ export default function DeviceDetails() {
                       percentageChange={item.percentageChange}
                       iconColor={item.iconColor}
                       updatedAt={item.updatedAt}
+                      deviceCode={deviceCode}
                     />
                   ))
                 ) : renderNoData(false)}
@@ -847,6 +850,7 @@ export default function DeviceDetails() {
                       percentageChange={item.percentageChange}
                       iconColor={item.iconColor}
                       updatedAt={item.updatedAt}
+                      deviceCode={deviceCode}
                     />
                   ))
                 ) : renderNoData(false)}
