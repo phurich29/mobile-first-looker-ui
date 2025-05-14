@@ -16,7 +16,13 @@ interface NewsItemType {
 }
 
 // Array of background gradient colors for the cards
-const cardGradients = ["bg-gradient-to-br from-emerald-50 to-white", "bg-gradient-to-br from-amber-50 to-white", "bg-gradient-to-br from-blue-50 to-white", "bg-gradient-to-br from-purple-50 to-white", "bg-gradient-to-br from-rose-50 to-white"];
+const cardGradients = [
+  "bg-gradient-to-br from-emerald-50/90 to-white", 
+  "bg-gradient-to-br from-amber-50/90 to-white", 
+  "bg-gradient-to-br from-blue-50/90 to-white", 
+  "bg-gradient-to-br from-purple-50/90 to-white", 
+  "bg-gradient-to-br from-rose-50/90 to-white"
+];
 
 // Component for rice grain decoration
 const RiceGrain = ({
@@ -39,6 +45,7 @@ const RiceGrain = ({
     zIndex: 0
   }} />;
 };
+
 export const NewsSlider = () => {
   const [news, setNews] = useState<NewsItemType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -130,26 +137,28 @@ export const NewsSlider = () => {
           // Get a gradient color based on the index
           const gradientClass = cardGradients[index % cardGradients.length];
           return <CarouselItem key={item.id} className={isMobile ? "w-full" : "basis-1/2"}>
-              <div className="">
+              <div className="rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100">
                 {/* Add random rice grain decorations */}
                 {generateRiceGrains(index)}
                 
-                {item.image_url ? <div className="h-32 overflow-hidden">
-                    <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" onError={e => {
+                {item.image_url ? <div className="h-32 overflow-hidden relative">
+                    <img src={item.image_url} alt={item.title} className="w-full h-full object-cover transition-transform duration-300 hover:scale-105" onError={e => {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
                   </div> : null}
-                <div className="p-4 relative z-10">
+                
+                <div className="p-4 relative z-10 backdrop-blur-[2px]">
                   <h3 className="font-medium text-gray-900 mb-2 line-clamp-2 break-words">{item.title}</h3>
                   <p className="text-sm text-gray-600 line-clamp-3 mb-3 min-h-[4.5rem] break-words">{item.content}</p>
                   <div className="flex justify-between items-center">
-                    <div className="flex items-center text-xs text-gray-500">
+                    <div className="flex items-center text-xs text-gray-500 bg-white/50 px-2 py-1 rounded-full">
                       <CalendarDays className="h-3 w-3 mr-1" />
                       <span>{format(new Date(item.publish_date), "d MMM yyyy", {
                         locale: th
                       })}</span>
                     </div>
-                    <button onClick={() => handleReadMore(item)} className={`text-xs px-3 py-1.5 rounded-full ${index % 2 === 0 ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'} transition-colors`}>
+                    <button onClick={() => handleReadMore(item)} className={`text-xs px-3 py-1.5 rounded-full ${index % 2 === 0 ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'} transition-all duration-300 hover:shadow-inner shadow-sm`}>
                       อ่านเพิ่มเติม
                     </button>
                   </div>
@@ -158,21 +167,22 @@ export const NewsSlider = () => {
             </CarouselItem>;
         })}
         </CarouselContent>
-        <CarouselPrevious className="hidden md:flex" />
-        <CarouselNext className="hidden md:flex" />
+        <CarouselPrevious className="hidden md:flex -left-10 bg-white/80 hover:bg-white border border-gray-200" />
+        <CarouselNext className="hidden md:flex -right-10 bg-white/80 hover:bg-white border border-gray-200" />
       </Carousel>
 
       {/* Dialog for displaying full news content - updated with more styling */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg rounded-xl overflow-hidden bg-gradient-to-b from-white to-gray-50">
+        <DialogContent className="sm:max-w-lg rounded-xl overflow-hidden bg-gradient-to-b from-white to-gray-50 border border-gray-100 shadow-lg">
           {selectedNews && <>
               <DialogHeader className="relative">
                 <div className="absolute -right-2 -top-2 opacity-10">
                   <div className="w-16 h-8 bg-emerald-300 rounded-full rotate-45"></div>
                 </div>
-                <DialogTitle className="text-xl text-emerald-800">{selectedNews.title}</DialogTitle>
+                <DialogTitle className="text-xl text-emerald-800 font-medium">{selectedNews.title}</DialogTitle>
+                <div className="absolute -left-4 bottom-0 w-8 h-4 bg-amber-100 rounded-full opacity-20 rotate-12"></div>
               </DialogHeader>
-              <div className="mt-2 overflow-y-auto max-h-[70vh]">
+              <div className="mt-2 overflow-y-auto max-h-[70vh] custom-white-scrollbar">
                 <div className="flex items-center text-sm text-gray-500 mb-4">
                   <CalendarDays className="h-4 w-4 mr-2" />
                   <span>{format(new Date(selectedNews.publish_date), "d MMMM yyyy", {
@@ -180,13 +190,13 @@ export const NewsSlider = () => {
                 })}</span>
                 </div>
                 
-                {selectedNews.image_url && <div className="mb-4">
-                    <img src={selectedNews.image_url} alt={selectedNews.title} className="w-full h-auto rounded-lg shadow-sm" onError={e => {
+                {selectedNews.image_url && <div className="mb-4 overflow-hidden rounded-lg shadow-sm">
+                    <img src={selectedNews.image_url} alt={selectedNews.title} className="w-full h-auto transition-transform duration-500 hover:scale-105" onError={e => {
                 (e.target as HTMLImageElement).style.display = 'none';
               }} />
                   </div>}
                 
-                <div className="prose max-w-none mt-2 relative">
+                <div className="prose max-w-none mt-2 relative p-2">
                   {/* Decorative rice grain */}
                   <div className="absolute -left-1 bottom-10 w-4 h-2 bg-amber-200 rounded-full opacity-70 rotate-45"></div>
                   <div className="absolute right-2 top-20 w-3 h-1.5 bg-emerald-200 rounded-full opacity-70 -rotate-30"></div>
@@ -195,7 +205,7 @@ export const NewsSlider = () => {
                 </div>
                 
                 <div className="mt-6 text-right">
-                  <Link to={`/news/${selectedNews.id}`} className="inline-block px-4 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-full text-sm transition-colors">
+                  <Link to={`/news/${selectedNews.id}`} className="inline-block px-4 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-full text-sm transition-colors shadow-sm hover:shadow">
                     ดูรายละเอียดเพิ่มเติม
                   </Link>
                 </div>
