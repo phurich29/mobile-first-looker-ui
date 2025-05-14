@@ -1,7 +1,6 @@
 
 import { Header } from "@/components/Header";
 import { MeasurementItem } from "@/components/MeasurementItem";
-import { FooterNav } from "@/components/FooterNav";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRef, useState, useEffect } from "react";
@@ -812,11 +811,25 @@ export default function Measurements() {
         </div>
       </main>
 
-      {/* เพิ่มพื้นที่ว่างเพื่อป้องกันเนื้อหาทับกับ footer */}
-      <div className="pb-32"></div>
-
-      {/* ใช้ FooterNav component */}
-      <FooterNav />
+      {/* แถบนำทางด้านล่าง */}
+      <nav className="fixed bottom-0 w-full bg-white border-t border-gray-100 flex justify-around py-4 shadow-xl rounded-t-3xl backdrop-blur-sm bg-white/90" style={{ maxHeight: '80px' }}>
+        <a href="/" className="flex flex-col items-center">
+          <div className="w-6 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
+          <span className="text-xs text-gray-400">Home</span>
+        </a>
+        <a href="/market" className="flex flex-col items-center">
+          <div className="w-6 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
+          <span className="text-xs text-gray-400">Market</span>
+        </a>
+        <a href="/measurements" className="flex flex-col items-center">
+          <div className="w-6 h-1 bg-emerald-600 rounded-full mx-auto mb-1"></div>
+          <span className="text-xs text-emerald-600 font-medium">รายการวัด</span>
+        </a>
+        <a href="/profile" className="flex flex-col items-center">
+          <div className="w-6 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
+          <span className="text-xs text-gray-400">Profile</span>
+        </a>
+      </nav>
     </div>
   );
 }

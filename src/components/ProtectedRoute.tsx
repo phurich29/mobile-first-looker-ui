@@ -70,6 +70,12 @@ export const ProtectedRoute = ({
     console.log("User doesn't have required role, redirecting to", redirectTo);
     console.log("User roles:", userRoles);
     console.log("Required roles:", requiredRoles);
+    
+    // สำหรับหน้า measurements ให้นำทางกลับไปยังหน้าหลัก
+    if (path === '/measurements') {
+      return <Navigate to="/" replace />;
+    }
+    
     return <Navigate to={redirectTo} replace />;
   }
 

@@ -67,9 +67,9 @@ function App() {
               </ProtectedRoute>
             } />
             
-            {/* Routes ที่ต้องล็อกอินเท่านั้น */}
+            {/* เปลี่ยนการเข้าถึงหน้า Measurements ให้เฉพาะ superadmin เท่านั้น */}
             <Route path="/measurements" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRoles={["superadmin"]}>
                 <Measurements />
               </ProtectedRoute>
             } />

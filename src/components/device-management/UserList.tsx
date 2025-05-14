@@ -14,22 +14,26 @@ interface User {
   email: string;
 }
 
+interface Device {
+  device_code: string;
+}
+
 interface UserListProps {
-  users: User[];  // Added this prop to fix the TypeScript error
-  deviceUserMap: Record<string, string[]>;
+  users: User[];
   devices: { device_code: string }[];
-  onSelectUser: (userId: string) => void;
+  deviceUserMap: Record<string, string[]>;
   isLoading: boolean;
   onRefresh: () => Promise<void>;
+  onSelectUser: (userId: string) => void;
 }
 
 export function UserList({ 
   users,
   devices,
   deviceUserMap,
-  onSelectUser,
   isLoading,
-  onRefresh
+  onRefresh,
+  onSelectUser 
 }: UserListProps) {
   const { toast } = useToast();
   const [userFilter, setUserFilter] = useState("");
@@ -46,6 +50,23 @@ export function UserList({
     );
   };
   
+  // Handle refresh button click
+  const handleRefresh = async () => {
+    try {
+      await onRefresh();
+      toast({
+        title: "รีเฟรชข้อมูลสำเร็จ",
+        description: "ข้อมูลผู้ใช้อัพเดตแล้ว",
+      });
+    } catch (error) {
+      toast({
+        title: "รีเฟรชข้อมูลไม่สำเร็จ",
+        description: "เกิดข้อผิดพลาดในการอัพเดตข้อมูล",
+        variant: "destructive",
+      });
+    }
+  };
+  
   return (
     <div className="w-full">
       <div className="flex flex-row items-center justify-between mb-4">
@@ -54,7 +75,7 @@ export function UserList({
           <Button 
             variant="outline" 
             size="sm"
-            onClick={onRefresh}
+            onClick={handleRefresh}
             disabled={isLoading}
           >
             <RefreshCw className={`h-4 w-4 mr-1 ${isLoading ? 'animate-spin' : ''}`} />

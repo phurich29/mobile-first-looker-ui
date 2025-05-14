@@ -1,3 +1,4 @@
+
 import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, DollarSign, Database } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
@@ -57,6 +58,9 @@ export const Header = () => {
   // ตรวจสอบว่าผู้ใช้มีสิทธิ์ในการเข้าถึงหน้าจัดการราคาข้าวหรือไม่
   const canAccessRicePriceManagement = userRoles.includes('superadmin');
   
+  // ตรวจสอบว่าผู้ใช้มีสิทธิ์ในการเข้าถึงหน้า Measurements หรือไม่
+  const canAccessMeasurements = userRoles.includes('superadmin');
+  
   return <>
       {/* Sidebar for Desktop */}
       <div className={cn("fixed left-0 top-0 bottom-0 z-40 w-64 bg-white text-gray-800 transition-transform duration-300 ease-in-out shadow-sm border-r border-gray-100", sidebarOpen ? "translate-x-0" : "-translate-x-full", "md:translate-x-0" // แสดงเสมอในหน้าจอขนาดใหญ่
@@ -97,13 +101,16 @@ export const Header = () => {
               <span className="text-sm">อุปกรณ์</span>
             </Link>
             
-            <Link to="/measurements" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
-              isActive("/measurements") 
-                ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" 
-                : "hover:bg-gray-50 text-gray-700")}>
-              <BarChart2 className="h-5 w-5" />
-              <span className="text-sm">รายการวัด</span>
-            </Link>
+            {/* แสดงเมนู Measurements เฉพาะ superadmin เท่านั้น */}
+            {canAccessMeasurements && (
+              <Link to="/measurements" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
+                isActive("/measurements") 
+                  ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" 
+                  : "hover:bg-gray-50 text-gray-700")}>
+                <BarChart2 className="h-5 w-5" />
+                <span className="text-sm">รายการวัด</span>
+              </Link>
+            )}
             
             {/* เพิ่มเมนูข้อมูลส่วนตัว */}
             {user && (
