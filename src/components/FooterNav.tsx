@@ -1,5 +1,5 @@
 
-import { Home, Wheat, Hammer, User } from "lucide-react";
+import { Home, Hammer, Bell, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 export const FooterNav = () => {
@@ -20,18 +20,18 @@ export const FooterNav = () => {
         <span className={`text-xs mt-0.5 ${isActive('/') ? 'text-white' : 'text-white/80'}`}>หน้าหลัก</span>
       </Link>
       
-      <Link to="/rice-prices" className="flex flex-col items-center">
-        <div className={`p-1 ${isActive('/rice-prices') ? 'bg-emerald-700 rounded-full' : ''}`}>
-          <Wheat className="w-5 h-5 text-white" />
-        </div>
-        <span className={`text-xs mt-0.5 ${isActive('/rice-prices') ? 'text-white' : 'text-white/80'}`}>ราคาข้าว</span>
-      </Link>
-      
       <Link to="/equipment" className="flex flex-col items-center">
         <div className={`p-1 ${isActive('/equipment') ? 'bg-emerald-700 rounded-full' : ''}`}>
           <Hammer className="w-5 h-5 text-white" />
         </div>
         <span className={`text-xs mt-0.5 ${isActive('/equipment') ? 'text-white' : 'text-white/80'}`}>อุปกรณ์</span>
+      </Link>
+      
+      <Link to="/notifications" className="flex flex-col items-center">
+        <div className={`p-1 ${isActive('/notifications') ? 'bg-emerald-700 rounded-full' : ''}`}>
+          <Bell className="w-5 h-5 text-white" />
+        </div>
+        <span className={`text-xs mt-0.5 ${isActive('/notifications') ? 'text-white' : 'text-white/80'}`}>แจ้งเตือน</span>
       </Link>
       
       <Link to="/profile" className="flex flex-col items-center">
