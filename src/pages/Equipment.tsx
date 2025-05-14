@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { EquipmentCard } from "@/components/EquipmentCard";
+import { EquipmentCard } from "@/components/equipment/EquipmentCard";
 import { supabase } from "@/integrations/supabase/client";
 import { RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
