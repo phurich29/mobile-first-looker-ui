@@ -66,7 +66,7 @@ export function NewsGrid({
 
   if (isLoading) {
     return (
-      <div className="bg-gradient-to-br from-emerald-50/50 to-white rounded-lg border border-gray-100 flex justify-center items-center h-64 shadow-sm relative overflow-hidden">
+      <div className="bg-gradient-to-br from-emerald-50/50 to-white rounded-lg border border-gray-100 flex justify-center items-center h-64 shadow-[0_10px_30px_-8px_rgba(0,0,0,0.15)] relative overflow-hidden">
         {/* Add rice grain decorations to loading state */}
         <RiceGrain top="15%" left="10%" rotate={30} color="emerald" />
         <RiceGrain top="60%" left="85%" rotate={120} color="amber" />

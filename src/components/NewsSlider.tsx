@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { CalendarDays } from "lucide-react";
@@ -137,7 +138,7 @@ export const NewsSlider = () => {
           // Get a gradient color based on the index
           const gradientClass = cardGradients[index % cardGradients.length];
           return <CarouselItem key={item.id} className={isMobile ? "w-full" : "basis-1/2"}>
-              <div className="rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100">
+              <div className="rounded-xl overflow-hidden shadow-[0_15px_30px_-5px_rgba(0,0,0,0.2)] hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.25)] transition-all duration-300 transform hover:-translate-y-2 border border-gray-100">
                 {/* Add random rice grain decorations */}
                 {generateRiceGrains(index)}
                 
@@ -158,7 +159,7 @@ export const NewsSlider = () => {
                         locale: th
                       })}</span>
                     </div>
-                    <button onClick={() => handleReadMore(item)} className={`text-xs px-3 py-1.5 rounded-full ${index % 2 === 0 ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'} transition-all duration-300 hover:shadow-inner shadow-sm`}>
+                    <button onClick={() => handleReadMore(item)} className={`text-xs px-3 py-1.5 rounded-full ${index % 2 === 0 ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'} transition-all duration-300 hover:shadow-md shadow-sm`}>
                       อ่านเพิ่มเติม
                     </button>
                   </div>
@@ -167,13 +168,13 @@ export const NewsSlider = () => {
             </CarouselItem>;
         })}
         </CarouselContent>
-        <CarouselPrevious className="hidden md:flex -left-10 bg-white/80 hover:bg-white border border-gray-200" />
-        <CarouselNext className="hidden md:flex -right-10 bg-white/80 hover:bg-white border border-gray-200" />
+        <CarouselPrevious className="hidden md:flex -left-10 bg-white/80 hover:bg-white border border-gray-200 shadow-md" />
+        <CarouselNext className="hidden md:flex -right-10 bg-white/80 hover:bg-white border border-gray-200 shadow-md" />
       </Carousel>
 
       {/* Dialog for displaying full news content - updated with more styling */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg rounded-xl overflow-hidden bg-gradient-to-b from-white to-gray-50 border border-gray-100 shadow-lg">
+        <DialogContent className="sm:max-w-lg rounded-xl overflow-hidden bg-gradient-to-b from-white to-gray-50 border border-gray-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.25)]">
           {selectedNews && <>
               <DialogHeader className="relative">
                 <div className="absolute -right-2 -top-2 opacity-10">
@@ -190,7 +191,7 @@ export const NewsSlider = () => {
                 })}</span>
                 </div>
                 
-                {selectedNews.image_url && <div className="mb-4 overflow-hidden rounded-lg shadow-sm">
+                {selectedNews.image_url && <div className="mb-4 overflow-hidden rounded-lg shadow-md">
                     <img src={selectedNews.image_url} alt={selectedNews.title} className="w-full h-auto transition-transform duration-500 hover:scale-105" onError={e => {
                 (e.target as HTMLImageElement).style.display = 'none';
               }} />
@@ -205,7 +206,7 @@ export const NewsSlider = () => {
                 </div>
                 
                 <div className="mt-6 text-right">
-                  <Link to={`/news/${selectedNews.id}`} className="inline-block px-4 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-full text-sm transition-colors shadow-sm hover:shadow">
+                  <Link to={`/news/${selectedNews.id}`} className="inline-block px-4 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-full text-sm transition-colors shadow-md hover:shadow-lg">
                     ดูรายละเอียดเพิ่มเติม
                   </Link>
                 </div>

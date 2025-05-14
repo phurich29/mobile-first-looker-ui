@@ -150,7 +150,7 @@ export default function News() {
           {/* ข่าวที่เลือก */}
           <div className="lg:col-span-2">
             {selectedNews ? (
-              <div className="bg-gradient-to-br from-white to-emerald-50 rounded-lg shadow-sm p-6 relative overflow-hidden">
+              <div className="bg-white rounded-lg shadow-[0_15px_30px_-6px_rgba(0,0,0,0.2)] p-6 relative overflow-hidden border border-gray-100">
                 {generateRiceGrains(selectedNews.id.length)}
                 
                 <h2 className="text-xl font-semibold text-emerald-800 mb-4 relative z-10">{selectedNews.title}</h2>
@@ -165,7 +165,7 @@ export default function News() {
                     <img 
                       src={selectedNews.image_url} 
                       alt={selectedNews.title} 
-                      className="w-full h-auto rounded-lg shadow-sm"
+                      className="w-full h-auto rounded-lg shadow-md"
                       onError={(e) => {
                         (e.target as HTMLImageElement).style.display = 'none';
                       }}
@@ -178,7 +178,7 @@ export default function News() {
                 </div>
               </div>
             ) : (
-              <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+              <div className="bg-white rounded-lg shadow-md p-8 text-center">
                 <p className="text-gray-500">ไม่พบข่าวสารที่เลือก</p>
               </div>
             )}
@@ -203,13 +203,13 @@ export default function News() {
                   return (
                     <Card 
                       key={item.id} 
-                      className={`${gradientClass} transition-colors cursor-pointer relative overflow-hidden ${selectedNews?.id === item.id ? 'border-emerald-500 ring-1 ring-emerald-500' : 'hover:border-emerald-200'}`}
+                      className={`${gradientClass} transition-all duration-300 cursor-pointer relative overflow-hidden ${selectedNews?.id === item.id ? 'border-emerald-500 ring-1 ring-emerald-500' : 'hover:border-emerald-200'} shadow-md hover:shadow-lg hover:-translate-y-1`}
                       onClick={() => setSelectedNews(item)}
                     >
                       {/* Add rice grain decorations */}
                       {generateRiceGrains(index)}
                       
-                      <CardContent className="p-4 relative z-10">
+                      <CardContent className="p-4 relative z-10 bg-white rounded-lg">
                         <h4 className="font-medium text-gray-900 mb-2 line-clamp-2">{item.title}</h4>
                         <p className="text-sm text-gray-500 line-clamp-2 mb-2">{item.content}</p>
                         <div className="flex items-center text-xs text-gray-400">

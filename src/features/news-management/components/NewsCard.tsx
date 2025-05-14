@@ -93,7 +93,7 @@ export function NewsCard({ news, onEdit, onPreview, onDelete, onPublishToggle, v
   
   return (
     <Card 
-      className={`overflow-hidden border transition-all duration-200 hover:shadow-md ${gradientClass} ${news.published ? 'border-emerald-100' : 'border-gray-200'} ${isHovered ? 'ring-1 ring-emerald-200' : ''}`}
+      className={`overflow-hidden border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${gradientClass} ${news.published ? 'border-emerald-100' : 'border-gray-200'} ${isHovered ? 'ring-1 ring-emerald-200' : ''} shadow-[0_10px_20px_-5px_rgba(0,0,0,0.15)]`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
