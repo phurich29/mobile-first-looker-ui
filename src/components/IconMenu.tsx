@@ -20,19 +20,19 @@ const MenuItem = ({ icon, label, to, bgColor, iconColor }: MenuItemProps) => {
   return (
     <Link 
       to={to} 
-      className="flex flex-col items-center justify-center p-4 rounded-2xl transition-all duration-300 hover:scale-105"
+      className="flex items-center gap-4 p-5 rounded-xl transition-transform hover:-translate-y-1 hover:shadow-lg"
       style={{ backgroundColor: bgColor }}
     >
       <div 
-        className="p-3 mb-3 flex items-center justify-center" 
-        style={{ backgroundColor: iconColor, borderRadius: '50%' }}
+        className="p-3 flex items-center justify-center rounded-lg"
+        style={{ backgroundColor: iconColor }}
       >
         {React.cloneElement(icon as React.ReactElement, { 
-          size: 24, 
+          size: 20, 
           className: "text-white" 
         })}
       </div>
-      <span className="text-sm font-semibold text-center">{label}</span>
+      <span className="text-sm font-semibold">{label}</span>
     </Link>
   );
 };
@@ -46,9 +46,9 @@ export const IconMenu = () => {
   ];
 
   return (
-    <div className="px-5 py-6 bg-white rounded-2xl shadow-md mx-4 mb-6 border border-gray-100">
+    <div className="px-5 py-6 bg-white rounded-2xl shadow-md mx-4 mb-6">
       <h2 className="text-lg font-semibold text-gray-800 mb-5">บริการทั้งหมด</h2>
-      <div className="grid grid-cols-2 gap-5">
+      <div className="flex flex-col gap-3">
         {menuItems.map((item, index) => (
           <MenuItem
             key={index}
