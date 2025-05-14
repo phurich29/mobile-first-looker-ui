@@ -23,7 +23,7 @@ export function NewsCard({ news, onEdit, onPreview, onDelete, onPublishToggle }:
     <Card className={`overflow-hidden border ${news.published ? 'border-emerald-100' : 'border-gray-200'}`}>
       <CardHeader className="p-4 pb-2 bg-gray-50">
         <div className="flex justify-between items-start">
-          <CardTitle className="text-base font-medium text-gray-800 line-clamp-2">
+          <CardTitle className="text-base font-medium text-gray-800 line-clamp-2 break-words">
             {news.title}
           </CardTitle>
           <Popover>
@@ -75,7 +75,7 @@ export function NewsCard({ news, onEdit, onPreview, onDelete, onPublishToggle }:
             {news.published ? "เผยแพร่แล้ว" : "ร่าง"}
           </span>
         </div>
-        <p className="text-sm text-gray-600 line-clamp-3">
+        <p className="text-sm text-gray-600 line-clamp-3 break-words">
           {news.content}
         </p>
       </CardContent>
