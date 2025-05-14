@@ -2,9 +2,9 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
-import { supabase, supabaseAdmin } from "@/integrations/supabase/client";
 import { User, NewUserFormValues, ResetPasswordFormValues } from "../types";
 import { useAuth } from "@/components/AuthProvider";
+import * as userService from "../services/userService";
 
 type UserCrudOperationsProps = {
   users: User[];
@@ -34,34 +34,15 @@ export function useUserCrudOperations({
   const createUser = async (values: NewUserFormValues) => {
     setIsProcessing(true);
     try {
-      // 1. Create user with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: values.email,
-        password: values.password
-      });
+      // Use the service to create a user
+      const newUser = await userService.createUser(values.email, values.password);
       
-      if (authError) throw authError;
-      
-      if (!authData.user) {
-        throw new Error("ไม่สามารถสร้างผู้ใช้ได้");
-      }
-      
-      // ตรวจสอบว่าผู้ใช้ปัจจุบันเป็น admin หรือ superadmin หรือไม่
+      // Check if current user is admin or superadmin
       const isAdminOrSuperAdmin = userRoles.includes('admin') || userRoles.includes('superadmin');
       
-      // ถ้าเป็น admin หรือ superadmin ที่สร้างผู้ใช้ใหม่ ให้เพิ่มบทบาท 'user' โดยอัตโนมัติ
+      // If admin or superadmin created the user, add 'user' role automatically
       if (isAdminOrSuperAdmin) {
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .insert({ 
-            user_id: authData.user.id, 
-            role: 'user'
-          });
-
-        if (roleError && roleError.code !== '23505') { // ข้ามกรณีที่มีบทบาทนี้อยู่แล้ว
-          console.error('Error assigning user role:', roleError);
-          // ไม่ throw error เพื่อให้โค้ดทำงานต่อไปได้
-        }
+        await userService.addDefaultRole(newUser.id, 'user');
       }
       
       toast({
@@ -71,53 +52,31 @@ export function useUserCrudOperations({
           : "ผู้ใช้ใหม่ถูกสร้างและเพิ่มเข้าสู่ waiting list รอการอนุมัติ",
       });
       
-      // ปิด dialog และ reset form
+      // Close dialog
       setShowAddUserDialog(false);
       
-      // ถ้าเป็น admin หรือ superadmin ให้อยู่ที่หน้าเดิม (ไม่ต้องนำทางไปที่ waiting list)
-      // นำทางกลับมาที่หน้าจัดการผู้ใช้เพื่อแน่ใจว่าไม่มีการนำทางไปที่อื่น
+      // If admin or superadmin, stay on the user management page
       if (isAdminOrSuperAdmin) {
-        // นำทางกลับมาที่หน้าจัดการผู้ใช้อย่างชัดเจน
         navigate('/user-management');
       }
       
-      // Refresh users list to include the new user
-      const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers();
+      // Refresh users list
+      const allUsers = await userService.fetchUsers();
       
-      if (authUsers?.users) {
-        const usersWithRoles = await Promise.all(
-          authUsers.users.map(async (authUser) => {
-            const { data: roles } = await supabase.rpc(
-              'get_user_roles',
-              { user_id: authUser.id }
-            );
-            
-            return {
-              id: authUser.id,
-              email: authUser.email || 'unknown@example.com',
-              roles: roles || [],
-              last_sign_in_at: authUser.last_sign_in_at
-            };
-          })
-        );
-        
-        // Filter users based on current user's role
-        let filteredUsers = usersWithRoles;
-        
-        // If user is not a superadmin, filter out superadmins from the list
-        if (!isSuperAdmin) {
-          filteredUsers = usersWithRoles.filter(user => !user.roles.includes('superadmin'));
-        }
-        
-        setUsers(filteredUsers);
+      // Filter users based on current user's role
+      let filteredUsers = allUsers;
+      if (!isSuperAdmin) {
+        filteredUsers = allUsers.filter(user => !user.roles.includes('superadmin'));
       }
+      
+      setUsers(filteredUsers);
     } catch (error: any) {
       console.error('Error creating user:', error);
       
       // Handle error messages
       let errorMessage = "ไม่สามารถสร้างผู้ใช้ได้ กรุณาลองใหม่อีกครั้ง";
       
-      if (error.message.includes("user already registered")) {
+      if (error.message?.includes("user already registered")) {
         errorMessage = "อีเมลนี้มีผู้ใช้งานอยู่แล้ว";
       }
       
@@ -150,13 +109,8 @@ export function useUserCrudOperations({
     try {
       if (!selectedUserId) throw new Error("ไม่พบรหัสผู้ใช้");
       
-      // Reset password using admin API
-      const { error } = await supabaseAdmin.auth.admin.updateUserById(
-        selectedUserId,
-        { password: values.password }
-      );
-      
-      if (error) throw error;
+      // Use the service to reset password
+      await userService.resetUserPassword(selectedUserId, values.password);
       
       toast({
         title: "รีเซ็ตรหัสผ่านสำเร็จ",
@@ -195,9 +149,8 @@ export function useUserCrudOperations({
     
     setIsProcessing(true);
     try {
-      const { error } = await supabaseAdmin.auth.admin.deleteUser(selectedUserId);
-      
-      if (error) throw error;
+      // Use the service to delete user
+      await userService.deleteUser(selectedUserId);
       
       // Remove user from local state
       setUsers(users.filter(user => user.id !== selectedUserId));

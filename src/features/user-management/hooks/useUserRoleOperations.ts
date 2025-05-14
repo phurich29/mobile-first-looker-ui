@@ -1,8 +1,8 @@
 
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { User, UserRole } from "../types";
+import * as userService from "../services/userService";
 
 type UserRoleOperationsProps = {
   users: User[];
@@ -46,38 +46,16 @@ export function useUserRoleOperations({
     setIsProcessing(true);
     try {
       if (isAdding) {
-        // Add the role
-        const { error } = await supabase
-          .from('user_roles')
-          .insert({ 
-            user_id: userId, 
-            role: role 
-          });
-        
-        if (error) {
-          if (error.code === '23505') { // Unique violation - role already exists
-            toast({
-              title: "บทบาทซ้ำ",
-              description: `ผู้ใช้มีบทบาท ${role} อยู่แล้ว`,
-              variant: "destructive",
-            });
-            return;
-          }
-          throw error;
-        }
+        // Add the role using the service
+        await userService.addUserRole(userId, role);
         
         toast({
           title: "เพิ่มบทบาทสำเร็จ",
           description: `เพิ่มบทบาท ${role} ให้ผู้ใช้สำเร็จ`,
         });
       } else {
-        // Remove the role
-        const { error } = await supabase
-          .from('user_roles')
-          .delete()
-          .match({ user_id: userId, role: role });
-        
-        if (error) throw error;
+        // Remove the role using the service
+        await userService.removeUserRole(userId, role);
         
         toast({
           title: "ลบบทบาทสำเร็จ",
@@ -89,10 +67,7 @@ export function useUserRoleOperations({
       const updatedUsers = await Promise.all(
         users.map(async (user) => {
           if (user.id === userId) {
-            const { data: roles } = await supabase.rpc(
-              'get_user_roles',
-              { user_id: userId }
-            );
+            const roles = await userService.getUserRoles(userId);
             return { ...user, roles: roles || [] };
           }
           return user;
@@ -133,28 +108,8 @@ export function useUserRoleOperations({
 
     setIsProcessing(true);
     try {
-      // First, add the 'user' role
-      const { error: addError } = await supabase
-        .from('user_roles')
-        .insert({ 
-          user_id: userId, 
-          role: 'user' 
-        });
-
-      if (addError && addError.code !== '23505') { // Ignore duplicate key errors
-        throw addError;
-      }
-      
-      // Then remove the 'waiting_list' role
-      const { error: removeError } = await supabase
-        .from('user_roles')
-        .delete()
-        .match({ 
-          user_id: userId, 
-          role: 'waiting_list'
-        });
-
-      if (removeError) throw removeError;
+      // Use the service to approve the user
+      await userService.approveUser(userId);
       
       toast({
         title: "อนุมัติผู้ใช้สำเร็จ",
@@ -165,10 +120,7 @@ export function useUserRoleOperations({
       const updatedUsers = await Promise.all(
         users.map(async (user) => {
           if (user.id === userId) {
-            const { data: roles } = await supabase.rpc(
-              'get_user_roles',
-              { user_id: userId }
-            );
+            const roles = await userService.getUserRoles(userId);
             return { ...user, roles: roles || [] };
           }
           return user;
