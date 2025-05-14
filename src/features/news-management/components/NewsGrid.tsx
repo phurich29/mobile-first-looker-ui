@@ -17,6 +17,27 @@ interface NewsGridProps {
   sortBy?: 'newest' | 'oldest' | 'published';
 }
 
+// Component for rice grain decoration in loading state
+const RiceGrain = ({ top, left, rotate = 0, size = 6, color = "emerald" }: { 
+  top: string; 
+  left: string; 
+  rotate?: number;
+  size?: number;
+  color?: string;
+}) => {
+  return (
+    <div 
+      className={`absolute w-${size} h-${Math.floor(size/2)} bg-${color}-200 rounded-full opacity-70`} 
+      style={{ 
+        top, 
+        left, 
+        transform: `rotate(${rotate}deg)`,
+        zIndex: 0 
+      }}
+    />
+  );
+};
+
 export function NewsGrid({ 
   isLoading, 
   filteredNews, 
@@ -45,8 +66,13 @@ export function NewsGrid({
 
   if (isLoading) {
     return (
-      <div className="bg-white/50 rounded-lg border border-gray-100 flex justify-center items-center h-64 shadow-sm">
-        <div className="text-center">
+      <div className="bg-gradient-to-br from-emerald-50/50 to-white rounded-lg border border-gray-100 flex justify-center items-center h-64 shadow-sm relative overflow-hidden">
+        {/* Add rice grain decorations to loading state */}
+        <RiceGrain top="15%" left="10%" rotate={30} color="emerald" />
+        <RiceGrain top="60%" left="85%" rotate={120} color="amber" />
+        <RiceGrain top="80%" left="30%" rotate={210} color="green" />
+        
+        <div className="text-center relative z-10">
           <Loader2 className="h-8 w-8 animate-spin text-emerald-600 mx-auto mb-2" />
           <p className="text-sm text-gray-500">กำลังโหลดข้อมูล...</p>
         </div>

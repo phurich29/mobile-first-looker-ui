@@ -21,19 +21,89 @@ interface NewsCardProps {
   viewType?: 'grid' | 'list';
 }
 
+// Component for rice grain decoration
+const RiceGrain = ({ top, left, rotate = 0, size = 6, color = "emerald" }: { 
+  top: string; 
+  left: string; 
+  rotate?: number;
+  size?: number;
+  color?: string;
+}) => {
+  return (
+    <div 
+      className={`absolute w-${size} h-${Math.floor(size/2)} bg-${color}-200 rounded-full opacity-70`} 
+      style={{ 
+        top, 
+        left, 
+        transform: `rotate(${rotate}deg)`,
+        zIndex: 0 
+      }}
+    />
+  );
+};
+
+// Array of background gradient colors for the cards
+const cardGradients = [
+  "bg-gradient-to-br from-emerald-50 to-white",
+  "bg-gradient-to-br from-amber-50 to-white",
+  "bg-gradient-to-br from-blue-50 to-white",
+  "bg-gradient-to-br from-purple-50 to-white",
+  "bg-gradient-to-br from-rose-50 to-white",
+];
+
 export function NewsCard({ news, onEdit, onPreview, onDelete, onPublishToggle, viewType = 'grid' }: NewsCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   
+  // Generate rice grain decorations based on news ID
+  const generateRiceGrains = () => {
+    // Use the news ID to create a deterministic seed
+    const seed = news.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const count = (seed % 3) + 2; // 2-4 grains per card
+    const grains = [];
+    
+    for (let i = 0; i < count; i++) {
+      const position = (seed + i * 100) % 1000;
+      const top = `${10 + (position % 80)}%`;
+      const left = `${5 + (position % 85)}%`;
+      const rotate = (position % 360);
+      const size = 3 + (position % 4);
+      
+      // Alternate between colors
+      const colors = ["emerald", "amber", "green"];
+      const colorIndex = (position % 3);
+      
+      grains.push(
+        <RiceGrain 
+          key={i} 
+          top={top} 
+          left={left} 
+          rotate={rotate} 
+          size={size}
+          color={colors[colorIndex]}
+        />
+      );
+    }
+    
+    return grains;
+  };
+  
+  // Get a gradient color based on the news ID
+  const gradientIndex = news.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % cardGradients.length;
+  const gradientClass = cardGradients[gradientIndex];
+  
   return (
     <Card 
-      className={`overflow-hidden border transition-all duration-200 hover:shadow-md ${news.published ? 'border-emerald-100' : 'border-gray-200'} ${isHovered ? 'ring-1 ring-emerald-200' : ''}`}
+      className={`overflow-hidden border transition-all duration-200 hover:shadow-md ${gradientClass} ${news.published ? 'border-emerald-100' : 'border-gray-200'} ${isHovered ? 'ring-1 ring-emerald-200' : ''}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className={viewType === 'list' ? "flex flex-col md:flex-row" : ""}>
+      <div className={`relative ${viewType === 'list' ? "flex flex-col md:flex-row" : ""}`}>
+        {/* Add rice grain decorations */}
+        {generateRiceGrains()}
+        
         {news.image_url && (
           <div className={viewType === 'list' ? "md:w-1/4 p-2" : ""}>
-            <div className={`${viewType === 'list' ? "" : "h-40"} overflow-hidden bg-gray-100`}>
+            <div className={`${viewType === 'list' ? "" : "h-40"} overflow-hidden bg-gray-100 relative z-10`}>
               <img 
                 src={news.image_url} 
                 alt={news.title} 
@@ -46,8 +116,8 @@ export function NewsCard({ news, onEdit, onPreview, onDelete, onPublishToggle, v
           </div>
         )}
         
-        <div className={viewType === 'list' ? "md:w-3/4" : ""}>
-          <CardHeader className={`p-4 pb-2 bg-gray-50 flex justify-between items-start ${news.published ? 'bg-emerald-50/50' : ''}`}>
+        <div className={`${viewType === 'list' ? "md:w-3/4" : ""} relative z-10`}>
+          <CardHeader className={`p-4 pb-2 ${news.published ? 'bg-emerald-50/30' : 'bg-gray-50/50'}`}>
             <div className="flex justify-between items-start w-full">
               <div className="space-y-1.5">
                 <CardTitle className="text-base font-medium text-gray-800 line-clamp-2 break-words">
@@ -128,7 +198,9 @@ export function NewsCard({ news, onEdit, onPreview, onDelete, onPublishToggle, v
             <Button
               variant={news.published ? "outline" : "default"}
               size="sm"
-              className={news.published ? "text-xs border-emerald-200 hover:bg-emerald-50" : "text-xs bg-emerald-600 hover:bg-emerald-700"}
+              className={news.published ? 
+                "text-xs border-emerald-200 hover:bg-emerald-50" : 
+                "text-xs bg-emerald-600 hover:bg-emerald-700"}
               onClick={() => onPublishToggle(news.id, news.published)}
             >
               {news.published ? "ยกเลิกการเผยแพร่" : "เผยแพร่"}
