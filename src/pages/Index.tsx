@@ -17,8 +17,8 @@ const Index = () => {
             <NewsSlider />
           </div>
           
-          {/* Menu icons */}
-          <div className="my-6">
+          {/* Menu icons - removed my-6 class to align with design */}
+          <div>
             <IconMenu />
           </div>
           
