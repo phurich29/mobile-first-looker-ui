@@ -65,9 +65,7 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
       if (usersError) {
         console.error("Error fetching users:", usersError);
         toast({
-          title: "เกิดข้อผิดพลาด",
           description: "ไม่สามารถดึงข้อมูลผู้ใช้ได้",
-          variant: "destructive",
         });
         return;
       }
@@ -94,9 +92,7 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
       if (accessError) {
         console.error("Error fetching device access:", accessError);
         toast({
-          title: "เกิดข้อผิดพลาด",
           description: "ไม่สามารถดึงข้อมูลการเข้าถึงอุปกรณ์ได้",
-          variant: "destructive",
         });
         return;
       }
@@ -115,9 +111,7 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
     } catch (error) {
       console.error("Unexpected error:", error);
       toast({
-        title: "เกิดข้อผิดพลาด",
         description: "มีข้อผิดพลาดไม่คาดคิดเกิดขึ้น",
-        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -140,18 +134,14 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
       if (userError) {
         console.error("Error searching for user:", userError);
         toast({
-          title: "เกิดข้อผิดพลาด",
           description: "ไม่สามารถค้นหาผู้ใช้ได้",
-          variant: "destructive",
         });
         return;
       }
       
       if (!userData || userData.length === 0) {
         toast({
-          title: "ไม่พบผู้ใช้",
           description: "ไม่พบผู้ใช้ที่มีอีเมลตรงกับที่ค้นหา",
-          variant: "destructive",
         });
         return;
       }
@@ -176,9 +166,7 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
       
       if (filteredUsers.length === 0) {
         toast({
-          title: "ไม่พบผู้ใช้",
           description: "ผู้ใช้ที่ค้นพบยังอยู่ในรายชื่อรอสิทธิ์การใช้งาน",
-          variant: "destructive",
         });
         return;
       }
@@ -217,15 +205,12 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
       setSearchEmail("");
       
       toast({
-        title: "ค้นหาสำเร็จ",
         description: `พบผู้ใช้ ${searchResults.length} คน`,
       });
     } catch (error) {
       console.error("Unexpected error:", error);
       toast({
-        title: "เกิดข้อผิดพลาด",
         description: "มีข้อผิดพลาดไม่คาดคิดเกิดขึ้น",
-        variant: "destructive",
       });
     } finally {
       setIsSearching(false);
@@ -248,9 +233,7 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
         if (error) {
           console.error("Error removing device access:", error);
           toast({
-            title: "เกิดข้อผิดพลาด",
             description: "ไม่สามารถลบสิทธิ์การเข้าถึงอุปกรณ์ได้",
-            variant: "destructive",
           });
           return;
         }
@@ -267,9 +250,7 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
         if (error) {
           console.error("Error granting device access:", error);
           toast({
-            title: "เกิดข้อผิดพลาด",
             description: "ไม่สามารถให้สิทธิ์การเข้าถึงอุปกรณ์ได้",
-            variant: "destructive",
           });
           return;
         }
@@ -283,7 +264,6 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
       );
       
       toast({
-        title: "อัพเดทสิทธิ์สำเร็จ",
         description: currentAccess 
           ? "ลบสิทธิ์การเข้าถึงอุปกรณ์เรียบร้อยแล้ว" 
           : "เพิ่มสิทธิ์การเข้าถึงอุปกรณ์เรียบร้อยแล้ว",
@@ -291,9 +271,7 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
     } catch (error) {
       console.error("Unexpected error:", error);
       toast({
-        title: "เกิดข้อผิดพลาด",
         description: "มีข้อผิดพลาดไม่คาดคิดเกิดขึ้น",
-        variant: "destructive",
       });
     }
   };

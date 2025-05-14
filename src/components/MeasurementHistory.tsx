@@ -103,11 +103,11 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
         .order('created_at', { ascending: sortOrder === 'asc' });
       
       if (error) {
+        console.error("Error fetching measurement history:", error);
         toast({
-          title: "เกิดข้อผิดพลาด",
           description: `ไม่สามารถดึงข้อมูลได้: ${error.message}`,
         });
-        throw error;
+        return [];
       }
       
       // Ensure we return an empty array if data is null
