@@ -40,9 +40,14 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
   const { user } = useAuth();
   const { toast } = useToast();
   
-  // Format the last updated time to show exact date and time
+  // Format the last updated time to show exact date and time with +7 hours
   const formattedTime = lastUpdated 
-    ? format(new Date(lastUpdated), "dd MMMM yyyy HH:mm:ss น.", { locale: th })
+    ? (() => {
+        const date = new Date(lastUpdated);
+        // เพิ่มเวลาอีก 7 ชั่วโมง
+        date.setHours(date.getHours() + 7);
+        return format(date, "dd MMMM yyyy HH:mm:ss น.", { locale: th });
+      })()
     : "ไม่มีข้อมูล";
   
   // Load users with their device access status
