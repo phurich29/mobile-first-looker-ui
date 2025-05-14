@@ -42,6 +42,39 @@ export type Database = {
         }
         Relationships: []
       }
+      news: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          image_url: string | null
+          publish_date: string
+          published: boolean | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          publish_date: string
+          published?: boolean | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          publish_date?: string
+          published?: boolean | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notification_settings: {
         Row: {
           created_at: string

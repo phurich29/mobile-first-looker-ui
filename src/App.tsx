@@ -14,6 +14,7 @@ import Waiting from "./pages/Waiting";
 import Profile from "./pages/Profile";
 import DeviceManagement from "./pages/DeviceManagement";
 import NewsManagement from "./pages/NewsManagement";
+import News from "./pages/News"; // เพิ่มหน้าข่าวสาร
 import { AuthProvider, useAuth } from "./components/AuthProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useEffect } from "react";
@@ -65,6 +66,18 @@ function App() {
             <Route path="/rice-prices" element={
               <ProtectedRoute allowUnauthenticated={true}>
                 <RicePrices />
+              </ProtectedRoute>
+            } />
+            
+            {/* เพิ่มหน้าข่าวสาร */}
+            <Route path="/news" element={
+              <ProtectedRoute allowUnauthenticated={true}>
+                <News />
+              </ProtectedRoute>
+            } />
+            <Route path="/news/:id" element={
+              <ProtectedRoute allowUnauthenticated={true}>
+                <News />
               </ProtectedRoute>
             } />
             

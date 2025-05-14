@@ -1,97 +1,124 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import useEmblaCarousel from 'embla-carousel-react';
 
-// รายการข่าวเกี่ยวกับวงการข้าวไทย
-const newsItems = [
-  {
-    id: 1,
-    title: 'แนวโน้มราคาข้าวไทยปี 2568 เพิ่มขึ้น 15% ตลาดต่างประเทศตอบรับดี',
-    description: 'กรมการค้าต่างประเทศคาดการณ์ราคาข้าวไทยในตลาดโลกจะเพิ่มขึ้น 15% จากปัจจัยด้านความต้องการที่สูงขึ้น โดยเฉพาะในตลาดแอฟริกาและตะวันออกกลาง ซึ่งมีการสั่งซื้อล่วงหน้าเพิ่มขึ้นกว่า 20% เมื่อเทียบกับปีที่ผ่านมา ส่งผลดีต่อเกษตรกรไทยที่จะมีรายได้เพิ่มขึ้นอย่างมีนัยสำคัญ'
-  },
-  {
-    id: 2,
-    title: 'นาข้าวอินทรีย์ไทยได้รับการรับรองมาตรฐานสากล ยกระดับสู่ตลาดโลก',
-    description: 'กลุ่มเกษตรกรภาคอีสานได้รับการรับรองมาตรฐานนาข้าวอินทรีย์ระดับสากล เพิ่มโอกาสส่งออกตลาดพรีเมี่ยม ซึ่งช่วยสร้างมูลค่าเพิ่มให้กับผลผลิตข้าวไทยกว่า 35% โดยได้รับความร่วมมือจากหน่วยงานรัฐและเอกชนในการพัฒนาศักยภาพการผลิตและส่งเสริมการตลาดทั้งในและต่างประเทศ'
-  },
-  {
-    id: 3,
-    title: 'เกษตรกรไทยนำเทคโนโลยีมาพัฒนาพันธุ์ข้าวใหม่ ทนแล้ง ให้ผลผลิตสูง',
-    description: 'เกษตรกรรุ่นใหม่ร่วมมือกับนักวิจัยนำเทคโนโลยีมาพัฒนาพันธุ์ข้าวทนแล้งที่ให้ผลผลิตสูงขึ้น 20% ช่วยลดต้นทุนการผลิตและประหยัดน้ำได้มากถึง 30% เมื่อเทียบกับการปลูกข้าวแบบดั้งเดิม พร้อมทั้งสร้างความมั่นคงทางอาหารและรายได้ให้กับชุมชนเกษตรกรรมในพื้นที่ประสบภัยแล้งซ้ำซาก'
-  }
-];
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { CalendarDays } from "lucide-react";
+import { format } from "date-fns";
+import { th } from "date-fns/locale";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from "@/hooks/use-mobile";
+
+interface NewsItemType {
+  id: string;
+  title: string;
+  content: string;
+  image_url?: string;
+  publish_date: string;
+}
 
 export const NewsSlider = () => {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
-
-  const scrollPrev = useCallback(() => {
-    if (emblaApi) emblaApi.scrollPrev();
-  }, [emblaApi]);
-
-  const scrollNext = useCallback(() => {
-    if (emblaApi) emblaApi.scrollNext();
-  }, [emblaApi]);
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
+  const [news, setNews] = useState<NewsItemType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
-    if (!emblaApi) return;
-    onSelect();
-    setScrollSnaps(emblaApi.scrollSnapList());
-    emblaApi.on('select', onSelect);
-    
-    // Auto-scroll every 5 seconds
-    const autoplayInterval = setInterval(() => {
-      emblaApi.scrollNext();
-    }, 5000);
-    
-    return () => {
-      clearInterval(autoplayInterval);
-      emblaApi.off('select', onSelect);
+    const fetchNews = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('news')
+          .select('*')
+          .eq('published', true)
+          .order('publish_date', { ascending: false })
+          .limit(5);
+        
+        if (error) {
+          throw error;
+        }
+        
+        setNews(data);
+      } catch (error) {
+        console.error('Error fetching news:', error);
+      } finally {
+        setLoading(false);
+      }
     };
-  }, [emblaApi, onSelect]);
+    
+    fetchNews();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="mb-6 w-full">
+        <h2 className="font-semibold text-lg text-gray-800 mb-3">ข่าวสารและประกาศ</h2>
+        <div className="bg-white rounded-xl shadow-sm p-6 animate-pulse flex flex-col space-y-3">
+          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (news.length === 0) {
+    return (
+      <div className="mb-6 w-full">
+        <h2 className="font-semibold text-lg text-gray-800 mb-3">ข่าวสารและประกาศ</h2>
+        <div className="bg-white rounded-xl shadow-sm p-6 text-center">
+          <p className="text-gray-500">ไม่มีข่าวสารในขณะนี้</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="relative mb-6">
-      <div className="overflow-hidden rounded-2xl" ref={emblaRef}>
-        <div className="flex">
-          {newsItems.map((news) => (
-            <div key={news.id} className="relative min-w-full">
-              <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 p-4 text-white">
-                {/* องค์ประกอบตกแต่งเพื่อเพิ่มมิติ */}
-                <div className="absolute -bottom-6 -right-6 w-32 h-32 rounded-full bg-white/10 blur-xl"></div>
-                <div className="absolute -top-2 -left-2 w-16 h-16 rounded-full bg-emerald-400/30"></div>
-                
-                <div className="relative z-10">
-                  <div className="flex flex-col h-[115px] justify-between">
-                    <h3 className="text-base font-bold mb-1 drop-shadow-md leading-tight">{news.title}</h3>
-                    <p className="text-xs font-medium opacity-90 line-clamp-4 overflow-y-auto custom-white-scrollbar">{news.description}</p>
+    <div className="mb-6 w-full">
+      <h2 className="font-semibold text-lg text-gray-800 mb-3">ข่าวสารและประกาศ</h2>
+      <Carousel
+        opts={{
+          align: "start",
+          loop: true,
+        }}
+        className="w-full"
+      >
+        <CarouselContent>
+          {news.map((item) => (
+            <CarouselItem key={item.id} className={isMobile ? "w-full" : "basis-1/2"}>
+              <div className="bg-white rounded-xl overflow-hidden shadow-sm h-full">
+                {item.image_url ? (
+                  <div className="h-32 overflow-hidden">
+                    <img 
+                      src={item.image_url} 
+                      alt={item.title} 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  </div>
+                ) : null}
+                <div className="p-4">
+                  <h3 className="font-medium text-gray-900 mb-2 line-clamp-2">{item.title}</h3>
+                  <p className="text-sm text-gray-600 line-clamp-2 mb-3">{item.content}</p>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center text-xs text-gray-500">
+                      <CalendarDays className="h-3 w-3 mr-1" />
+                      <span>{format(new Date(item.publish_date), "d MMM yyyy", { locale: th })}</span>
+                    </div>
+                    <Link 
+                      to={`#news-${item.id}`} 
+                      className="text-xs text-emerald-600 hover:text-emerald-700"
+                    >
+                      อ่านเพิ่มเติม
+                    </Link>
                   </div>
                 </div>
               </div>
-            </div>
+            </CarouselItem>
           ))}
-        </div>
-      </div>
-      
-      {/* ลบปุ่มเลื่อนซ้าย-ขวาตามคำขอ */}
-      
-      {/* จุดแสดงตำแหน่งสไลด์ */}
-      <div className="flex justify-center mt-3 gap-2">
-        {scrollSnaps.map((_, index) => (
-          <div
-            key={index}
-            className={`w-2 h-2 rounded-full ${
-              index === selectedIndex ? 'bg-emerald-500' : 'bg-gray-300'
-            }`}
-          />
-        ))}
-      </div>
+        </CarouselContent>
+        <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2" />
+        <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2" />
+      </Carousel>
     </div>
   );
 };

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
@@ -6,36 +7,38 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
-import { MoreVertical, PlusCircle, Trash2, Pencil, Search, CalendarIcon, Eye } from "lucide-react";
+import { MoreVertical, PlusCircle, Trash2, Pencil, Search, CalendarIcon, Eye, Loader2 } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/AuthProvider";
 
 // Interface สำหรับข้อมูลข่าวสาร
 interface NewsItem {
   id: string;
   title: string;
   content: string;
-  publishDate: Date;
-  updateDate: Date;
+  publish_date: string; // ISO string from database
+  updated_at: string;   // ISO string from database
   published: boolean;
-  imageUrl?: string;
+  image_url?: string;
 }
 
 export default function NewsManagement() {
   // สถานะสำหรับการจัดการข่าวสาร
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // สถานะสำหรับฟอร์มเพิ่ม/แก้ไขข่าวสาร
   const [currentNews, setCurrentNews] = useState<Partial<NewsItem>>({
     title: "",
     content: "",
-    publishDate: new Date(),
     published: false,
   });
   const [isEditing, setIsEditing] = useState(false);
@@ -43,39 +46,36 @@ export default function NewsManagement() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
-
-  // โหลดข้อมูลข่าวสารเมื่อเข้าสู่หน้า (Mock data สำหรับตัวอย่าง)
-  useEffect(() => {
-    // ในสถานการณ์จริงควรดึงข้อมูลจาก API
-    const mockNews: NewsItem[] = [
-      {
-        id: "1",
-        title: "การแจ้งราคารับซื้อข้าวประจำวันที่ 15 พฤษภาคม 2568",
-        content: "วันนี้ราคารับซื้อข้าวหอมมะลิอยู่ที่ 15,000 บาทต่อตัน ข้าวขาว 12,000 บาทต่อตัน ข้าวเหนียว 14,500 บาทต่อตัน โดยราคาปรับตัวขึ้นจากวันก่อนหน้าประมาณ 2-3%",
-        publishDate: new Date(2025, 4, 15),
-        updateDate: new Date(2025, 4, 15),
-        published: true,
-      },
-      {
-        id: "2",
-        title: "ประกาศการปรับปรุงระบบ RiceFlow วันที่ 20 พฤษภาคม 2568",
-        content: "แจ้งเตือนการปรับปรุงระบบ RiceFlow ในวันที่ 20 พฤษภาคม 2568 เวลา 22:00 - 23:00 น. ระบบจะไม่สามารถใช้งานได้ชั่วคราวในช่วงเวลาดังกล่าว ขออภัยในความไม่สะดวก",
-        publishDate: new Date(2025, 4, 18),
-        updateDate: new Date(2025, 4, 16),
-        published: false,
-      },
-      {
-        id: "3",
-        title: "อัพเดทคุณภาพข้าวในภาคตะวันออกเฉียงเหนือ",
-        content: "รายงานคุณภาพข้าวในภาคตะวันออกเฉียงเหนือประจำเดือนพฤษภาคม 2568 พบว่าคุณภาพข้าวอยู่ในเกณฑ์ดี ความชื้นเฉลี่ยอยู่ที่ 14% ต่ำกว่าเดือนเมษายนที่ผ่านมา แนะนำให้เกษตรกรเก็บเกี่ยวในช่วงนี้เพื่อให้ได้ราคาที่ดี",
-        publishDate: new Date(2025, 4, 10),
-        updateDate: new Date(2025, 4, 10),
-        published: true,
-        imageUrl: "/lovable-uploads/rice-quality-report.jpg"
-      },
-    ];
+  const { user, userRoles } = useAuth();
+  
+  // Function to load news from Supabase
+  const fetchNews = async () => {
+    setIsLoading(true);
     
-    setNewsItems(mockNews);
+    try {
+      let { data, error } = await supabase
+        .from('news')
+        .select('*')
+        .order('publish_date', { ascending: false });
+      
+      if (error) {
+        throw error;
+      }
+      
+      if (data) {
+        setNewsItems(data as NewsItem[]);
+      }
+    } catch (error) {
+      console.error('Error fetching news:', error);
+      toast.error('ไม่สามารถโหลดข้อมูลข่าวสารได้');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // โหลดข้อมูลข่าวสารเมื่อเข้าสู่หน้า
+  useEffect(() => {
+    fetchNews();
   }, []);
 
   // กรองข่าวตามคำค้นหา
@@ -89,7 +89,6 @@ export default function NewsManagement() {
     setCurrentNews({
       title: "",
       content: "",
-      publishDate: new Date(),
       published: false,
     });
     setDate(new Date());
@@ -100,7 +99,7 @@ export default function NewsManagement() {
   // จัดการการแก้ไขข่าว
   const handleEditNews = (news: NewsItem) => {
     setCurrentNews(news);
-    setDate(news.publishDate);
+    setDate(new Date(news.publish_date));
     setIsEditing(true);
     setDialogOpen(true);
   };
@@ -112,80 +111,127 @@ export default function NewsManagement() {
   };
 
   // จัดการการบันทึกข่าว
-  const handleSaveNews = () => {
+  const handleSaveNews = async () => {
     if (!currentNews.title || !currentNews.content) {
       toast.error("กรุณากรอกหัวข้อและเนื้อหาข่าวให้ครบถ้วน");
       return;
     }
 
-    setIsLoading(true);
+    setIsSubmitting(true);
     
-    // จำลองการบันทึกข้อมูล
-    setTimeout(() => {
+    try {
       if (isEditing && currentNews.id) {
         // อัพเดทข่าวที่มีอยู่
-        setNewsItems(prevNews => 
-          prevNews.map(news => 
-            news.id === currentNews.id 
-              ? { 
-                  ...news, 
-                  ...currentNews as NewsItem, 
-                  publishDate: date,
-                  updateDate: new Date() 
-                } 
-              : news
-          )
-        );
+        const { error } = await supabase
+          .from('news')
+          .update({
+            title: currentNews.title,
+            content: currentNews.content,
+            publish_date: date.toISOString(),
+            published: currentNews.published,
+            image_url: currentNews.image_url
+          })
+          .eq('id', currentNews.id);
+          
+        if (error) throw error;
         toast.success("อัพเดทข่าวสารเรียบร้อยแล้ว");
       } else {
         // เพิ่มข่าวใหม่
-        const newNews: NewsItem = {
-          id: Date.now().toString(),
-          title: currentNews.title || "",
-          content: currentNews.content || "",
-          publishDate: date,
-          updateDate: new Date(),
-          published: currentNews.published || false,
-        };
-        
-        setNewsItems(prev => [newNews, ...prev]);
+        const { error } = await supabase
+          .from('news')
+          .insert({
+            title: currentNews.title,
+            content: currentNews.content,
+            publish_date: date.toISOString(),
+            published: currentNews.published || false,
+            image_url: currentNews.image_url
+          });
+          
+        if (error) throw error;
         toast.success("เพิ่มข่าวสารใหม่เรียบร้อยแล้ว");
       }
       
+      // โหลดข่าวใหม่หลังจากบันทึก
+      fetchNews();
       setDialogOpen(false);
-      setIsLoading(false);
-    }, 1000);
+    } catch (error) {
+      console.error('Error saving news:', error);
+      toast.error("ไม่สามารถบันทึกข่าวสารได้");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // จัดการการลบข่าว
-  const handleDeleteNews = (id: string) => {
-    // ในสถานการณ์จริงควรมีการยืนยันก่อนลบ
+  const handleDeleteNews = async (id: string) => {
+    if (!confirm("คุณต้องการลบข่าวสารนี้ใช่หรือไม่?")) {
+      return;
+    }
+    
     setIsLoading(true);
     
-    // จำลองการลบข้อมูล
-    setTimeout(() => {
+    try {
+      const { error } = await supabase
+        .from('news')
+        .delete()
+        .eq('id', id);
+        
+      if (error) throw error;
+      
+      // อัพเดตรายการข่าวหลังจากลบ
       setNewsItems(prevNews => prevNews.filter(news => news.id !== id));
       toast.success("ลบข่าวสารเรียบร้อยแล้ว");
+    } catch (error) {
+      console.error('Error deleting news:', error);
+      toast.error("ไม่สามารถลบข่าวสารได้");
+    } finally {
       setIsLoading(false);
-    }, 500);
+    }
   };
 
   // จัดการการเปลี่ยนสถานะการเผยแพร่
-  const togglePublishStatus = (id: string) => {
-    setNewsItems(prevNews => 
-      prevNews.map(news => 
-        news.id === id 
-          ? { ...news, published: !news.published, updateDate: new Date() } 
-          : news
-      )
-    );
-    
-    const newsItem = newsItems.find(news => news.id === id);
-    if (newsItem) {
-      const newStatus = !newsItem.published;
+  const togglePublishStatus = async (id: string, currentStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('news')
+        .update({ published: !currentStatus })
+        .eq('id', id);
+        
+      if (error) throw error;
+      
+      // อัพเดตรายการข่าวหลังจากเปลี่ยนสถานะ
+      setNewsItems(prevNews => 
+        prevNews.map(news => 
+          news.id === id 
+            ? { ...news, published: !news.published } 
+            : news
+        )
+      );
+      
+      const newStatus = !currentStatus;
       toast.success(`${newStatus ? "เผยแพร่" : "ยกเลิกการเผยแพร่"}ข่าวสารเรียบร้อยแล้ว`);
+    } catch (error) {
+      console.error('Error updating publish status:', error);
+      toast.error("ไม่สามารถเปลี่ยนสถานะการเผยแพร่ได้");
     }
   };
+
+  // ตรวจสอบว่าผู้ใช้มีสิทธิ์เข้าถึงหน้านี้หรือไม่
+  const isAuthorized = userRoles.some(role => ["admin", "superadmin"].includes(role));
+
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center p-4">
+        <div className="bg-white rounded-lg shadow-sm p-8 text-center max-w-md mx-auto">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">คุณไม่มีสิทธิ์เข้าถึงหน้านี้</h1>
+          <p className="text-gray-600 mb-6">กรุณาเข้าสู่ระบบด้วยบัญชีที่มีสิทธิ์เข้าถึงการจัดการข่าวสาร</p>
+          <Button onClick={() => window.location.href = '/'} className="bg-emerald-600 hover:bg-emerald-700">
+            กลับสู่หน้าหลัก
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -215,8 +261,12 @@ export default function NewsManagement() {
           </Button>
         </div>
         
-        {/* รายการข่าวสาร */}
-        {filteredNews.length === 0 ? (
+        {/* แสดงตัวโหลดขณะกำลังดึงข้อมูล */}
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+          </div>
+        ) : filteredNews.length === 0 ? (
           <div className="bg-white rounded-lg shadow-sm p-8 text-center">
             <p className="text-gray-500">ไม่พบข่าวสารที่ตรงกับการค้นหา</p>
           </div>
@@ -272,7 +322,7 @@ export default function NewsManagement() {
                 <CardContent className="p-4 pt-2">
                   <div className="flex justify-between items-center text-xs text-gray-500 mb-2">
                     <span>
-                      วันที่เผยแพร่: {format(news.publishDate, "d MMM yyyy", { locale: th })}
+                      วันที่เผยแพร่: {format(new Date(news.publish_date), "d MMM yyyy", { locale: th })}
                     </span>
                     <span className={news.published ? "text-emerald-600" : "text-gray-400"}>
                       {news.published ? "เผยแพร่แล้ว" : "ร่าง"}
@@ -295,7 +345,7 @@ export default function NewsManagement() {
                     variant={news.published ? "outline" : "default"}
                     size="sm"
                     className={news.published ? "text-xs border-emerald-200 hover:bg-emerald-50" : "text-xs bg-emerald-600 hover:bg-emerald-700"}
-                    onClick={() => togglePublishStatus(news.id)}
+                    onClick={() => togglePublishStatus(news.id, news.published)}
                   >
                     {news.published ? "ยกเลิกการเผยแพร่" : "เผยแพร่"}
                   </Button>
@@ -332,6 +382,16 @@ export default function NewsManagement() {
                 rows={6}
                 value={currentNews.content || ""}
                 onChange={(e) => setCurrentNews({ ...currentNews, content: e.target.value })}
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="image_url">URL รูปภาพ (ไม่บังคับ)</Label>
+              <Input
+                id="image_url"
+                placeholder="https://example.com/image.jpg"
+                value={currentNews.image_url || ""}
+                onChange={(e) => setCurrentNews({ ...currentNews, image_url: e.target.value })}
               />
             </div>
             
@@ -383,10 +443,15 @@ export default function NewsManagement() {
             </DialogClose>
             <Button 
               onClick={handleSaveNews} 
-              disabled={isLoading}
+              disabled={isSubmitting}
               className="bg-emerald-600 hover:bg-emerald-700"
             >
-              {isLoading ? "กำลังบันทึก..." : "บันทึกข่าวสาร"}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  กำลังบันทึก...
+                </>
+              ) : "บันทึกข่าวสาร"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -403,15 +468,25 @@ export default function NewsManagement() {
             <h3 className="text-xl font-semibold text-gray-800 mb-4">{currentNews.title}</h3>
             
             <div className="flex justify-between text-sm text-gray-500 mb-4">
-              <span>วันที่เผยแพร่: {currentNews.publishDate && format(currentNews.publishDate, "PPP", { locale: th })}</span>
+              <span>
+                วันที่เผยแพร่: {currentNews.publish_date && format(new Date(currentNews.publish_date), "PPP", { locale: th })}
+              </span>
               <span className={currentNews.published ? "text-emerald-600" : "text-gray-400"}>
                 {currentNews.published ? "เผยแพร่แล้ว" : "ร่าง"}
               </span>
             </div>
             
-            {currentNews.imageUrl && (
+            {currentNews.image_url && (
               <div className="mb-4">
-                <img src={currentNews.imageUrl} alt={currentNews.title} className="w-full h-auto rounded-lg" />
+                <img 
+                  src={currentNews.image_url} 
+                  alt={currentNews.title} 
+                  className="w-full h-auto rounded-lg"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/placeholder.svg';
+                    toast.error("ไม่สามารถโหลดรูปภาพได้");
+                  }} 
+                />
               </div>
             )}
             
