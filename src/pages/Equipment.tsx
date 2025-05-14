@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -68,7 +69,7 @@ export default function Equipment() {
       // For regular users, RLS will automatically filter devices they have access to
       const { data, error } = await supabase
         .from('rice_quality_analysis')
-        .select('device_code, thai_datetime')
+        .select('device_code, created_at')
         .not('device_code', 'is', null)
         .order('device_code', { ascending: true })
         .order('created_at', { ascending: false });
@@ -91,7 +92,7 @@ export default function Equipment() {
           if (item.device_code && !deviceMap.has(item.device_code)) {
             deviceMap.set(item.device_code, {
               device_code: item.device_code,
-              updated_at: item.thai_datetime
+              updated_at: item.created_at
             });
           }
         }
