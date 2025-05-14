@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { ChevronLeft, Wheat, Circle, Blend, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -21,7 +21,7 @@ type MeasurementHistoryProps = {
 };
 
 type TimeFrame = '1h' | '24h' | '7d' | '30d';
-type RowLimit = 10 | 50 | 100 | 1000;
+type RowLimit = 10 | 100 | 1000;
 
 const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
   symbol,
@@ -163,12 +163,14 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-white flex flex-col">
-      {/* Main Header (Top menu) */}
-      <Header />
+    <div className="fixed inset-0 z-[100] bg-white flex flex-col h-full overflow-auto">
+      {/* Main Header (Top menu) - fixed to stay in place */}
+      <div className="sticky top-0 z-10 bg-white w-full">
+        <Header />
+      </div>
       
-      {/* Sub-header for history */}
-      <div className="flex items-center p-4 border-b border-gray-200 bg-gray-50">
+      {/* Sub-header for history - fixed to stay in place */}
+      <div className="sticky top-14 z-10 flex items-center p-4 border-b border-gray-200 bg-gray-50">
         <Button 
           variant="outline" 
           onClick={onClose}
@@ -235,8 +237,16 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
 
       </div>
 
+      {/* กราฟอย่างง่ายแสดงค่าที่วัดได้ */}
+      {!isLoading && historyData && historyData.length > 0 && (
+        <div className="px-[2%] pt-4 pb-2 bg-white border-b border-gray-200">
+          <div className="text-sm font-medium text-gray-700 mb-2">กราฟแสดงแนวโน้มค่า {name}</div>
+          <SimpleChart data={historyData} symbol={symbol} />
+        </div>
+      )}
+
       {/* Content */}
-      <ScrollArea className="flex-1 p-4">
+      <div className="p-4">
         <div className="flex justify-between items-center mb-4">
           <div className="text-sm font-medium text-gray-700">ประวัติการวัดทั้งหมด</div>
           <div className="flex items-center gap-2">
@@ -247,7 +257,6 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="10">10 แถว</SelectItem>
-                <SelectItem value="50">50 แถว</SelectItem>
                 <SelectItem value="100">100 แถว</SelectItem>
                 <SelectItem value="1000">1000 แถว</SelectItem>
               </SelectContent>
@@ -299,7 +308,190 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
             </div>
           </div>
         )}
-      </ScrollArea>
+      </div>
+    </div>
+  );
+};
+
+// คอมโพเนนต์กราฟแบบง่ายที่ใช้ HTML canvas เพื่อหลีกเลี่ยงปัญหาการ Scroll
+type SimpleChartProps = {
+  data: any[];
+  symbol: string;
+};
+
+const SimpleChart: React.FC<SimpleChartProps> = ({ data, symbol }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  
+  useEffect(() => {
+    if (!canvasRef.current || !data.length) return;
+    
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    // กำหนดขนาด canvas ให้เหมาะสม
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    
+    // เตรียมข้อมูลสำหรับวาด
+    const chartData = [...data].reverse();
+    const values = chartData.map(item => parseFloat((item as any)[symbol] || 0));
+    
+    // ค่าสูงสุดและต่ำสุดสำหรับการวาดกราฟ
+    const maxValue = Math.max(...values);
+    const minValue = Math.min(...values);
+    const range = maxValue - minValue;
+    const adjustedMin = Math.max(0, minValue - (range * 0.1)); // ปรับให้มีพื้นที่ด้านล่าง 10%
+    const adjustedMax = maxValue + (range * 0.1); // ปรับให้มีพื้นที่ด้านบน 10%
+    const adjustedRange = adjustedMax - adjustedMin;
+    
+    // คำนวณค่าเฉลี่ย
+    const average = values.reduce((sum, val) => sum + val, 0) / values.length;
+    
+    // เคลียร์ canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // วาดพื้นหลัง
+    ctx.fillStyle = '#f8f8f8';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // ค่าสำหรับ margin
+    const marginLeft = 35;
+    const marginRight = 10;
+    const marginTop = 10;
+    const marginBottom = 20;
+    
+    // พื้นที่วาดกราฟ
+    const chartWidth = canvas.width - marginLeft - marginRight;
+    const chartHeight = canvas.height - marginTop - marginBottom;
+    
+    // วาดกรอบ
+    ctx.strokeStyle = '#e0e0e0';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(marginLeft, marginTop, chartWidth, chartHeight);
+    
+    // วาดเส้นแกน y (แนวตั้ง)
+    const yAxisSteps = 5;
+    ctx.strokeStyle = '#e0e0e0';
+    ctx.lineWidth = 0.5;
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.font = '10px Arial';
+    ctx.fillStyle = '#888';
+    
+    for (let i = 0; i <= yAxisSteps; i++) {
+      const y = marginTop + chartHeight - (i / yAxisSteps) * chartHeight;
+      ctx.beginPath();
+      ctx.moveTo(marginLeft, y);
+      ctx.lineTo(marginLeft + chartWidth, y);
+      ctx.stroke();
+      
+      // แสดงค่าที่แกน y
+      const yValue = adjustedMin + (i / yAxisSteps) * adjustedRange;
+      ctx.fillText(`${yValue.toFixed(1)}%`, marginLeft - 5, y);
+    }
+    
+    // วาดเส้นค่าเฉลี่ย
+    const averageY = marginTop + chartHeight - ((average - adjustedMin) / adjustedRange) * chartHeight;
+    ctx.beginPath();
+    ctx.setLineDash([3, 3]);
+    ctx.strokeStyle = '#aaa';
+    ctx.moveTo(marginLeft, averageY);
+    ctx.lineTo(marginLeft + chartWidth, averageY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillText(`ค่าเฉลี่ย: ${average.toFixed(1)}%`, marginLeft + 5, averageY - 5);
+    
+    // วาดกราฟเส้น
+    if (values.length > 1) {
+      ctx.beginPath();
+      ctx.strokeStyle = '#FFD700'; // สีเหลือง gold สำหรับเส้นกราฟ
+      ctx.lineWidth = 2;
+      ctx.lineJoin = 'round';
+      
+      // พื้นที่ใต้กราฟ
+      ctx.beginPath();
+      const pointSpacing = chartWidth / (values.length - 1);
+      
+      for (let i = 0; i < values.length; i++) {
+        const x = marginLeft + i * pointSpacing;
+        const y = marginTop + chartHeight - ((values[i] - adjustedMin) / adjustedRange) * chartHeight;
+        
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+      
+      // สร้าง gradient สำหรับพื้นที่ใต้กราฟ
+      const gradient = ctx.createLinearGradient(0, marginTop, 0, marginTop + chartHeight);
+      gradient.addColorStop(0, 'rgba(255, 215, 0, 0.3)'); // สีเหลืองโปร่งใส
+      gradient.addColorStop(1, 'rgba(255, 215, 0, 0.05)');
+      
+      // วาดเส้นกราฟ
+      ctx.stroke();
+      
+      // วาดพื้นที่ใต้กราฟ
+      ctx.lineTo(marginLeft + (values.length - 1) * pointSpacing, marginTop + chartHeight);
+      ctx.lineTo(marginLeft, marginTop + chartHeight);
+      ctx.closePath();
+      ctx.fillStyle = gradient;
+      ctx.fill();
+      
+      // วาดเส้นกราฟทับอีกครั้ง (เพื่อให้เส้นอยู่บนสุด)
+      ctx.beginPath();
+      for (let i = 0; i < values.length; i++) {
+        const x = marginLeft + i * pointSpacing;
+        const y = marginTop + chartHeight - ((values[i] - adjustedMin) / adjustedRange) * chartHeight;
+        
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+      ctx.strokeStyle = '#FFD700';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+    
+    // วาดแกน X (เวลา) กับค่าสุดท้าย
+    if (values.length > 0) {
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = '#888';
+      
+      // แสดงเฉพาะไม่กี่จุดเพื่อไม่ให้ข้อความเบียดกัน
+      const maxXLabels = 5;
+      const step = Math.ceil(values.length / maxXLabels);
+      
+      for (let i = 0; i < values.length; i += step) {
+        const x = marginLeft + i * (chartWidth / (values.length - 1));
+        const item = chartData[i];
+        let timeLabel = "";
+        
+        if (item.created_at || item.thai_datetime) {
+          const date = new Date(item.created_at || item.thai_datetime);
+          // เพิ่มเวลาอีก 7 ชั่วโมงสำหรับไทย
+          date.setHours(date.getHours() + 7);
+          timeLabel = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+        }
+        
+        ctx.fillText(timeLabel, x, marginTop + chartHeight + 5);
+      }
+    }
+  }, [data, symbol]);
+  
+  return (
+    <div className="w-full h-32 bg-white">
+      <canvas 
+        ref={canvasRef} 
+        className="w-full h-full" 
+      />
+      <div className="text-xs text-center text-gray-500 mt-1">
+        ข้อมูล {data.length} รายการ
+      </div>
     </div>
   );
 };
