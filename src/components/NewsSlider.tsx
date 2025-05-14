@@ -8,6 +8,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
 interface NewsItemType {
   id: string;
   title: string;
@@ -15,6 +16,37 @@ interface NewsItemType {
   image_url?: string;
   publish_date: string;
 }
+
+// Array of background gradient colors for the cards
+const cardGradients = [
+  "bg-gradient-to-br from-emerald-50 to-white",
+  "bg-gradient-to-br from-amber-50 to-white",
+  "bg-gradient-to-br from-blue-50 to-white",
+  "bg-gradient-to-br from-purple-50 to-white",
+  "bg-gradient-to-br from-rose-50 to-white",
+];
+
+// Component for rice grain decoration
+const RiceGrain = ({ top, left, rotate = 0, size = 6, color = "emerald" }: { 
+  top: string; 
+  left: string; 
+  rotate?: number;
+  size?: number;
+  color?: string;
+}) => {
+  return (
+    <div 
+      className={`absolute w-${size} h-${Math.floor(size/2)} bg-${color}-200 rounded-full opacity-70`} 
+      style={{ 
+        top, 
+        left, 
+        transform: `rotate(${rotate}deg)`,
+        zIndex: 0 
+      }}
+    />
+  );
+};
+
 export const NewsSlider = () => {
   const [news, setNews] = useState<NewsItemType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,10 +87,45 @@ export const NewsSlider = () => {
     };
     fetchNews();
   }, []);
+
   const handleReadMore = (item: NewsItemType) => {
     setSelectedNews(item);
     setDialogOpen(true);
   };
+
+  // Function to generate random rice grain positions for a card
+  const generateRiceGrains = (index: number) => {
+    // Use the index to deterministically generate a unique set of rice grains
+    const seedValue = index * 1000;
+    const count = (seedValue % 3) + 2; // 2-4 grains per card
+    const grains = [];
+    
+    for (let i = 0; i < count; i++) {
+      const position = (seedValue + i * 100) % 1000;
+      const top = `${10 + (position % 80)}%`;
+      const left = `${5 + (position % 85)}%`;
+      const rotate = (position % 360);
+      const size = 3 + (position % 4);
+      
+      // Alternate between colors based on position
+      const colors = ["emerald", "amber", "green"];
+      const colorIndex = (position % 3);
+      
+      grains.push(
+        <RiceGrain 
+          key={i} 
+          top={top} 
+          left={left} 
+          rotate={rotate} 
+          size={size}
+          color={colors[colorIndex]}
+        />
+      );
+    }
+    
+    return grains;
+  };
+
   if (loading) {
     return <div className="mb-6 w-full">
         <h2 className="font-semibold text-lg text-gray-800 mb-3">ข่าวสารและประกาศ</h2>
@@ -69,6 +136,7 @@ export const NewsSlider = () => {
         </div>
       </div>;
   }
+  
   if (news.length === 0) {
     return <div className="mb-6 w-full">
         <h2 className="font-semibold text-lg text-gray-800 mb-3">ข่าวสารและประกาศ</h2>
@@ -77,6 +145,7 @@ export const NewsSlider = () => {
         </div>
       </div>;
   }
+
   return <div className="mb-6 w-full">
       <h2 className="font-semibold text-lg text-gray-800 mb-3">ข่าวสารและประกาศ</h2>
       <Carousel opts={{
@@ -84,14 +153,22 @@ export const NewsSlider = () => {
       loop: true
     }} setApi={setApi} className="w-full">
         <CarouselContent>
-          {news.map(item => <CarouselItem key={item.id} className={isMobile ? "w-full" : "basis-1/2"}>
-              <div className="bg-white rounded-xl overflow-hidden shadow-sm h-full">
+          {news.map((item, index) => {
+            // Get a gradient color based on the index
+            const gradientClass = cardGradients[index % cardGradients.length];
+            
+            return (
+            <CarouselItem key={item.id} className={isMobile ? "w-full" : "basis-1/2"}>
+              <div className={`relative ${gradientClass} rounded-xl overflow-hidden shadow-md h-full border border-gray-100 hover:shadow-lg transition-shadow duration-300`}>
+                {/* Add random rice grain decorations */}
+                {generateRiceGrains(index)}
+                
                 {item.image_url ? <div className="h-32 overflow-hidden">
                     <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" onError={e => {
                 (e.target as HTMLImageElement).style.display = 'none';
               }} />
                   </div> : null}
-                <div className="p-4">
+                <div className="p-4 relative z-10">
                   <h3 className="font-medium text-gray-900 mb-2 line-clamp-2 break-words">{item.title}</h3>
                   <p className="text-sm text-gray-600 line-clamp-3 mb-3 min-h-[4.5rem] break-words">{item.content}</p>
                   <div className="flex justify-between items-center">
@@ -101,24 +178,28 @@ export const NewsSlider = () => {
                       locale: th
                     })}</span>
                     </div>
-                    <button onClick={() => handleReadMore(item)} className="text-xs text-emerald-600 hover:text-emerald-700">
+                    <button onClick={() => handleReadMore(item)} className={`text-xs px-3 py-1.5 rounded-full ${index % 2 === 0 ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'} transition-colors`}>
                       อ่านเพิ่มเติม
                     </button>
                   </div>
                 </div>
               </div>
-            </CarouselItem>)}
+            </CarouselItem>
+          )})}
         </CarouselContent>
         <CarouselPrevious className="hidden md:flex" />
         <CarouselNext className="hidden md:flex" />
       </Carousel>
 
-      {/* Dialog for displaying full news content */}
+      {/* Dialog for displaying full news content - updated with more styling */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg rounded-xl overflow-hidden">
+        <DialogContent className="sm:max-w-lg rounded-xl overflow-hidden bg-gradient-to-b from-white to-gray-50">
           {selectedNews && <>
-              <DialogHeader>
-                <DialogTitle className="text-xl">{selectedNews.title}</DialogTitle>
+              <DialogHeader className="relative">
+                <div className="absolute -right-2 -top-2 opacity-10">
+                  <div className="w-16 h-8 bg-emerald-300 rounded-full rotate-45"></div>
+                </div>
+                <DialogTitle className="text-xl text-emerald-800">{selectedNews.title}</DialogTitle>
               </DialogHeader>
               <div className="mt-2 overflow-y-auto max-h-[70vh]">
                 <div className="flex items-center text-sm text-gray-500 mb-4">
@@ -129,17 +210,21 @@ export const NewsSlider = () => {
                 </div>
                 
                 {selectedNews.image_url && <div className="mb-4">
-                    <img src={selectedNews.image_url} alt={selectedNews.title} className="w-full h-auto rounded-lg" onError={e => {
+                    <img src={selectedNews.image_url} alt={selectedNews.title} className="w-full h-auto rounded-lg shadow-sm" onError={e => {
                 (e.target as HTMLImageElement).style.display = 'none';
               }} />
                   </div>}
                 
-                <div className="prose max-w-none mt-2">
+                <div className="prose max-w-none mt-2 relative">
+                  {/* Decorative rice grain */}
+                  <div className="absolute -left-1 bottom-10 w-4 h-2 bg-amber-200 rounded-full opacity-70 rotate-45"></div>
+                  <div className="absolute right-2 top-20 w-3 h-1.5 bg-emerald-200 rounded-full opacity-70 -rotate-30"></div>
+                  
                   <p className="whitespace-pre-wrap text-gray-700 break-words">{selectedNews.content}</p>
                 </div>
                 
                 <div className="mt-6 text-right">
-                  <Link to={`/news/${selectedNews.id}`} className="text-sm text-emerald-600 hover:text-emerald-700">
+                  <Link to={`/news/${selectedNews.id}`} className="inline-block px-4 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-full text-sm transition-colors">
                     ดูรายละเอียดเพิ่มเติม
                   </Link>
                 </div>
