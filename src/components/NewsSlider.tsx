@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { CalendarDays } from "lucide-react";
@@ -8,7 +7,6 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-
 interface NewsItemType {
   id: string;
   title: string;
@@ -18,35 +16,29 @@ interface NewsItemType {
 }
 
 // Array of background gradient colors for the cards
-const cardGradients = [
-  "bg-gradient-to-br from-emerald-50 to-white",
-  "bg-gradient-to-br from-amber-50 to-white",
-  "bg-gradient-to-br from-blue-50 to-white",
-  "bg-gradient-to-br from-purple-50 to-white",
-  "bg-gradient-to-br from-rose-50 to-white",
-];
+const cardGradients = ["bg-gradient-to-br from-emerald-50 to-white", "bg-gradient-to-br from-amber-50 to-white", "bg-gradient-to-br from-blue-50 to-white", "bg-gradient-to-br from-purple-50 to-white", "bg-gradient-to-br from-rose-50 to-white"];
 
 // Component for rice grain decoration
-const RiceGrain = ({ top, left, rotate = 0, size = 6, color = "emerald" }: { 
-  top: string; 
-  left: string; 
+const RiceGrain = ({
+  top,
+  left,
+  rotate = 0,
+  size = 6,
+  color = "emerald"
+}: {
+  top: string;
+  left: string;
   rotate?: number;
   size?: number;
   color?: string;
 }) => {
-  return (
-    <div 
-      className={`absolute w-${size} h-${Math.floor(size/2)} bg-${color}-200 rounded-full opacity-70`} 
-      style={{ 
-        top, 
-        left, 
-        transform: `rotate(${rotate}deg)`,
-        zIndex: 0 
-      }}
-    />
-  );
+  return <div className={`absolute w-${size} h-${Math.floor(size / 2)} bg-${color}-200 rounded-full opacity-70`} style={{
+    top,
+    left,
+    transform: `rotate(${rotate}deg)`,
+    zIndex: 0
+  }} />;
 };
-
 export const NewsSlider = () => {
   const [news, setNews] = useState<NewsItemType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,14 +50,11 @@ export const NewsSlider = () => {
   // Auto-slide effect that runs every 6 seconds
   useEffect(() => {
     if (!api || news.length <= 1) return;
-    
     const interval = setInterval(() => {
       api.scrollNext();
     }, 6000);
-    
     return () => clearInterval(interval);
   }, [api, news.length]);
-
   useEffect(() => {
     const fetchNews = async () => {
       try {
@@ -87,7 +76,6 @@ export const NewsSlider = () => {
     };
     fetchNews();
   }, []);
-
   const handleReadMore = (item: NewsItemType) => {
     setSelectedNews(item);
     setDialogOpen(true);
@@ -97,35 +85,22 @@ export const NewsSlider = () => {
   const generateRiceGrains = (index: number) => {
     // Use the index to deterministically generate a unique set of rice grains
     const seedValue = index * 1000;
-    const count = (seedValue % 3) + 2; // 2-4 grains per card
+    const count = seedValue % 3 + 2; // 2-4 grains per card
     const grains = [];
-    
     for (let i = 0; i < count; i++) {
       const position = (seedValue + i * 100) % 1000;
-      const top = `${10 + (position % 80)}%`;
-      const left = `${5 + (position % 85)}%`;
-      const rotate = (position % 360);
-      const size = 3 + (position % 4);
-      
+      const top = `${10 + position % 80}%`;
+      const left = `${5 + position % 85}%`;
+      const rotate = position % 360;
+      const size = 3 + position % 4;
+
       // Alternate between colors based on position
       const colors = ["emerald", "amber", "green"];
-      const colorIndex = (position % 3);
-      
-      grains.push(
-        <RiceGrain 
-          key={i} 
-          top={top} 
-          left={left} 
-          rotate={rotate} 
-          size={size}
-          color={colors[colorIndex]}
-        />
-      );
+      const colorIndex = position % 3;
+      grains.push(<RiceGrain key={i} top={top} left={left} rotate={rotate} size={size} color={colors[colorIndex]} />);
     }
-    
     return grains;
   };
-
   if (loading) {
     return <div className="mb-6 w-full">
         <h2 className="font-semibold text-lg text-gray-800 mb-3">ข่าวสารและประกาศ</h2>
@@ -136,7 +111,6 @@ export const NewsSlider = () => {
         </div>
       </div>;
   }
-  
   if (news.length === 0) {
     return <div className="mb-6 w-full">
         <h2 className="font-semibold text-lg text-gray-800 mb-3">ข่าวสารและประกาศ</h2>
@@ -145,7 +119,6 @@ export const NewsSlider = () => {
         </div>
       </div>;
   }
-
   return <div className="mb-6 w-full">
       <h2 className="font-semibold text-lg text-gray-800 mb-3">ข่าวสารและประกาศ</h2>
       <Carousel opts={{
@@ -154,19 +127,17 @@ export const NewsSlider = () => {
     }} setApi={setApi} className="w-full">
         <CarouselContent>
           {news.map((item, index) => {
-            // Get a gradient color based on the index
-            const gradientClass = cardGradients[index % cardGradients.length];
-            
-            return (
-            <CarouselItem key={item.id} className={isMobile ? "w-full" : "basis-1/2"}>
-              <div className={`relative ${gradientClass} rounded-xl overflow-hidden shadow-md h-full border border-gray-100 hover:shadow-lg transition-shadow duration-300`}>
+          // Get a gradient color based on the index
+          const gradientClass = cardGradients[index % cardGradients.length];
+          return <CarouselItem key={item.id} className={isMobile ? "w-full" : "basis-1/2"}>
+              <div className="">
                 {/* Add random rice grain decorations */}
                 {generateRiceGrains(index)}
                 
                 {item.image_url ? <div className="h-32 overflow-hidden">
                     <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" onError={e => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }} />
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }} />
                   </div> : null}
                 <div className="p-4 relative z-10">
                   <h3 className="font-medium text-gray-900 mb-2 line-clamp-2 break-words">{item.title}</h3>
@@ -175,8 +146,8 @@ export const NewsSlider = () => {
                     <div className="flex items-center text-xs text-gray-500">
                       <CalendarDays className="h-3 w-3 mr-1" />
                       <span>{format(new Date(item.publish_date), "d MMM yyyy", {
-                      locale: th
-                    })}</span>
+                        locale: th
+                      })}</span>
                     </div>
                     <button onClick={() => handleReadMore(item)} className={`text-xs px-3 py-1.5 rounded-full ${index % 2 === 0 ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'} transition-colors`}>
                       อ่านเพิ่มเติม
@@ -184,8 +155,8 @@ export const NewsSlider = () => {
                   </div>
                 </div>
               </div>
-            </CarouselItem>
-          )})}
+            </CarouselItem>;
+        })}
         </CarouselContent>
         <CarouselPrevious className="hidden md:flex" />
         <CarouselNext className="hidden md:flex" />
