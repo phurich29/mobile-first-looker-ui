@@ -74,14 +74,14 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
     
     fetchLatestValue();
     
-    // Update values every 30 seconds
-    const intervalId = setInterval(fetchLatestValue, 30000);
+    // Update values every 15 seconds instead of 30 for more frequent updates
+    const intervalId = setInterval(fetchLatestValue, 15000);
     return () => clearInterval(intervalId);
   }, [deviceCode, symbol, threshold, type, enabled]);
 
-  // Change the navigation destination to /notifications
+  // Navigate to measurement history for the specific device and parameter
   const handleClick = () => {
-    navigate('/notifications');
+    navigate(`/measurement-history/${deviceCode}/${symbol}?name=${encodeURIComponent(name)}`);
   };
 
   return (

@@ -6,3 +6,6 @@ verify_jwt = true
 
 [functions.execute_sql]
 verify_jwt = true
+
+[functions.check_notifications]
+verify_jwt = false
