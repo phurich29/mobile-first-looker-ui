@@ -1,3 +1,4 @@
+
 import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, FileText, AlertCircle, History } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
@@ -75,7 +76,7 @@ export const Header = () => {
         <div className="flex flex-col h-full p-4 bg-[#fff9df]">
           <div className="flex justify-between items-center mb-8 mt-4">
             <div className="flex items-center gap-2">
-              <img src="/lovable-uploads/649554cd-4d80-484a-995d-e49f2721a07d.png" alt="RiceFlow Logo" className="h-8 w-auto rounded-full" />
+              <img src="/lovable-uploads/649554cd-4d80-484a-995d-e49f2721a07d.png" alt="RiceFlow Logo" className="h-10 w-auto rounded-full" />
               <h2 className="text-xl font-semibold text-emerald-700">RiceFlow</h2>
             </div>
             <Button variant="ghost" size="icon" className="text-gray-500 md:hidden" onClick={() => setSidebarOpen(false)}>
@@ -156,14 +157,14 @@ export const Header = () => {
             <Menu className="h-5 w-5" />
           </Button>
           
-          {/* Add RiceFlow Logo in header */}
-          <div className="flex items-center gap-2">
+          {/* Add RiceFlow Logo in header - Made larger and more prominent */}
+          <div className="flex items-center gap-3">
             <img 
               src="/lovable-uploads/649554cd-4d80-484a-995d-e49f2721a07d.png" 
               alt="RiceFlow Logo" 
-              className="h-8 w-8 rounded-full border-2 border-white/40 shadow-sm" 
+              className="h-10 w-10 rounded-full border-2 border-white/70 shadow-md" 
             />
-            {!isMobile && <span className="font-semibold text-white">RiceFlow</span>}
+            {!isMobile && <span className="font-bold text-lg text-white">RiceFlow</span>}
           </div>
         </div>
 
@@ -181,13 +182,11 @@ export const Header = () => {
           )}
         </div>
       
-        <div className="flex items-center gap-3">
-          {user && <Link to="/profile" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30 transition-colors shadow-inner">
-              <User className="h-5 w-5 text-white" />
-            </Link>}
-          {user && <Link to="/logout" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30 transition-colors shadow-inner">
-              <LogOut className="h-5 w-5 text-white" />
-            </Link>}
+        <div className="flex items-center">
+          {/* Added back the notification bell icon */}
+          <Link to="/notifications" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30 transition-colors shadow-inner">
+            <Bell className="h-5 w-5 text-white" />
+          </Link>
         </div>
       </header>
     </>;
