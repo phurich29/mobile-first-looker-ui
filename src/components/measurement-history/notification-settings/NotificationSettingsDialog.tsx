@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -94,7 +93,7 @@ export function NotificationSettingsDialog({
               {/* Reordered - Max threshold is now above Min threshold */}
               <ThresholdControl
                 id="max-enabled"
-                label="แจ้งเตือนเมื่อสูงกว่าเกณฑ์"
+                label="แจ้งเตือน เมื่อสูงกว่า"
                 thresholdEnabled={settings.maxEnabled}
                 onThresholdEnabledChange={setMaxEnabled}
                 threshold={settings.maxThreshold}
@@ -105,7 +104,7 @@ export function NotificationSettingsDialog({
               
               <ThresholdControl
                 id="min-enabled"
-                label="แจ้งเตือนเมื่อต่ำกว่าเกณฑ์"
+                label="แจ้งเตือน เมื่อต่ำกว่า"
                 thresholdEnabled={settings.minEnabled}
                 onThresholdEnabledChange={setMinEnabled}
                 threshold={settings.minThreshold}
