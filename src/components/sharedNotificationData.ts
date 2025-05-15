@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Notification {
@@ -17,21 +18,22 @@ export interface Notification {
   price?: string;
 }
 
-// ฟังก์ชันสำหรับดึงข้อมูลการแจ้งเตือนจากฐานข้อมูล
+// Function to fetch notification data from the database
 export async function fetchNotifications(): Promise<Notification[]> {
   try {
-    // ดึงข้อมูลจากตาราง notification_settings
+    // Fetch data from notification_settings table
     const { data, error } = await supabase
       .from("notification_settings")
       .select(`
         id,
-        symbol,
+        rice_type_id,
+        rice_type_name,
         min_threshold,
         max_threshold,
         enabled,
-        device_id,
-        devices (name, code),
-        measurement_types (name, icon_color)
+        device_code,
+        min_enabled,
+        max_enabled
       `)
       .order("id", { ascending: true });
 
@@ -44,14 +46,16 @@ export async function fetchNotifications(): Promise<Notification[]> {
       return [];
     }
 
-    // แปลงข้อมูลที่ได้รับมาให้อยู่ในรูปแบบที่ต้องการ
+    // Transform fetched data to required format
     return data.map(item => {
-      // กำหนดประเภทการแจ้งเตือน
-      const notificationType = item.min_threshold !== null
-        ? (item.max_threshold !== null ? "both" as const : "min" as const)
-        : "max" as const;
-        
-      // กำหนดค่า threshold สำหรับแสดงผล
+      // Determine notification type based on enabled thresholds
+      const notificationType = item.min_enabled && item.max_enabled 
+        ? "both" as const 
+        : item.min_enabled 
+          ? "min" as const 
+          : "max" as const;
+      
+      // Format the threshold display string
       let threshold = "";
       if (notificationType === "both") {
         threshold = `${item.min_threshold} - ${item.max_threshold}`;
@@ -61,20 +65,27 @@ export async function fetchNotifications(): Promise<Notification[]> {
         threshold = String(item.max_threshold);
       }
       
-      // สร้าง object สำหรับแสดงผล
+      // Define icon color based on notification type
+      const iconColor = notificationType === "both" 
+        ? "#7c3aed" // Purple for both
+        : notificationType === "min" 
+          ? "#3b82f6" // Blue for min
+          : "#f97316"; // Orange for max
+      
+      // Create the notification object
       return {
         id: item.id,
-        symbol: item.symbol,
-        name: item.measurement_types?.name || item.symbol,
-        deviceCode: item.devices?.code || "UNKNOWN",
-        deviceName: item.devices?.name || "Unknown Device",
+        symbol: item.rice_type_id,
+        name: item.rice_type_name || item.rice_type_id,
+        deviceCode: item.device_code,
+        deviceName: item.device_code, // Using device_code as name since no device name available
         threshold: threshold,
         type: notificationType,
         notificationType: notificationType,
         enabled: item.enabled,
-        iconColor: item.measurement_types?.icon_color || "#7c3aed",
+        iconColor: iconColor,
         updatedAt: new Date(),
-        currentValue: "0" // ตั้งค่าเริ่มต้น ในกรณีที่ยังไม่มีข้อมูลล่าสุด
+        currentValue: "0" // Default value when no current data is available
       };
     });
   } catch (error) {

@@ -1,30 +1,34 @@
 
 import React, { useState, useEffect } from "react";
-import { useAuth } from "@/components/AuthProvider";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
-import { NotificationSetting } from "@/pages/notification-settings/types";
+import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const WatchlistSection = () => {
-  const { user } = useAuth();
   const isMobile = useIsMobile();
   const { toast } = useToast();
-  const [notificationSettings, setNotificationSettings] = useState<NotificationSetting[]>([]);
+  const [notificationSettings, setNotificationSettings] = useState([]);
   const [settingsLoading, setSettingsLoading] = useState(true);
 
-  // ดึงข้อมูลการตั้งค่าการแจ้งเตือนจากฐานข้อมูล
+  // Fetch notification settings from the database
   useEffect(() => {
     const fetchSettings = async () => {
       try {
         setSettingsLoading(true);
-        const { data, error } = await supabase.from('notification_settings').select('*');
+        
+        // Fetch only enabled notification settings
+        const { data: settings, error } = await supabase
+          .from('notification_settings')
+          .select('*, device_settings(display_name)')
+          .eq('enabled', true);
+          
         if (error) {
           throw error;
         }
-        console.log("Fetched notification settings:", data);
-        setNotificationSettings(data || []);
+        
+        console.log("Fetched notification settings:", settings);
+        setNotificationSettings(settings || []);
       } catch (error) {
         console.error("Error fetching notification settings:", error);
         toast({
@@ -62,7 +66,7 @@ export const WatchlistSection = () => {
               <div className="flex justify-between items-start mb-3">
                 <div>
                   <h3 className="font-medium text-emerald-800">
-                    {setting.device_name || setting.device_code}
+                    {setting.device_settings?.display_name || setting.device_code}
                   </h3>
                   <p className="text-sm text-gray-500">{setting.rice_type_name}</p>
                 </div>

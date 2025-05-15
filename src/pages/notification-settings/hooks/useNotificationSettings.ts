@@ -36,7 +36,7 @@ export const useNotificationSettings = () => {
         
         // Map device names to notification settings
         const enrichedSettings = notificationSettings.map(setting => {
-          const device = deviceSettings.find(d => d.device_code === setting.device_code);
+          const device = deviceSettings?.find(d => d.device_code === setting.device_code);
           return {
             ...setting,
             device_name: device?.display_name || setting.device_code
