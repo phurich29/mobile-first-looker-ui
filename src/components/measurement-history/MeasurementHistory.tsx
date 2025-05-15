@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import HistoryHeader from "./HistoryHeader";
@@ -123,6 +122,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
             average={averageValue}
             onOpenSettings={() => setSettingsOpen(true)}
             notificationEnabled={notificationEnabled}
+            deviceCode={deviceCode}
           />
           
           <HistoryFooter 

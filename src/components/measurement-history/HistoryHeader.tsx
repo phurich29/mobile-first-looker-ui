@@ -11,6 +11,7 @@ interface HistoryHeaderProps {
   average: number;
   onOpenSettings: () => void;
   notificationEnabled?: boolean;
+  deviceCode?: string;
 }
 
 const HistoryHeader: React.FC<HistoryHeaderProps> = ({ 
@@ -18,12 +19,19 @@ const HistoryHeader: React.FC<HistoryHeaderProps> = ({
   unit, 
   average, 
   onOpenSettings,
-  notificationEnabled = false
+  notificationEnabled = false,
+  deviceCode
 }) => {
   const navigate = useNavigate();
   
   const handleGoBack = () => {
-    navigate(-1);
+    // Navigate to device details page if device code is provided
+    if (deviceCode) {
+      navigate(`/device/${deviceCode}`);
+    } else {
+      // Fallback to previous page if device code is not available
+      navigate(-1);
+    }
   };
   
   return (
