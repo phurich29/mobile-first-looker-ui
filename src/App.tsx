@@ -4,10 +4,10 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Equipment from "./pages/Equipment";
 import NotFound from "./pages/NotFound";
-import ProtectedRoute from "./components/ProtectedRoute";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import DeviceDetails from "./pages/DeviceDetails";
 import Measurements from "./pages/Measurements";
-import AuthProvider from "./components/AuthProvider";
+import { AuthProvider } from "./components/AuthProvider";
 import Profile from "./pages/Profile";
 import Waiting from "./pages/Waiting";
 import Admin from "./pages/Admin";
@@ -41,11 +41,11 @@ function App() {
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           
           {/* Admin routes */}
-          <Route path="/admin" element={<ProtectedRoute requireRole="admin"><Admin /></ProtectedRoute>} />
-          <Route path="/user-management" element={<ProtectedRoute requireRole="admin"><UserManagement /></ProtectedRoute>} />
-          <Route path="/device-management" element={<ProtectedRoute requireRole="admin"><DeviceManagement /></ProtectedRoute>} />
-          <Route path="/rice-price-management" element={<ProtectedRoute requireRole="admin"><RicePriceManagement /></ProtectedRoute>} />
-          <Route path="/news-management" element={<ProtectedRoute requireRole="admin"><NewsManagement /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute requiredRoles={["admin"]}><Admin /></ProtectedRoute>} />
+          <Route path="/user-management" element={<ProtectedRoute requiredRoles={["admin"]}><UserManagement /></ProtectedRoute>} />
+          <Route path="/device-management" element={<ProtectedRoute requiredRoles={["admin"]}><DeviceManagement /></ProtectedRoute>} />
+          <Route path="/rice-price-management" element={<ProtectedRoute requiredRoles={["admin"]}><RicePriceManagement /></ProtectedRoute>} />
+          <Route path="/news-management" element={<ProtectedRoute requiredRoles={["admin"]}><NewsManagement /></ProtectedRoute>} />
           
           {/* Notification routes */}
           <Route path="/notifications" element={<ProtectedRoute><NotificationSettings /></ProtectedRoute>} />
