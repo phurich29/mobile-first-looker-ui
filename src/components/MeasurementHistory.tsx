@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from "react";
 import { ChevronLeft, Wheat, Circle, Blend } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -172,7 +173,27 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
 
   // Prepare data for the chart
   const chartData = useMemo(() => {
-    if (!historyData || historyData.length === 0) return [];
+    if (!historyData || historyData.length === 0) {
+      // Create empty chart data with 0 values when no data is available
+      const currentDate = new Date();
+      const hours = getTimeFrameHours(timeFrame);
+      
+      // Create array with empty data points spread across the time frame
+      const emptyData = [];
+      for (let i = 0; i <= hours; i += Math.max(1, Math.floor(hours/5))) {
+        const pointDate = new Date(currentDate);
+        pointDate.setHours(pointDate.getHours() - (hours - i));
+        
+        const { thaiTime, thaiDate } = formatBangkokTime(pointDate.toISOString());
+        
+        emptyData.push({
+          time: thaiTime,
+          value: 0,
+          date: thaiDate
+        });
+      }
+      return emptyData;
+    }
     
     return historyData
       .map((item: any) => ({
@@ -182,7 +203,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
         date: formatBangkokTime(item.created_at || item.thai_datetime).thaiDate
       }))
       .reverse();
-  }, [historyData, symbol]);
+  }, [historyData, symbol, timeFrame]);
 
   // Calculate average
   const average = useMemo(() => calculateAverage(), [historyData, symbol]);
@@ -224,7 +245,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
                 <p className="text-sm font-semibold text-emerald-600">
                   {!isLoading && historyData && historyData.length > 0 ? 
                     `ค่าล่าสุด: ${(historyData[0] as any)[symbol]}%` : 
-                    'ไม่พบข้อมูล'}
+                    'ค่าล่าสุด: 0%'}
                 </p>
               </div>
             </div>
@@ -253,10 +274,6 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
         {isLoading ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="animate-spin h-8 w-8 border-2 border-emerald-600 rounded-full border-t-transparent"></div>
-          </div>
-        ) : !chartData || chartData.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center text-gray-500">
-            ไม่พบข้อมูลการวัดสำหรับ {name} บนอุปกรณ์ {deviceCode}
           </div>
         ) : (
           <div className="flex-1 bg-white rounded-lg shadow-lg border border-gray-200 p-2 hover:shadow-xl transition-shadow duration-300">
@@ -328,8 +345,13 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
         
         {/* Footer info */}
         <div className="mt-2 text-xs text-gray-500 text-center">
-          แสดงข้อมูลการวัด {name} ย้อนหลัง {timeFrame === '1h' ? '1 ชั่วโมง' : timeFrame === '24h' ? '24 ชั่วโมง' : timeFrame === '7d' ? '7 วัน' : '30 วัน'}
-          {historyData && ` (${historyData.length} รายการ)`}
+          {!isLoading && historyData && historyData.length === 0 ? (
+            <>ไม่พบข้อมูลในช่วง {timeFrame === '1h' ? '1 ชั่วโมง' : timeFrame === '24h' ? '24 ชั่วโมง' : timeFrame === '7d' ? '7 วัน' : '30 วัน'} ที่ผ่านมา</>
+          ) : (
+            <>แสดงข้อมูลการวัด {name} ย้อนหลัง {timeFrame === '1h' ? '1 ชั่วโมง' : timeFrame === '24h' ? '24 ชั่วโมง' : timeFrame === '7d' ? '7 วัน' : '30 วัน'}
+              {historyData && ` (${historyData.length} รายการ)`}
+            </>
+          )}
         </div>
       </div>
     </div>
