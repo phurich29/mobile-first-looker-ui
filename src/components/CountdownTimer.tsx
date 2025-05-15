@@ -27,8 +27,7 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
 
   return (
     <div className={cn(
-      "flex items-center gap-1 text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-full",
-      isActive ? "animate-pulse" : "",
+      "flex items-center gap-1 text-xs text-gray-500",
       className
     )}>
       <Clock size={iconSize} className="text-emerald-500" />

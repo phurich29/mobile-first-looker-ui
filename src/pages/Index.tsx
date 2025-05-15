@@ -36,7 +36,6 @@ const Index = () => {
               <CountdownTimer 
                 onComplete={handleCountdownComplete}
                 initialSeconds={60}
-                className="bg-white border border-gray-100 shadow-sm"
               />
             </div>
             <NewsSlider />
