@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getLatestMeasurement } from "../measurement-history/api";
 import { getNotificationBgColor } from "./notification-utils";
@@ -32,52 +32,70 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   updatedAt,
 }) => {
   const navigate = useNavigate();
+  const fetchTimerRef = useRef<NodeJS.Timeout | null>(null);
   
   const [latestValue, setLatestValue] = useState<number | null>(null);
   const [latestTimestamp, setLatestTimestamp] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAlertActive, setIsAlertActive] = useState(false);
   
-  // Fetch latest measurement data
-  useEffect(() => {
-    const fetchLatestValue = async () => {
-      if (!deviceCode || !symbol) return;
+  // Memoized fetch function to reduce re-creations
+  const fetchLatestValue = useCallback(async () => {
+    if (!deviceCode || !symbol) return;
+    
+    setIsLoading(true);
+    try {
+      const result = await getLatestMeasurement(deviceCode, symbol);
       
-      setIsLoading(true);
-      try {
-        const result = await getLatestMeasurement(deviceCode, symbol);
+      // Only update state if component is still mounted and values changed
+      if (result.value !== latestValue || result.timestamp !== latestTimestamp) {
         setLatestValue(result.value);
         setLatestTimestamp(result.timestamp);
         
         // Check if alert conditions are met
         if (result.value !== null && enabled) {
           const thresholdValue = parseFloat(threshold);
-          if (
-            (type === 'min' && result.value < thresholdValue) ||
-            (type === 'max' && result.value > thresholdValue) ||
-            (type === 'both' && (
-              result.value < thresholdValue || 
-              result.value > thresholdValue
-            ))
-          ) {
-            setIsAlertActive(true);
-          } else {
-            setIsAlertActive(false);
+          let alertActive = false;
+          
+          if (type === 'min') {
+            alertActive = result.value < thresholdValue;
+          } else if (type === 'max') {
+            alertActive = result.value > thresholdValue;
+          } else if (type === 'both') {
+            // For 'both' type, threshold is in format "min - max"
+            const [minThreshold, maxThreshold] = threshold
+              .split('-')
+              .map(val => parseFloat(val.trim()));
+              
+            alertActive = result.value < minThreshold || result.value > maxThreshold;
           }
+          
+          setIsAlertActive(alertActive);
+        } else {
+          setIsAlertActive(false);
         }
-      } catch (error) {
-        console.error("Error fetching latest value:", error);
-      } finally {
-        setIsLoading(false);
       }
-    };
-    
+    } catch (error) {
+      console.error("Error fetching latest value:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [deviceCode, symbol, threshold, type, enabled, latestValue, latestTimestamp]);
+  
+  // Effect for initial fetch and setting up interval
+  useEffect(() => {
     fetchLatestValue();
     
-    // Update values every 15 seconds instead of 30 for more frequent updates
-    const intervalId = setInterval(fetchLatestValue, 15000);
-    return () => clearInterval(intervalId);
-  }, [deviceCode, symbol, threshold, type, enabled]);
+    // Update values every 20 seconds
+    fetchTimerRef.current = setInterval(fetchLatestValue, 20000);
+    
+    // Cleanup
+    return () => {
+      if (fetchTimerRef.current) {
+        clearInterval(fetchTimerRef.current);
+      }
+    };
+  }, [fetchLatestValue]);
 
   // Navigate to measurement history for the specific device and parameter
   const handleClick = () => {

@@ -1,93 +1,70 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { NotificationItem } from "./notification/NotificationItem";
 import { useAuth } from "@/components/AuthProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { fetchNotifications, Notification } from "./sharedNotificationData";
+import { useNotifications } from "@/hooks/useNotifications";
+import { RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const NotificationList = () => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
-  const { toast } = useToast();
-  
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { 
+    notifications, 
+    loading, 
+    lastRefreshTime,
+    fetchNotifications,
+    checkNotifications 
+  } = useNotifications();
 
-  // Function to manually check notifications via the edge function
-  const checkNotifications = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke('check_notifications');
-      
-      if (error) {
-        console.error("Error checking notifications:", error);
-        toast({
-          title: "เกิดข้อผิดพลาด",
-          description: "ไม่สามารถตรวจสอบการแจ้งเตือนได้",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      toast({
-        title: "ตรวจสอบการแจ้งเตือนสำเร็จ",
-        variant: "update",
-      });
-      
-      // Reload notifications after checking
-      loadNotifications();
-    } catch (error) {
-      console.error("Error invoking check_notifications function:", error);
-    }
-  };
-
-  // Load notifications from database
-  const loadNotifications = async () => {
-    try {
-      setLoading(true);
-      const notificationData = await fetchNotifications();
-      console.log("Loaded notifications:", notificationData);
-      setNotifications(notificationData);
-    } catch (error) {
-      console.error("Error loading notifications:", error);
-      setTimeout(() => {
-        toast({
-          title: "เกิดข้อผิดพลาด",
-          description: "ไม่สามารถโหลดรายการการแจ้งเตือนได้",
-          variant: "destructive",
-        });
-      }, 0);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Initial load and setup auto-refresh
-  useEffect(() => {
-    loadNotifications();
+  // Initialize data on component mount
+  React.useEffect(() => {
+    fetchNotifications();
     
-    // Auto-refresh every 30 seconds
-    const intervalId = setInterval(loadNotifications, 30000);
+    // Auto-refresh every 45 seconds instead of 30
+    // This reduces unnecessary API calls while keeping data relatively fresh
+    const intervalId = setInterval(fetchNotifications, 45000);
     return () => clearInterval(intervalId);
-  }, [user, toast]);
+  }, []);
   
-  if (loading) {
-    return <div className="text-center py-4">กำลังโหลดข้อมูล...</div>;
+  const formatRefreshTime = () => {
+    const hours = lastRefreshTime.getHours().toString().padStart(2, '0');
+    const minutes = lastRefreshTime.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  };
+  
+  if (loading && notifications.length === 0) {
+    return (
+      <div className="text-center py-4 flex flex-col items-center">
+        <div className="animate-spin mb-2">
+          <RefreshCw size={20} className="text-gray-400" />
+        </div>
+        <span className="text-gray-500">กำลังโหลดข้อมูล...</span>
+      </div>
+    );
   }
   
   return (
     <>
       <div className="px-[5%] mb-3 flex justify-between items-center md:px-0" style={{ width: '100%', boxSizing: 'border-box' }}>
-        <h2 className="font-semibold text-gray-700">
-          {user ? "การแจ้งเตือนที่กำหนดไว้" : "ตัวอย่างการแจ้งเตือน"}
-        </h2>
+        <div>
+          <h2 className="font-semibold text-gray-700">
+            {user ? "การแจ้งเตือนที่กำหนดไว้" : "ตัวอย่างการแจ้งเตือน"}
+          </h2>
+          <p className="text-xs text-gray-500">
+            อัพเดทล่าสุด: {formatRefreshTime()}
+          </p>
+        </div>
         <div className="flex items-center space-x-2">
-          <button 
+          <Button 
             onClick={checkNotifications} 
-            className="text-xs text-blue-600 font-medium hover:underline"
+            variant="ghost"
+            size="sm"
+            className="text-xs text-blue-600 font-medium hover:bg-blue-50 flex items-center"
           >
+            <RefreshCw size={12} className="mr-1" />
             ตรวจสอบแจ้งเตือน
-          </button>
+          </Button>
           <a href="/notifications" className="text-xs text-green-600 font-medium">ตั้งค่าแจ้งเตือน</a>
         </div>
       </div>
