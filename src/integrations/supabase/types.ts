@@ -430,6 +430,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_notification_thresholds: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_device_data: {
         Args: Record<PropertyKey, never>
         Returns: {

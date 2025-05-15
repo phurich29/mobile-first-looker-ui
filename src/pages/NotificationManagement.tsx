@@ -9,9 +9,11 @@ import { BellDot, List, History, Settings } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 const NotificationManagement = () => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("settings");
   
   // Fetch notification settings
@@ -50,6 +52,10 @@ const NotificationManagement = () => {
       return data || [];
     },
   });
+
+  const handleViewHistory = () => {
+    navigate('/notification-history');
+  };
   
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50">
@@ -57,9 +63,15 @@ const NotificationManagement = () => {
       
       <main className={`flex-1 ${isMobile ? 'pb-32' : 'pb-16 ml-64'}`}>
         <div className={`mx-auto max-w-7xl px-4 ${!isMobile ? 'py-8' : 'pt-6'}`}>
-          <div className="flex items-center mb-6">
-            <BellDot className="mr-2 h-6 w-6 text-emerald-600" />
-            <h1 className="text-2xl font-bold text-gray-800">จัดการการแจ้งเตือน</h1>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center">
+              <BellDot className="mr-2 h-6 w-6 text-emerald-600" />
+              <h1 className="text-2xl font-bold text-gray-800">จัดการการแจ้งเตือน</h1>
+            </div>
+            <Button variant="outline" onClick={handleViewHistory} className="flex items-center">
+              <History className="mr-2 h-4 w-4" />
+              ดูประวัติการแจ้งเตือน
+            </Button>
           </div>
           
           <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -100,7 +112,11 @@ const NotificationManagement = () => {
                                 <p>สูงกว่า: {setting.max_threshold}</p>
                               )}
                             </div>
-                            <Button variant="outline" size="sm">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => navigate(`/measurement-history/${setting.device_code}/${setting.rice_type_id}?name=${encodeURIComponent(setting.rice_type_name)}`)}
+                            >
                               แก้ไข
                             </Button>
                           </div>
@@ -128,7 +144,7 @@ const NotificationManagement = () => {
                   {notificationHistory && notificationHistory.length > 0 ? (
                     <div className="space-y-4">
                       <div className="border rounded-md divide-y">
-                        {notificationHistory.map((notification) => (
+                        {notificationHistory.slice(0, 5).map((notification) => (
                           <div 
                             key={notification.id} 
                             className={`p-3 ${notification.read ? 'bg-white' : 'bg-blue-50'}`}
@@ -157,6 +173,14 @@ const NotificationManagement = () => {
                           </div>
                         ))}
                       </div>
+                      
+                      {notificationHistory.length > 5 && (
+                        <div className="flex justify-center mt-4">
+                          <Button variant="outline" onClick={handleViewHistory}>
+                            ดูประวัติการแจ้งเตือนทั้งหมด
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="text-center py-8 text-gray-500">
