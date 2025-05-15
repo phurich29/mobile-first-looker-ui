@@ -135,56 +135,67 @@ export function DatabaseTable() {
     }
   };
 
-  // Mouse drag scrolling handlers
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!tableContainerRef.current) return;
-    
-    setIsDragging(true);
-    setStartX(e.pageX - tableContainerRef.current.offsetLeft);
-    setScrollLeft(tableContainerRef.current.scrollLeft);
-    
-    // ตั้งค่า cursor เพื่อบอกว่าตอนนี้กำลังลาก
-    if (tableContainerRef.current) {
-      tableContainerRef.current.style.cursor = 'grabbing';
-    }
-  };
-  
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    
-    // คืนค่า cursor กลับเป็นปกติ
-    if (tableContainerRef.current) {
-      tableContainerRef.current.style.cursor = 'grab';
-    }
-  };
-  
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDragging || !tableContainerRef.current) return;
-    
-    e.preventDefault();
-    const x = e.pageX - tableContainerRef.current.offsetLeft;
-    const walk = (x - startX) * 2; // ปรับความเร็วในการเลื่อน
-    tableContainerRef.current.scrollLeft = scrollLeft - walk;
-  };
-  
-  // ติดตั้ง event listener สำหรับ mouseup บน window เพื่อให้ปล่อยเมาส์นอกตารางได้
+  // Drag scrolling with improved touch support
   useEffect(() => {
-    const handleGlobalMouseUp = () => {
-      if (isDragging) {
-        setIsDragging(false);
-        
-        if (tableContainerRef.current) {
-          tableContainerRef.current.style.cursor = 'grab';
-        }
-      }
+    const tableContainer = tableContainerRef.current;
+    if (!tableContainer) return;
+    
+    let isDown = false;
+    let startX: number;
+    let startScrollLeft: number;
+    
+    const onPointerDown = (e: PointerEvent) => {
+      isDown = true;
+      tableContainer.style.cursor = 'grabbing';
+      tableContainer.style.userSelect = 'none';
+      
+      // Record starting positions
+      startX = e.clientX;
+      startScrollLeft = tableContainer.scrollLeft;
+      
+      // Capture pointer to get events outside the element
+      tableContainer.setPointerCapture(e.pointerId);
     };
     
-    window.addEventListener('mouseup', handleGlobalMouseUp);
+    const onPointerUp = () => {
+      isDown = false;
+      tableContainer.style.cursor = 'grab';
+      tableContainer.style.removeProperty('user-select');
+    };
     
+    const onPointerLeave = () => {
+      isDown = false;
+      tableContainer.style.cursor = 'grab';
+      tableContainer.style.removeProperty('user-select');
+    };
+    
+    const onPointerMove = (e: PointerEvent) => {
+      if (!isDown) return;
+      e.preventDefault();
+      
+      // Calculate distance moved and new scroll position
+      const x = e.clientX;
+      const dist = (x - startX) * 1.5; // Adjust speed multiplier as needed
+      tableContainer.scrollLeft = startScrollLeft - dist;
+    };
+    
+    // Add all event listeners
+    tableContainer.addEventListener('pointerdown', onPointerDown);
+    tableContainer.addEventListener('pointerup', onPointerUp);
+    tableContainer.addEventListener('pointerleave', onPointerLeave);
+    tableContainer.addEventListener('pointermove', onPointerMove);
+    
+    // Set initial cursor style
+    tableContainer.style.cursor = 'grab';
+    
+    // Cleanup
     return () => {
-      window.removeEventListener('mouseup', handleGlobalMouseUp);
+      tableContainer.removeEventListener('pointerdown', onPointerDown);
+      tableContainer.removeEventListener('pointerup', onPointerUp);
+      tableContainer.removeEventListener('pointerleave', onPointerLeave);
+      tableContainer.removeEventListener('pointermove', onPointerMove);
     };
-  }, [isDragging]);
+  }, []);
   
   // โหลดข้อมูลเมื่อหน้าหรือจำนวนแถวเปลี่ยน
   useEffect(() => {
@@ -299,15 +310,9 @@ export function DatabaseTable() {
           ref={tableContainerRef}
           className="overflow-x-auto" 
           style={{ 
-            WebkitOverflowScrolling: 'touch', 
-            cursor: 'grab',
-            userSelect: 'none',
+            WebkitOverflowScrolling: 'touch',
             position: 'relative'
           }}
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseUp}
         >
           <ResponsiveTable>
             <TableHeader>
