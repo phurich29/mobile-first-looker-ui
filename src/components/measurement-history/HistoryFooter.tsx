@@ -2,18 +2,14 @@
 import React from 'react';
 import { TimeFrame } from './MeasurementHistory';
 
-type HistoryFooterProps = {
-  historyData: any[] | undefined;
+interface HistoryFooterProps {
   timeFrame: TimeFrame;
-  isLoading: boolean;
-  name: string;
-};
+  onTimeFrameChange: (timeFrame: TimeFrame) => void;
+}
 
 const HistoryFooter: React.FC<HistoryFooterProps> = ({ 
-  historyData, 
   timeFrame,
-  isLoading,
-  name
+  onTimeFrameChange
 }) => {
   const getTimeFrameText = (frame: TimeFrame): string => {
     switch (frame) {
@@ -25,15 +21,25 @@ const HistoryFooter: React.FC<HistoryFooterProps> = ({
     }
   };
 
+  const timeFrames: TimeFrame[] = ['1h', '24h', '7d', '30d'];
+
   return (
-    <div className="mt-2 text-xs text-gray-500 text-center">
-      {!isLoading && historyData && historyData.length === 0 ? (
-        <>ไม่พบข้อมูลในช่วง {getTimeFrameText(timeFrame)} ที่ผ่านมา</>
-      ) : (
-        <>แสดงข้อมูลการวัด {name} ย้อนหลัง {getTimeFrameText(timeFrame)}
-          {historyData && ` (${historyData.length} รายการ)`}
-        </>
-      )}
+    <div className="flex items-center justify-center p-2 bg-gray-50 border-t border-gray-100">
+      <div className="flex space-x-2">
+        {timeFrames.map(frame => (
+          <button
+            key={frame}
+            className={`px-3 py-1.5 text-xs rounded-full transition-colors ${
+              timeFrame === frame
+                ? 'bg-emerald-500 text-white'
+                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+            }`}
+            onClick={() => onTimeFrameChange(frame)}
+          >
+            {getTimeFrameText(frame)}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };

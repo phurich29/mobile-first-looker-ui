@@ -1,9 +1,8 @@
 
 import React, { useState, useEffect } from "react";
-import { HistoryHeader } from "./HistoryHeader";
-import { HistoryChart } from "./HistoryChart";
-import { HistoryFooter } from "./HistoryFooter";
-import { TimeFrame } from "./MeasurementHistory";
+import HistoryHeader from "./HistoryHeader";  // Fixed import
+import HistoryChart from "./HistoryChart";    // Fixed import
+import HistoryFooter from "./HistoryFooter";  // Fixed import
 import { fetchMeasurementHistory, calculateAverage } from "./api";
 import { NotificationSettingsDialog } from "./notification-settings";
 import { useToast } from "@/hooks/use-toast";
@@ -15,13 +14,15 @@ interface MeasurementHistoryProps {
   symbol: string;
   name: string;
   unit?: string;
+  onClose?: () => void;  // Added onClose prop
 }
 
 const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({ 
   deviceCode, 
   symbol, 
   name,
-  unit 
+  unit,
+  onClose
 }) => {
   const [timeFrame, setTimeFrame] = useState<TimeFrame>('24h');
   const [historyData, setHistoryData] = useState<any[]>([]);

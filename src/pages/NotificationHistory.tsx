@@ -24,7 +24,7 @@ interface NotificationHistoryItem {
   device_code: string;
   device_name?: string;
   timestamp: string;
-  threshold_type: 'min' | 'max';
+  threshold_type: string; // Changed from 'min' | 'max' to string to match database
   value: number;
   rice_type_id: string;
   notification_message: string | null;
@@ -73,9 +73,9 @@ const NotificationHistory = () => {
             };
           });
           
-          setNotifications(enrichedNotifications);
+          setNotifications(enrichedNotifications as NotificationHistoryItem[]);
         } else {
-          setNotifications(notificationData);
+          setNotifications(notificationData as NotificationHistoryItem[]);
         }
       } catch (error) {
         console.error('Error fetching notifications:', error);
@@ -179,7 +179,7 @@ const NotificationHistory = () => {
                     <p className="font-medium text-emerald-700">
                       {notification.device_name || notification.device_code}
                     </p>
-                    <Badge variant={notification.threshold_type === 'max' ? 'destructive' : 'warning'}>
+                    <Badge variant={notification.threshold_type === 'max' ? 'destructive' : 'secondary'}>
                       {notification.threshold_type === 'max' ? 'สูงเกินกำหนด' : 'ต่ำกว่ากำหนด'}
                     </Badge>
                   </div>
