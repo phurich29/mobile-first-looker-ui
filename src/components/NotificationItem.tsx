@@ -130,12 +130,17 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
       
       <div className="flex items-center relative z-10">
         <div 
-          className="w-12 h-12 rounded-full flex items-center justify-center mr-3 shadow-md relative overflow-hidden"
-          style={{ background: `linear-gradient(135deg, ${getIconColor()}, ${getIconColor()}cc)` }}
+          className="w-14 h-14 rounded-full flex items-center justify-center mr-3 shadow-md relative overflow-hidden"
+          style={{ 
+            background: `linear-gradient(135deg, ${getIconColor()}, ${getIconColor()}cc)`,
+            aspectRatio: '1/1' 
+          }}
         >
           <div className="absolute inset-0 bg-white/10"></div>
           <div className="absolute top-0 left-0 w-3 h-3 bg-white/30 rounded-full blur-sm"></div>
-          {getIcon()}
+          <div className="flex items-center justify-center w-full h-full">
+            {getIcon()}
+          </div>
         </div>
         <div className="px-3 py-2">
           <div className="flex flex-col">
