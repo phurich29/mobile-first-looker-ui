@@ -9,12 +9,14 @@ interface NotificationSettingsListProps {
   settings: NotificationSetting[];
   loading: boolean;
   error: string | null;
+  onEditSetting?: (deviceCode: string, riceTypeId: string, riceName: string) => void;
 }
 
 export const NotificationSettingsList = ({ 
   settings, 
   loading, 
-  error 
+  error,
+  onEditSetting
 }: NotificationSettingsListProps) => {
   if (loading) {
     return <LoadingState />;
@@ -31,7 +33,11 @@ export const NotificationSettingsList = ({
   return (
     <div className="space-y-4">
       {settings.map((setting) => (
-        <NotificationSettingCard key={setting.id} setting={setting} />
+        <NotificationSettingCard 
+          key={setting.id} 
+          setting={setting} 
+          onEdit={onEditSetting}
+        />
       ))}
     </div>
   );

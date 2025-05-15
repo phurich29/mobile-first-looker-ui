@@ -1,12 +1,22 @@
 
-import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { NotificationSetting } from "../types";
 
 interface NotificationSettingCardProps {
   setting: NotificationSetting;
+  onEdit?: (deviceCode: string, riceTypeId: string, riceName: string) => void;
 }
 
-export const NotificationSettingCard = ({ setting }: NotificationSettingCardProps) => {
+export const NotificationSettingCard = ({ 
+  setting,
+  onEdit 
+}: NotificationSettingCardProps) => {
+  const handleEdit = () => {
+    if (onEdit) {
+      onEdit(setting.device_code, setting.rice_type_id, setting.rice_type_name);
+    }
+  };
+  
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
       <div className="flex justify-between items-start mb-3">
@@ -16,12 +26,13 @@ export const NotificationSettingCard = ({ setting }: NotificationSettingCardProp
           </h3>
           <p className="text-sm text-gray-500">{setting.rice_type_name}</p>
         </div>
-        <Link 
-          to={`/device/${setting.device_code}`}
-          className="text-xs px-2 py-1 bg-gray-200 text-black rounded-md hover:bg-gray-300 transition-colors"
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={handleEdit}
         >
-          ดูรายละเอียด
-        </Link>
+          แก้ไข
+        </Button>
       </div>
       
       <div className="text-sm space-y-1">
@@ -36,6 +47,9 @@ export const NotificationSettingCard = ({ setting }: NotificationSettingCardProp
             <span className="text-gray-600">แจ้งเตือน เมื่อต่ำกว่า:</span>
             <span className="font-medium text-amber-600">{setting.min_threshold}</span>
           </p>
+        )}
+        {!setting.max_enabled && !setting.min_enabled && (
+          <p className="text-gray-500 italic text-center">ไม่มีเกณฑ์การแจ้งเตือน</p>
         )}
       </div>
     </div>
