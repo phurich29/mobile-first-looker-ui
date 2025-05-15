@@ -19,7 +19,7 @@ export const DeviceInfoCard = ({ deviceCode }: DeviceInfoCardProps) => {
       
       <Link 
         to="/notifications" 
-        className="flex items-center gap-1 text-xs px-2 py-1 bg-emerald-50 text-emerald-600 rounded-md hover:bg-emerald-100 transition-colors"
+        className="flex items-center gap-1 text-xs px-2 py-1 bg-gray-200 text-black rounded-md hover:bg-gray-300 transition-colors"
       >
         <Bell className="h-3 w-3" />
         <span>ดูการแจ้งเตือน</span>
