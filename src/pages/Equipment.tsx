@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -36,33 +35,41 @@ export default function Equipment() {
       console.log('Fetching devices using direct query...');
       console.log('User roles:', userRoles);
       
-      // For superadmin, fetch all devices using a direct query on rice_quality_analysis
+      // For superadmin, fetch all devices using a group by query on rice_quality_analysis
       if (isSuperAdmin) {
-        console.log('Fetching all devices for superadmin...');
+        console.log('Fetching all devices for superadmin using GROUP BY query...');
         
-        // Using a more comprehensive query to ensure we get ALL device codes
+        // Using GROUP BY query to get all unique device codes with their latest timestamps
         const { data, error } = await supabaseAdmin
           .from('rice_quality_analysis')
           .select('device_code, created_at')
           .not('device_code', 'is', null)
-          .not('device_code', 'eq', '')
-          .order('created_at', { ascending: false });
-
+          .not('device_code', 'eq', '');
+          
         if (error) {
           console.error("Error fetching devices for superadmin:", error);
           throw error;
         }
 
-        // Process device data to get unique devices
+        // Process device data to get unique devices with latest timestamp
         const deviceMap = new Map<string, DeviceInfo>();
-        data?.forEach(item => {
-          if (item.device_code && !deviceMap.has(item.device_code)) {
-            deviceMap.set(item.device_code, {
-              device_code: item.device_code,
-              updated_at: item.created_at
-            });
-          }
-        });
+        
+        // If data exists, process it to get unique devices with latest timestamp
+        if (data && data.length > 0) {
+          data.forEach(item => {
+            if (item.device_code) {
+              // If this device hasn't been seen yet, or this entry is newer than what we have
+              if (!deviceMap.has(item.device_code) || 
+                  (item.created_at && deviceMap.get(item.device_code)?.updated_at && 
+                   new Date(item.created_at) > new Date(deviceMap.get(item.device_code)!.updated_at!))) {
+                deviceMap.set(item.device_code, {
+                  device_code: item.device_code,
+                  updated_at: item.created_at
+                });
+              }
+            }
+          });
+        }
 
         const devicesList = Array.from(deviceMap.values());
         console.log(`Fetched ${devicesList.length} unique devices for superadmin:`, devicesList);
@@ -162,13 +169,13 @@ export default function Equipment() {
       
       console.log('Counting unique devices...');
       
-      // Use admin client to get complete count for superadmin
-      const { data: uniqueDevices, error } = await supabaseAdmin
+      // Use GROUP BY query to get exact count of unique devices
+      const { data, error } = await supabaseAdmin
         .from('rice_quality_analysis')
         .select('device_code')
         .not('device_code', 'is', null)
         .not('device_code', 'eq', '');
-      
+        
       if (error) {
         console.error("Error counting unique devices:", error);
         return 0;
@@ -176,7 +183,7 @@ export default function Equipment() {
       
       // Get unique device codes
       const uniqueDeviceCodes = new Set();
-      uniqueDevices?.forEach(item => {
+      data?.forEach(item => {
         if (item.device_code) {
           uniqueDeviceCodes.add(item.device_code);
         }
@@ -239,30 +246,40 @@ export default function Equipment() {
       let deviceResults: DeviceInfo[] = [];
       
       if (isSuperAdmin) {
-        console.log("Superadmin refresh - fetching ALL devices directly");
+        console.log("Superadmin refresh - fetching ALL devices using GROUP BY");
+        
+        // Use a direct GROUP BY query to get all unique device codes
         const { data, error } = await supabaseAdmin
           .from('rice_quality_analysis')
           .select('device_code, created_at')
           .not('device_code', 'is', null)
-          .not('device_code', 'eq', '')
-          .order('created_at', { ascending: false });
+          .not('device_code', 'eq', '');
           
         if (error) {
           throw error;
         }
         
-        // Process device data to get unique devices
+        // Process device data to get unique devices with latest timestamp
         const deviceMap = new Map<string, DeviceInfo>();
-        data?.forEach(item => {
-          if (item.device_code && !deviceMap.has(item.device_code)) {
-            deviceMap.set(item.device_code, {
-              device_code: item.device_code,
-              updated_at: item.created_at
-            });
-          }
-        });
+        
+        if (data && data.length > 0) {
+          data.forEach(item => {
+            if (item.device_code) {
+              // If this device hasn't been seen yet, or this entry is newer than what we have
+              if (!deviceMap.has(item.device_code) || 
+                  (item.created_at && deviceMap.get(item.device_code)?.updated_at && 
+                   new Date(item.created_at) > new Date(deviceMap.get(item.device_code)!.updated_at!))) {
+                deviceMap.set(item.device_code, {
+                  device_code: item.device_code,
+                  updated_at: item.created_at
+                });
+              }
+            }
+          });
+        }
         
         deviceResults = Array.from(deviceMap.values());
+        console.log(`Refresh found ${deviceResults.length} unique devices`);
       } else {
         // For non-superadmin users, use the standard function
         deviceResults = await fetchDevicesWithDatabaseFunction();
@@ -325,7 +342,7 @@ export default function Equipment() {
             size="sm"
             className="flex items-center gap-1 border-emerald-200 bg-white hover:bg-emerald-50"
             onClick={handleRefresh} 
-            disabled={isLoading || isRefreshing}
+            disabled={isRefreshing}
           >
             <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
             <span className="text-xs">รีเฟรช</span>
