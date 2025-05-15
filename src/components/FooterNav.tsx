@@ -1,59 +1,125 @@
 
-import { Home, Hammer, ChartLine, User, AlertCircle } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { NavLink } from "react-router-dom";
+import { Home, User, PackageOpen, Bell, Info, Settings } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "./AuthProvider";
 
 export const FooterNav = () => {
-  const location = useLocation();
-  const currentPath = location.pathname;
+  const { user, hasRole } = useAuth();
   const isMobile = useIsMobile();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      setIsAuthenticated(!!user);
+      
+      if (user) {
+        const hasUserRole = await hasRole('user');
+        setIsAuthorized(hasUserRole);
+      } else {
+        setIsAuthorized(false);
+      }
+    };
+    
+    checkAuth();
+  }, [user, hasRole]);
   
-  const isActive = (path: string) => {
-    if (path === '/' && currentPath === '/') return true;
-    return path !== '/' && currentPath.startsWith(path);
-  };
-
-  // Don't show footer nav on desktop
+  // เมื่อไม่ได้อยู่บนมือถือ ให้แสดง Sidebar แทน
   if (!isMobile) {
-    return null;
-  }
+    return (
+      <div className="fixed bottom-0 left-0 top-[72px] w-64 bg-white border-r border-gray-200 overflow-y-auto">
+        <nav className="p-4 space-y-1">
+          <NavLink to="/" className="flex items-center p-2 rounded-lg hover:bg-gray-100 transition-colors">
+            <Home className="h-5 w-5 mr-3 text-gray-500" />
+            <span className="text-sm font-medium text-gray-700">หน้าแรก</span>
+          </NavLink>
+          
+          {isAuthenticated && isAuthorized && (
+            <>
+              <NavLink to="/equipment" className="flex items-center p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                <PackageOpen className="h-5 w-5 mr-3 text-gray-500" />
+                <span className="text-sm font-medium text-gray-700">อุปกรณ์</span>
+              </NavLink>
+              
+              <NavLink to="/notifications" className="flex items-center p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                <Bell className="h-5 w-5 mr-3 text-gray-500" />
+                <span className="text-sm font-medium text-gray-700">การแจ้งเตือน</span>
+              </NavLink>
 
+              <NavLink to="/notification-settings" className="flex items-center p-2 rounded-lg hover:bg-gray-100 transition-colors pl-10">
+                <Settings className="h-4 w-4 mr-3 text-gray-500" />
+                <span className="text-sm font-medium text-gray-700">ตั้งค่าแจ้งเตือน</span>
+              </NavLink>
+
+              <NavLink to="/notification-history" className="flex items-center p-2 rounded-lg hover:bg-gray-100 transition-colors pl-10">
+                <Info className="h-4 w-4 mr-3 text-gray-500" />
+                <span className="text-sm font-medium text-gray-700">ประวัติแจ้งเตือน</span>
+              </NavLink>
+            </>
+          )}
+          
+          <NavLink to="/rice-prices" className="flex items-center p-2 rounded-lg hover:bg-gray-100 transition-colors">
+            <Info className="h-5 w-5 mr-3 text-gray-500" />
+            <span className="text-sm font-medium text-gray-700">ราคาข้าว</span>
+          </NavLink>
+          
+          <NavLink to="/news" className="flex items-center p-2 rounded-lg hover:bg-gray-100 transition-colors">
+            <Info className="h-5 w-5 mr-3 text-gray-500" />
+            <span className="text-sm font-medium text-gray-700">ข่าวสาร</span>
+          </NavLink>
+          
+          <NavLink to="/profile" className="flex items-center p-2 rounded-lg hover:bg-gray-100 transition-colors">
+            <User className="h-5 w-5 mr-3 text-gray-500" />
+            <span className="text-sm font-medium text-gray-700">โปรไฟล์</span>
+          </NavLink>
+        </nav>
+      </div>
+    );
+  }
+  
   return (
-    <nav className="fixed bottom-0 w-full bg-gradient-to-r from-emerald-500 to-emerald-600 border-t border-emerald-700 flex justify-around py-2 shadow-xl rounded-t-3xl backdrop-blur-sm z-50" style={{ maxHeight: '65px' }}>
-      <Link to="/" className="flex flex-col items-center w-1/5 justify-center">
-        <div className={`p-1 ${isActive('/') ? 'bg-emerald-700 rounded-full' : ''}`}>
-          <Home className="w-5 h-5 text-white" />
-        </div>
-        <span className={`text-xs mt-0.5 ${isActive('/') ? 'text-white' : 'text-white/80'}`}>หน้าหลัก</span>
-      </Link>
-      
-      <Link to="/equipment" className="flex flex-col items-center w-1/5 justify-center">
-        <div className={`p-1 ${isActive('/equipment') ? 'bg-emerald-700 rounded-full' : ''}`}>
-          <Hammer className="w-5 h-5 text-white" />
-        </div>
-        <span className={`text-xs mt-0.5 ${isActive('/equipment') ? 'text-white' : 'text-white/80'}`}>อุปกรณ์</span>
-      </Link>
-      
-      <Link to="/device/default" className="flex flex-col items-center w-1/5 justify-center">
-        <div className={`p-1 ${isActive('/device') ? 'bg-emerald-700 rounded-full' : ''}`}>
-          <ChartLine className="w-5 h-5 text-white" />
-        </div>
-        <span className={`text-xs mt-0.5 ${isActive('/device') ? 'text-white' : 'text-white/80'}`}>ค่าคุณภาพ</span>
-      </Link>
-      
-      <Link to="/notifications" className="flex flex-col items-center w-1/5 justify-center">
-        <div className={`p-1 ${isActive('/notifications') ? 'bg-emerald-700 rounded-full' : ''}`}>
-          <AlertCircle className="w-5 h-5 text-white" />
-        </div>
-        <span className={`text-xs mt-0.5 ${isActive('/notifications') ? 'text-white' : 'text-white/80'}`}>แจ้งเตือน</span>
-      </Link>
-      
-      <Link to="/profile" className="flex flex-col items-center w-1/5 justify-center">
-        <div className={`p-1 ${isActive('/profile') ? 'bg-emerald-700 rounded-full' : ''}`}>
-          <User className="w-5 h-5 text-white" />
-        </div>
-        <span className={`text-xs mt-0.5 ${isActive('/profile') ? 'text-white' : 'text-white/80'}`}>โปรไฟล์</span>
-      </Link>
-    </nav>
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
+      <nav className="flex justify-around items-center h-16">
+        <NavLink to="/" className="flex flex-col items-center justify-center w-1/5 h-full">
+          <Home className="h-5 w-5 text-gray-500" />
+          <span className="text-xs mt-1 text-gray-500">หน้าแรก</span>
+        </NavLink>
+        
+        {isAuthenticated && isAuthorized ? (
+          <>
+            <NavLink to="/equipment" className="flex flex-col items-center justify-center w-1/5 h-full">
+              <PackageOpen className="h-5 w-5 text-gray-500" />
+              <span className="text-xs mt-1 text-gray-500">อุปกรณ์</span>
+            </NavLink>
+            
+            <NavLink to="/notifications" className="flex flex-col items-center justify-center w-1/5 h-full">
+              <Bell className="h-5 w-5 text-gray-500" />
+              <span className="text-xs mt-1 text-gray-500">แจ้งเตือน</span>
+            </NavLink>
+          </>
+        ) : (
+          <>
+            <NavLink to="/rice-prices" className="flex flex-col items-center justify-center w-1/5 h-full">
+              <Info className="h-5 w-5 text-gray-500" />
+              <span className="text-xs mt-1 text-gray-500">ราคาข้าว</span>
+            </NavLink>
+            
+            <NavLink to="/news" className="flex flex-col items-center justify-center w-1/5 h-full">
+              <Info className="h-5 w-5 text-gray-500" />
+              <span className="text-xs mt-1 text-gray-500">ข่าวสาร</span>
+            </NavLink>
+          </>
+        )}
+        
+        <NavLink to={isAuthenticated ? "/profile" : "/login"} className="flex flex-col items-center justify-center w-1/5 h-full">
+          <User className="h-5 w-5 text-gray-500" />
+          <span className="text-xs mt-1 text-gray-500">{isAuthenticated ? "โปรไฟล์" : "เข้าสู่ระบบ"}</span>
+        </NavLink>
+      </nav>
+    </div>
   );
 };
+
+export default FooterNav;

@@ -1,28 +1,24 @@
-
+import { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import { ProtectedRoute } from "./components/ProtectedRoute";
 
-// Pages
+import ProtectedRoute from "./components/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
-import Profile from "./pages/Profile";
-import DeviceManagement from "./pages/DeviceManagement";
-import DeviceDetails from "./pages/DeviceDetails";
-import RicePrices from "./pages/RicePrices";
-import RicePriceManagement from "./pages/RicePriceManagement";
-import NewsManagement from "./pages/NewsManagement";
-import UserManagement from "./pages/UserManagement";
-import Admin from "./pages/Admin";
-import Equipment from "./pages/Equipment";
-import Measurements from "./pages/Measurements";
-import News from "./pages/News";
 import NotFound from "./pages/NotFound";
 import Waiting from "./pages/Waiting";
-import MeasurementHistory from "./components/MeasurementHistory";
-import NotificationManagement from "./pages/NotificationManagement";
-import NotificationHistory from "./pages/NotificationHistory";
-import NotificationSettings from "./pages/notification-settings";
+import Profile from "./pages/Profile";
+import Admin from "./pages/Admin";
+import RicePrices from "./pages/RicePrices";
+import RicePriceManagement from "./pages/RicePriceManagement";
+import News from "./pages/News";
+import NewsManagement from "./pages/NewsManagement";
+import UserManagement from "./pages/UserManagement";
 import Notifications from "./pages/Notifications";
+import NotificationSettings from "./pages/notification-settings";
+import DeviceDetails from "./pages/DeviceDetails";
+import MeasurementHistory from "./components/measurement-history/MeasurementHistory";
+import NotificationHistory from "./pages/NotificationHistory";
+import Equipment from "./pages/Equipment";
 
 export const router = createBrowserRouter([
   {
@@ -34,20 +30,20 @@ export const router = createBrowserRouter([
     element: <Login />,
   },
   {
-    path: "/profile",
-    element: <Profile />,
-  },
-  {
-    path: "/device-management",
+    path: "/waiting",
     element: (
-      <ProtectedRoute>
-        <DeviceManagement />
+      <ProtectedRoute requiredRole="waiting_list">
+        <Waiting />
       </ProtectedRoute>
     ),
   },
   {
-    path: "/device-details/:deviceCode",
-    element: <DeviceDetails />,
+    path: "/profile",
+    element: (
+      <ProtectedRoute requiredRole="user">
+        <Profile />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/rice-prices",
@@ -56,15 +52,19 @@ export const router = createBrowserRouter([
   {
     path: "/rice-price-management",
     element: (
-      <ProtectedRoute requiredRoles={["admin"]}>
+      <ProtectedRoute requiredRole="admin">
         <RicePriceManagement />
       </ProtectedRoute>
     ),
   },
   {
+    path: "/news",
+    element: <News />,
+  },
+  {
     path: "/news-management",
     element: (
-      <ProtectedRoute requiredRoles={["admin"]}>
+      <ProtectedRoute requiredRole="admin">
         <NewsManagement />
       </ProtectedRoute>
     ),
@@ -72,57 +72,73 @@ export const router = createBrowserRouter([
   {
     path: "/user-management",
     element: (
-      <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
+      <ProtectedRoute requiredRole="admin">
         <UserManagement />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/notifications",
+    element: (
+      <ProtectedRoute requiredRole="user">
+        <Notifications />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/notification-settings",
+    element: (
+      <ProtectedRoute requiredRole="user">
+        <NotificationSettings />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/notification-history",
+    element: (
+      <ProtectedRoute requiredRole="user">
+        <NotificationHistory />
       </ProtectedRoute>
     ),
   },
   {
     path: "/admin",
     element: (
-      <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
+      <ProtectedRoute requiredRole="admin">
         <Admin />
       </ProtectedRoute>
     ),
   },
   {
-    path: "/equipment",
-    element: <Equipment />,
-  },
-  {
-    path: "/measurements",
-    element: <Measurements />,
-  },
-  {
-    path: "/news",
-    element: <News />,
+    path: "/device/:deviceCode",
+    element: (
+      <ProtectedRoute requiredRole="user">
+        <DeviceDetails />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/measurement-history/:deviceCode/:symbol",
-    element: <MeasurementHistory />,
+    element: (
+      <ProtectedRoute requiredRole="user">
+        <MeasurementHistory />
+      </ProtectedRoute>
+    ),
   },
   {
-    path: "/notification-management",
-    element: <NotificationManagement />,
+    path: "/equipment",
+    element: (
+      <ProtectedRoute requiredRole="user">
+        <Equipment />
+      </ProtectedRoute>
+    ),
   },
   {
-    path: "/notification-settings",
-    element: <NotificationSettings />,
+    path: "*",
+    element: <Navigate to="/404" replace />,
   },
   {
-    path: "/notification-history",
-    element: <NotificationHistory />,
-  },
-  {
-    path: "/notifications",
-    element: <Notifications />,
-  },
-  {
-    path: "/waiting",
-    element: <Waiting />,
-  },
-  {
-    path: "/*",
+    path: "/404",
     element: <NotFound />,
   },
 ]);
