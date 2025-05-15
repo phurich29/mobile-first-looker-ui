@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { supabaseAdmin } from "@/integrations/supabase/client"; 
+import { supabase } from "@/integrations/supabase/client";
 import { DeviceList } from "@/components/device-management/DeviceList";
 import { DeviceUserTable } from "@/components/device-management/access-mapping/DeviceUserTable";
 
@@ -12,18 +12,23 @@ interface DeviceUserMapping {
   [key: string]: string[]; // key: device_code, value: array of user IDs
 }
 
+interface DeviceUserTableProps {
+  items: any[];
+  isLoading: boolean;
+}
+
 export function AccessMapping() {
   const [devices, setDevices] = useState<Device[]>([]);
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [deviceUserMap, setDeviceUserMap] = useState<DeviceUserMapping>({});
   
-  // Fetch all devices using exact SQL GROUP BY query
+  // Fetch all devices using direct SQL query
   const fetchAllDevices = async () => {
     setIsLoading(true);
     try {
-      // Use the exact SQL query provided
-      const { data, error } = await supabaseAdmin
+      // Use a direct query from rice_quality_analysis with GROUP BY
+      const { data, error } = await supabase
         .from('rice_quality_analysis')
         .select('device_code')
         .not('device_code', 'is', null)
@@ -35,7 +40,7 @@ export function AccessMapping() {
         return;
       }
       
-      // Extract unique device codes using the client-side Set approach as fallback
+      // Extract unique device codes using client-side Set
       const uniqueDeviceCodes = new Set<string>();
       data?.forEach(item => {
         if (item.device_code) {
@@ -64,7 +69,7 @@ export function AccessMapping() {
   const fetchDeviceUserMapping = async (deviceList: Device[]) => {
     try {
       // Get all user-device access records
-      const { data: accessData, error: accessError } = await supabaseAdmin
+      const { data: accessData, error: accessError } = await supabase
         .from('user_device_access')
         .select('device_code, user_id');
         
@@ -112,7 +117,6 @@ export function AccessMapping() {
     <div className="space-y-6">
       {selectedDevice ? (
         <DeviceUserTable 
-          deviceCode={selectedDevice}
           onBack={() => setSelectedDevice(null)}
           isLoading={isLoading}
           items={[]}

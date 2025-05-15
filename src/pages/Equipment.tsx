@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -35,11 +36,12 @@ export default function Equipment() {
       console.log('Fetching devices for superadmin...');
       
       if (isSuperAdmin) {
-        // For superadmin, use the exact SQL query from the user to get ALL unique devices
-        const { data, error } = await supabaseAdmin
-          .rpc('execute_raw_query', {
-            sql_query: "SELECT rqa.device_code FROM rice_quality_analysis rqa GROUP BY rqa.device_code"
-          });
+        // For superadmin, use SQL to get ALL unique devices
+        const { data, error } = await supabase
+          .from('rice_quality_analysis')
+          .select('device_code, created_at')
+          .not('device_code', 'is', null)
+          .order('created_at', { ascending: false });
           
         if (error) {
           console.error("Error fetching all devices:", error);
@@ -52,12 +54,20 @@ export default function Equipment() {
           return [];
         }
         
-        console.log(`Found ${data.length} unique device codes from SQL query:`, data);
+        // Use Set to get unique device codes
+        const uniqueDeviceCodes = new Set<string>();
+        data.forEach(item => {
+          if (item.device_code) {
+            uniqueDeviceCodes.add(item.device_code);
+          }
+        });
+        
+        const deviceCodeArray = Array.from(uniqueDeviceCodes);
+        console.log(`Found ${deviceCodeArray.length} unique device codes`);
         
         // For each unique device code, get the latest entry
-        const devicePromises = data.map(async (item) => {
-          const deviceCode = item.device_code;
-          const { data: latestEntry, error: latestError } = await supabaseAdmin
+        const devicePromises = deviceCodeArray.map(async (deviceCode) => {
+          const { data: latestEntry, error: latestError } = await supabase
             .from('rice_quality_analysis')
             .select('device_code, created_at')
             .eq('device_code', deviceCode)
@@ -146,18 +156,18 @@ export default function Equipment() {
       
       console.log('Counting unique devices...');
       
-      // Use the exact SQL query to count devices
-      const { data, error } = await supabaseAdmin
-        .rpc('execute_raw_query', {
-          sql_query: "SELECT COUNT(*) FROM (SELECT rqa.device_code FROM rice_quality_analysis rqa GROUP BY rqa.device_code) AS unique_devices"
-        });
+      // Get a count of unique devices
+      const { data, error } = await supabase
+        .from('rice_quality_analysis')
+        .select('device_code', { count: 'exact', head: true })
+        .not('device_code', 'is', null);
         
       if (error) {
         console.error("Error counting unique devices:", error);
         return 0;
       }
       
-      const count = data && data.length > 0 ? parseInt(data[0].count) : 0;
+      const count = data ? data.length : 0;
       console.log(`Found ${count} unique devices`);
       return count;
     } catch (error) {
@@ -211,69 +221,14 @@ export default function Equipment() {
       console.log("Refreshing device data...");
       setIsRefreshing(true);
       
-      // For superadmins, use the direct query approach to ensure ALL devices are fetched
-      if (isSuperAdmin) {
-        // Get ALL unique device codes using the exact SQL query
-        const { data: allDevicesData, error: allDevicesError } = await supabaseAdmin
-          .rpc('execute_raw_query', {
-            sql_query: "SELECT rqa.device_code FROM rice_quality_analysis rqa GROUP BY rqa.device_code"
-          });
-          
-        if (allDevicesError) {
-          throw allDevicesError;
-        }
-        
-        if (!allDevicesData || allDevicesData.length === 0) {
-          console.log("No devices found in refresh");
-          setDevices([]);
-          return;
-        }
-        
-        console.log(`Found ${allDevicesData.length} unique devices from query`);
-        
-        // For each unique device code, get the latest entry
-        const devicePromises = allDevicesData.map(async (item) => {
-          const deviceCode = item.device_code;
-          const { data: latestEntry, error: latestError } = await supabaseAdmin
-            .from('rice_quality_analysis')
-            .select('device_code, created_at')
-            .eq('device_code', deviceCode)
-            .order('created_at', { ascending: false })
-            .limit(1);
-            
-          if (latestError) {
-            console.error(`Error refreshing data for device ${deviceCode}:`, latestError);
-            return {
-              device_code: deviceCode,
-              updated_at: null
-            };
-          }
-          
-          return {
-            device_code: deviceCode,
-            updated_at: latestEntry && latestEntry.length > 0 ? latestEntry[0].created_at : null
-          };
-        });
-        
-        const deviceResults = await Promise.all(devicePromises);
-        console.log(`Refresh found ${deviceResults.length} unique devices with timestamps`);
-        
-        setDevices(deviceResults);
-        
-        // Update count for superadmin
-        const count = allDevicesData.length;
-        setTotalUniqueDevices(count);
-        
-        toast({
-          title: "อัพเดทข้อมูลสำเร็จ",
-          description: `พบ ${deviceResults.length} อุปกรณ์ทั้งหมด`,
-        });
-        
-        return;
-      } 
-      
-      // For non-superadmin users, use the regular refetch
+      // Use the regular fetchAllDevices function and refetch from React Query
       await refetch();
+      
+      // For superadmins, also update the count
+      if (isSuperAdmin) {
+        const count = await getUniqueDevicesCount();
+        setTotalUniqueDevices(count);
+      }
       
       toast({
         title: "อัพเดทข้อมูลสำเร็จ",
