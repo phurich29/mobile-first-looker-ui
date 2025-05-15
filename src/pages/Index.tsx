@@ -1,7 +1,6 @@
 
 import { Header } from "@/components/Header";
 import { NewsSlider } from "@/components/NewsSlider";
-import { WatchlistSection } from "@/components/WatchlistSection";
 import { FooterNav } from "@/components/FooterNav";
 import { IconMenu } from "@/components/IconMenu";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -31,11 +30,6 @@ const Index = () => {
           {/* Menu icons */}
           <div className={`${!isMobile ? 'mt-8' : ''}`}>
             <IconMenu />
-          </div>
-          
-          {/* Watchlist section */}
-          <div className={`${!isMobile ? 'mt-10' : ''}`}>
-            <WatchlistSection />
           </div>
         </div>
       </main>
