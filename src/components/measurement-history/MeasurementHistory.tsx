@@ -73,26 +73,29 @@ const MeasurementHistory = ({ symbol, name, deviceCode, onClose }: MeasurementHi
         />
         
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-1">
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="text-emerald-600 border-emerald-200 hover:bg-emerald-50 flex items-center gap-1"
-              onClick={() => setOpenSettings(true)}
-            >
-              <Bell className="h-4 w-4" />
-              <span className="text-sm">ตั้งค่าแจ้งเตือน</span>
-            </Button>
-            
-            {notificationEnabled !== null && (
-              <Badge 
-                className={`text-xs ${notificationEnabled 
-                  ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' 
-                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+          <div className="flex flex-col">
+            <div className="text-xs text-gray-500 mb-1">แจ้งเตือน</div>
+            <div className="flex items-center gap-1">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="text-emerald-600 border-emerald-200 hover:bg-emerald-50 flex items-center gap-1 h-8 text-xs"
+                onClick={() => setOpenSettings(true)}
               >
-                {notificationEnabled ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
-              </Badge>
-            )}
+                <Bell className="h-4 w-4" />
+                <span>ตั้งค่าแจ้งเตือน</span>
+              </Button>
+              
+              {notificationEnabled !== null && (
+                <Badge 
+                  className={`text-xs ${notificationEnabled 
+                    ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' 
+                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                >
+                  {notificationEnabled ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
+                </Badge>
+              )}
+            </div>
           </div>
           
           <TimeframeSelector
