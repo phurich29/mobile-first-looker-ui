@@ -3,8 +3,8 @@ import { useState } from "react";
 import { DeviceTabs } from "@/components/device-management/DeviceTabs";
 import { DeviceList } from "@/components/device-management/DeviceList";
 import { UserList } from "@/components/device-management/UserList";
+import { AccessMapping } from "@/components/device-management/AccessMapping";
 import { TabsContent } from "@/components/ui/tabs";
-import { AccessMapping } from "@/components/device-management/access-mapping";
 
 interface User {
   id: string;
