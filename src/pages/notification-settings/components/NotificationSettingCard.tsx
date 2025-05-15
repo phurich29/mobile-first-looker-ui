@@ -65,7 +65,7 @@ export const NotificationSettingCard = ({
   
   return (
     <>
-      <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 flex justify-between w-full">
+      <div className="bg-white rounded-lg shadow-sm border-2 border-black p-4 flex justify-between w-full">
         {/* ส่วนด้านซ้าย */}
         <div className="flex-1 mr-6">
           <div className="flex items-center gap-2 mb-2">
