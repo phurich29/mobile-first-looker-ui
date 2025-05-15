@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -35,15 +36,16 @@ export default function Equipment() {
       console.log('Fetching devices using direct query...');
       console.log('User roles:', userRoles);
       
-      // For superadmin, fetch all devices
+      // For superadmin, fetch all devices using a direct query on rice_quality_analysis
       if (isSuperAdmin) {
         console.log('Fetching all devices for superadmin...');
         
-        // Using the specific SQL query for devices
-        const { data, error } = await supabase
+        // Using a more comprehensive query to ensure we get ALL device codes
+        const { data, error } = await supabaseAdmin
           .from('rice_quality_analysis')
           .select('device_code, created_at')
           .not('device_code', 'is', null)
+          .not('device_code', 'eq', '')
           .order('created_at', { ascending: false });
 
         if (error) {
@@ -62,8 +64,9 @@ export default function Equipment() {
           }
         });
 
-        console.log("Fetched all devices for superadmin:", deviceMap.size);
-        return Array.from(deviceMap.values());
+        const devicesList = Array.from(deviceMap.values());
+        console.log(`Fetched ${devicesList.length} unique devices for superadmin:`, devicesList);
+        return devicesList;
       } 
       // For admin and regular users, show only authorized devices
       else {
@@ -126,7 +129,10 @@ export default function Equipment() {
     try {
       console.log('Using get_device_data database function to fetch devices...');
       
-      const { data, error } = await supabase
+      // For superadmin, use the admin client to ensure we get ALL devices
+      const client = isSuperAdmin ? supabaseAdmin : supabase;
+      
+      const { data, error } = await client
         .rpc('get_device_data');
         
       if (error) {
@@ -139,7 +145,7 @@ export default function Equipment() {
         return [];
       }
       
-      console.log(`get_device_data returned ${data.length} unique devices`);
+      console.log(`get_device_data returned ${data.length} unique devices:`, data);
       return data as DeviceInfo[];
       
     } catch (error) {
@@ -147,7 +153,7 @@ export default function Equipment() {
       // Fallback to regular fetch if the database function fails
       return fetchDeviceData();
     }
-  }, [fetchDeviceData]);
+  }, [fetchDeviceData, isSuperAdmin]);
 
   // Count total unique devices (for superadmin only)
   const getUniqueDevicesCount = useCallback(async () => {
@@ -156,17 +162,27 @@ export default function Equipment() {
       
       console.log('Counting unique devices...');
       
-      // Using the database function to get full device list
-      const { data, error } = await supabase
-        .rpc('get_device_data');
+      // Use admin client to get complete count for superadmin
+      const { data: uniqueDevices, error } = await supabaseAdmin
+        .from('rice_quality_analysis')
+        .select('device_code')
+        .not('device_code', 'is', null)
+        .not('device_code', 'eq', '');
       
       if (error) {
         console.error("Error counting unique devices:", error);
         return 0;
       }
       
-      // The function already returns unique devices
-      const count = Array.isArray(data) ? data.length : 0;
+      // Get unique device codes
+      const uniqueDeviceCodes = new Set();
+      uniqueDevices?.forEach(item => {
+        if (item.device_code) {
+          uniqueDeviceCodes.add(item.device_code);
+        }
+      });
+      
+      const count = uniqueDeviceCodes.size;
       console.log(`Found ${count} unique devices`);
       return count;
     } catch (error) {
@@ -214,17 +230,46 @@ export default function Equipment() {
     }
   }, [user, isSuperAdmin, getUniqueDevicesCount]);
 
-  // Handle refresh - Using the database function for reliable results
+  // Handle refresh - Using direct database query for superadmin to get all devices
   const handleRefresh = async () => {
     try {
-      console.log("Refreshing device data using database function...");
+      console.log("Refreshing device data...");
       setIsRefreshing(true);
       
-      // Use the database function to get all devices
-      const deviceResults = await fetchDevicesWithDatabaseFunction();
+      let deviceResults: DeviceInfo[] = [];
+      
+      if (isSuperAdmin) {
+        console.log("Superadmin refresh - fetching ALL devices directly");
+        const { data, error } = await supabaseAdmin
+          .from('rice_quality_analysis')
+          .select('device_code, created_at')
+          .not('device_code', 'is', null)
+          .not('device_code', 'eq', '')
+          .order('created_at', { ascending: false });
+          
+        if (error) {
+          throw error;
+        }
+        
+        // Process device data to get unique devices
+        const deviceMap = new Map<string, DeviceInfo>();
+        data?.forEach(item => {
+          if (item.device_code && !deviceMap.has(item.device_code)) {
+            deviceMap.set(item.device_code, {
+              device_code: item.device_code,
+              updated_at: item.created_at
+            });
+          }
+        });
+        
+        deviceResults = Array.from(deviceMap.values());
+      } else {
+        // For non-superadmin users, use the standard function
+        deviceResults = await fetchDevicesWithDatabaseFunction();
+      }
       
       if (Array.isArray(deviceResults) && deviceResults.length > 0) {
-        console.log(`Database function returned ${deviceResults.length} devices`);
+        console.log(`Refresh returned ${deviceResults.length} devices`);
         setDevices(deviceResults);
         
         toast({
@@ -232,7 +277,7 @@ export default function Equipment() {
           description: `พบ ${deviceResults.length} อุปกรณ์ที่คุณมีสิทธิ์เข้าถึง`,
         });
       } else {
-        // Fallback to regular refetch if database function returns no results
+        // Fallback to regular refetch if direct query returns no results
         console.log("Falling back to regular refetch...");
         await refetch();
         
