@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { PlusCircle } from "lucide-react";
@@ -85,22 +85,20 @@ export function AddDeviceForm({ onDeviceAdded }: AddDeviceFormProps) {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>เพิ่มอุปกรณ์ใหม่ (แบบกำหนดเอง)</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <Card className="mb-4">
+      <CardContent className="pt-4">
         <form onSubmit={handleAddDevice} className="flex items-center gap-2">
           <Input
             id="device-code"
-            placeholder="ระบุรหัสอุปกรณ์"
+            placeholder="ระบุรหัสอุปกรณ์ที่ต้องการเพิ่ม"
             value={deviceCode}
             onChange={(e) => setDeviceCode(e.target.value)}
             disabled={isLoading}
+            className="flex-1"
           />
-          <Button type="submit" disabled={isLoading}>
-            <PlusCircle className="h-4 w-4 mr-2" />
-            เพิ่ม
+          <Button type="submit" disabled={isLoading} className="whitespace-nowrap">
+            <PlusCircle className="h-4 w-4 mr-1" />
+            เพิ่มอุปกรณ์
           </Button>
         </form>
       </CardContent>
