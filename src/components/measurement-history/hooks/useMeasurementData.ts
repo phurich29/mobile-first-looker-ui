@@ -30,7 +30,7 @@ export const useMeasurementData = ({ deviceCode, symbol }: UseMeasurementDataPro
   // Safely handle date formatting with proper type checking
   const dateTimeInfo = { thaiDate: "", thaiTime: "" };
   if (latestEntry) {
-    const dateString = latestEntry.created_at || latestEntry.thai_datetime;
+    const dateString = latestEntry?.created_at || latestEntry?.thai_datetime;
     if (dateString) {
       const formatted = formatBangkokTime(dateString);
       dateTimeInfo.thaiDate = formatted.thaiDate;
