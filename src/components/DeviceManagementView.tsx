@@ -3,7 +3,7 @@ import { useState } from "react";
 import { DeviceTabs } from "@/components/device-management/DeviceTabs";
 import { DeviceList } from "@/components/device-management/DeviceList";
 import { UserList } from "@/components/device-management/UserList";
-import { AccessMapping } from "@/components/device-management/AccessMapping";
+import AccessMapping from "@/components/device-management/access-mapping/index";
 import { TabsContent } from "@/components/ui/tabs";
 
 interface User {
@@ -81,7 +81,7 @@ export function DeviceManagementView({
       
       {/* ส่วนจัดการการเข้าถึง */}
       <TabsContent value="mapping">
-        <AccessMapping 
+        <AccessMapping
           devices={devices}
           users={users}
           deviceUserMap={localDeviceUserMap}

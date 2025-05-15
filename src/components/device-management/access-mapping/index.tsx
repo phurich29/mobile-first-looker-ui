@@ -16,7 +16,7 @@ interface AccessMappingProps {
   setDeviceUserMap: Dispatch<SetStateAction<Record<string, string[]>>>;
 }
 
-export const AccessMapping = ({ 
+const AccessMapping = ({ 
   devices,
   users,
   deviceUserMap, 

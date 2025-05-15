@@ -1,4 +1,4 @@
 
-import MeasurementHistory from "./measurement-history";
+import MeasurementHistory from "./measurement-history/MeasurementHistory";
 
 export default MeasurementHistory;
