@@ -2,7 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Notification {
-  id: number;
+  id: string; // Changed from number to string to match UUID from database
   symbol: string;
   name: string;
   deviceCode: string;

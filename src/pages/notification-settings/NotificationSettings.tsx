@@ -17,7 +17,7 @@ const NotificationSettings: React.FC = () => {
       
       <main className={`flex-1 ${isMobile ? 'pb-32' : 'pb-16 ml-64'}`}>
         <div className={`mx-auto max-w-7xl px-4 ${!isMobile ? 'py-8' : 'pt-1'}`}>
-          <PageHeader />
+          <PageHeader title="การตั้งค่าการแจ้งเตือน" />
           
           <div className="mt-6">
             <NotificationSettingsList 
