@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ResponsiveTable } from "@/components/ui/responsive-table";
@@ -210,33 +209,15 @@ export function DatabaseTable() {
     });
   };
 
-  // ปรับปรุงฟังก์ชัน formatDate เพื่อให้แสดง thai_datetime ในรูปแบบวันที่และเวลาแยกกัน
+  // ปรับปรุงฟังก์ชัน formatDate เพื่อให้แสดง thai_datetime ตรงตามค่าในฐานข้อมูล
   const formatDate = (dateString: string | null, columnKey?: string) => {
     if (!dateString) return "-";
     
     try {
-      // ถ้าเป็นคอลัมน์ thai_datetime ให้แสดงค่าตามที่มีในฐานข้อมูลโดยตรง แต่ปรับรูปแบบให้เหลือแค่วันที่และเวลา
+      // ถ้าเป็นคอลัมน์ thai_datetime ให้แสดงค่าตามที่มีในฐานข้อมูลโดยตรง
       if (columnKey === 'thai_datetime') {
-        // แยกส่วนวันที่และเวลาจากข้อมูล thai_datetime
-        // รูปแบบที่คาดหวัง: "2023-05-21 15:30:45+00"
-        try {
-          const dateParts = dateString.split(' ');
-          
-          if (dateParts.length >= 2) {
-            // แยกเอาเฉพาะวันที่ (dateParts[0]) และเวลา (dateParts[1])
-            // ตัดส่วนของ timezone (+00) ออกจากเวลา
-            const timeWithoutTimezone = dateParts[1].split('+')[0];
-            
-            // แสดงในรูปแบบ "YYYY-MM-DD HH:MM:SS" (ไม่มีคำนำหน้า "วันที่:" หรือ "เวลา:")
-            return `${dateParts[0]} ${timeWithoutTimezone}`;
-          }
-          
-          // หากไม่สามารถแยกได้ ให้แสดงค่าเดิม
-          return dateString;
-        } catch (e) {
-          // หากมีข้อผิดพลาดในการแยก ให้แสดงค่าเดิม
-          return dateString;
-        }
+        // แสดงค่า thai_datetime ตามที่อยู่ในฐานข้อมูลโดยไม่ต้องแปลง timezone
+        return dateString;
       }
       
       // สำหรับคอลัมน์อื่นๆ ยังคงใช้การแปลงวันที่แบบเดิม
