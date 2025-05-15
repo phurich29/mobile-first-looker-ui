@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+  <g>
+    <!-- ฐานอุปกรณ์ -->
+    <rect x="0" y="700" width="800" height="100" fill="#606c76"/>
+    
+    <!-- ขา -->
+    <rect x="100" y="600" width="80" height="100" fill="#606c76"/>
+    <rect x="620" y="600" width="80" height="100" fill="#606c76"/>
+    
+    <!-- ตัวเครื่องหลัก -->
+    <rect x="13" y="13" width="774" height="587" fill="#606c76"/>
+    <rect x="93" y="93" width="521" height="427" fill="#d1d3cd"/>
+    
+    <!-- แท่นสแกน -->
+    <polygon points="213,180 520,180 400,300 307,300" fill="#606c76"/>
+    <rect x="260" y="300" width="120" height="60" fill="#9fa1a3"/>
+    
+    <!-- เครื่องมือด้านขวา -->
+    <rect x="573" y="66" width="160" height="107" fill="#d1d3cd"/>
+    
+    <!-- ปุ่มกด -->
+    <circle cx="573" cy="234" r="30" fill="#d1d3cd"/>
+    <circle cx="640" cy="234" r="30" fill="#d1d3cd"/>
+    <circle cx="707" cy="234" r="30" fill="#d1d3cd"/>
+    <circle cx="774" cy="234" r="30" fill="#d1d3cd"/>
+    
+    <!-- ปุ่มควบคุม -->
+    <rect x="600" y="334" width="60" height="60" fill="#d1d3cd"/>
+    <rect x="700" y="334" width="60" height="60" fill="#d1d3cd"/>
+    
+    <!-- ปุ่มล่าง -->
+    <circle cx="133" cy="520" r="33" fill="#606c76"/>
+    <circle cx="216" cy="520" r="33" fill="#606c76"/>
+    <circle cx="299" cy="520" r="33" fill="#606c76"/>
+    <circle cx="382" cy="520" r="33" fill="#606c76"/>
+    <circle cx="465" cy="520" r="33" fill="#606c76"/>
+    <circle cx="548" cy="520" r="33" fill="#606c76"/>
+    <circle cx="631" cy="520" r="33" fill="#606c76"/>
+  </g>
+</svg>

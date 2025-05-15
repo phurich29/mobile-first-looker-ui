@@ -89,6 +89,41 @@ export const calculateAverage = (historyData: any[], symbol: string): number => 
   return sum / values.length;
 };
 
+// ดึงค่าการวัดล่าสุดสำหรับอุปกรณ์และประเภทข้อมูลเฉพาะ
+export const getLatestMeasurement = async (
+  deviceCode: string,
+  symbol: string
+): Promise<{ value: number | null; timestamp: string | null }> => {
+  try {
+    if (!deviceCode || !symbol) {
+      return { value: null, timestamp: null };
+    }
+
+    // ดึงข้อมูลล่าสุดเพียง 1 รายการ
+    // เลือกทุกคอลัมน์แล้วค่อยดึงค่าที่ต้องการในภายหลัง
+    const { data, error } = await supabase
+      .from('rice_quality_analysis')
+      .select('*')
+      .eq('device_code', deviceCode)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+    
+    if (error || !data) {
+      console.error(`Error fetching latest measurement for ${symbol} on device ${deviceCode}:`, error);
+      return { value: null, timestamp: null };
+    }
+    
+    return {
+      value: data[symbol],
+      timestamp: data.created_at
+    };
+  } catch (err) {
+    console.error('Error in getLatestMeasurement:', err);
+    return { value: null, timestamp: null };
+  }
+};
+
 // Notification Settings Interface
 export interface NotificationSettings {
   id?: string;

@@ -22,7 +22,7 @@ const MenuItem = ({ icon, label, to, iconColor }: MenuItemProps) => {
   return (
     <Link 
       to={to} 
-      className="flex flex-col items-center justify-center p-2 hover:opacity-80 transition-all duration-300 md:hover:bg-white md:hover:shadow-md md:rounded-xl md:px-4"
+      className="flex flex-col items-center justify-center p-2 hover:opacity-80 transition-all duration-300 bg-white rounded-xl shadow-sm border border-gray-100 px-4"
     >
       <div className={`w-12 h-12 flex items-center justify-center ${!isMobile && 'mr-2'}`}>
         {React.cloneElement(icon as React.ReactElement, { 
@@ -48,7 +48,7 @@ export const IconMenu = () => {
   return (
     <div className="px-4 mb-6">
       <div className="px-[5%] mb-3 flex justify-between items-center md:px-0">
-        <h2 className="font-semibold text-gray-700">บริการทั้งหมด</h2>
+        <h2 className="font-semibold text-gray-700 border-b-2 border-[#f7cd56] inline-block pb-1">รายการแนะนำ</h2>
         <div className="flex items-center relative">
           {/* Wheat icon group with varied sizes and positions */}
           <Wheat className="text-amber-400 absolute -top-3 -left-8" size={16} strokeWidth={2.5} />

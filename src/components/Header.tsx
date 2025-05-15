@@ -70,6 +70,14 @@ export const Header = () => {
   const canAccessUserManagement = userRoles.includes('admin') || userRoles.includes('superadmin');
   
   return <>
+      {/* Overlay ที่จะแสดงเมื่อเมนูเปิดในโหมด responsive */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 md:hidden transition-opacity duration-300"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      
       {/* Sidebar for Desktop */}
       <div className={cn("fixed left-0 top-0 bottom-0 z-40 w-64 bg-white text-gray-800 transition-transform duration-300 ease-in-out shadow-sm border-r border-gray-100", sidebarOpen ? "translate-x-0" : "-translate-x-full", "md:translate-x-0" // แสดงเสมอในหน้าจอขนาดใหญ่
     )}>

@@ -1,10 +1,17 @@
 
+import { BackButton } from "@/components/ui/back-button";
+
 interface PageHeaderProps {
   title: string;
 }
 
 export const PageHeader = ({ title }: PageHeaderProps) => {
   return (
-    <h1 className="text-2xl font-semibold text-emerald-800 mb-4">{title}</h1>
+    <div className="mb-6">
+      <div className="flex items-center mb-2">
+        <BackButton to="/" ariaLabel="กลับไปหน้าแรก" />
+        <h1 className="text-2xl font-semibold text-emerald-800">{title}</h1>
+      </div>
+    </div>
   );
 };

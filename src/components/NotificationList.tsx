@@ -30,11 +30,14 @@ export const NotificationList = () => {
         setLoading(false);
       } catch (error) {
         console.error("Error loading notifications:", error);
-        toast({
-          title: "เกิดข้อผิดพลาด",
-          description: "ไม่สามารถโหลดรายการการแจ้งเตือนได้",
-          variant: "destructive",
-        });
+        // ใช้ setTimeout เพื่อหลีกเลี่ยงการอัปเดต state ในระหว่างการเรนเดอร์
+        setTimeout(() => {
+          toast({
+            title: "เกิดข้อผิดพลาด",
+            description: "ไม่สามารถโหลดรายการการแจ้งเตือนได้",
+            variant: "destructive",
+          });
+        }, 0);
       } finally {
         setLoading(false);
       }
@@ -53,7 +56,7 @@ export const NotificationList = () => {
         <h2 className="font-semibold text-gray-700">
           {user ? "การแจ้งเตือนที่กำหนดไว้" : "ตัวอย่างการแจ้งเตือน"}
         </h2>
-        <a href="/notification-settings" className="text-sm text-green-600 font-medium">ตั้งค่าแจ้งเตือน</a>
+        <a href="/notifications" className="text-xs text-green-600 font-medium">ตั้งค่าแจ้งเตือน</a>
       </div>
 
       <div className={`bg-white ${!isMobile && 'rounded-xl shadow-sm'}`}>

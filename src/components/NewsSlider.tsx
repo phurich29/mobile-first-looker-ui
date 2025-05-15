@@ -7,6 +7,8 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
+
 interface NewsItemType {
   id: string;
   title: string;
@@ -58,7 +60,19 @@ export const NewsSlider = () => {
   if (loading) {
     return <div className="mb-6 w-full">
         <h2 className="font-semibold text-lg text-gray-800 mb-3">ข่าวสารและประกาศ</h2>
-        <div className="bg-white rounded-xl shadow-sm p-6 animate-pulse flex flex-col space-y-3">
+        <div className={cn(
+          "bg-white rounded-xl p-6 animate-pulse flex flex-col space-y-3 relative",
+          "before:content-[''] before:absolute before:inset-0 before:rounded-xl before:border before:border-gray-900/20 before:z-10",
+          "after:content-[''] after:absolute after:inset-0 after:rounded-xl after:shadow-[3px_3px_0px_#00000010] after:z-0",
+          "[filter:url(#pencil-border-loading)]"
+        )}>
+          {/* SVG filter สำหรับเอฟเฟกต์เส้นดินสอ */}
+          <svg width="0" height="0" className="absolute">
+            <filter id="pencil-border-loading">
+              <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="1" result="noise" />
+              <feDisplacementMap in="SourceGraphic" in2="noise" scale="1" />
+            </filter>
+          </svg>
           <div className="h-4 bg-gray-200 rounded w-3/4"></div>
           <div className="h-4 bg-gray-200 rounded w-1/2"></div>
           <div className="h-4 bg-gray-200 rounded w-5/6"></div>
@@ -68,7 +82,19 @@ export const NewsSlider = () => {
   if (news.length === 0) {
     return <div className="mb-6 w-full">
         <h2 className="font-semibold text-lg text-gray-800 mb-3">ข่าวสารและประกาศ</h2>
-        <div className="bg-white rounded-xl shadow-sm p-6 text-center">
+        <div className={cn(
+          "bg-white rounded-xl p-6 text-center relative",
+          "before:content-[''] before:absolute before:inset-0 before:rounded-xl before:border before:border-gray-900/20 before:z-10",
+          "after:content-[''] after:absolute after:inset-0 after:rounded-xl after:shadow-[3px_3px_0px_#00000010] after:z-0",
+          "[filter:url(#pencil-border-empty)]"
+        )}>
+          {/* SVG filter สำหรับเอฟเฟกต์เส้นดินสอ */}
+          <svg width="0" height="0" className="absolute">
+            <filter id="pencil-border-empty">
+              <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="1" result="noise" />
+              <feDisplacementMap in="SourceGraphic" in2="noise" scale="1" />
+            </filter>
+          </svg>
           <p className="text-gray-500">ไม่มีข่าวสารในขณะนี้</p>
         </div>
       </div>;
@@ -81,7 +107,20 @@ export const NewsSlider = () => {
     }} setApi={setApi} className="w-full">
         <CarouselContent>
           {news.map(item => <CarouselItem key={item.id} className={isMobile ? "w-full" : "basis-1/2"}>
-              <div className="bg-white rounded-xl overflow-hidden shadow-sm h-full">
+              <div className={cn(
+                "bg-white rounded-xl overflow-hidden h-full relative",
+                "before:content-[''] before:absolute before:inset-0 before:rounded-xl before:border before:border-gray-900/20 before:z-10",
+                "after:content-[''] after:absolute after:inset-0 after:rounded-xl after:shadow-[3px_3px_0px_#00000010] after:z-0",
+                /* เพิ่มเสน้แบบดินสอด้วย SVG filter */
+                "[filter:url(#pencil-border)]"
+              )}>
+                {/* SVG filter สำหรับเอฟเฟกต์เส้นดินสอ */}
+                <svg width="0" height="0" className="absolute">
+                  <filter id="pencil-border">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="1" result="noise" />
+                    <feDisplacementMap in="SourceGraphic" in2="noise" scale="1" />
+                  </filter>
+                </svg>
                 {item.image_url ? <div className="h-32 overflow-hidden">
                     <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" onError={e => {
                 (e.target as HTMLImageElement).style.display = 'none';

@@ -20,7 +20,7 @@ const Index = () => {
           <div className={`${!isMobile ? 'mb-8 mt-3' : 'mb-6 mt-3'}`}>
             <div className="flex justify-between items-center mb-3">
               <h2 className="font-semibold text-lg text-gray-800 flex items-center gap-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="text-emerald-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600">
                   <path d="M6 4v16"></path>
                   <path d="M18 4v16"></path>
                   <path d="M6 8h12"></path>

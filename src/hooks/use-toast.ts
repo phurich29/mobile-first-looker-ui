@@ -6,8 +6,12 @@ import {
   ToastProps,
 } from "@/components/ui/toast"
 
+// กำหนดเวลาแสดงผลสำหรับ toast ปกติและ toast แบบอัพเดทข้อมูล
+
+
 const TOAST_LIMIT = 5
 const TOAST_REMOVE_DELAY = 2000
+const TOAST_UPDATE_REMOVE_DELAY = 1000 // 1 วินาทีสำหรับข้อความอัพเดท
 
 type ToasterToast = ToastProps & {
   id: string
@@ -78,10 +82,11 @@ const reducer = (state: State, action: Action): State => {
       // ! Side effects ! - This could be extracted into a dismissToast() action,
       // but I'll keep it here for simplicity
       if (toastId) {
-        setToastTimeout(toastId)
+        const toast = state.toasts.find(t => t.id === toastId)
+        setToastTimeout(toastId, toast?.variant === 'update')
       } else {
         state.toasts.forEach((toast) => {
-          setToastTimeout(toast.id)
+          setToastTimeout(toast.id, toast.variant === 'update')
         })
       }
 
@@ -111,7 +116,7 @@ const reducer = (state: State, action: Action): State => {
   }
 }
 
-function setToastTimeout(id: string) {
+function setToastTimeout(id: string, isUpdate = false) {
   if (toastTimeouts.has(id)) {
     return
   }
@@ -122,7 +127,7 @@ function setToastTimeout(id: string) {
       type: actionTypes.REMOVE_TOAST,
       toastId: id,
     })
-  }, TOAST_REMOVE_DELAY)
+  }, isUpdate ? TOAST_UPDATE_REMOVE_DELAY : TOAST_REMOVE_DELAY)
 
   toastTimeouts.set(id, timeout)
 }
@@ -189,4 +194,14 @@ function useToast() {
   }
 }
 
-export { useToast, toast }
+// สร้างฟังก์ชันสำหรับแสดง toast อัพเดทข้อมูล
+
+function updateToast(message: string) {
+  return toast({
+    variant: "update",
+    title: message || "อัพเดทแล้ว",
+    // ไม่มี description เพื่อให้กระชับที่สุด
+  })
+}
+
+export { useToast, toast, updateToast }

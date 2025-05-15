@@ -1,7 +1,8 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Bell, BellOff, CircleAlert, AlertTriangle, ThermometerSnowflake, GaugeCircle, ArrowUp, ArrowDown, Wheat } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { getLatestMeasurement } from "./measurement-history/api";
 
 type NotificationItemProps = {
   symbol: string;
@@ -27,6 +28,53 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   updatedAt,
 }) => {
   const navigate = useNavigate();
+  
+  // สร้าง state สำหรับเก็บค่าล่าสุดที่ดึงมาจาก API
+  const [latestValue, setLatestValue] = useState<number | null>(null);
+  const [latestTimestamp, setLatestTimestamp] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAlertActive, setIsAlertActive] = useState(false);
+  
+  // ดึงข้อมูลค่าล่าสุดจาก API
+  useEffect(() => {
+    const fetchLatestValue = async () => {
+      if (!deviceCode || !symbol) return;
+      
+      setIsLoading(true);
+      try {
+        const result = await getLatestMeasurement(deviceCode, symbol);
+        setLatestValue(result.value);
+        setLatestTimestamp(result.timestamp);
+        
+        // ตรวจสอบว่าเข้าเงื่อนไขการแจ้งเตือนหรือไม่
+        if (result.value !== null && enabled) {
+          const thresholdValue = parseFloat(threshold);
+          if (
+            (type === 'min' && result.value < thresholdValue) ||
+            (type === 'max' && result.value > thresholdValue) ||
+            (type === 'both' && (
+              result.value < thresholdValue || 
+              result.value > thresholdValue
+            ))
+          ) {
+            setIsAlertActive(true);
+          } else {
+            setIsAlertActive(false);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching latest value:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchLatestValue();
+    
+    // อัพเดทค่าทุก 30 วินาที
+    const intervalId = setInterval(fetchLatestValue, 30000);
+    return () => clearInterval(intervalId);
+  }, [deviceCode, symbol, threshold, type, enabled]);
   // กำหนดสีพื้นหลังตามประเภทของการแจ้งเตือน
   const getBgColor = () => {
     if (type === 'min') return 'bg-blue-50';
@@ -72,7 +120,21 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
     return <GaugeCircle className="w-5 h-5 text-white" />; // both
   };
   
-  // Format the Bangkok time (+7)
+  // แปลง timestamp เป็นเวลาในรูปแบบ HH:MM
+  const formatTime = (timestamp: string): string => {
+    const date = new Date(timestamp);
+    
+    // เพิ่มเวลาอีก 7 ชั่วโมงสำหรับเวลาในประเทศไทย
+    const thailandTime = new Date(date.getTime() + (7 * 60 * 60 * 1000));
+    
+    // แสดงในรูปแบบ HH:MM
+    const hours = thailandTime.getHours().toString().padStart(2, '0');
+    const minutes = thailandTime.getMinutes().toString().padStart(2, '0');
+    
+    return `${hours}:${minutes}`;
+  };
+  
+  // คำนวณเวลา Bangkok (+7)
   const formatBankgokTime = (date?: Date): { thaiDate: string; thaiTime: string } => {
     if (!date) return { thaiDate: "ไม่มีข้อมูล", thaiTime: "ไม่มีข้อมูล" };
     
@@ -106,31 +168,44 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   };
 
   // ข้อความสถานะการแจ้งเตือน
-  const getStatusText = () => {
+  const getRuleName = () => {
     if (!enabled) return "ปิดแจ้งเตือน";
     
     if (type === 'min') {
-      return `น้อยกว่า ${threshold}%`;
+      return "น้อยกว่า";
     }
     
     if (type === 'max') {
-      return `มากกว่า ${threshold}%`;
+      return "มากกว่า";
     }
     
-    return `นอกช่วง ${threshold}`;
+    return "นอกช่วง";
+  };
+  
+  // ค่าตัวเลข
+  const getThresholdValue = () => {
+    if (!enabled) return "";
+    
+    if (type === 'min' || type === 'max') {
+      return `${threshold}%`;
+    }
+    
+    return threshold;
   };
 
   return (
     <div 
       onClick={handleClick}
-      className={`flex items-center justify-between py-2 px-3 border-b border-gray-100 ${getBgColor()} hover:brightness-95 transition-all duration-300 relative overflow-hidden cursor-pointer active:bg-gray-100`}
+      className={`flex items-center justify-between py-3 px-3 border-b border-gray-100 ${getBgColor()} hover:brightness-95 transition-all duration-300 relative overflow-hidden cursor-pointer active:bg-gray-100`}
     >
       {/* เพิ่มองค์ประกอบด้านหลังเพื่อความมีมิติ */}
       <div className="absolute inset-0 w-full h-full bg-white opacity-80"></div>
       
-      <div className="flex items-center relative z-10">
+      {/* ลบการแสดงค่าล่าสุดชิดขวาบนออก เพราะจะย้ายไปอยู่ในกรอบเดียวกับกฎ */}
+      
+      <div className="flex items-center relative z-10 w-[60%] h-[60px] py-2">
         <div 
-          className="rounded-full flex items-center justify-center mr-2 shadow-sm relative overflow-hidden"
+          className="shrink-0 rounded-full flex items-center justify-center mr-3 shadow-sm relative overflow-hidden"
           style={{ 
             background: `linear-gradient(135deg, ${getIconColor()}, ${getIconColor()}cc)`,
             width: '40px',
@@ -143,30 +218,33 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
             {getIcon()}
           </div>
         </div>
-        <div className="py-1">
-          <div className="flex flex-col">
-            <div className="flex items-center">
-              <h3 className="font-medium text-sm text-gray-800 truncate max-w-[170px]">{name}</h3>
-            </div>
-            <span className="text-xs text-gray-500 truncate max-w-[180px]">{deviceName}</span>
+        <div className="min-w-0 h-full flex items-center"> {/* min-w-0 ช่วยให้ truncate ทำงานได้ถูกต้อง */}
+          <div className="flex flex-col justify-center space-y-1">
+            <h3 className="font-medium text-sm text-gray-800 truncate">{name}</h3>
+            <span className="text-xs text-gray-500 truncate">{deviceName}</span>
           </div>
         </div>
       </div>
-      <div className="text-right flex flex-col items-end relative z-10">
-        <p className={`font-medium text-xs ${enabled ? 'text-green-600' : 'text-gray-500'} mb-0.5 truncate max-w-[120px]`}>
-          {getStatusText()}
-        </p>
-        <a 
-          href={`/measurement-history/${deviceCode}/${symbol}?name=${encodeURIComponent(name)}`}
-          className="text-xs px-1.5 py-0.5 bg-gray-200 text-black rounded hover:bg-gray-300 transition-colors"
-          onClick={(e) => {
-            e.stopPropagation(); // ป้องกันการทริกเกอร์ handleClick ของ div พ่อ
-            navigate(`/measurement-history/${deviceCode}/${symbol}?name=${encodeURIComponent(name)}`);
-            return false;
-          }}
-        >
-          ดูรายละเอียด
-        </a>
+
+      <div className="text-right flex items-center justify-end relative z-10 w-[38%] h-[60px] py-2">
+        <div className="bg-gray-50/80 px-3 py-1.5 rounded-lg flex flex-col items-end justify-center min-h-[54px] min-w-[100px] space-y-0.5">
+          {/* แสดงค่าล่าสุดพร้อมเวลา */}
+          {latestValue !== null && latestTimestamp && (
+            <p className={`font-medium text-xs ${isAlertActive ? 'text-red-600 font-bold' : 'text-gray-700'} leading-tight`}>
+              {formatTime(latestTimestamp)} {latestValue.toFixed(1)}%
+            </p>
+          )}
+          
+          {/* แสดงชื่อกฎ */}
+          <p className={`font-medium text-xs ${enabled ? 'text-green-600' : 'text-gray-500'} leading-tight`}>
+            {getRuleName()}
+          </p>
+          
+          {/* แสดงค่าตัวเลข */}
+          <p className={`font-medium text-xs ${enabled ? 'text-green-600 font-bold' : 'text-gray-500'} leading-tight`}>
+            {getThresholdValue()}
+          </p>
+        </div>
       </div>
     </div>
   );
