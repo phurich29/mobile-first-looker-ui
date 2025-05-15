@@ -134,13 +134,13 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
               strokeDasharray="3 3"
               label={{
                 position: 'top',
-                value: `ค่าเฉลี่ย: ${average.toFixed(2)}% (ช่วง ${(average * 0.95).toFixed(2)} - ${(average * 1.05).toFixed(2)}%)`,
+                value: `ค่าเฉลี่ย: ${average.toFixed(2)}%\n(ช่วง ${(average * 0.95).toFixed(2)} - ${(average * 1.05).toFixed(2)}%)`,
                 fill: '#F97316',
                 fontSize: 12,
                 offset: 0,
-                dy: -10,
-                dx: 150,
-                textAnchor: 'end'
+                dy: -20,
+                dx: 20,
+                textAnchor: 'start'
               }}
             />
             <Line 

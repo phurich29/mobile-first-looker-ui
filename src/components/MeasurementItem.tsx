@@ -5,22 +5,34 @@ import { ArrowUp, ArrowDown, Wheat, Blend, Circle } from "lucide-react";
 type MeasurementItemProps = {
   symbol: string;
   name: string;
-  price: string; // Latest value (percentage)
-  percentageChange: number; // Change compared to previous value
+  price?: string; // Old prop - for backwards compatibility
+  currentValue?: string; // Latest value (percentage)
+  percentageChange?: number; // Change compared to previous value
   iconColor: string;
   updatedAt?: Date; // Updated timestamp
   deviceCode?: string; // รหัสอุปกรณ์สำหรับดึงข้อมูลประวัติ
+  deviceName?: string; // ชื่ออุปกรณ์
+  notificationType?: 'min' | 'max' | 'both'; // ประเภทการแจ้งเตือน
+  threshold?: string; // ค่าขีดจำกัดการแจ้งเตือน
+  enabled?: boolean; // สถานะการแจ้งเตือน
 };
 
 export const MeasurementItem: React.FC<MeasurementItemProps> = ({
   symbol,
   name,
   price,
-  percentageChange,
+  currentValue,
+  percentageChange = 0,
   iconColor,
   updatedAt,
   deviceCode,
+  deviceName,
+  notificationType,
+  threshold,
+  enabled = true,
 }) => {
+  // ใช้ currentValue ถ้ามี มิฉะนั้นใช้ price (สำหรับความเข้ากันได้กับโค้ดเก่า)
+  const valueToShow = currentValue || price || "0";
   // State สำหรับการแสดงประวัติการวัด
   const [showHistory, setShowHistory] = useState(false);
   const isPositive = percentageChange >= 0;
@@ -129,19 +141,35 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
             <div className="absolute top-0 left-0 w-3 h-3 bg-white/30 rounded-full blur-sm"></div>
             {getIcon()}
           </div>
-          <div className="px-3 py-2">
+          <div className="px-3 py-2 flex-1">
             <div className="flex flex-col">
-              <div className="flex items-center">
+              <div className="flex flex-col">
                 <h3 className="font-bold text-base text-gray-800">{name}</h3>
+                <div className="flex items-center">
+                  <span className="text-xs text-gray-500">{symbol}</span>
+                </div>
               </div>
-              <span className="text-xs text-gray-500">{symbol}</span>
+              {deviceName && (
+                <span className="text-xs text-gray-500 mt-0.5">{deviceName}</span>
+              )}
             </div>
           </div>
         </div>
         <div className="text-right flex flex-col items-end relative z-10">
           <p className={`font-bold text-base ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-            {price}%
+            {valueToShow}%
           </p>
+          
+          {notificationType && (
+            <div className={`text-xs px-2 py-1 rounded-md mb-1 ${enabled ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-500'}`}>
+              {enabled ? (
+                notificationType === 'min' ? `แจ้งเตือนต่ำกว่า ${threshold}%` : 
+                notificationType === 'max' ? `แจ้งเตือนสูงกว่า ${threshold}%` : 
+                `แจ้งเตือนช่วง ${threshold}%`
+              ) : 'ปิดแจ้งเตือน'}
+            </div>
+          )}
+          
           <div className="flex flex-col text-xs">
             {updatedAt ? (
               <>

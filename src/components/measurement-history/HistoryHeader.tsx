@@ -10,13 +10,15 @@ interface HistoryHeaderProps {
   unit?: string;
   average: number;
   onOpenSettings: () => void;
+  notificationEnabled?: boolean;
 }
 
 const HistoryHeader: React.FC<HistoryHeaderProps> = ({ 
   name, 
   unit, 
   average, 
-  onOpenSettings 
+  onOpenSettings,
+  notificationEnabled = false
 }) => {
   const navigate = useNavigate();
   
@@ -44,13 +46,14 @@ const HistoryHeader: React.FC<HistoryHeaderProps> = ({
         </div>
         
         <Button 
-          variant="outline" 
+          variant={notificationEnabled ? "outline" : "ghost"} 
           size="sm" 
-          className="flex items-center gap-1"
+          className={`flex items-center gap-1 ${notificationEnabled ? "border-orange-400 text-orange-600 hover:bg-orange-50" : "text-gray-500 border-gray-200"}`}
           onClick={onOpenSettings}
         >
-          <Settings className="h-4 w-4" />
-          <span className="hidden sm:inline">ตั้งค่าการแจ้งเตือน</span>
+          <Settings className={`h-4 w-4 ${notificationEnabled ? "text-orange-500" : "text-gray-500"}`} />
+          <span className="hidden sm:inline">ตั้งค่าแจ้งเตือน</span>
+          <span className={`ml-1 h-2 w-2 rounded-full ${notificationEnabled ? "bg-orange-500" : "bg-gray-400"}`}></span>
         </Button>
       </div>
     </div>
