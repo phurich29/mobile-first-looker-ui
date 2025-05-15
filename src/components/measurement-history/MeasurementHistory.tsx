@@ -31,7 +31,7 @@ const MeasurementHistory = ({ symbol, name, deviceCode, onClose }: MeasurementHi
   const averageValue = historyData ? calculateAverage(historyData, symbol) : 0;
   const latestEntry = historyData && historyData.length > 0 ? historyData[0] : null;
   const latestValue = latestEntry ? latestEntry[symbol] : 0;
-  const { thaiDate, thaiTime } = formatBangkokTime(latestEntry?.created_at);
+  const { thaiDate, thaiTime } = latestEntry ? formatBangkokTime(latestEntry.created_at || latestEntry.thai_datetime) : { thaiDate: "", thaiTime: "" };
 
   const handleTimeFrameChange = (newTimeFrame: TimeFrame) => {
     setTimeFrame(newTimeFrame);
@@ -56,29 +56,33 @@ const MeasurementHistory = ({ symbol, name, deviceCode, onClose }: MeasurementHi
         </div>
         
         <HistoryHeader
+          symbol={symbol}
           name={name}
-          latestValue={latestValue}
-          averageValue={averageValue}
-          thaiDate={thaiDate}
-          thaiTime={thaiTime}
+          historyData={historyData}
+          isLoading={isLoading}
         />
         
         <TimeframeSelector
           timeFrame={timeFrame}
-          onChange={handleTimeFrameChange}
+          setTimeFrame={handleTimeFrameChange}
         />
       </div>
 
       <div className="flex-1 px-4 py-4">
         <HistoryChart 
-          data={historyData || []} 
+          historyData={historyData} 
           symbol={symbol}
           isLoading={isLoading}
-          isError={isError}
+          timeFrame={timeFrame}
         />
       </div>
 
-      <HistoryFooter />
+      <HistoryFooter 
+        historyData={historyData}
+        timeFrame={timeFrame}
+        isLoading={isLoading}
+        name={name}
+      />
       
       <NotificationSettingsDialog 
         open={openSettings} 
