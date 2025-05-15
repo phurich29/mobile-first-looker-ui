@@ -113,6 +113,8 @@ export function AccessMapping() {
         <DeviceUserTable 
           deviceCode={selectedDevice}
           onBack={() => setSelectedDevice(null)}
+          isLoading={isLoading}
+          items={[]}
         />
       ) : (
         <DeviceList 

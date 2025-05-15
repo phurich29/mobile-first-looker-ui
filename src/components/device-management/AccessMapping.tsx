@@ -1,4 +1,4 @@
 
-import { AccessMapping } from "./access-mapping";
+import { AccessMapping as AccessMappingComponent } from "./access-mapping";
 
-export { AccessMapping };
+export { AccessMappingComponent as AccessMapping };

@@ -3,6 +3,18 @@ import { AccessMappingHeader } from "./AccessMappingHeader";
 import { DeviceUserTable } from "./DeviceUserTable";
 import { DeviceListSelector } from "./DeviceList";
 import { UserListSelector } from "./UserList";
+import { Dispatch, SetStateAction } from "react";
+
+interface AccessMappingProps {
+  devices: any[];
+  users: any[];
+  deviceUserMap: Record<string, string[]>;
+  selectedDevice: string | null;
+  selectedUser: string | null;
+  isLoading: boolean;
+  onRefresh: () => Promise<void>;
+  setDeviceUserMap: Dispatch<SetStateAction<Record<string, string[]>>>;
+}
 
 export const AccessMapping = ({ 
   devices,
@@ -13,16 +25,7 @@ export const AccessMapping = ({
   isLoading,
   onRefresh,
   setDeviceUserMap
-}: {
-  devices: any[],
-  users: any[],
-  deviceUserMap: Record<string, string[]>,
-  selectedDevice: string | null,
-  selectedUser: string | null,
-  isLoading: boolean,
-  onRefresh: () => Promise<void>,
-  setDeviceUserMap: (map: Record<string, string[]>) => void
-}) => {
+}: AccessMappingProps) => {
   // Determine which items to show in the access table based on selection
   const getTableItems = () => {
     if (selectedDevice) {

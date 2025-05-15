@@ -5,22 +5,34 @@ import { ResponsiveTable } from "@/components/ui/responsive-table";
 import { Check, X } from "lucide-react";
 
 interface DeviceUserTableProps {
-  isLoading: boolean;
-  items: { id: string; name: string }[];
-  hasAccess: (itemId: string) => boolean;
-  onToggleAccess: (itemId: string) => Promise<void>;
+  isLoading?: boolean;
+  items?: { id: string; name: string }[];
+  hasAccess?: (itemId: string) => boolean;
+  onToggleAccess?: (itemId: string) => Promise<void>;
   isUserTable?: boolean;
+  deviceCode?: string;
+  onBack?: () => void;
 }
 
 export function DeviceUserTable({
-  isLoading,
-  items,
-  hasAccess,
-  onToggleAccess,
-  isUserTable = false
+  isLoading = false,
+  items = [],
+  hasAccess = () => false,
+  onToggleAccess = async () => {},
+  isUserTable = false,
+  deviceCode,
+  onBack
 }: DeviceUserTableProps) {
   return (
     <ResponsiveTable>
+      {deviceCode && onBack && (
+        <div className="mb-4">
+          <Button variant="outline" size="sm" onClick={onBack}>
+            &larr; กลับ
+          </Button>
+          <h2 className="text-lg font-medium mt-2">จัดการผู้ใช้สำหรับอุปกรณ์: {deviceCode}</h2>
+        </div>
+      )}
       <TableHeader>
         <TableRow>
           <TableHead>{isUserTable ? 'อีเมล' : 'รหัสอุปกรณ์'}</TableHead>
