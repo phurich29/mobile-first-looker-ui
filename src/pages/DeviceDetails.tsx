@@ -37,29 +37,57 @@ export default function DeviceDetails() {
     name: string;
   } | null>(null);
 
+  // ตรวจสอบว่า deviceCode เป็น 'default' หรือไม่ และเปลี่ยนเป็นค่าที่เหมาะสม
+  useEffect(() => {
+    // ถ้า deviceCode เป็น 'default' ให้ดึงข้อมูลอุปกรณ์ล่าสุดแทน
+    if (deviceCode === 'default') {
+      // ดึงข้อมูลอุปกรณ์ล่าสุดและนำทางไปยังหน้านั้นแทน
+      const fetchLatestDevice = async () => {
+        try {
+          const response = await fetch('/api/latest-device');
+          if (response.ok) {
+            const data = await response.json();
+            if (data.deviceCode) {
+              navigate(`/device/${data.deviceCode}`, { replace: true });
+            }
+          } else {
+            // ถ้าไม่มีข้อมูล ให้ใช้ค่าเริ่มต้น
+            navigate(`/device/6400000401398`, { replace: true });
+          }
+        } catch (error) {
+          console.error("Error fetching latest device:", error);
+          // ถ้าเกิดข้อผิดพลาด ให้ใช้ค่าเริ่มต้น
+          navigate(`/device/6400000401398`, { replace: true });
+        }
+      };
+      
+      fetchLatestDevice();
+    }
+  }, [deviceCode, navigate]);
+
   // Use React Query for data fetching
   const { data: wholeGrainData, isLoading: isLoadingWholeGrain } = useQuery({
     queryKey: ['wholeGrainData', deviceCode],
-    queryFn: () => deviceCode ? fetchWholeGrainData(deviceCode) : Promise.resolve(null),
-    enabled: !!deviceCode,
+    queryFn: () => deviceCode && deviceCode !== 'default' ? fetchWholeGrainData(deviceCode) : Promise.resolve(null),
+    enabled: !!deviceCode && deviceCode !== 'default',
   });
 
   const { data: ingredientsData, isLoading: isLoadingIngredients } = useQuery({
     queryKey: ['ingredientsData', deviceCode],
-    queryFn: () => deviceCode ? fetchIngredientsData(deviceCode) : Promise.resolve(null),
-    enabled: !!deviceCode,
+    queryFn: () => deviceCode && deviceCode !== 'default' ? fetchIngredientsData(deviceCode) : Promise.resolve(null),
+    enabled: !!deviceCode && deviceCode !== 'default',
   });
   
   const { data: impuritiesData, isLoading: isLoadingImpurities } = useQuery({
     queryKey: ['impuritiesData', deviceCode],
-    queryFn: () => deviceCode ? fetchImpuritiesData(deviceCode) : Promise.resolve(null),
-    enabled: !!deviceCode,
+    queryFn: () => deviceCode && deviceCode !== 'default' ? fetchImpuritiesData(deviceCode) : Promise.resolve(null),
+    enabled: !!deviceCode && deviceCode !== 'default',
   });
   
   const { data: allData, isLoading: isLoadingAllData } = useQuery({
     queryKey: ['allData', deviceCode],
-    queryFn: () => deviceCode ? fetchAllData(deviceCode) : Promise.resolve(null),
-    enabled: !!deviceCode,
+    queryFn: () => deviceCode && deviceCode !== 'default' ? fetchAllData(deviceCode) : Promise.resolve(null),
+    enabled: !!deviceCode && deviceCode !== 'default',
   });
 
   // Handle measurement item click
@@ -97,8 +125,24 @@ export default function DeviceDetails() {
     navigate("/equipment");
   };
 
+  // ถ้า deviceCode เป็น 'default' ให้แสดงหน้าโหลดข้อมูล
+  if (deviceCode === 'default') {
+    return (
+      <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
+        <Header />
+        <main className="flex-1 flex justify-center items-center">
+          <div className="text-center p-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">กำลังโหลดข้อมูลอุปกรณ์...</p>
+          </div>
+        </main>
+        <FooterNav />
+      </div>
+    );
+  }
+
   // Show measurement history if a measurement is selected
-  if (selectedMeasurement && deviceCode) {
+  if (selectedMeasurement && deviceCode && deviceCode !== 'default') {
     return (
       <MeasurementHistory
         symbol={selectedMeasurement.symbol}

@@ -41,7 +41,7 @@ export const IconMenu = () => {
   
   const menuItems = [
     { icon: <HardDrive />, label: "รายการอุปกรณ์", to: "/equipment", iconColor: "#22c55e" },
-    { icon: <ChartLine />, label: "ค่าวัดคุณภาพ", to: "/measurements", iconColor: "#8b5cf6" },
+    { icon: <ChartLine />, label: "ค่าวัดคุณภาพ", to: "/device/default", iconColor: "#8b5cf6" },
     { icon: <FileText />, label: "คู่มือการใช้งาน", to: "#", iconColor: "#f97316" },
   ];
 

@@ -12,7 +12,7 @@ import UserManagement from "./pages/UserManagement";
 import Waiting from "./pages/Waiting";
 import Profile from "./pages/Profile";
 import NewsManagement from "./pages/NewsManagement";
-import News from "./pages/News"; // เพิ่มหน้าข่าวสาร
+import News from "./pages/News"; 
 import { AuthProvider, useAuth } from "./components/AuthProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useEffect } from "react";
@@ -79,10 +79,10 @@ function App() {
               </ProtectedRoute>
             } />
             
-            {/* Routes ที่ต้องล็อกอินเท่านั้น */}
+            {/* เปลี่ยนจาก Measurements ไปเป็น DeviceDetails แทน */}
             <Route path="/measurements" element={
               <ProtectedRoute>
-                <Measurements />
+                <Navigate to="/device/default" replace />
               </ProtectedRoute>
             } />
             
@@ -92,14 +92,14 @@ function App() {
               </ProtectedRoute>
             } />
             
-            {/* เพิ่มเส้นทางใหม่สำหรับหน้าแสดงรายละเอียดอุปกรณ์ */}
+            {/* เส้นทางสำหรับหน้าแสดงรายละเอียดอุปกรณ์ */}
             <Route path="/device/:deviceCode" element={
               <ProtectedRoute>
                 <DeviceDetails />
               </ProtectedRoute>
             } />
             
-            {/* เพิ่มเส้นทางใหม่สำหรับหน้า Profile */}
+            {/* เส้นทางสำหรับหน้า Profile */}
             <Route path="/profile" element={
               <ProtectedRoute>
                 <Profile />
