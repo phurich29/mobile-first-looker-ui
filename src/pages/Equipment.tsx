@@ -10,6 +10,7 @@ import { FooterNav } from "@/components/FooterNav";
 import { useAuth } from "@/components/AuthProvider";
 import { useQuery } from "@tanstack/react-query";
 import { DatabaseTable } from "@/components/DatabaseTable";
+import { AddDeviceForm } from "@/components/device-management/AddDeviceForm";
 
 interface DeviceInfo {
   device_code: string;
@@ -346,6 +347,13 @@ export default function Equipment() {
             <span className="text-xs">รีเฟรช</span>
           </Button>
         </div>
+        
+        {/* Add Device Form - Only for admin and superadmin */}
+        {isAdmin && (
+          <div className="mb-6">
+            <AddDeviceForm onDeviceAdded={handleRefresh} />
+          </div>
+        )}
         
         {devices.length === 0 ? (
           <div className="bg-white p-6 rounded-xl text-center shadow-sm">
