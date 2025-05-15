@@ -65,15 +65,15 @@ export const NotificationSettingCard = ({
   
   return (
     <>
-      <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-2 flex justify-between w-full">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 flex justify-between w-full">
         {/* ส่วนด้านซ้าย */}
-        <div className="flex-1 mr-4">
-          <div className="flex items-center gap-1 mb-1">
+        <div className="flex-1 mr-6">
+          <div className="flex items-center gap-2 mb-2">
             <div className="overflow-hidden">
               <h3 className="font-medium text-black text-sm truncate">
                 {setting.device_name || setting.device_code}
               </h3>
-              <p className="text-sm text-black truncate">{setting.rice_type_name}</p>
+              <p className="text-sm text-black truncate mt-1">{setting.rice_type_name}</p>
             </div>
             <Button 
               variant="ghost" 
@@ -85,7 +85,7 @@ export const NotificationSettingCard = ({
             </Button>
           </div>
           
-          <div className="border-t border-gray-100 pt-1 mt-1 text-sm space-y-1">
+          <div className="border-t border-gray-100 pt-2 mt-2 text-sm space-y-2">
             {setting.max_enabled && (
               <p className="flex items-center gap-2">
                 <span className="text-black font-medium">สูงกว่า:</span>
@@ -105,20 +105,20 @@ export const NotificationSettingCard = ({
         </div>
         
         {/* ส่วนด้านขวา - สวิตช์แบบเกม */}
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center justify-center">
           <div 
-            className={`w-14 h-8 rounded-full relative transition-all duration-300 flex items-center justify-center ${isEnabled ? 'bg-gradient-to-r from-emerald-400 to-emerald-600' : 'bg-gray-300'}`}
+            className={`w-16 h-9 rounded-full relative transition-all duration-300 flex items-center justify-center ${isEnabled ? 'bg-gradient-to-r from-emerald-400 to-emerald-600' : 'bg-gray-300'}`}
             onClick={() => handleToggle(!isEnabled)}
           >
             <div 
-              className={`absolute top-0.5 left-0.5 w-7 h-7 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out ${isEnabled ? 'translate-x-6' : 'translate-x-0'}`}
+              className={`absolute top-0.5 left-0.5 w-8 h-8 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out ${isEnabled ? 'translate-x-7' : 'translate-x-0'}`}
             ></div>
             {isEnabled && (
               <div className="absolute -right-1 -top-1 w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
             )}
           </div>
           {/* เพิ่มข้อความ ON/OFF ด้านล่าง */}
-          <span className={`mt-1 text-xs font-bold ${isEnabled ? 'text-emerald-600' : 'text-gray-900'}`}>
+          <span className={`mt-2 text-xs font-bold ${isEnabled ? 'text-emerald-600' : 'text-gray-900'}`}>
             {isEnabled ? 'ON' : 'OFF'}
           </span>
         </div>
