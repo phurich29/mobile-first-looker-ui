@@ -1,6 +1,5 @@
 
 import { format } from "date-fns";
-import { Wheat, ArrowDown, ArrowUp, GaugeCircle, BellOff } from "lucide-react";
 
 // Helper function to get background color based on notification type
 export const getNotificationBgColor = (type: 'min' | 'max' | 'both'): string => {
@@ -16,35 +15,35 @@ export const getNotificationIconColor = (type: 'min' | 'max' | 'both'): string =
   return '#8b5cf6'; // purple
 };
 
-// Helper function to get appropriate icon based on symbol and type
-export const getNotificationIcon = (symbol: string, name: string, type: 'min' | 'max' | 'both', enabled: boolean) => {
+// Helper function to get appropriate icon name based on symbol and type
+export const getNotificationIconName = (symbol: string, name: string, type: 'min' | 'max' | 'both', enabled: boolean): string => {
   if (!enabled) {
-    return <BellOff className="w-5 h-5 text-white" />;
+    return "bell-off";
   }
   
   // Match rice type symbols
   if (symbol === 'class1' || name.includes('ชั้น1')) {
-    return <Wheat className="w-5 h-5 text-white" />;
+    return "wheat";
   }
   
   if (symbol === 'class2' || name.includes('ชั้น2')) {
-    return <Wheat className="w-5 h-5 text-white" />;
+    return "wheat";
   }
   
   if (symbol === 'class3' || name.includes('ชั้น3')) {
-    return <Wheat className="w-5 h-5 text-white" />;
+    return "wheat";
   }
   
   // For threshold notifications
   if (type === 'min') {
-    return <ArrowDown className="w-5 h-5 text-white" />;
+    return "arrow-down";
   }
   
   if (type === 'max') {
-    return <ArrowUp className="w-5 h-5 text-white" />;
+    return "arrow-up";
   }
   
-  return <GaugeCircle className="w-5 h-5 text-white" />; // both
+  return "gauge-circle"; // both
 };
 
 // Format time function to convert timestamp to HH:MM format with Thailand timezone
