@@ -10,6 +10,7 @@ interface CountdownTimerProps {
   className?: string;
   iconSize?: number;
   showSeconds?: boolean;
+  useGlobal?: boolean;
 }
 
 export const CountdownTimer: React.FC<CountdownTimerProps> = ({
@@ -17,12 +18,14 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
   onComplete,
   className,
   iconSize = 14,
-  showSeconds = true
+  showSeconds = true,
+  useGlobal = false
 }) => {
-  const { seconds, isActive } = useCountdown({
+  const { seconds } = useCountdown({
     initialSeconds,
     onComplete,
-    autoStart: true
+    autoStart: true,
+    useGlobal
   });
 
   return (
