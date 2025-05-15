@@ -1,0 +1,98 @@
+
+import { CheckCircle, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { User } from "../../types";
+import { toggleUserDeviceAccess } from "../../services/userAccessService";
+import { useToast } from "@/hooks/use-toast";
+
+interface UserAccessListProps {
+  deviceCode: string;
+  users: User[];
+  setUsers: React.Dispatch<React.SetStateAction<User[]>>;
+  isLoading: boolean;
+}
+
+export function UserAccessList({
+  deviceCode,
+  users,
+  setUsers,
+  isLoading
+}: UserAccessListProps) {
+  const { toast } = useToast();
+  
+  // Toggle device access for a user
+  const toggleAccess = async (userId: string, currentAccess: boolean) => {
+    try {
+      const success = await toggleUserDeviceAccess(userId, deviceCode, currentAccess);
+      
+      if (success) {
+        // Update local state
+        setUsers(prevUsers => 
+          prevUsers.map(u => 
+            u.id === userId ? { ...u, hasAccess: !currentAccess } : u
+          )
+        );
+        
+        toast({
+          title: "อัพเดทสิทธิ์สำเร็จ",
+          description: currentAccess 
+            ? "ลบสิทธิ์การเข้าถึงอุปกรณ์เรียบร้อยแล้ว" 
+            : "เพิ่มสิทธิ์การเข้าถึงอุปกรณ์เรียบร้อยแล้ว",
+        });
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "มีข้อผิดพลาดไม่คาดคิดเกิดขึ้น",
+        variant: "destructive",
+      });
+    }
+  };
+  
+  return (
+    <div className="space-y-1">
+      <h3 className="text-sm font-medium">รายชื่อผู้ใช้</h3>
+      
+      <div className="border rounded-md divide-y max-h-[300px] overflow-y-auto">
+        {isLoading ? (
+          <div className="p-4 text-center text-sm text-gray-500">
+            กำลังโหลดข้อมูลผู้ใช้...
+          </div>
+        ) : users.length === 0 ? (
+          <div className="p-4 text-center text-sm text-gray-500">
+            ไม่พบข้อมูลผู้ใช้ กรุณาค้นหาผู้ใช้ที่ต้องการให้สิทธิ์
+          </div>
+        ) : (
+          users.map((user) => (
+            <div key={user.id} className="p-3 flex justify-between items-center">
+              <div className="truncate flex-1">
+                <div className="text-sm font-medium truncate">
+                  {user.email}
+                </div>
+              </div>
+              <Button
+                variant={user.hasAccess ? "destructive" : "outline"}
+                size="sm"
+                onClick={() => toggleAccess(user.id, user.hasAccess)}
+                className="ml-2 flex items-center"
+              >
+                {user.hasAccess ? (
+                  <>
+                    <X className="h-3 w-3 mr-1" />
+                    <span className="text-xs">ลบสิทธิ์</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    <span className="text-xs">ให้สิทธิ์</span>
+                  </>
+                )}
+              </Button>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}

@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { EquipmentCard } from "@/components/EquipmentCard";
-import { DeviceInfo } from "../hooks/useDeviceData";
+import { EquipmentCard } from "../components/EquipmentCard";
+import { DeviceInfo } from "../types";
 
 interface DevicesGridProps {
   devices: DeviceInfo[];

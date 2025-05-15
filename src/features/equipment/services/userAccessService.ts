@@ -1,0 +1,182 @@
+
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/AuthProvider";
+import { User } from "../types";
+
+// Search for users by email
+export const searchUsersByEmail = async (searchEmail: string, deviceCode: string): Promise<User[]> => {
+  // Get current user
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+
+  // Search for the user by email
+  const { data: userData, error: userError } = await supabase
+    .from('profiles')
+    .select('id, email')
+    .ilike('email', `%${searchEmail.trim()}%`)
+    .limit(10);
+    
+  if (userError) {
+    console.error("Error searching for user:", userError);
+    throw new Error("Cannot search for users");
+  }
+  
+  if (!userData || userData.length === 0) {
+    return [];
+  }
+  
+  // Check if users are on waiting list
+  const userIds = userData.map(u => u.id);
+  const { data: waitingListUsers, error: waitingListError } = await supabase
+    .from('user_roles')
+    .select('user_id, role')
+    .in('user_id', userIds)
+    .eq('role', 'waiting_list');
+    
+  if (waitingListError) {
+    console.error("Error checking user roles:", waitingListError);
+  }
+  
+  // Create a set of waiting list user IDs
+  const waitingListUserIds = new Set(waitingListUsers?.map(u => u.user_id) || []);
+  
+  // Filter out waiting list users
+  const filteredUsers = userData.filter(u => !waitingListUserIds.has(u.id));
+  
+  if (filteredUsers.length === 0) {
+    return [];
+  }
+  
+  // Fetch device access records for found users
+  const filteredUserIds = filteredUsers.map(u => u.id);
+  const { data: accessData, error: accessError } = await supabase
+    .from('user_device_access')
+    .select('user_id')
+    .eq('device_code', deviceCode)
+    .in('user_id', filteredUserIds);
+    
+  if (accessError) {
+    console.error("Error fetching device access:", accessError);
+    throw new Error("Cannot fetch device access");
+  }
+  
+  // Create a set of user IDs with access
+  const userIdsWithAccess = new Set(accessData?.map(record => record.user_id) || []);
+  
+  // Combine the data
+  return filteredUsers.map(u => ({
+    id: u.id,
+    email: u.email || "ไม่มีอีเมล",
+    hasAccess: userIdsWithAccess.has(u.id)
+  }));
+};
+
+// Toggle device access for a user
+export const toggleUserDeviceAccess = async (
+  userId: string, 
+  deviceCode: string, 
+  currentAccess: boolean
+): Promise<boolean> => {
+  // Get current user
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+  
+  try {
+    if (currentAccess) {
+      // Remove access
+      const { error } = await supabase
+        .from('user_device_access')
+        .delete()
+        .eq('user_id', userId)
+        .eq('device_code', deviceCode);
+        
+      if (error) {
+        console.error("Error removing device access:", error);
+        return false;
+      }
+    } else {
+      // Grant access
+      const { error } = await supabase
+        .from('user_device_access')
+        .insert({
+          user_id: userId,
+          device_code: deviceCode,
+          created_by: user.id
+        });
+        
+      if (error) {
+        console.error("Error granting device access:", error);
+        return false;
+      }
+    }
+    
+    return true;
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return false;
+  }
+};
+
+// Load users with their device access status
+export const loadUsersWithAccess = async (deviceCode: string): Promise<User[]> => {
+  // Get current user
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+  
+  try {
+    // Fetch all users who are not on waiting list
+    const { data: usersData, error: usersError } = await supabase
+      .from('profiles')
+      .select('id, email')
+      .order('email');
+      
+    if (usersError) {
+      console.error("Error fetching users:", usersError);
+      throw new Error("Cannot fetch users");
+    }
+    
+    // Filter out users on waiting list
+    const { data: waitingListUsers, error: waitingListError } = await supabase
+      .from('user_roles')
+      .select('user_id')
+      .eq('role', 'waiting_list');
+      
+    if (waitingListError) {
+      console.error("Error fetching waiting list users:", waitingListError);
+      throw new Error("Cannot fetch waiting list users");
+    }
+    
+    const waitingListUserIds = new Set(waitingListUsers?.map(u => u.user_id) || []);
+    const filteredUsers = usersData?.filter(u => !waitingListUserIds.has(u.id)) || [];
+    
+    // Fetch device access records for this device
+    const { data: accessData, error: accessError } = await supabase
+      .from('user_device_access')
+      .select('user_id')
+      .eq('device_code', deviceCode);
+      
+    if (accessError) {
+      console.error("Error fetching device access:", accessError);
+      throw new Error("Cannot fetch device access");
+    }
+    
+    // Create a set of user IDs with access
+    const userIdsWithAccess = new Set(accessData?.map(record => record.user_id) || []);
+    
+    // Combine the data
+    return filteredUsers.map(userData => ({
+      id: userData.id,
+      email: userData.email || "ไม่มีอีเมล",
+      hasAccess: userIdsWithAccess.has(userData.id)
+    }));
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    throw error;
+  }
+};

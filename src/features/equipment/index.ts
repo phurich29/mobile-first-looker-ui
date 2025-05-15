@@ -1,3 +1,4 @@
 
 export { useDeviceData } from './hooks/useDeviceData';
-export { DevicesHeader, DevicesGrid } from './components';
+export { DevicesHeader, DevicesGrid, EquipmentCard } from './components';
+export * from './types';

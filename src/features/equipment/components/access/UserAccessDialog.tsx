@@ -1,0 +1,47 @@
+
+import { useState, useEffect } from "react";
+import { User } from "../../types";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { UserAccessList } from "./UserAccessList";
+import { UserSearchForm } from "./UserSearchForm";
+
+interface UserAccessDialogProps {
+  deviceCode: string;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function UserAccessDialog({
+  deviceCode,
+  isOpen,
+  onOpenChange
+}: UserAccessDialogProps) {
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>จัดการสิทธิ์การเข้าถึงอุปกรณ์ {deviceCode}</DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-4 mt-2">
+          <UserSearchForm
+            deviceCode={deviceCode}
+            users={users}
+            setUsers={setUsers}
+            setIsLoading={setIsLoading}
+          />
+          
+          <UserAccessList
+            deviceCode={deviceCode}
+            users={users}
+            setUsers={setUsers}
+            isLoading={isLoading}
+          />
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
