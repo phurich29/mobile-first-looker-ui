@@ -1,11 +1,11 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import HistoryHeader from "./HistoryHeader";
 import HistoryChart from "./HistoryChart";
 import HistoryFooter from "./HistoryFooter";
-import { fetchMeasurementHistory, calculateAverage } from "./api";
 import { NotificationSettingsDialog } from "./notification-settings";
 import { useToast } from "@/hooks/use-toast";
+import { useMeasurementData } from "./hooks/useMeasurementData";
 
 export type TimeFrame = '1h' | '24h' | '7d' | '30d';
 
@@ -24,58 +24,44 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
   unit,
   onClose
 }) => {
-  const [timeFrame, setTimeFrame] = useState<TimeFrame>('24h');
-  const [historyData, setHistoryData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [average, setAverage] = useState<number>(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { toast } = useToast();
+  
+  const { 
+    historyData,
+    isLoading,
+    isError,
+    timeFrame,
+    setTimeFrame,
+    averageValue,
+    dateTimeInfo
+  } = useMeasurementData({ deviceCode, symbol });
 
-  useEffect(() => {
-    const loadHistoryData = async () => {
-      if (!deviceCode || !symbol) return;
-      
-      setLoading(true);
-      try {
-        const data = await fetchMeasurementHistory(deviceCode, symbol, timeFrame);
-        setHistoryData(data);
-        
-        // Calculate average
-        const avg = calculateAverage(data, symbol);
-        setAverage(avg);
-        
-        setError(null);
-      } catch (err) {
-        console.error("Failed to load history data:", err);
-        setError("ไม่สามารถโหลดข้อมูลประวัติได้");
-        toast({
-          title: "เกิดข้อผิดพลาด",
-          description: "ไม่สามารถโหลดข้อมูลประวัติได้",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadHistoryData();
-  }, [deviceCode, symbol, timeFrame, toast]);
+  // Show error toast if there's an error
+  React.useEffect(() => {
+    if (isError) {
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถโหลดข้อมูลประวัติได้",
+        variant: "destructive",
+      });
+    }
+  }, [isError, toast]);
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
       <HistoryHeader 
         name={name}
         unit={unit}
-        average={average}
+        average={averageValue}
         onOpenSettings={() => setSettingsOpen(true)}
       />
       
       <HistoryChart 
         historyData={historyData} 
         dataKey={symbol}
-        isLoading={loading}
-        error={error}
+        isLoading={isLoading}
+        error={isError ? "ไม่สามารถโหลดข้อมูลประวัติได้" : null}
         unit={unit}
       />
       
@@ -96,3 +82,4 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
 };
 
 export default MeasurementHistory;
+
