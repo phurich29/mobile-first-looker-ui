@@ -34,11 +34,11 @@ export default function Equipment() {
       console.log('Fetching devices using direct query...');
       console.log('User roles:', userRoles);
       
-      // สำหรับ superadmin สามารถเห็นอุปกรณ์ทั้งหมด
+      // For superadmin, fetch all devices
       if (isSuperAdmin) {
         console.log('Fetching all devices for superadmin...');
         
-        // Simplified query to get unique device codes with their latest data
+        // Query to get all unique device codes from the beginning
         const { data, error } = await supabase
           .from('rice_quality_analysis')
           .select('device_code, created_at')
@@ -50,7 +50,7 @@ export default function Equipment() {
           throw error;
         }
 
-        // Process device data to get latest entry for each device
+        // Process device data to get unique devices
         const deviceMap = new Map<string, DeviceInfo>();
         data?.forEach(item => {
           if (item.device_code && !deviceMap.has(item.device_code)) {
@@ -64,11 +64,11 @@ export default function Equipment() {
         console.log("Fetched all devices for superadmin:", deviceMap.size);
         return Array.from(deviceMap.values());
       } 
-      // สำหรับ admin และ user ทั่วไป จะเห็นเฉพาะอุปกรณ์ที่ได้รับอนุญาต
+      // For admin and regular users, show only authorized devices
       else {
         console.log('Fetching authorized devices for user...');
         
-        // ดึงรายการอุปกรณ์ที่ user มีสิทธิ์เข้าถึง
+        // Get devices that user has access to
         const { data: userDevices, error: userDevicesError } = await supabase
           .from('user_device_access')
           .select('device_code')
@@ -84,11 +84,11 @@ export default function Equipment() {
           return [];
         }
 
-        // สร้างรายการ device_code ที่ user มีสิทธิ์เข้าถึง
+        // Get list of authorized device codes
         const authorizedDeviceCodes = userDevices.map(d => d.device_code);
         console.log("Authorized device codes:", authorizedDeviceCodes);
         
-        // ดึงข้อมูลล่าสุดของอุปกรณ์ที่ user มีสิทธิ์เข้าถึง
+        // Get data for authorized devices
         const { data: deviceData, error: deviceError } = await supabase
           .from('rice_quality_analysis')
           .select('device_code, created_at')
@@ -100,7 +100,7 @@ export default function Equipment() {
           throw deviceError;
         }
 
-        // Process device data to get latest entry for each authorized device
+        // Process to get unique devices
         const deviceMap = new Map<string, DeviceInfo>();
         deviceData?.forEach(item => {
           if (item.device_code && !deviceMap.has(item.device_code)) {
@@ -154,7 +154,7 @@ export default function Equipment() {
     }
   }, [user, isSuperAdmin]);
 
-  // Use React Query for improved data fetching
+  // Use React Query for data fetching
   const { 
     data: deviceData,
     isLoading, 
@@ -196,7 +196,9 @@ export default function Equipment() {
   // Handle refresh
   const handleRefresh = async () => {
     try {
+      console.log("Refreshing device data...");
       await refetch();
+      
       if (isSuperAdmin) {
         const count = await getUniqueDevicesCount();
         setTotalUniqueDevices(count);
