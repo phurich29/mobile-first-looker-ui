@@ -1,0 +1,56 @@
+
+import React from "react";
+import { MeasurementItem } from "@/components/MeasurementItem";
+
+interface MeasurementListProps {
+  items: any[];
+  isLoading: boolean;
+  deviceCode: string | undefined;
+  onMeasurementClick: (symbol: string, name: string) => void;
+}
+
+export const MeasurementList: React.FC<MeasurementListProps> = ({
+  items,
+  isLoading,
+  deviceCode,
+  onMeasurementClick
+}) => {
+  // Display loading or no data message
+  const renderNoData = (isLoading: boolean) => {
+    return (
+      <div className="p-6 text-center text-gray-500">
+        {isLoading ? "กำลังโหลดข้อมูลการวัด..." : `ไม่พบข้อมูลการวัดสำหรับอุปกรณ์ ${deviceCode}`}
+      </div>
+    );
+  };
+
+  if (isLoading) {
+    return renderNoData(true);
+  }
+
+  if (!items || items.length === 0) {
+    return renderNoData(false);
+  }
+
+  return (
+    <>
+      {items.map((item, index) => (
+        <div 
+          key={index}
+          onClick={() => onMeasurementClick(item.symbol, item.name)}
+          className="cursor-pointer hover:bg-gray-50 transition-colors"
+        >
+          <MeasurementItem
+            symbol={item.symbol}
+            name={item.name}
+            price={item.price}
+            percentageChange={item.percentageChange}
+            iconColor={item.iconColor}
+            updatedAt={item.updatedAt}
+            deviceCode={deviceCode}
+          />
+        </div>
+      ))}
+    </>
+  );
+};
