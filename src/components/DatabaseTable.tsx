@@ -21,7 +21,7 @@ export function DatabaseTable() {
   const [data, setData] = useState<RiceQualityAnalysisRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [rowLimit, setRowLimit] = useState<number>(100);
+  const [rowLimit, setRowLimit] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [goToPage, setGoToPage] = useState<string>("");
