@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { NotificationItem } from "./notification/NotificationItem";
 import { useAuth } from "@/components/AuthProvider";

@@ -7,7 +7,9 @@ interface NotificationAlertProps {
 }
 
 const NotificationAlert: React.FC<NotificationAlertProps> = ({ isAlertActive }) => {
-  if (!isAlertActive) return null;
+  if (!isAlertActive) {
+    return null;
+  }
   
   return (
     <div className="absolute top-1/2 right-1/4 transform -translate-y-1/2 z-20 bell-animation">
