@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Bell } from "lucide-react";
+import { Bell, CheckCircle2 } from "lucide-react";
 import { NotificationSettingsDialogProps } from "./types";
 import DeviceInfoCard from "./DeviceInfoCard";
 import NotificationToggle from "./NotificationToggle";
@@ -44,6 +44,18 @@ export function NotificationSettingsDialog({
   };
 
   const showWarning = settings.enabled && !settings.minEnabled && !settings.maxEnabled;
+  
+  // Summary of active notifications
+  const getActiveNotificationsText = () => {
+    if (!settings.enabled) return "การแจ้งเตือนปิดอยู่";
+    
+    const activeNotifications = [];
+    if (settings.minEnabled) activeNotifications.push(`ต่ำกว่า ${settings.minThreshold}`);
+    if (settings.maxEnabled) activeNotifications.push(`สูงกว่า ${settings.maxThreshold}`);
+    
+    if (activeNotifications.length === 0) return "เปิดใช้งานแล้วแต่ยังไม่ได้กำหนดเกณฑ์";
+    return `แจ้งเตือนเมื่อ: ${activeNotifications.join(' หรือ ')}`;
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -57,6 +69,17 @@ export function NotificationSettingsDialog({
 
         <div className="space-y-6 py-4">
           <DeviceInfoCard deviceCode={deviceCode} />
+
+          {/* Active notifications summary */}
+          <div className="bg-emerald-50 p-3 rounded-md">
+            <div className="flex items-start gap-2">
+              <CheckCircle2 className={`h-5 w-5 mt-0.5 ${settings.enabled ? 'text-emerald-600' : 'text-gray-400'}`} />
+              <div>
+                <p className="font-medium">สถานะการแจ้งเตือน</p>
+                <p className="text-sm text-gray-700">{getActiveNotificationsText()}</p>
+              </div>
+            </div>
+          </div>
 
           <NotificationToggle
             enabled={settings.enabled}

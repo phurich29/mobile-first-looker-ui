@@ -36,14 +36,7 @@ const MeasurementHistory = ({ symbol, name, deviceCode, onClose }: MeasurementHi
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <h2 className="text-lg font-medium text-center flex-1">ข้อมูลย้อนหลัง</h2>
-          <Button 
-            variant="outline" 
-            size="icon" 
-            className="h-8 w-8 text-emerald-600"
-            onClick={() => setOpenSettings(true)}
-          >
-            <Bell className="h-4 w-4" />
-          </Button>
+          <div className="w-8"></div> {/* Placeholder for balance */}
         </div>
         
         <HistoryHeader
@@ -53,10 +46,22 @@ const MeasurementHistory = ({ symbol, name, deviceCode, onClose }: MeasurementHi
           isLoading={isLoading}
         />
         
-        <TimeframeSelector
-          timeFrame={timeFrame}
-          setTimeFrame={setTimeFrame}
-        />
+        <div className="flex items-center justify-between mb-3">
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="text-emerald-600 border-emerald-200 hover:bg-emerald-50 flex items-center gap-1"
+            onClick={() => setOpenSettings(true)}
+          >
+            <Bell className="h-4 w-4" />
+            <span className="text-sm">ตั้งค่าแจ้งเตือน</span>
+          </Button>
+          
+          <TimeframeSelector
+            timeFrame={timeFrame}
+            setTimeFrame={setTimeFrame}
+          />
+        </div>
       </div>
 
       <div className="flex-1 px-4 py-4">
