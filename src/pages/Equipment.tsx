@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -39,7 +40,7 @@ export default function Equipment() {
       if (isSuperAdmin) {
         console.log('Fetching all devices for superadmin...');
         
-        // Query to get all unique device codes from the beginning
+        // Using the specific SQL query for devices
         const { data, error } = await supabase
           .from('rice_quality_analysis')
           .select('device_code, created_at')
@@ -121,6 +122,36 @@ export default function Equipment() {
     }
   }, [user, userRoles, isSuperAdmin]);
 
+  // Function to execute the raw SQL query during refresh
+  const fetchDevicesWithRawQuery = useCallback(async () => {
+    try {
+      console.log('Executing raw SQL query for devices...');
+      
+      // Execute the raw SQL query provided by the user
+      const { data, error } = await supabase
+        .rpc('execute_sql', {
+          query_text: 'SELECT rqa.device_code, MAX(rqa.created_at) as updated_at FROM rice_quality_analysis rqa GROUP BY rqa.device_code'
+        });
+        
+      if (error) {
+        console.error("Error executing raw SQL query:", error);
+        throw error;
+      }
+      
+      if (!data || data.length === 0) {
+        return [];
+      }
+      
+      console.log(`Raw query returned ${data.length} unique devices`);
+      return data;
+      
+    } catch (error) {
+      console.error("Error in fetchDevicesWithRawQuery:", error);
+      // Fallback to regular fetch if the raw query fails
+      return fetchDeviceData();
+    }
+  }, [fetchDeviceData]);
+
   // Count total unique devices (for superadmin only)
   const getUniqueDevicesCount = useCallback(async () => {
     try {
@@ -194,12 +225,33 @@ export default function Equipment() {
     }
   }, [user, isSuperAdmin, getUniqueDevicesCount]);
 
-  // Handle refresh - Fixed to properly handle state and show loading animation
+  // Handle refresh - Updated to use raw SQL query
   const handleRefresh = async () => {
     try {
-      console.log("Refreshing device data...");
+      console.log("Refreshing device data using raw SQL query...");
       setIsRefreshing(true);
-      await refetch();
+      
+      // Try to use the raw SQL query first
+      try {
+        // Check if the execute_sql function exists
+        const { data: devices } = await supabase
+          .rpc('execute_sql', {
+            query_text: 'SELECT rqa.device_code, MAX(rqa.created_at) as updated_at FROM rice_quality_analysis rqa GROUP BY rqa.device_code'
+          });
+          
+        if (devices && devices.length > 0) {
+          console.log(`Raw SQL query returned ${devices.length} devices`);
+          setDevices(devices);
+        } else {
+          // Fallback to regular refetch if raw query returns no results
+          console.log("Falling back to regular refetch...");
+          await refetch();
+        }
+      } catch (sqlError) {
+        console.error("Raw SQL query failed:", sqlError);
+        console.log("Falling back to regular refetch...");
+        await refetch();
+      }
       
       if (isSuperAdmin) {
         const count = await getUniqueDevicesCount();

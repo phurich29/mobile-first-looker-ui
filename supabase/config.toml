@@ -4,3 +4,5 @@ project_id = "tlnkyztazcsqybjigrpw"
 [functions.get_users_not_in_waiting_list]
 verify_jwt = true
 
+[functions.execute_sql]
+verify_jwt = true
