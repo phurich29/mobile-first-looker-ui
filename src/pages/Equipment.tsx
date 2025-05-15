@@ -10,6 +10,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { FooterNav } from "@/components/FooterNav";
 import { useAuth } from "@/components/AuthProvider";
 import { useQuery } from "@tanstack/react-query";
+import { DatabaseTable } from "@/components/DatabaseTable";
 
 interface DeviceInfo {
   device_code: string;
@@ -222,6 +223,7 @@ export default function Equipment() {
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
       <Header />
       <main className="flex-1 p-4 pb-32 md:pb-16 md:mx-auto md:max-w-5xl md:px-8 w-full">
+        {/* Devices Section */}
         <div className="flex justify-between items-center mb-4">
           <div>
             <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>อุปกรณ์</h1>
@@ -268,6 +270,9 @@ export default function Equipment() {
             ))}
           </div>
         )}
+        
+        {/* Database Table Section - Only visible to admins and superadmins */}
+        {isAdmin && <DatabaseTable />}
       </main>
 
       <FooterNav />
