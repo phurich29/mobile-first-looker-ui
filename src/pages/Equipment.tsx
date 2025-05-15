@@ -28,7 +28,7 @@ export default function Equipment() {
   const isAdmin = userRoles.includes('admin') || userRoles.includes('superadmin');
   const isSuperAdmin = userRoles.includes('superadmin');
 
-  // Function to fetch ALL device data using direct query with GROUP BY 
+  // Function to fetch ALL device data using direct SQL query
   const fetchAllDevices = useCallback(async () => {
     try {
       if (!user) return [];
@@ -36,37 +36,33 @@ export default function Equipment() {
       console.log('Fetching devices for superadmin...');
       
       if (isSuperAdmin) {
-        // For superadmin, use SQL to get ALL unique devices
-        const { data, error } = await supabase
-          .from('rice_quality_analysis')
-          .select('device_code, created_at')
-          .not('device_code', 'is', null)
-          .order('created_at', { ascending: false });
+        // For superadmin, use SQL to get ALL unique devices with GROUP BY
+        const { data: uniqueDevicesData, error: uniqueDevicesError } = await supabase
+          .rpc('execute_raw_query', { 
+            sql_query: 'SELECT rqa.device_code FROM rice_quality_analysis rqa GROUP BY rqa.device_code' 
+          });
           
-        if (error) {
-          console.error("Error fetching all devices:", error);
-          throw error;
+        if (uniqueDevicesError) {
+          console.error("Error fetching all unique devices:", uniqueDevicesError);
+          throw uniqueDevicesError;
         }
-        
-        // Process to get unique devices with latest timestamp
-        if (!data || data.length === 0) {
+
+        // Check if data exists and has rows
+        if (!uniqueDevicesData || !Array.isArray(uniqueDevicesData) || uniqueDevicesData.length === 0) {
           console.log("No devices found");
           return [];
         }
         
-        // Use Set to get unique device codes
-        const uniqueDeviceCodes = new Set<string>();
-        data.forEach(item => {
-          if (item.device_code) {
-            uniqueDeviceCodes.add(item.device_code);
-          }
-        });
-        
-        const deviceCodeArray = Array.from(uniqueDeviceCodes);
-        console.log(`Found ${deviceCodeArray.length} unique device codes`);
+        console.log(`Found ${uniqueDevicesData.length} unique device codes`);
         
         // For each unique device code, get the latest entry
-        const devicePromises = deviceCodeArray.map(async (deviceCode) => {
+        const devicePromises = uniqueDevicesData.map(async (deviceData: any) => {
+          const deviceCode = deviceData.device_code;
+          
+          if (!deviceCode) {
+            return null;
+          }
+          
           const { data: latestEntry, error: latestError } = await supabase
             .from('rice_quality_analysis')
             .select('device_code, created_at')
@@ -88,7 +84,8 @@ export default function Equipment() {
           };
         });
         
-        const deviceResults = await Promise.all(devicePromises);
+        // Filter out any null entries from the promises
+        const deviceResults = (await Promise.all(devicePromises)).filter(device => device !== null) as DeviceInfo[];
         console.log(`Processed ${deviceResults.length} devices with timestamps:`, deviceResults);
         
         return deviceResults;
@@ -156,18 +153,18 @@ export default function Equipment() {
       
       console.log('Counting unique devices...');
       
-      // Get a count of unique devices
+      // Use the same query to count unique devices
       const { data, error } = await supabase
-        .from('rice_quality_analysis')
-        .select('device_code', { count: 'exact', head: true })
-        .not('device_code', 'is', null);
-        
+        .rpc('execute_raw_query', { 
+          sql_query: 'SELECT COUNT(DISTINCT device_code) as count FROM rice_quality_analysis WHERE device_code IS NOT NULL' 
+        });
+      
       if (error) {
         console.error("Error counting unique devices:", error);
         return 0;
       }
       
-      const count = data ? data.length : 0;
+      const count = data && Array.isArray(data) && data.length > 0 ? parseInt(data[0].count) : 0;
       console.log(`Found ${count} unique devices`);
       return count;
     } catch (error) {
