@@ -79,9 +79,9 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
     return () => clearInterval(intervalId);
   }, [deviceCode, symbol, threshold, type, enabled]);
 
-  // Handle navigation to measurement history
+  // Change the navigation destination to /notifications
   const handleClick = () => {
-    navigate(`/measurement-history/${deviceCode}/${symbol}?name=${encodeURIComponent(name)}`);
+    navigate('/notifications');
   };
 
   return (
