@@ -4,20 +4,20 @@ import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useQuery } from "@tanstack/react-query";
 
 export const WatchlistSection = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
-  const [notificationSettings, setNotificationSettings] = useState([]);
-  const [settingsLoading, setSettingsLoading] = useState(true);
-
-  // Fetch notification settings from the database
-  useEffect(() => {
-    const fetchSettings = async () => {
+  
+  // Use React Query for data fetching
+  const { 
+    data: notificationSettings = [], 
+    isLoading: settingsLoading 
+  } = useQuery({
+    queryKey: ['notification_settings_enabled'],
+    queryFn: async () => {
       try {
-        setSettingsLoading(true);
-        
-        // Fetch notification settings with device names
         const { data: settings, error } = await supabase
           .from('notification_settings')
           .select('*, device_settings(display_name)')
@@ -28,7 +28,7 @@ export const WatchlistSection = () => {
         }
         
         console.log("Fetched notification settings:", settings);
-        setNotificationSettings(settings || []);
+        return settings || [];
       } catch (error) {
         console.error("Error fetching notification settings:", error);
         toast({
@@ -36,12 +36,12 @@ export const WatchlistSection = () => {
           description: "ไม่สามารถโหลดการตั้งค่าแจ้งเตือนได้",
           variant: "destructive"
         });
-      } finally {
-        setSettingsLoading(false);
+        return [];
       }
-    };
-    fetchSettings();
-  }, [toast]);
+    },
+    staleTime: 60000, // Consider data fresh for 1 minute
+    refetchInterval: 120000, // Refetch every 2 minutes
+  });
 
   return (
     <div className="mt-8">

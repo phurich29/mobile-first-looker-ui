@@ -1,3 +1,4 @@
+
 import React from "react";
 import { NotificationItem } from "./notification/NotificationItem";
 import { useAuth } from "@/components/AuthProvider";
@@ -5,6 +6,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useNotifications } from "@/hooks/useNotifications";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const NotificationList = () => {
   const { user } = useAuth();
@@ -12,37 +14,37 @@ export const NotificationList = () => {
   const { 
     notifications, 
     loading, 
+    isFetching,
     lastRefreshTime,
-    fetchNotifications,
     checkNotifications 
   } = useNotifications();
 
-  // Initialize data on component mount
-  React.useEffect(() => {
-    fetchNotifications();
-    
-    // Auto-refresh every 45 seconds instead of 30
-    // This reduces unnecessary API calls while keeping data relatively fresh
-    const intervalId = setInterval(fetchNotifications, 45000);
-    return () => clearInterval(intervalId);
-  }, []);
-  
   const formatRefreshTime = () => {
     const hours = lastRefreshTime.getHours().toString().padStart(2, '0');
     const minutes = lastRefreshTime.getMinutes().toString().padStart(2, '0');
-    return `${hours}:${minutes}`;
+    const seconds = lastRefreshTime.getSeconds().toString().padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
   };
   
-  if (loading && notifications.length === 0) {
-    return (
-      <div className="text-center py-4 flex flex-col items-center">
-        <div className="animate-spin mb-2">
-          <RefreshCw size={20} className="text-gray-400" />
+  // Render skeleton loaders when loading
+  const renderSkeletons = () => (
+    <div className="space-y-2">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="flex items-center justify-between py-3 px-3 border-b border-gray-100 bg-gray-50">
+          <div className="flex items-start space-x-3 w-[60%]">
+            <Skeleton className="h-10 w-10 rounded-full" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-3 w-16" />
+            </div>
+          </div>
+          <div className="w-[38%] flex justify-end">
+            <Skeleton className="h-8 w-16" />
+          </div>
         </div>
-        <span className="text-gray-500">กำลังโหลดข้อมูล...</span>
-      </div>
-    );
-  }
+      ))}
+    </div>
+  );
   
   return (
     <>
@@ -51,8 +53,13 @@ export const NotificationList = () => {
           <h2 className="font-semibold text-gray-700">
             {user ? "การแจ้งเตือนที่กำหนดไว้" : "ตัวอย่างการแจ้งเตือน"}
           </h2>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 flex items-center">
             อัพเดทล่าสุด: {formatRefreshTime()}
+            {isFetching && !loading && (
+              <span className="ml-2 inline-block animate-spin">
+                <RefreshCw size={10} className="text-gray-400" />
+              </span>
+            )}
           </p>
         </div>
         <div className="flex items-center space-x-2">
@@ -61,8 +68,9 @@ export const NotificationList = () => {
             variant="ghost"
             size="sm"
             className="text-xs text-blue-600 font-medium hover:bg-blue-50 flex items-center"
+            disabled={isFetching}
           >
-            <RefreshCw size={12} className="mr-1" />
+            <RefreshCw size={12} className={`mr-1 ${isFetching ? 'animate-spin' : ''}`} />
             ตรวจสอบแจ้งเตือน
           </Button>
           <a href="/notifications" className="text-xs text-green-600 font-medium">ตั้งค่าแจ้งเตือน</a>
@@ -70,7 +78,9 @@ export const NotificationList = () => {
       </div>
 
       <div className={`bg-white ${!isMobile && 'rounded-xl shadow-sm'}`}>
-        {notifications.length === 0 ? (
+        {loading ? (
+          renderSkeletons()
+        ) : notifications.length === 0 ? (
           <div className="text-center py-6 text-gray-500">
             ยังไม่มีการแจ้งเตือนที่กำหนดไว้
           </div>
