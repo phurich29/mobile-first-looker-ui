@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { EquipmentCard } from "@/components/EquipmentCard";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, supabaseAdmin } from "@/integrations/supabase/client";
 import { RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -127,23 +127,32 @@ export default function Equipment() {
     try {
       console.log('Executing raw SQL query for devices...');
       
-      // Execute the raw SQL query provided by the user
-      const { data, error } = await supabase
-        .rpc('execute_sql', {
-          query_text: 'SELECT rqa.device_code, MAX(rqa.created_at) as updated_at FROM rice_quality_analysis rqa GROUP BY rqa.device_code'
-        });
+      // Execute the query directly using REST call to avoid TypeScript errors with RPC
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/rpc/execute_raw_query`, {
+        method: 'POST',
+        headers: {
+          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation'
+        },
+        body: JSON.stringify({
+          sql_query: 'SELECT rqa.device_code, MAX(rqa.created_at) as updated_at FROM rice_quality_analysis rqa GROUP BY rqa.device_code'
+        })
+      });
         
-      if (error) {
-        console.error("Error executing raw SQL query:", error);
-        throw error;
+      if (!response.ok) {
+        throw new Error(`Error executing raw SQL query: ${response.statusText}`);
       }
       
-      if (!data || data.length === 0) {
+      const data = await response.json();
+      
+      if (!data || !Array.isArray(data)) {
+        console.log("Raw query returned no results or invalid format");
         return [];
       }
       
       console.log(`Raw query returned ${data.length} unique devices`);
-      return data;
+      return data as DeviceInfo[];
       
     } catch (error) {
       console.error("Error in fetchDevicesWithRawQuery:", error);
@@ -225,30 +234,20 @@ export default function Equipment() {
     }
   }, [user, isSuperAdmin, getUniqueDevicesCount]);
 
-  // Handle refresh - Updated to use raw SQL query
+  // Handle refresh - Using direct fetch API for the raw SQL query
   const handleRefresh = async () => {
     try {
       console.log("Refreshing device data using raw SQL query...");
       setIsRefreshing(true);
       
-      // Try to use the raw SQL query first
-      try {
-        // Check if the execute_sql function exists
-        const { data: devices } = await supabase
-          .rpc('execute_sql', {
-            query_text: 'SELECT rqa.device_code, MAX(rqa.created_at) as updated_at FROM rice_quality_analysis rqa GROUP BY rqa.device_code'
-          });
-          
-        if (devices && devices.length > 0) {
-          console.log(`Raw SQL query returned ${devices.length} devices`);
-          setDevices(devices);
-        } else {
-          // Fallback to regular refetch if raw query returns no results
-          console.log("Falling back to regular refetch...");
-          await refetch();
-        }
-      } catch (sqlError) {
-        console.error("Raw SQL query failed:", sqlError);
+      // Use the fetchDevicesWithRawQuery function that handles proper typing
+      const deviceResults = await fetchDevicesWithRawQuery();
+      
+      if (Array.isArray(deviceResults) && deviceResults.length > 0) {
+        console.log(`Raw SQL query returned ${deviceResults.length} devices`);
+        setDevices(deviceResults);
+      } else {
+        // Fallback to regular refetch if raw query returns no results
         console.log("Falling back to regular refetch...");
         await refetch();
       }
