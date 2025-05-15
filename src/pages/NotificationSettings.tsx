@@ -1,3 +1,4 @@
+
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -144,7 +145,7 @@ const NotificationSettings = () => {
               </div>
               <Link 
                 to={`/device/${setting.device_code}`}
-                className="text-xs px-2 py-1 bg-emerald-50 text-emerald-600 rounded-md hover:bg-emerald-100 transition-colors"
+                className="text-xs px-2 py-1 bg-gray-200 text-black rounded-md hover:bg-gray-300 transition-colors"
               >
                 ดูรายละเอียด
               </Link>
