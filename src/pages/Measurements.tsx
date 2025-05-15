@@ -1,3 +1,4 @@
+
 import { Header } from "@/components/Header";
 import { MeasurementItem } from "@/components/MeasurementItem";
 import { FooterNav } from "@/components/FooterNav";
@@ -77,8 +78,10 @@ export default function Measurements() {
     queryKey: ['devices'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('devices')
+        .from('rice_quality_analysis')
         .select('device_code')
+        .not('device_code', 'is', null)
+        .not('device_code', 'eq', '')
         .order('device_code', { ascending: true });
 
       if (error) {
@@ -86,7 +89,9 @@ export default function Measurements() {
         return [];
       }
       
-      return data || [];
+      // Get unique device codes
+      const uniqueDevices = data ? [...new Set(data.map(item => item.device_code))] : [];
+      return uniqueDevices.map(device_code => ({ device_code }));
     },
   });
 
@@ -688,14 +693,14 @@ export default function Measurements() {
           
           <div className="min-w-[180px]">
             <Select 
-              value={selectedDevice || ''} 
+              value={selectedDevice || undefined} 
               onValueChange={(value) => setSelectedDevice(value || null)}
             >
               <SelectTrigger className="h-10 bg-white border-gray-200">
                 <SelectValue placeholder="เลือกอุปกรณ์" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">ทุกอุปกรณ์</SelectItem>
+                <SelectItem value="all">ทุกอุปกรณ์</SelectItem>
                 {devices?.map((device) => (
                   <SelectItem key={device.device_code} value={device.device_code}>
                     {device.device_code}
