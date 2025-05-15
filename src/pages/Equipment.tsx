@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -20,6 +19,7 @@ interface DeviceInfo {
 export default function Equipment() {
   const [devices, setDevices] = useState<DeviceInfo[]>([]);
   const [totalUniqueDevices, setTotalUniqueDevices] = useState<number>(0);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const { user, userRoles } = useAuth();
@@ -194,10 +194,11 @@ export default function Equipment() {
     }
   }, [user, isSuperAdmin, getUniqueDevicesCount]);
 
-  // Handle refresh
+  // Handle refresh - Fixed to properly handle state and show loading animation
   const handleRefresh = async () => {
     try {
       console.log("Refreshing device data...");
+      setIsRefreshing(true);
       await refetch();
       
       if (isSuperAdmin) {
@@ -216,6 +217,8 @@ export default function Equipment() {
         description: "ไม่สามารถอัพเดทข้อมูลได้",
         variant: "destructive",
       });
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -239,9 +242,9 @@ export default function Equipment() {
             size="sm"
             className="flex items-center gap-1 border-emerald-200 bg-white hover:bg-emerald-50"
             onClick={handleRefresh} 
-            disabled={isLoading}
+            disabled={isLoading || isRefreshing}
           >
-            <RefreshCw className={`h-3 w-3 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
             <span className="text-xs">รีเฟรช</span>
           </Button>
         </div>
