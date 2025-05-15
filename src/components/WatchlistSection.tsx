@@ -18,17 +18,39 @@ export const WatchlistSection = () => {
     queryKey: ['notification_settings_enabled'],
     queryFn: async () => {
       try {
+        // First fetch notification settings
         const { data: settings, error } = await supabase
           .from('notification_settings')
-          .select('*, device_settings(display_name)')
+          .select('*')
           .eq('enabled', true);
           
         if (error) {
           throw error;
         }
         
-        console.log("Fetched notification settings:", settings);
-        return settings || [];
+        // Then fetch device settings separately and create a device code -> name map
+        const { data: deviceSettings, error: deviceError } = await supabase
+          .from('device_settings')
+          .select('device_code, display_name');
+          
+        if (deviceError) {
+          console.error("Error fetching device settings:", deviceError);
+        }
+        
+        // Create a mapping of device codes to display names
+        const deviceMap = (deviceSettings || []).reduce((acc, device) => {
+          acc[device.device_code] = device.display_name || device.device_code;
+          return acc;
+        }, {});
+        
+        // Enrich notification settings with device display names
+        const enrichedSettings = (settings || []).map(setting => ({
+          ...setting,
+          deviceDisplayName: deviceMap[setting.device_code] || setting.device_code
+        }));
+        
+        console.log("Fetched notification settings:", enrichedSettings);
+        return enrichedSettings || [];
       } catch (error) {
         console.error("Error fetching notification settings:", error);
         toast({
@@ -66,7 +88,7 @@ export const WatchlistSection = () => {
               <div className="flex justify-between items-start mb-3">
                 <div>
                   <h3 className="font-medium text-emerald-800">
-                    {setting.device_settings?.display_name || setting.device_code}
+                    {setting.deviceDisplayName || setting.device_code}
                   </h3>
                   <p className="text-sm text-gray-500">{setting.rice_type_name}</p>
                 </div>
