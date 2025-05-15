@@ -30,6 +30,7 @@ export const NotificationSettingCard = ({
           variant="outline" 
           size="sm"
           onClick={handleEdit}
+          className="text-emerald-600 hover:text-emerald-700"
         >
           แก้ไข
         </Button>
