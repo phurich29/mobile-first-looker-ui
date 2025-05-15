@@ -146,16 +146,16 @@ const NotificationSettings = () => {
             </div>
             
             <div className="text-sm space-y-1">
-              {setting.min_enabled && (
-                <p className="flex justify-between">
-                  <span className="text-gray-600">ขีดจำกัดต่ำสุด:</span>
-                  <span className="font-medium text-amber-600">{setting.min_threshold}</span>
-                </p>
-              )}
               {setting.max_enabled && (
                 <p className="flex justify-between">
                   <span className="text-gray-600">ขีดจำกัดสูงสุด:</span>
                   <span className="font-medium text-red-600">{setting.max_threshold}</span>
+                </p>
+              )}
+              {setting.min_enabled && (
+                <p className="flex justify-between">
+                  <span className="text-gray-600">ขีดจำกัดต่ำสุด:</span>
+                  <span className="font-medium text-amber-600">{setting.min_threshold}</span>
                 </p>
               )}
             </div>
