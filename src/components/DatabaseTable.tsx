@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ResponsiveTable } from "@/components/ui/responsive-table";
@@ -210,9 +209,18 @@ export function DatabaseTable() {
     });
   };
 
-  const formatDate = (dateString: string | null) => {
+  // ปรับปรุงฟังก์ชัน formatDate เพื่อให้แสดง thai_datetime ตรงตามค่าในฐานข้อมูล
+  const formatDate = (dateString: string | null, columnKey?: string) => {
     if (!dateString) return "-";
+    
     try {
+      // ถ้าเป็นคอลัมน์ thai_datetime ให้แสดงค่าตามที่มีในฐานข้อมูลโดยตรง
+      if (columnKey === 'thai_datetime') {
+        // แสดงค่า thai_datetime ตามที่อยู่ในฐานข้อมูลโดยไม่ต้องแปลง timezone
+        return dateString;
+      }
+      
+      // สำหรับคอลัมน์อื่นๆ ยังคงใช้การแปลงวันที่แบบเดิม
       return new Date(dateString).toLocaleString('th-TH', {
         year: 'numeric',
         month: 'short',
@@ -337,7 +345,7 @@ export function DatabaseTable() {
                     {columnKeys.map((key) => (
                       <TableCell key={`${row.id}-${key}`} className="whitespace-nowrap">
                         {key.includes('date') || key.includes('_at') 
-                          ? formatDate(row[key]) 
+                          ? formatDate(row[key], key) 
                           : row[key]?.toString() || "-"}
                       </TableCell>
                     ))}
