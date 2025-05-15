@@ -13,7 +13,8 @@ import Waiting from "./pages/Waiting";
 import Profile from "./pages/Profile";
 import NewsManagement from "./pages/NewsManagement";
 import News from "./pages/News"; 
-import NotificationSettings from "./pages/NotificationSettings"; // Added import
+import NotificationSettings from "./pages/NotificationSettings";
+import NotificationHistory from "./pages/NotificationHistory"; // Added import
 import { AuthProvider, useAuth } from "./components/AuthProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useEffect } from "react";
@@ -111,6 +112,13 @@ function App() {
             <Route path="/notifications" element={
               <ProtectedRoute>
                 <NotificationSettings />
+              </ProtectedRoute>
+            } />
+
+            {/* เส้นทางสำหรับหน้า NotificationHistory */}
+            <Route path="/notification-history" element={
+              <ProtectedRoute>
+                <NotificationHistory />
               </ProtectedRoute>
             } />
             

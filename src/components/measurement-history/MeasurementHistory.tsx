@@ -1,129 +1,91 @@
 
-import { useState, useEffect } from "react";
-import { ArrowLeft, Bell } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import HistoryChart from "./HistoryChart";
-import HistoryHeader from "./HistoryHeader";
-import TimeframeSelector from "./TimeframeSelector";
-import HistoryFooter from "./HistoryFooter";
+import React, { useState, useEffect } from "react";
+import { HistoryHeader } from "./HistoryHeader";
+import { HistoryChart } from "./HistoryChart";
+import { HistoryFooter } from "./HistoryFooter";
+import { TimeFrame } from "./MeasurementHistory";
+import { fetchMeasurementHistory, calculateAverage } from "./api";
 import { NotificationSettingsDialog } from "./notification-settings";
-import { useMeasurementData } from "./hooks/useMeasurementData";
-import { getNotificationSettings } from "./api";
+import { useToast } from "@/hooks/use-toast";
 
 export type TimeFrame = '1h' | '24h' | '7d' | '30d';
 
 interface MeasurementHistoryProps {
+  deviceCode: string;
   symbol: string;
   name: string;
-  deviceCode: string;
-  onClose: () => void;
+  unit?: string;
 }
 
-const MeasurementHistory = ({ symbol, name, deviceCode, onClose }: MeasurementHistoryProps) => {
-  const [openSettings, setOpenSettings] = useState(false);
-  const [notificationEnabled, setNotificationEnabled] = useState<boolean | null>(null);
-  
-  const {
-    historyData,
-    isLoading,
-    timeFrame,
-    setTimeFrame
-  } = useMeasurementData({ deviceCode, symbol });
+const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({ 
+  deviceCode, 
+  symbol, 
+  name,
+  unit 
+}) => {
+  const [timeFrame, setTimeFrame] = useState<TimeFrame>('24h');
+  const [historyData, setHistoryData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [average, setAverage] = useState<number>(0);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const { toast } = useToast();
 
-  // Check notification status when component loads
   useEffect(() => {
-    const checkNotificationStatus = async () => {
+    const loadHistoryData = async () => {
+      if (!deviceCode || !symbol) return;
+      
+      setLoading(true);
       try {
-        const settings = await getNotificationSettings(deviceCode, symbol);
-        if (settings) {
-          // Notification is enabled if main toggle is on AND at least one threshold is active
-          const isEnabled = settings.enabled && 
-            ((settings.min_enabled && settings.min_threshold !== null) || 
-             (settings.max_enabled && settings.max_threshold !== null));
-          setNotificationEnabled(isEnabled);
-        } else {
-          setNotificationEnabled(false);
-        }
-      } catch (error) {
-        console.error("Failed to check notification status:", error);
-        setNotificationEnabled(null);
+        const data = await fetchMeasurementHistory(deviceCode, symbol, timeFrame);
+        setHistoryData(data);
+        
+        // Calculate average
+        const avg = calculateAverage(data, symbol);
+        setAverage(avg);
+        
+        setError(null);
+      } catch (err) {
+        console.error("Failed to load history data:", err);
+        setError("ไม่สามารถโหลดข้อมูลประวัติได้");
+        toast({
+          title: "เกิดข้อผิดพลาด",
+          description: "ไม่สามารถโหลดข้อมูลประวัติได้",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
       }
     };
-    
-    checkNotificationStatus();
-  }, [deviceCode, symbol, openSettings]);
+
+    loadHistoryData();
+  }, [deviceCode, symbol, timeFrame, toast]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50">
-      <div className="pt-4 px-4 pb-2 bg-white shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <Button variant="outline" size="icon" className="h-8 w-8" onClick={onClose}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <h2 className="text-lg font-medium text-center flex-1">ข้อมูลย้อนหลัง</h2>
-          <div className="w-8"></div> {/* Placeholder for balance */}
-        </div>
-        
-        <HistoryHeader
-          symbol={symbol}
-          name={name}
-          historyData={historyData}
-          isLoading={isLoading}
-        />
-        
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex flex-col">
-            <div className="text-xs text-gray-500 mb-1">แจ้งเตือน</div>
-            <div className="flex items-center gap-1">
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="text-emerald-600 border-emerald-200 hover:bg-emerald-50 flex items-center gap-1 h-8 text-xs"
-                onClick={() => setOpenSettings(true)}
-              >
-                <Bell className="h-4 w-4" />
-                <span>ตั้งค่าแจ้งเตือน</span>
-              </Button>
-              
-              {notificationEnabled !== null && (
-                <Badge 
-                  className={`text-xs ${notificationEnabled 
-                    ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' 
-                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
-                >
-                  {notificationEnabled ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
-                </Badge>
-              )}
-            </div>
-          </div>
-          
-          <TimeframeSelector
-            timeFrame={timeFrame}
-            setTimeFrame={setTimeFrame}
-          />
-        </div>
-      </div>
-
-      <div className="flex-1 px-4 py-4">
-        <HistoryChart 
-          historyData={historyData} 
-          symbol={symbol}
-          isLoading={isLoading}
-          timeFrame={timeFrame}
-        />
-      </div>
-
-      <HistoryFooter 
-        historyData={historyData}
-        timeFrame={timeFrame}
-        isLoading={isLoading}
+    <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+      <HistoryHeader 
         name={name}
+        unit={unit}
+        average={average}
+        onOpenSettings={() => setSettingsOpen(true)}
       />
       
-      <NotificationSettingsDialog 
-        open={openSettings} 
-        onOpenChange={setOpenSettings}
+      <HistoryChart 
+        data={historyData} 
+        dataKey={symbol}
+        isLoading={loading}
+        error={error}
+        unit={unit}
+      />
+      
+      <HistoryFooter 
+        timeFrame={timeFrame}
+        onTimeFrameChange={setTimeFrame} 
+      />
+
+      <NotificationSettingsDialog
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
         deviceCode={deviceCode}
         symbol={symbol}
         name={name}
