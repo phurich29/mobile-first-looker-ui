@@ -1,15 +1,14 @@
 
-import React, { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { NotificationSettingsList } from "./components/NotificationSettingsList";
-import { PageHeader } from "./components/PageHeader";
 import { useNotificationSettings } from "./hooks/useNotificationSettings";
+import { PageHeader } from "./components/PageHeader";
 
-const NotificationSettings: React.FC = () => {
+const NotificationSettings = () => {
   const isMobile = useIsMobile();
-  const { settings, loading, error, fetchSettings } = useNotificationSettings();
+  const { settings, loading, error } = useNotificationSettings();
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50">
@@ -21,9 +20,9 @@ const NotificationSettings: React.FC = () => {
           
           <div className="mt-6">
             <NotificationSettingsList 
-              settings={settings} 
-              loading={loading} 
-              error={error} 
+              settings={settings}
+              loading={loading}
+              error={error}
             />
           </div>
         </div>

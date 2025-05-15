@@ -17,7 +17,7 @@ export const WatchlistSection = () => {
       try {
         setSettingsLoading(true);
         
-        // Fetch only enabled notification settings
+        // Fetch notification settings with device names
         const { data: settings, error } = await supabase
           .from('notification_settings')
           .select('*, device_settings(display_name)')
