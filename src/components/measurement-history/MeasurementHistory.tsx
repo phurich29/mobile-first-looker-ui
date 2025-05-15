@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, BellDot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/Header";
@@ -9,6 +9,7 @@ import HistoryHeader from "./HistoryHeader";
 import TimeframeSelector from "./TimeframeSelector";
 import HistoryChart from "./HistoryChart";
 import HistoryFooter from "./HistoryFooter";
+import NotificationSettingsDialog from "./NotificationSettingsDialog";
 
 export type TimeFrame = '1h' | '24h' | '7d' | '30d';
 
@@ -27,6 +28,9 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
 }) => {
   // State for timeframe selection
   const [timeFrame, setTimeFrame] = useState<TimeFrame>('1h');
+  
+  // State for notification settings dialog
+  const [notificationDialogOpen, setNotificationDialogOpen] = useState(false);
   
   // Use React Query to fetch data
   const { data: historyData, isLoading } = useQuery({
@@ -55,6 +59,17 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
           <h1 className="text-base font-bold text-gray-800">Data History</h1>
           <p className="text-xs text-red-500">{deviceCode}</p>
         </div>
+        
+        {/* Notification settings button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setNotificationDialogOpen(true)}
+          className="ml-2 text-gray-600 hover:bg-gray-100"
+        >
+          <BellDot className="h-4 w-4 mr-1" />
+          <span className="text-xs">ตั้งค่าแจ้งเตือน</span>
+        </Button>
       </div>
       
       {/* Main content */}
@@ -96,6 +111,15 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
           name={name}
         />
       </div>
+      
+      {/* Notification Settings Dialog */}
+      <NotificationSettingsDialog
+        open={notificationDialogOpen}
+        onOpenChange={setNotificationDialogOpen}
+        deviceCode={deviceCode}
+        symbol={symbol}
+        name={name}
+      />
     </div>
   );
 };

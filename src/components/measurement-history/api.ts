@@ -88,3 +88,92 @@ export const calculateAverage = (historyData: any[], symbol: string): number => 
   const sum = values.reduce((acc: number, val: number) => acc + val, 0);
   return sum / values.length;
 };
+
+// Notification Settings Interface
+export interface NotificationSettings {
+  id?: string;
+  device_code: string;
+  rice_type_id: string;
+  rice_type_name: string;
+  enabled: boolean;
+  min_enabled: boolean;
+  max_enabled: boolean;
+  min_threshold: number;
+  max_threshold: number;
+}
+
+// Fetch notification settings for a device and measurement
+export const getNotificationSettings = async (deviceCode: string, symbol: string): Promise<NotificationSettings | null> => {
+  try {
+    const { data: settings, error } = await supabase
+      .from('notification_settings')
+      .select('*')
+      .eq('device_code', deviceCode)
+      .eq('rice_type_id', symbol)
+      .maybeSingle();
+    
+    if (error) {
+      console.error('Error fetching notification settings:', error);
+      return null;
+    }
+    
+    return settings;
+  } catch (err) {
+    console.error('Exception in getNotificationSettings:', err);
+    return null;
+  }
+};
+
+// Save notification settings
+export const saveNotificationSettings = async (settings: {
+  deviceCode: string;
+  symbol: string;
+  name: string;
+  enabled: boolean;
+  minEnabled: boolean;
+  maxEnabled: boolean;
+  minThreshold: number;
+  maxThreshold: number;
+}): Promise<void> => {
+  const { deviceCode, symbol, name, enabled, minEnabled, maxEnabled, minThreshold, maxThreshold } = settings;
+  
+  // First check if settings already exist
+  const existingSettings = await getNotificationSettings(deviceCode, symbol);
+  
+  try {
+    if (existingSettings?.id) {
+      // Update existing settings
+      const { error } = await supabase
+        .from('notification_settings')
+        .update({
+          enabled,
+          min_enabled: minEnabled,
+          max_enabled: maxEnabled,
+          min_threshold: minThreshold,
+          max_threshold: maxThreshold,
+        })
+        .eq('id', existingSettings.id);
+      
+      if (error) throw error;
+    } else {
+      // Create new settings
+      const { error } = await supabase
+        .from('notification_settings')
+        .insert({
+          device_code: deviceCode,
+          rice_type_id: symbol,
+          rice_type_name: name,
+          enabled,
+          min_enabled: minEnabled,
+          max_enabled: maxEnabled,
+          min_threshold: minThreshold,
+          max_threshold: maxThreshold,
+        });
+      
+      if (error) throw error;
+    }
+  } catch (error) {
+    console.error('Error saving notification settings:', error);
+    throw new Error('Failed to save notification settings');
+  }
+};
