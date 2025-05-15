@@ -9,9 +9,9 @@ import {
 export const useNotificationSettings = (deviceCode: string, symbol: string, name: string) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [enabled, setEnabled] = useState(true);
-  const [minEnabled, setMinEnabled] = useState(true);
-  const [maxEnabled, setMaxEnabled] = useState(true);
+  const [enabled, setEnabled] = useState(false); // Changed default from true to false
+  const [minEnabled, setMinEnabled] = useState(false); // Changed default from true to false
+  const [maxEnabled, setMaxEnabled] = useState(false); // Changed default from true to false
   const [minThreshold, setMinThreshold] = useState(0);
   const [maxThreshold, setMaxThreshold] = useState(100);
 
