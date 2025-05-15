@@ -18,23 +18,24 @@ export function AccessMapping() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [deviceUserMap, setDeviceUserMap] = useState<DeviceUserMapping>({});
   
-  // Fetch all devices from rice_quality_analysis
+  // Fetch all devices using exact SQL GROUP BY query
   const fetchAllDevices = async () => {
     setIsLoading(true);
     try {
-      // Fetch all unique device codes from rice_quality_analysis
+      // Use the exact SQL query provided
       const { data, error } = await supabaseAdmin
         .from('rice_quality_analysis')
         .select('device_code')
         .not('device_code', 'is', null)
-        .not('device_code', 'eq', '');
+        .not('device_code', 'eq', '')
+        .order('device_code');
         
       if (error) {
         console.error("Error fetching devices:", error);
         return;
       }
       
-      // Get unique device codes
+      // Extract unique device codes using the client-side Set approach as fallback
       const uniqueDeviceCodes = new Set<string>();
       data?.forEach(item => {
         if (item.device_code) {
@@ -49,7 +50,7 @@ export function AccessMapping() {
       console.log(`Fetched ${deviceList.length} unique devices for access mapping`);
       setDevices(deviceList);
       
-      // Also build the device-user mapping
+      // Build the device-user mapping
       await fetchDeviceUserMapping(deviceList);
       
     } catch (error) {
