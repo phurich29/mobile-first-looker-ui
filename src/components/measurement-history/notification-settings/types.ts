@@ -17,3 +17,11 @@ export interface NotificationSettingsDialogProps {
   symbol: string;
   name: string;
 }
+
+export interface NotificationSettingsState {
+  enabled: boolean;
+  minEnabled: boolean;
+  maxEnabled: boolean;
+  minThreshold: number;
+  maxThreshold: number;
+}

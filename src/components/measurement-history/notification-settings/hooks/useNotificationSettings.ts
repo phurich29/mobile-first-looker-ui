@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { 
   saveNotificationSettings, 
@@ -9,13 +9,13 @@ import {
 export const useNotificationSettings = (deviceCode: string, symbol: string, name: string) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [enabled, setEnabled] = useState(false); // Changed default from true to false
-  const [minEnabled, setMinEnabled] = useState(false); // Changed default from true to false
-  const [maxEnabled, setMaxEnabled] = useState(false); // Changed default from true to false
+  const [enabled, setEnabled] = useState(false);
+  const [minEnabled, setMinEnabled] = useState(false);
+  const [maxEnabled, setMaxEnabled] = useState(false);
   const [minThreshold, setMinThreshold] = useState(0);
   const [maxThreshold, setMaxThreshold] = useState(100);
 
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     try {
       setLoading(true);
       const settings = await getNotificationSettings(deviceCode, symbol);
@@ -37,7 +37,7 @@ export const useNotificationSettings = (deviceCode: string, symbol: string, name
     } finally {
       setLoading(false);
     }
-  };
+  }, [deviceCode, symbol, toast]);
 
   const handleSaveSettings = async () => {
     try {
