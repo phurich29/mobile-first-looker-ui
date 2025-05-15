@@ -52,26 +52,33 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
           <span>กลับ</span>
         </Button>
         <div className="flex-1">
-          <h1 className="text-base font-bold text-gray-800">{name}</h1>
+          <h1 className="text-base font-bold text-gray-800">Data History</h1>
           <p className="text-xs text-red-500">{deviceCode}</p>
         </div>
       </div>
       
       {/* Main content */}
       <div className="flex flex-col h-[calc(100vh-140px)] p-3">
-        {/* Measurement info header */}
-        <HistoryHeader 
-          symbol={symbol} 
-          name={name} 
-          historyData={historyData} 
-          isLoading={isLoading} 
-        />
-        
-        {/* Time frame selection */}
-        <TimeframeSelector 
-          timeFrame={timeFrame} 
-          setTimeFrame={setTimeFrame} 
-        />
+        {/* Header row with measurement info and timeframe selection */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex-1">
+            {/* Measurement info header */}
+            <HistoryHeader 
+              symbol={symbol} 
+              name={name} 
+              historyData={historyData} 
+              isLoading={isLoading} 
+            />
+          </div>
+          
+          {/* Time frame selection */}
+          <div>
+            <TimeframeSelector 
+              timeFrame={timeFrame} 
+              setTimeFrame={setTimeFrame} 
+            />
+          </div>
+        </div>
 
         {/* Chart area */}
         <HistoryChart

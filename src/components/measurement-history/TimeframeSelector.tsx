@@ -20,8 +20,8 @@ const TimeframeSelector: React.FC<TimeframeSelectorProps> = ({
 }) => {
   return (
     <div className="flex justify-end mb-3">
-      <div className="flex items-center gap-2">
-        <div className="text-xs text-gray-500">กรอบเวลา:</div>
+      <div className="flex flex-col items-end">
+        <div className="text-xs text-gray-500 mb-1">กรอบเวลา</div>
         <Select value={timeFrame} onValueChange={(value) => setTimeFrame(value as TimeFrame)}>
           <SelectTrigger className="w-[100px] h-8 text-xs border-gray-200 bg-white">
             <SelectValue placeholder="เลือกกรอบเวลา" />
