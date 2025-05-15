@@ -319,20 +319,6 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
           </div>
           
           <div className="flex flex-col gap-2 mt-3">
-            {isAdmin && (
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="w-full text-xs"
-                onClick={() => {
-                  setIsUsersDialogOpen(true);
-                  loadUsers();
-                }}
-              >
-                <Users className="h-3 w-3 mr-1" />
-                จัดการสิทธิ์
-              </Button>
-            )}
             
             <Button 
               variant="outline" 
