@@ -5,9 +5,16 @@ import { FooterNav } from "@/components/FooterNav";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRef, useState, useEffect } from "react";
-import { Square, Wheat, Blend, Circle } from "lucide-react";
+import { Square, Wheat, Blend, Circle, Search, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 
 export default function Measurements() {
   // สร้าง state และ ref สำหรับฟังก์ชันการลาก (Drag)
@@ -15,6 +22,8 @@ export default function Measurements() {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
 
   // ฟังก์ชันจัดการการลาก (Drag)
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -64,13 +73,41 @@ export default function Measurements() {
     };
   }, []);
 
+  // สร้าง state สำหรับรหัสอุปกรณ์
+  const { data: devices } = useQuery({
+    queryKey: ['devices'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('rice_quality_analysis')
+        .select('device_code')
+        .not('device_code', 'is', null)
+        .not('device_code', 'eq', '')
+        .order('device_code', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching devices:', error);
+        return [];
+      }
+      
+      // Get unique device codes
+      const uniqueDevices = data ? [...new Set(data.map(item => item.device_code))] : [];
+      return uniqueDevices.map(device_code => ({ device_code }));
+    },
+  });
+
   // ดึงข้อมูลพื้นข้าวเต็มเมล็ดจาก Supabase
   const fetchWholeGrainData = async () => {
-    const { data, error } = await supabase
+    let query = supabase
       .from('rice_quality_analysis')
-      .select('id, class1, class2, class3, short_grain, slender_kernel, created_at, thai_datetime')
+      .select('id, class1, class2, class3, short_grain, slender_kernel, created_at, thai_datetime, device_code')
       .order('created_at', { ascending: false })
       .limit(10);
+    
+    if (selectedDevice) {
+      query = query.eq('device_code', selectedDevice);
+    }
+    
+    const { data, error } = await query;
     
     if (error) {
       console.error('Error fetching whole grain data:', error);
@@ -130,7 +167,7 @@ export default function Measurements() {
 
   // ใช้ React Query สำหรับดึงข้อมูล
   const { data: wholeGrainData, isLoading: isLoadingWholeGrain } = useQuery({
-    queryKey: ['wholeGrainData'],
+    queryKey: ['wholeGrainData', selectedDevice],
     queryFn: fetchWholeGrainData,
   });
 
@@ -148,6 +185,16 @@ export default function Measurements() {
     queryKey: ['allData'],
     queryFn: fetchAllData,
   });
+
+  // กรองข้อมูลตามคำค้นหา
+  const filterItems = (items: any[]) => {
+    if (!searchTerm) return items;
+    
+    return items.filter(item => 
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  };
 
   // แปลงข้อมูลให้อยู่ในรูปแบบที่ใช้กับ MeasurementItem และคำนวณการเปลี่ยนแปลง
   const formatWholeGrainItems = () => {
@@ -275,7 +322,7 @@ export default function Measurements() {
   const formatImpuritiesItems = () => {
     if (!impuritiesData || impuritiesData.length === 0) return [];
     
-    // คำนวณการเปลี่ยนแปลงโดยเปรียบเทียบค่าล่าสุดกับค่าก่อนหน้า
+    // คำนวณการเปลี่ยนแป���งโดยเปรียบเทียบค่าล่าสุดกับค่าก่อนหน้า
     const calculateChange = (current: number | null, previous: number | null) => {
       if (current === null || previous === null) return 0;
       return current - previous;
@@ -627,28 +674,40 @@ export default function Measurements() {
       <Header />
 
       <main className="flex-1 pb-28">
-        {/* แถบค้นหา */}
-        <div className="flex items-center justify-between p-4">
+        {/* แถบค้นหาและเลือกอุปกรณ์ */}
+        <div className="flex items-center justify-between p-4 gap-4">
           <div className="relative w-full">
             <input
               type="text"
               placeholder="ค้นหา..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full h-10 pl-10 pr-4 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
             />
-            <svg
+            <Search
               className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
               width="16"
               height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+            />
+          </div>
+          
+          <div className="min-w-[180px]">
+            <Select 
+              value={selectedDevice || undefined} 
+              onValueChange={(value) => setSelectedDevice(value || null)}
             >
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
+              <SelectTrigger className="h-10 bg-white border-gray-200">
+                <SelectValue placeholder="เลือกอุปกรณ์" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">ทุกอุปกรณ์</SelectItem>
+                {devices?.map((device) => (
+                  <SelectItem key={device.device_code} value={device.device_code}>
+                    {device.device_code}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -712,7 +771,7 @@ export default function Measurements() {
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
                   </div>
                 ) : formatAllItems().length > 0 ? (
-                  formatAllItems().map((item, index) => (
+                  filterItems(formatAllItems()).map((item, index) => (
                     <MeasurementItem
                       key={index}
                       symbol={item.symbol}
@@ -738,7 +797,7 @@ export default function Measurements() {
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
                   </div>
                 ) : formatWholeGrainItems().length > 0 ? (
-                  formatWholeGrainItems().map((item, index) => (
+                  filterItems(formatWholeGrainItems()).map((item, index) => (
                     <MeasurementItem
                       key={index}
                       symbol={item.symbol}
@@ -764,7 +823,7 @@ export default function Measurements() {
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
                   </div>
                 ) : formatIngredientsItems().length > 0 ? (
-                  formatIngredientsItems().map((item, index) => (
+                  filterItems(formatIngredientsItems()).map((item, index) => (
                     <MeasurementItem
                       key={index}
                       symbol={item.symbol}
@@ -790,7 +849,7 @@ export default function Measurements() {
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
                   </div>
                 ) : formatImpuritiesItems().length > 0 ? (
-                  formatImpuritiesItems().map((item, index) => (
+                  filterItems(formatImpuritiesItems()).map((item, index) => (
                     <MeasurementItem
                       key={index}
                       symbol={item.symbol}
@@ -820,4 +879,3 @@ export default function Measurements() {
     </div>
   );
 }
-
