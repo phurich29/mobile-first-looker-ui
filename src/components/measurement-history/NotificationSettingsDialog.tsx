@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { AlertTriangle, Bell } from "lucide-react";
+import { AlertTriangle, Bell, Smartphone } from "lucide-react";
 import { saveNotificationSettings, getNotificationSettings } from "./api";
 
 interface NotificationSettingsDialogProps {
@@ -107,6 +107,15 @@ export function NotificationSettingsDialog({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
+          {/* Device Code Information */}
+          <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-md">
+            <Smartphone className="h-5 w-5 text-gray-500" />
+            <div>
+              <p className="text-sm font-medium">รหัสอุปกรณ์</p>
+              <p className="text-sm text-gray-500">{deviceCode}</p>
+            </div>
+          </div>
+
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="notification-enabled">เปิดใช้งานการแจ้งเตือน</Label>
