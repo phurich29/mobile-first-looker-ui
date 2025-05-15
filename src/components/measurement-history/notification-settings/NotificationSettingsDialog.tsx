@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { Dialog } from "@/components/ui/dialog";
 import { NotificationSettingsDialogProps } from "./types";
 import useNotificationSettings from "./hooks/useNotificationSettings";
-import DialogContent from "./components/DialogContent";
+import NotificationDialogContent from "./components/DialogContent";
 
 export function NotificationSettingsDialog({
   open,
@@ -40,7 +40,7 @@ export function NotificationSettingsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
+      <NotificationDialogContent
         open={open}
         onOpenChange={onOpenChange}
         deviceCode={deviceCode}

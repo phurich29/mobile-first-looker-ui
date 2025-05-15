@@ -1,5 +1,5 @@
 
-import { DialogContent } from "@/components/ui/dialog";
+import { DialogContent as ShadcnDialogContent } from "@/components/ui/dialog";
 import DeviceInfoCard from "../DeviceInfoCard";
 import NotificationToggle from "../NotificationToggle";
 import ThresholdControl from "../ThresholdControl";
@@ -9,7 +9,7 @@ import DialogHeader from "./DialogHeader";
 import DialogFooter from "./DialogFooter";
 import { NotificationSettingsState } from "../types";
 
-interface DialogContentProps {
+interface NotificationDialogContentProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   deviceCode: string;
@@ -25,7 +25,7 @@ interface DialogContentProps {
   onSave: () => void;
 }
 
-export const DialogContent = ({
+export const NotificationDialogContent = ({
   open,
   onOpenChange,
   deviceCode,
@@ -38,11 +38,11 @@ export const DialogContent = ({
   setMinThreshold,
   setMaxThreshold,
   onSave
-}: DialogContentProps) => {
+}: NotificationDialogContentProps) => {
   const showWarning = settings.enabled && !settings.minEnabled && !settings.maxEnabled;
 
   return (
-    <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+    <ShadcnDialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
       <DialogHeader name={name} />
 
       <div className="space-y-6 py-4">
@@ -93,8 +93,8 @@ export const DialogContent = ({
       </div>
 
       <DialogFooter loading={loading} onSave={onSave} />
-    </DialogContent>
+    </ShadcnDialogContent>
   );
 };
 
-export default DialogContent;
+export default NotificationDialogContent;
