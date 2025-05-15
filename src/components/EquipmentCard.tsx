@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button"; 
-import { Users, UserPlus, X, CheckCircle } from "lucide-react";
+import { Users, UserPlus, X, CheckCircle, BarChart } from "lucide-react";
 import equipmentIcon from "@/assets/equipment-icon.svg";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
@@ -328,7 +328,7 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
               asChild
             >
               <Link to={`/device/${deviceCode}`}>
-                <ChartBar className="h-3 w-3 mr-1" />
+                <BarChart className="h-3 w-3 mr-1" />
                 ดูข้อมูล
               </Link>
             </Button>
