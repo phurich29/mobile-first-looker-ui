@@ -126,6 +126,7 @@ export type Database = {
           created_at: string | null
           device_code: string
           id: string
+          notification_count: number
           notification_message: string | null
           read: boolean | null
           rice_type_id: string
@@ -139,6 +140,7 @@ export type Database = {
           created_at?: string | null
           device_code: string
           id?: string
+          notification_count?: number
           notification_message?: string | null
           read?: boolean | null
           rice_type_id: string
@@ -152,6 +154,7 @@ export type Database = {
           created_at?: string | null
           device_code?: string
           id?: string
+          notification_count?: number
           notification_message?: string | null
           read?: boolean | null
           rice_type_id?: string
