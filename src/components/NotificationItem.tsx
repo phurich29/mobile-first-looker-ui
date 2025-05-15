@@ -40,18 +40,18 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
     return '#8b5cf6'; // purple
   };
   
-  // Get icon based on notification type
+  // Get icon based on notification type - updated to match device details page
   const getIcon = () => {
     if (!enabled) {
       return <BellOff className="w-5 h-5 text-white" />;
     }
     
     if (type === 'min') {
-      return <ThermometerSnowflake className="w-5 h-5 text-white" />;
+      return <ArrowDown className="w-5 h-5 text-white" />;
     }
     
     if (type === 'max') {
-      return <AlertTriangle className="w-5 h-5 text-white" />;
+      return <ArrowUp className="w-5 h-5 text-white" />;
     }
     
     return <GaugeCircle className="w-5 h-5 text-white" />; // both
