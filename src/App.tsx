@@ -18,7 +18,7 @@ import RicePrices from "./pages/RicePrices";
 import RicePriceManagement from "./pages/RicePriceManagement";
 import NewsManagement from "./pages/NewsManagement";
 import News from "./pages/News";
-import NotificationSettings from "./pages/NotificationSettings";
+import NotificationSettings from "./pages/notification-settings";
 import NotificationHistory from "./pages/NotificationHistory";
 
 function App() {

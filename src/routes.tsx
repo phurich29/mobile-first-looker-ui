@@ -1,42 +1,36 @@
-import { Home } from "./pages/Home";
-import { Device } from "./pages/Device";
-import { Devices } from "./pages/Devices";
-import { About } from "./pages/About";
-import { Contact } from "./pages/Contact";
-import { ComingSoon } from "./pages/ComingSoon";
-import { NotFound } from "./pages/NotFound";
-import { MeasurementHistory } from "./pages/MeasurementHistory";
+
+import NotFound from "./pages/NotFound";
 import NotificationSettings from "./pages/notification-settings";
 
-// Update the routes in your routing configuration
+// Routes configuration
 const routes = [
   {
     path: "/",
-    element: <Home />,
+    element: <div>Home Page</div>,
   },
   {
     path: "/devices",
-    element: <Devices />,
+    element: <div>Devices Page</div>,
   },
   {
     path: "/device/:deviceCode",
-    element: <Device />,
+    element: <div>Device Detail Page</div>,
   },
   {
     path: "/device/default",
-    element: <Device />,
+    element: <div>Default Device Page</div>,
   },
   {
     path: "/history/:deviceCode",
-    element: <MeasurementHistory />,
+    element: <div>Measurement History Page</div>,
   },
   {
     path: "/about",
-    element: <About />,
+    element: <div>About Page</div>,
   },
   {
     path: "/contact",
-    element: <Contact />,
+    element: <div>Contact Page</div>,
   },
   {
     path: "/notifications",
@@ -44,7 +38,7 @@ const routes = [
   },
   {
     path: "/coming-soon",
-    element: <ComingSoon />,
+    element: <div>Coming Soon Page</div>,
   },
   {
     path: "*",
