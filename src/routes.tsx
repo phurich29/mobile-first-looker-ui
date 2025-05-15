@@ -33,7 +33,7 @@ export const router = createBrowserRouter([
   {
     path: "/waiting",
     element: (
-      <ProtectedRoute requiredRole="waiting_list">
+      <ProtectedRoute requiredRoles={["waiting_list"]}>
         <Waiting />
       </ProtectedRoute>
     ),
@@ -41,7 +41,7 @@ export const router = createBrowserRouter([
   {
     path: "/profile",
     element: (
-      <ProtectedRoute requiredRole="user">
+      <ProtectedRoute requiredRoles={["user"]}>
         <Profile />
       </ProtectedRoute>
     ),
@@ -53,7 +53,7 @@ export const router = createBrowserRouter([
   {
     path: "/rice-price-management",
     element: (
-      <ProtectedRoute requiredRole="admin">
+      <ProtectedRoute requiredRoles={["admin"]}>
         <RicePriceManagement />
       </ProtectedRoute>
     ),
@@ -65,7 +65,7 @@ export const router = createBrowserRouter([
   {
     path: "/news-management",
     element: (
-      <ProtectedRoute requiredRole="admin">
+      <ProtectedRoute requiredRoles={["admin"]}>
         <NewsManagement />
       </ProtectedRoute>
     ),
@@ -73,7 +73,7 @@ export const router = createBrowserRouter([
   {
     path: "/user-management",
     element: (
-      <ProtectedRoute requiredRole="admin">
+      <ProtectedRoute requiredRoles={["admin"]}>
         <UserManagement />
       </ProtectedRoute>
     ),
@@ -81,7 +81,7 @@ export const router = createBrowserRouter([
   {
     path: "/notifications",
     element: (
-      <ProtectedRoute requiredRole="user">
+      <ProtectedRoute requiredRoles={["user"]}>
         <Notifications />
       </ProtectedRoute>
     ),
@@ -89,7 +89,7 @@ export const router = createBrowserRouter([
   {
     path: "/notification-settings",
     element: (
-      <ProtectedRoute requiredRole="user">
+      <ProtectedRoute requiredRoles={["user"]}>
         <NotificationSettings />
       </ProtectedRoute>
     ),
@@ -97,7 +97,7 @@ export const router = createBrowserRouter([
   {
     path: "/notification-history",
     element: (
-      <ProtectedRoute requiredRole="user">
+      <ProtectedRoute requiredRoles={["user"]}>
         <NotificationHistory />
       </ProtectedRoute>
     ),
@@ -105,7 +105,7 @@ export const router = createBrowserRouter([
   {
     path: "/admin",
     element: (
-      <ProtectedRoute requiredRole="admin">
+      <ProtectedRoute requiredRoles={["admin"]}>
         <Admin />
       </ProtectedRoute>
     ),
@@ -113,7 +113,7 @@ export const router = createBrowserRouter([
   {
     path: "/device/:deviceCode",
     element: (
-      <ProtectedRoute requiredRole="user">
+      <ProtectedRoute requiredRoles={["user"]}>
         <DeviceDetails />
       </ProtectedRoute>
     ),
@@ -121,7 +121,7 @@ export const router = createBrowserRouter([
   {
     path: "/measurement-history/:deviceCode/:symbol",
     element: (
-      <ProtectedRoute requiredRole="user">
+      <ProtectedRoute requiredRoles={["user"]}>
         <MeasurementHistory />
       </ProtectedRoute>
     ),
@@ -129,7 +129,7 @@ export const router = createBrowserRouter([
   {
     path: "/equipment",
     element: (
-      <ProtectedRoute requiredRole="user">
+      <ProtectedRoute requiredRoles={["user"]}>
         <Equipment />
       </ProtectedRoute>
     ),
