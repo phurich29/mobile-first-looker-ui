@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Bell, BellOff, CircleAlert, AlertTriangle, ThermometerSnowflake, GaugeCircle, ArrowUp, ArrowDown, Wheat } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -72,7 +73,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   };
   
   // Format the Bangkok time (+7)
-  const formatBangkokTime = (date?: Date): { thaiDate: string; thaiTime: string } => {
+  const formatBankgokTime = (date?: Date): { thaiDate: string; thaiTime: string } => {
     if (!date) return { thaiDate: "ไม่มีข้อมูล", thaiTime: "ไม่มีข้อมูล" };
     
     // เพิ่มเวลาอีก 7 ชั่วโมง
@@ -151,7 +152,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
         </p>
         <a 
           href={`/measurement-history/${deviceCode}/${symbol}?name=${encodeURIComponent(name)}`}
-          className="text-xs px-2 py-1 bg-gray-200 text-black rounded-md hover:bg-gray-300 transition-colors mb-1"
+          className="text-xs px-2 py-1 bg-gray-200 text-black rounded-md hover:bg-gray-300 transition-colors"
           onClick={(e) => {
             e.stopPropagation(); // ป้องกันการทริกเกอร์ handleClick ของ div พ่อ
             navigate(`/measurement-history/${deviceCode}/${symbol}?name=${encodeURIComponent(name)}`);
@@ -160,16 +161,6 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
         >
           ดูรายละเอียด
         </a>
-        <div className="flex flex-col text-xs">
-          {updatedAt ? (
-            <>
-              <div className="font-medium text-gray-700">{formatBangkokTime(updatedAt).thaiDate}</div>
-              <div className="text-gray-500">{formatBangkokTime(updatedAt).thaiTime} น.</div>
-            </>
-          ) : (
-            <div className="text-gray-500">"ไม่มีข้อมูล"</div>
-          )}
-        </div>
       </div>
     </div>
   );
