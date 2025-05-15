@@ -1,4 +1,3 @@
-
 import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, FileText, AlertCircle, History } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
@@ -189,9 +188,6 @@ export const Header = () => {
           {user && <Link to="/logout" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30 transition-colors shadow-inner">
               <LogOut className="h-5 w-5 text-white" />
             </Link>}
-          <Link to="/notification-history" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30 transition-colors shadow-inner">
-            <Bell className="h-5 w-5 text-white" />
-          </Link>
         </div>
       </header>
     </>;
