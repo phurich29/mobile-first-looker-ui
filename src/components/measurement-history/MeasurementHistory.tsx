@@ -6,6 +6,8 @@ import HistoryFooter from "./HistoryFooter";
 import { NotificationSettingsDialog } from "./notification-settings";
 import { useToast } from "@/hooks/use-toast";
 import { useMeasurementData } from "./hooks/useMeasurementData";
+import { Header } from "@/components/Header";
+import { FooterNav } from "@/components/FooterNav";
 
 export type TimeFrame = '1h' | '24h' | '7d' | '30d';
 
@@ -49,37 +51,57 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
   }, [isError, toast]);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-      <HistoryHeader 
-        name={name}
-        unit={unit}
-        average={averageValue}
-        onOpenSettings={() => setSettingsOpen(true)}
-      />
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
+      <Header />
       
-      <HistoryChart 
-        historyData={historyData} 
-        dataKey={symbol}
-        isLoading={isLoading}
-        error={isError ? "ไม่สามารถโหลดข้อมูลประวัติได้" : null}
-        unit={unit}
-      />
-      
-      <HistoryFooter 
-        timeFrame={timeFrame}
-        onTimeFrameChange={setTimeFrame} 
-      />
+      <main className="flex-1 p-4 pb-32">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+          <HistoryHeader 
+            name={name}
+            unit={unit}
+            average={averageValue}
+            onOpenSettings={() => setSettingsOpen(true)}
+          />
+          
+          <HistoryChart 
+            historyData={historyData} 
+            dataKey={symbol}
+            isLoading={isLoading}
+            error={isError ? "ไม่สามารถโหลดข้อมูลประวัติได้" : null}
+            unit={unit}
+          />
+          
+          <HistoryFooter 
+            timeFrame={timeFrame}
+            onTimeFrameChange={setTimeFrame} 
+          />
 
-      <NotificationSettingsDialog
-        open={settingsOpen}
-        onOpenChange={setSettingsOpen}
-        deviceCode={deviceCode}
-        symbol={symbol}
-        name={name}
-      />
+          <NotificationSettingsDialog
+            open={settingsOpen}
+            onOpenChange={setSettingsOpen}
+            deviceCode={deviceCode}
+            symbol={symbol}
+            name={name}
+          />
+        </div>
+        
+        {/* Back button */}
+        {onClose && (
+          <button 
+            onClick={onClose}
+            className="mt-4 px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+          >
+            ย้อนกลับ
+          </button>
+        )}
+      </main>
+
+      {/* Add space to prevent content from being hidden behind footer */}
+      <div className="pb-32"></div>
+
+      <FooterNav />
     </div>
   );
 };
 
 export default MeasurementHistory;
-
