@@ -31,7 +31,11 @@ export const NotificationSettingsList = ({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 max-w-xl mx-auto">
+      <div className="mb-3 text-sm text-black flex justify-between font-medium">
+        <span>การแจ้งเตือนที่กำหนดไว้</span>
+        <span className="text-black">สถานะ</span>
+      </div>
       {settings.map((setting) => (
         <NotificationSettingCard 
           key={setting.id} 

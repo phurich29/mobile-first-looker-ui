@@ -107,57 +107,58 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
 
   // ข้อความสถานะการแจ้งเตือน
   const getStatusText = () => {
-    if (!enabled) return "ปิดการแจ้งเตือน";
+    if (!enabled) return "ปิดแจ้งเตือน";
     
     if (type === 'min') {
-      return `แจ้งเตือนเมื่อต่ำกว่า ${threshold}%`;
+      return `น้อยกว่า ${threshold}%`;
     }
     
     if (type === 'max') {
-      return `แจ้งเตือนเมื่อสูงกว่า ${threshold}%`;
+      return `มากกว่า ${threshold}%`;
     }
     
-    return `แจ้งเตือนเมื่อเกินช่วง ${threshold}`;
+    return `นอกช่วง ${threshold}`;
   };
 
   return (
     <div 
       onClick={handleClick}
-      className={`flex items-center justify-between p-4 border-b border-gray-100 ${getBgColor()} hover:brightness-95 transition-all duration-300 relative overflow-hidden cursor-pointer active:bg-gray-100`}
+      className={`flex items-center justify-between py-2 px-3 border-b border-gray-100 ${getBgColor()} hover:brightness-95 transition-all duration-300 relative overflow-hidden cursor-pointer active:bg-gray-100`}
     >
       {/* เพิ่มองค์ประกอบด้านหลังเพื่อความมีมิติ */}
       <div className="absolute inset-0 w-full h-full bg-white opacity-80"></div>
       
       <div className="flex items-center relative z-10">
         <div 
-          className="w-14 h-14 rounded-full flex items-center justify-center mr-3 shadow-md relative overflow-hidden"
+          className="rounded-full flex items-center justify-center mr-2 shadow-sm relative overflow-hidden"
           style={{ 
             background: `linear-gradient(135deg, ${getIconColor()}, ${getIconColor()}cc)`,
-            aspectRatio: '1/1' 
+            width: '40px',
+            height: '40px'
           }}
         >
           <div className="absolute inset-0 bg-white/10"></div>
-          <div className="absolute top-0 left-0 w-3 h-3 bg-white/30 rounded-full blur-sm"></div>
+          <div className="absolute top-0 left-0 w-2 h-2 bg-white/30 rounded-full blur-sm"></div>
           <div className="flex items-center justify-center w-full h-full">
             {getIcon()}
           </div>
         </div>
-        <div className="px-3 py-2">
+        <div className="py-1">
           <div className="flex flex-col">
             <div className="flex items-center">
-              <h3 className="font-bold text-base text-gray-800">{name}</h3>
+              <h3 className="font-medium text-sm text-gray-800 truncate max-w-[170px]">{name}</h3>
             </div>
-            <span className="text-xs text-gray-500">{deviceName}</span>
+            <span className="text-xs text-gray-500 truncate max-w-[180px]">{deviceName}</span>
           </div>
         </div>
       </div>
       <div className="text-right flex flex-col items-end relative z-10">
-        <p className={`font-bold text-sm ${enabled ? 'text-green-600' : 'text-gray-500'} mb-1`}>
+        <p className={`font-medium text-xs ${enabled ? 'text-green-600' : 'text-gray-500'} mb-0.5 truncate max-w-[120px]`}>
           {getStatusText()}
         </p>
         <a 
           href={`/measurement-history/${deviceCode}/${symbol}?name=${encodeURIComponent(name)}`}
-          className="text-xs px-2 py-1 bg-gray-200 text-black rounded-md hover:bg-gray-300 transition-colors"
+          className="text-xs px-1.5 py-0.5 bg-gray-200 text-black rounded hover:bg-gray-300 transition-colors"
           onClick={(e) => {
             e.stopPropagation(); // ป้องกันการทริกเกอร์ handleClick ของ div พ่อ
             navigate(`/measurement-history/${deviceCode}/${symbol}?name=${encodeURIComponent(name)}`);

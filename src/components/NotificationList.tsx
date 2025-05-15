@@ -53,7 +53,7 @@ export const NotificationList = () => {
         <h2 className="font-semibold text-gray-700">
           {user ? "การแจ้งเตือนที่กำหนดไว้" : "ตัวอย่างการแจ้งเตือน"}
         </h2>
-        <a href="/measurement-history" className="text-sm text-green-600 font-medium">ประวัติการวัด</a>
+        <a href="/notification-settings" className="text-sm text-green-600 font-medium">ตั้งค่าแจ้งเตือน</a>
       </div>
 
       <div className={`bg-white ${!isMobile && 'rounded-xl shadow-sm'}`}>
