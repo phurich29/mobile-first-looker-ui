@@ -13,6 +13,7 @@ import Waiting from "./pages/Waiting";
 import Profile from "./pages/Profile";
 import NewsManagement from "./pages/NewsManagement";
 import News from "./pages/News"; 
+import NotificationSettings from "./pages/NotificationSettings"; // Added import
 import { AuthProvider, useAuth } from "./components/AuthProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useEffect } from "react";
@@ -103,6 +104,13 @@ function App() {
             <Route path="/profile" element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            } />
+            
+            {/* เส้นทางสำหรับหน้า NotificationSettings */}
+            <Route path="/notifications" element={
+              <ProtectedRoute>
+                <NotificationSettings />
               </ProtectedRoute>
             } />
             

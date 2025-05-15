@@ -1,5 +1,5 @@
 
-import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, FileText } from "lucide-react";
+import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, FileText, AlertCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -102,10 +102,16 @@ export const Header = () => {
               <span className="text-sm">อุปกรณ์</span>
             </Link>
             
-            <Link to="/measurements" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/measurements") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
+            <Link to="/measurements" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/measurements") || location.pathname.startsWith("/device") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
               <BarChart2 className="h-5 w-5" />
               <span className="text-sm">ค่าวัดคุณภาพ</span>
             </Link>
+            
+            {/* เพิ่มเมนูการแจ้งเตือนที่กำหนดไว้ */}
+            {user && <Link to="/notifications" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/notifications") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
+                <AlertCircle className="h-5 w-5" />
+                <span className="text-sm">การแจ้งเตือนที่กำหนดไว้</span>
+              </Link>}
             
             {/* เพิ่มเมนูข้อมูลส่วนตัว */}
             {user && <Link to="/profile" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/profile") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
