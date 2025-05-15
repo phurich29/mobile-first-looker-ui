@@ -18,25 +18,25 @@ export const NotificationSettingCard = ({
   };
   
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
-      <div className="flex justify-between items-start mb-3">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-3 sm:p-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3">
         <div>
-          <h3 className="font-medium text-emerald-800">
+          <h3 className="font-medium text-emerald-800 text-sm sm:text-base">
             {setting.device_name || setting.device_code}
           </h3>
-          <p className="text-sm text-gray-500">{setting.rice_type_name}</p>
+          <p className="text-xs sm:text-sm text-gray-500">{setting.rice_type_name}</p>
         </div>
         <Button 
           variant="outline" 
           size="sm"
           onClick={handleEdit}
-          className="text-emerald-600 hover:text-emerald-700"
+          className="text-emerald-600 hover:text-emerald-700 self-start sm:self-auto"
         >
           แก้ไข
         </Button>
       </div>
       
-      <div className="text-sm space-y-1">
+      <div className="text-xs sm:text-sm space-y-1">
         {setting.max_enabled && (
           <p className="flex justify-between">
             <span className="text-gray-600">แจ้งเตือน เมื่อสูงกว่า:</span>
