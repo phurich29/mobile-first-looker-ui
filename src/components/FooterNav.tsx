@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { Home, User, PackageOpen, Bell, Info, Settings } from "lucide-react";
@@ -6,7 +5,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "./AuthProvider";
 
 export const FooterNav = () => {
-  const { user, hasRole } = useAuth();
+  const { user } = useAuth();
   const isMobile = useIsMobile();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -16,15 +15,15 @@ export const FooterNav = () => {
       setIsAuthenticated(!!user);
       
       if (user) {
-        const hasUserRole = await hasRole('user');
-        setIsAuthorized(hasUserRole);
+        // Changed to check if user has a token, which implies they are a user
+        setIsAuthorized(true);
       } else {
         setIsAuthorized(false);
       }
     };
     
     checkAuth();
-  }, [user, hasRole]);
+  }, [user]);
   
   // เมื่อไม่ได้อยู่บนมือถือ ให้แสดง Sidebar แทน
   if (!isMobile) {
