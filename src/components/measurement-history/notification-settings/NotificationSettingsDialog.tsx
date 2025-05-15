@@ -91,17 +91,7 @@ export function NotificationSettingsDialog({
             <p className="text-sm font-medium mb-4">ตั้งค่าเกณฑ์การแจ้งเตือน</p>
             
             <div className="space-y-4">
-              <ThresholdControl
-                id="min-enabled"
-                label="แจ้งเตือนเมื่อต่ำกว่าเกณฑ์"
-                thresholdEnabled={settings.minEnabled}
-                onThresholdEnabledChange={setMinEnabled}
-                threshold={settings.minThreshold}
-                onThresholdChange={setMinThreshold}
-                disabled={!settings.enabled || loading}
-                helpText="ค่าต่ำสุดที่ยอมรับได้"
-              />
-              
+              {/* Reordered - Max threshold is now above Min threshold */}
               <ThresholdControl
                 id="max-enabled"
                 label="แจ้งเตือนเมื่อสูงกว่าเกณฑ์"
@@ -111,6 +101,17 @@ export function NotificationSettingsDialog({
                 onThresholdChange={setMaxThreshold}
                 disabled={!settings.enabled || loading}
                 helpText="ค่าสูงสุดที่ยอมรับได้"
+              />
+              
+              <ThresholdControl
+                id="min-enabled"
+                label="แจ้งเตือนเมื่อต่ำกว่าเกณฑ์"
+                thresholdEnabled={settings.minEnabled}
+                onThresholdEnabledChange={setMinEnabled}
+                threshold={settings.minThreshold}
+                onThresholdChange={setMinThreshold}
+                disabled={!settings.enabled || loading}
+                helpText="ค่าต่ำสุดที่ยอมรับได้"
               />
             </div>
           </div>
