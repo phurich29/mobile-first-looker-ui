@@ -42,6 +42,7 @@ export function AddDeviceForm({ onDeviceAdded }: AddDeviceFormProps) {
       
       // If device does not exist in the table, create a new entry
       if (!existingData || existingData.length === 0) {
+        console.log(`Adding new device: ${deviceCode}`);
         const { error: insertError } = await supabase
           .from('rice_quality_analysis')
           .insert({
@@ -51,7 +52,10 @@ export function AddDeviceForm({ onDeviceAdded }: AddDeviceFormProps) {
             output: 0
           });
         
-        if (insertError) throw insertError;
+        if (insertError) {
+          console.error("Error inserting device:", insertError);
+          throw insertError;
+        }
         
         toast({
           title: "เพิ่มอุปกรณ์สำเร็จ",
@@ -66,7 +70,7 @@ export function AddDeviceForm({ onDeviceAdded }: AddDeviceFormProps) {
       
       // Clear the input field and refresh the device list
       setDeviceCode("");
-      await onDeviceAdded();
+      await onDeviceAdded(); // Make sure we're refreshing the device list
       
     } catch (error) {
       console.error("Error adding device:", error);
