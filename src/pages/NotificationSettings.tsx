@@ -1,10 +1,11 @@
+
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, AlertCircle, ArrowLeft } from "lucide-react";
+import { Loader2, AlertCircle, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -175,18 +176,17 @@ const NotificationSettings = () => {
       
       <main className={`flex-1 ${isMobile ? 'pb-32' : 'pb-16 ml-64'}`}>
         <div className={`mx-auto max-w-2xl px-4 ${!isMobile ? 'py-8' : 'pt-4 pb-6'}`}>
-          <div className="flex items-center mb-6">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={handleGoBack} 
-              className="mr-2 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              <span className="sr-only">ย้อนกลับ</span>
-            </Button>
-            <h1 className="text-2xl font-semibold text-emerald-800">การแจ้งเตือนที่กำหนดไว้</h1>
-          </div>
+          {/* Back button - updated to match the style from DeviceHeader */}
+          <Button 
+            variant="outline" 
+            onClick={handleGoBack}
+            className="mb-4 flex items-center text-gray-600 hover:bg-gray-100"
+          >
+            <ChevronLeft className="h-4 w-4 mr-1" />
+            <span>ย้อนกลับ</span>
+          </Button>
+
+          <h1 className="text-2xl font-semibold text-emerald-800 mb-4">การแจ้งเตือนที่กำหนดไว้</h1>
           {renderContent()}
         </div>
       </main>
