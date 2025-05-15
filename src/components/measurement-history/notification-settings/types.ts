@@ -1,8 +1,5 @@
 
-export interface NotificationSettingsProps {
-  deviceCode: string;
-  symbol: string;
-  name: string;
+export interface NotificationSettingsState {
   enabled: boolean;
   minEnabled: boolean;
   maxEnabled: boolean;
@@ -18,7 +15,10 @@ export interface NotificationSettingsDialogProps {
   name: string;
 }
 
-export interface NotificationSettingsState {
+export interface NotificationSettingsProps {
+  deviceCode: string;
+  symbol: string;
+  name: string;
   enabled: boolean;
   minEnabled: boolean;
   maxEnabled: boolean;
