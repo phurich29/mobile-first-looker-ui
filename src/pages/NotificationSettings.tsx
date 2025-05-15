@@ -1,13 +1,12 @@
-
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface NotificationSetting {
   id: string;
@@ -25,6 +24,7 @@ interface NotificationSetting {
 const NotificationSettings = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [settings, setSettings] = useState<NotificationSetting[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -82,6 +82,10 @@ const NotificationSettings = () => {
 
     fetchNotificationSettings();
   }, [toast]);
+
+  const handleGoBack = () => {
+    navigate(-1); // Navigate to the previous page in history
+  };
 
   const renderContent = () => {
     if (loading) {
@@ -171,7 +175,18 @@ const NotificationSettings = () => {
       
       <main className={`flex-1 ${isMobile ? 'pb-32' : 'pb-16 ml-64'}`}>
         <div className={`mx-auto max-w-2xl px-4 ${!isMobile ? 'py-8' : 'pt-4 pb-6'}`}>
-          <h1 className="text-2xl font-semibold text-emerald-800 mb-6">การแจ้งเตือนที่กำหนดไว้</h1>
+          <div className="flex items-center mb-6">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleGoBack} 
+              className="mr-2 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span className="sr-only">ย้อนกลับ</span>
+            </Button>
+            <h1 className="text-2xl font-semibold text-emerald-800">การแจ้งเตือนที่กำหนดไว้</h1>
+          </div>
           {renderContent()}
         </div>
       </main>
