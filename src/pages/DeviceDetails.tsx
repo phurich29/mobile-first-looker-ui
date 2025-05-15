@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
@@ -25,6 +24,7 @@ import {
   formatAllItems
 } from "@/utils/measurementFormatters";
 import TabsContainer from "@/components/device-management/TabsContainer";
+import { fetchLatestDeviceCode } from "@/integrations/supabase/client";
 
 export default function DeviceDetails() {
   const { deviceCode } = useParams();
@@ -37,26 +37,26 @@ export default function DeviceDetails() {
     name: string;
   } | null>(null);
 
-  // ตรวจสอบว่า deviceCode เป็น 'default' หรือไม่ และเปลี่ยนเป็นค่าที่เหมาะสม
+  // Check if deviceCode is 'default' and fetch the latest device data
   useEffect(() => {
-    // ถ้า deviceCode เป็น 'default' ให้ดึงข้อมูลอุปกรณ์ล่าสุดแทน
+    // If deviceCode is 'default', fetch the latest device data and navigate to it
     if (deviceCode === 'default') {
-      // ดึงข้อมูลอุปกรณ์ล่าสุดและนำทางไปยังหน้านั้นแทน
       const fetchLatestDevice = async () => {
         try {
-          const response = await fetch('/api/latest-device');
-          if (response.ok) {
-            const data = await response.json();
-            if (data.deviceCode) {
-              navigate(`/device/${data.deviceCode}`, { replace: true });
-            }
+          // Use the new utility function to get the latest device code
+          const latestDeviceCode = await fetchLatestDeviceCode();
+          
+          if (latestDeviceCode) {
+            console.log("Found latest device:", latestDeviceCode);
+            navigate(`/device/${latestDeviceCode}`, { replace: true });
           } else {
-            // ถ้าไม่มีข้อมูล ให้ใช้ค่าเริ่มต้น
+            // If no data is found, use a fallback device code
+            console.log("No latest device found, using fallback");
             navigate(`/device/6400000401398`, { replace: true });
           }
         } catch (error) {
-          console.error("Error fetching latest device:", error);
-          // ถ้าเกิดข้อผิดพลาด ให้ใช้ค่าเริ่มต้น
+          console.error("Error handling default device:", error);
+          // Use fallback device code on error
           navigate(`/device/6400000401398`, { replace: true });
         }
       };
@@ -125,7 +125,7 @@ export default function DeviceDetails() {
     navigate("/equipment");
   };
 
-  // ถ้า deviceCode เป็น 'default' ให้แสดงหน้าโหลดข้อมูล
+  // If deviceCode is 'default', show loading screen
   if (deviceCode === 'default') {
     return (
       <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
@@ -133,7 +133,7 @@ export default function DeviceDetails() {
         <main className="flex-1 flex justify-center items-center">
           <div className="text-center p-4">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">กำลังโหลดข้อมูลอุปกรณ์...</p>
+            <p className="text-gray-600">กำลังโหลดข้อมูลอุปกรณ์ล่าสุด...</p>
           </div>
         </main>
         <FooterNav />
