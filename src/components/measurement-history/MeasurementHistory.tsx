@@ -8,7 +8,7 @@ import { fetchMeasurementHistory, calculateAverage, formatBangkokTime } from "./
 import TimeframeSelector from "./TimeframeSelector";
 import HistoryHeader from "./HistoryHeader";
 import HistoryFooter from "./HistoryFooter";
-import NotificationSettingsDialog from "./NotificationSettingsDialog";
+import { NotificationSettingsDialog } from "./notification-settings";
 
 export type TimeFrame = '1h' | '24h' | '7d' | '30d';
 
