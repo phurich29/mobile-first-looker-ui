@@ -19,6 +19,13 @@ interface MeasurementHistoryProps {
   onClose: () => void;
 }
 
+// Define a type for the history data items to avoid type errors
+interface HistoryDataItem {
+  [key: string]: any;
+  created_at?: string;
+  thai_datetime?: string;
+}
+
 const MeasurementHistory = ({ symbol, name, deviceCode, onClose }: MeasurementHistoryProps) => {
   const [timeFrame, setTimeFrame] = useState<TimeFrame>('24h');
   const [openSettings, setOpenSettings] = useState(false);
@@ -29,9 +36,20 @@ const MeasurementHistory = ({ symbol, name, deviceCode, onClose }: MeasurementHi
   });
 
   const averageValue = historyData ? calculateAverage(historyData, symbol) : 0;
-  const latestEntry = historyData && historyData.length > 0 ? historyData[0] : null;
+  const latestEntry = historyData && historyData.length > 0 ? historyData[0] as HistoryDataItem : null;
   const latestValue = latestEntry ? latestEntry[symbol] : 0;
-  const { thaiDate, thaiTime } = latestEntry ? formatBangkokTime(latestEntry.created_at || latestEntry.thai_datetime) : { thaiDate: "", thaiTime: "" };
+  
+  // Safely handle date formatting with proper type checking
+  const dateTimeInfo = { thaiDate: "", thaiTime: "" };
+  if (latestEntry) {
+    const dateString = latestEntry.created_at || latestEntry.thai_datetime;
+    if (dateString) {
+      const formatted = formatBangkokTime(dateString);
+      dateTimeInfo.thaiDate = formatted.thaiDate;
+      dateTimeInfo.thaiTime = formatted.thaiTime;
+    }
+  }
+  const { thaiDate, thaiTime } = dateTimeInfo;
 
   const handleTimeFrameChange = (newTimeFrame: TimeFrame) => {
     setTimeFrame(newTimeFrame);
