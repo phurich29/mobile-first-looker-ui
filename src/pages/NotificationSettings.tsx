@@ -1,4 +1,3 @@
-
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -84,8 +83,9 @@ const NotificationSettings = () => {
     fetchNotificationSettings();
   }, [toast]);
 
+  // Updated handleGoBack function to use history.back() directly instead of navigate(-1)
   const handleGoBack = () => {
-    navigate(-1); // Navigate to the previous page in history
+    window.history.back();
   };
 
   const renderContent = () => {
