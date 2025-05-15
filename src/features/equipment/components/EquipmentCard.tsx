@@ -37,7 +37,7 @@ export function EquipmentCard({ deviceCode, lastUpdated, isAdmin = false }: Equi
             <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-2">
               <img src={equipmentIcon} alt="อุปกรณ์" className="w-10 h-10" />
             </div>
-            <span className="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-medium">
+            <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full font-medium">
               อุปกรณ์
             </span>
           </div>
