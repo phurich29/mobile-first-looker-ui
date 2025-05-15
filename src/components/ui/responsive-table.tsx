@@ -8,7 +8,7 @@ interface ResponsiveTableProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function ResponsiveTable({ children, className, ...props }: ResponsiveTableProps) {
   return (
-    <div className={cn("w-full overflow-auto", className)} {...props}>
+    <div className={cn("w-full overflow-x-auto", className)} {...props}>
       <Table className="min-w-full">{children}</Table>
     </div>
   );

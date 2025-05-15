@@ -128,36 +128,38 @@ export function DatabaseTable() {
       
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <ScrollArea className="h-[500px]">
-          <ResponsiveTable>
-            <TableHeader>
-              <TableRow>
-                {columnKeys.map((key) => (
-                  <TableHead key={key}>{key}</TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.length === 0 ? (
+          <div className="overflow-x-auto">
+            <ResponsiveTable>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={columnKeys.length} className="text-center py-4">
-                    ไม่พบข้อมูล
-                  </TableCell>
+                  {columnKeys.map((key) => (
+                    <TableHead key={key}>{key}</TableHead>
+                  ))}
                 </TableRow>
-              ) : (
-                data.map((row) => (
-                  <TableRow key={row.id}>
-                    {columnKeys.map((key) => (
-                      <TableCell key={`${row.id}-${key}`}>
-                        {key.includes('date') || key.includes('_at') 
-                          ? formatDate(row[key]) 
-                          : row[key]?.toString() || "-"}
-                      </TableCell>
-                    ))}
+              </TableHeader>
+              <TableBody>
+                {data.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={columnKeys.length} className="text-center py-4">
+                      ไม่พบข้อมูล
+                    </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </ResponsiveTable>
+                ) : (
+                  data.map((row) => (
+                    <TableRow key={row.id}>
+                      {columnKeys.map((key) => (
+                        <TableCell key={`${row.id}-${key}`}>
+                          {key.includes('date') || key.includes('_at') 
+                            ? formatDate(row[key]) 
+                            : row[key]?.toString() || "-"}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </ResponsiveTable>
+          </div>
         </ScrollArea>
       </div>
     </div>
