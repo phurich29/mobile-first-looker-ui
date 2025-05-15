@@ -6,6 +6,7 @@ import { TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/compon
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface RiceQualityAnalysisRow {
   id: number;
@@ -19,6 +20,7 @@ export function DatabaseTable() {
   const [data, setData] = useState<RiceQualityAnalysisRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [rowLimit, setRowLimit] = useState<number>(100);
   const { toast } = useToast();
 
   const fetchData = async () => {
@@ -32,7 +34,7 @@ export function DatabaseTable() {
         .from('rice_quality_analysis')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(100);
+        .limit(rowLimit);
       
       if (error) {
         console.error("Error fetching database table:", error);
@@ -57,7 +59,7 @@ export function DatabaseTable() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [rowLimit]);
 
   const handleRefresh = async () => {
     await fetchData();
@@ -116,14 +118,32 @@ export function DatabaseTable() {
     <div className="mt-8">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">ตาราง Database</h2>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={handleRefresh}
-          className="border-emerald-200 bg-white hover:bg-emerald-50"
-        >
-          รีเฟรชข้อมูล
-        </Button>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">จำนวนแถว:</span>
+            <Select 
+              value={rowLimit.toString()} 
+              onValueChange={(value) => setRowLimit(parseInt(value))}
+            >
+              <SelectTrigger className="w-[80px] h-8 text-sm">
+                <SelectValue placeholder="100" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+                <SelectItem value="1000">1000</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleRefresh}
+            className="border-emerald-200 bg-white hover:bg-emerald-50"
+          >
+            รีเฟรชข้อมูล
+          </Button>
+        </div>
       </div>
       
       <div className="bg-white rounded-lg shadow overflow-hidden">
