@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { formatDate } from "@/components/database-table/utils";
 
 interface RiceQualityAnalysisRow {
   id: number;
@@ -216,30 +217,6 @@ export function FilteredDatabaseTable({ deviceCode, symbol, name }: FilteredData
     });
   };
 
-  // ปรับปรุงฟังก์ชัน formatDate เพื่อให้แสดง thai_datetime ตรงตามค่าในฐานข้อมูล
-  const formatDate = (dateString: string | null, columnKey?: string) => {
-    if (!dateString) return "-";
-    try {
-      // ถ้าเป็นคอลัมน์ thai_datetime ให้แสดงค่าตามที่มีในฐานข้อมูลโดยตรง
-      if (columnKey === 'thai_datetime') {
-        // แสดงค่า thai_datetime ตามที่อยู่ในฐานข้อมูลโดยไม่ต้องแปลง timezone
-        return dateString;
-      }
-      
-      // สำหรับคอลัมน์อื่นๆ ยังคงใช้การแปลงวันที่แบบเดิม
-      return new Date(dateString).toLocaleString('th-TH', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      });
-    } catch (e) {
-      return dateString;
-    }
-  };
-
   if (loading) {
     return <div className="text-center py-8">กำลังโหลดข้อมูล...</div>;
   }
@@ -376,8 +353,7 @@ export function FilteredDatabaseTable({ deviceCode, symbol, name }: FilteredData
         </div>
         
         {/* Pagination Controls */}
-        {totalCount > 0 && (
-          <div className="flex items-center justify-between border-t border-gray-200 bg-white px-2 py-2 sm:px-6 mt-2">
+        <div className="flex items-center justify-between border-t border-gray-200 bg-white px-2 py-2 sm:px-6 mt-2">
             <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
               <div>
                 <p className="text-xs text-gray-700">
@@ -481,7 +457,6 @@ export function FilteredDatabaseTable({ deviceCode, symbol, name }: FilteredData
               </Button>
             </div>
           </div>
-        )}
       </div>
     </div>
   );
