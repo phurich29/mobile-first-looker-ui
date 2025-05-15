@@ -91,7 +91,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const initializeAuth = async () => {
       console.log("Initializing auth");
       try {
-        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
+        
+        // ตรวจสอบข้อผิดพลาด refresh_token_not_found
+        if (error) {
+          console.error('Error fetching session:', error);
+          
+          // ตรวจสอบว่าเป็นข้อผิดพลาด refresh_token_not_found หรือไม่
+          if (error.message?.includes('refresh_token_not_found') ||
+              (error as any)?.code === 'refresh_token_not_found' ||
+              (error as any)?.__isAuthError) {
+            console.log('Session expired or refresh token not found, signing out...');
+            await supabase.auth.signOut();
+            setUser(null);
+            setSession(null);
+            setUserRoles([]);
+            setIsLoading(false);
+            return;
+          }
+        }
+        
         console.log("Initial session retrieved:", !!initialSession);
         
         // Update session and user state immediately
@@ -107,6 +126,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
       } catch (error) {
         console.error('Error checking session:', error);
+        
+        // กรณีเกิดข้อผิดพลาดใดๆ ให้ทำการ sign out เพื่อความปลอดภัย
+        try {
+          console.log('Signing out due to auth error...');
+          await supabase.auth.signOut();
+          setUser(null);
+          setSession(null);
+          setUserRoles([]);
+        } catch (signOutError) {
+          console.error('Error signing out:', signOutError);
+        }
       } finally {
         setIsLoading(false);
         console.log("Auth initialization complete");
