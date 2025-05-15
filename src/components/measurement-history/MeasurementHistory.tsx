@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from "react";
-import HistoryHeader from "./HistoryHeader";  // Fixed import
-import HistoryChart from "./HistoryChart";    // Fixed import
-import HistoryFooter from "./HistoryFooter";  // Fixed import
+import HistoryHeader from "./HistoryHeader";
+import HistoryChart from "./HistoryChart";
+import HistoryFooter from "./HistoryFooter";
 import { fetchMeasurementHistory, calculateAverage } from "./api";
 import { NotificationSettingsDialog } from "./notification-settings";
 import { useToast } from "@/hooks/use-toast";
@@ -14,7 +14,7 @@ interface MeasurementHistoryProps {
   symbol: string;
   name: string;
   unit?: string;
-  onClose?: () => void;  // Added onClose prop
+  onClose?: () => void;
 }
 
 const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({ 
@@ -72,7 +72,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
       />
       
       <HistoryChart 
-        data={historyData} 
+        historyData={historyData} 
         dataKey={symbol}
         isLoading={loading}
         error={error}

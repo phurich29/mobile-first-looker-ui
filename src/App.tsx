@@ -1,153 +1,62 @@
 
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
-import Admin from "./pages/Admin";
 import Login from "./pages/Login";
 import Equipment from "./pages/Equipment";
+import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
 import DeviceDetails from "./pages/DeviceDetails";
 import Measurements from "./pages/Measurements";
-import NotFound from "./pages/NotFound";
-import RicePrices from "./pages/RicePrices";
-import UserManagement from "./pages/UserManagement";
-import Waiting from "./pages/Waiting";
+import AuthProvider from "./components/AuthProvider";
 import Profile from "./pages/Profile";
+import Waiting from "./pages/Waiting";
+import Admin from "./pages/Admin";
+import { Toaster } from "./components/ui/toaster";
+import UserManagement from "./pages/UserManagement";
+import DeviceManagement from "./pages/DeviceManagement";
+import RicePrices from "./pages/RicePrices";
+import RicePriceManagement from "./pages/RicePriceManagement";
 import NewsManagement from "./pages/NewsManagement";
-import News from "./pages/News"; 
+import News from "./pages/News";
 import NotificationSettings from "./pages/NotificationSettings";
-import NotificationHistory from "./pages/NotificationHistory"; // Added import
-import { AuthProvider, useAuth } from "./components/AuthProvider";
-import { ProtectedRoute } from "./components/ProtectedRoute";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// Create a QueryClient instance
-const queryClient = new QueryClient();
-
-// Logout component that will sign out users and redirect to login
-function LogoutRoute() {
-  const { signOut } = useAuth();
-  const navigate = useNavigate();
-  
-  useEffect(() => {
-    const performLogout = async () => {
-      await signOut();
-      navigate("/login");
-    };
-    
-    performLogout();
-  }, [signOut, navigate]);
-  
-  return <div className="min-h-screen flex justify-center items-center bg-gradient-to-b from-emerald-50 to-gray-50">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
-  </div>;
-}
+import NotificationHistory from "./pages/NotificationHistory";
 
 function App() {
   return (
-    // Wrap the entire application with QueryClientProvider
-    <QueryClientProvider client={queryClient}>
+    <Router>
       <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            {/* Public routes - ไม่จำเป็นต้องล็อกอิน */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/waiting" element={<Waiting />} />
-            <Route path="/logout" element={<LogoutRoute />} />
-            
-            {/* หน้าแรก - อนุญาตให้เข้าชมได้โดยไม่ต้องล็อกอิน */}
-            <Route path="/" element={
-              <ProtectedRoute allowUnauthenticated={true}>
-                <Index />
-              </ProtectedRoute>
-            } />
-            
-            {/* ทำให้หน้า rice-prices สามารถเข้าถึงได้โดยไม่ต้องล็อกอิน */}
-            <Route path="/rice-prices" element={
-              <ProtectedRoute allowUnauthenticated={true}>
-                <RicePrices />
-              </ProtectedRoute>
-            } />
-            
-            {/* เพิ่มหน้าข่าวสาร */}
-            <Route path="/news" element={
-              <ProtectedRoute allowUnauthenticated={true}>
-                <News />
-              </ProtectedRoute>
-            } />
-            <Route path="/news/:id" element={
-              <ProtectedRoute allowUnauthenticated={true}>
-                <News />
-              </ProtectedRoute>
-            } />
-            
-            {/* เปลี่ยนจาก Measurements ไปเป็น DeviceDetails แทน */}
-            <Route path="/measurements" element={
-              <ProtectedRoute>
-                <Navigate to="/device/default" replace />
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/equipment/:deviceCode?" element={
-              <ProtectedRoute>
-                <Equipment />
-              </ProtectedRoute>
-            } />
-            
-            {/* เส้นทางสำหรับหน้าแสดงรายละเอียดอุปกรณ์ */}
-            <Route path="/device/:deviceCode" element={
-              <ProtectedRoute>
-                <DeviceDetails />
-              </ProtectedRoute>
-            } />
-            
-            {/* เส้นทางสำหรับหน้า Profile */}
-            <Route path="/profile" element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            } />
-            
-            {/* เส้นทางสำหรับหน้า NotificationSettings */}
-            <Route path="/notifications" element={
-              <ProtectedRoute>
-                <NotificationSettings />
-              </ProtectedRoute>
-            } />
-
-            {/* เส้นทางสำหรับหน้า NotificationHistory */}
-            <Route path="/notification-history" element={
-              <ProtectedRoute>
-                <NotificationHistory />
-              </ProtectedRoute>
-            } />
-            
-            {/* Admin routes */}
-            <Route path="/admin" element={
-              <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
-                <Admin />
-              </ProtectedRoute>
-            } />
-            
-            {/* User Management - สำหรับ admin และ superadmin */}
-            <Route path="/user-management" element={
-              <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
-                <UserManagement />
-              </ProtectedRoute>
-            } />
-            
-            {/* News Management - สำหรับ admin และ superadmin */}
-            <Route path="/news-management" element={
-              <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
-                <NewsManagement />
-              </ProtectedRoute>
-            } />
-            
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/waiting" element={<ProtectedRoute><Waiting /></ProtectedRoute>} />
+          
+          {/* Public routes */}
+          <Route path="/" element={<Index />} />
+          <Route path="/news" element={<News />} />
+          <Route path="/rice-prices" element={<RicePrices />} />
+          
+          {/* Protected routes */}
+          <Route path="/equipment" element={<ProtectedRoute><Equipment /></ProtectedRoute>} />
+          <Route path="/measurements" element={<ProtectedRoute><Measurements /></ProtectedRoute>} />
+          <Route path="/device/:deviceCode" element={<ProtectedRoute><DeviceDetails /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          
+          {/* Admin routes */}
+          <Route path="/admin" element={<ProtectedRoute requireRole="admin"><Admin /></ProtectedRoute>} />
+          <Route path="/user-management" element={<ProtectedRoute requireRole="admin"><UserManagement /></ProtectedRoute>} />
+          <Route path="/device-management" element={<ProtectedRoute requireRole="admin"><DeviceManagement /></ProtectedRoute>} />
+          <Route path="/rice-price-management" element={<ProtectedRoute requireRole="admin"><RicePriceManagement /></ProtectedRoute>} />
+          <Route path="/news-management" element={<ProtectedRoute requireRole="admin"><NewsManagement /></ProtectedRoute>} />
+          
+          {/* Notification routes */}
+          <Route path="/notifications" element={<ProtectedRoute><NotificationSettings /></ProtectedRoute>} />
+          <Route path="/notification-history" element={<ProtectedRoute><NotificationHistory /></ProtectedRoute>} />
+          
+          {/* 404 route */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <Toaster />
       </AuthProvider>
-    </QueryClientProvider>
+    </Router>
   );
 }
 

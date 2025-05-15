@@ -22,20 +22,24 @@ interface HistoryItem {
 type HistoryChartProps = {
   historyData: HistoryItem[] | undefined;
   isLoading: boolean;
-  symbol: string;
-  timeFrame: TimeFrame;
+  dataKey: string;
+  error: string | null;
+  unit?: string;
+  timeFrame?: TimeFrame;
 };
 
 const HistoryChart: React.FC<HistoryChartProps> = ({ 
   historyData, 
   isLoading, 
-  symbol,
-  timeFrame 
+  dataKey,
+  error,
+  unit,
+  timeFrame = '24h'
 }) => {
   // Calculate average
   const average = useMemo(() => 
-    calculateAverage(historyData || [], symbol), 
-    [historyData, symbol]
+    calculateAverage(historyData || [], dataKey), 
+    [historyData, dataKey]
   );
 
   // Prepare data for the chart
@@ -69,12 +73,12 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
         
         return {
           time: thaiTime,
-          value: item[symbol] !== null && item[symbol] !== undefined ? Number(item[symbol]) : null,
+          value: item[dataKey] !== null && item[dataKey] !== undefined ? Number(item[dataKey]) : null,
           date: thaiDate
         };
       })
       .reverse();
-  }, [historyData, symbol, timeFrame]);
+  }, [historyData, dataKey, timeFrame]);
 
   if (isLoading) {
     return (
