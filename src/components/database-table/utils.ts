@@ -9,8 +9,8 @@ export const formatDate = (dateString: string | null, columnKey?: string): strin
   if (!dateString) return "-";
   
   try {
-    // ถ้าเป็นคอลัมน์ thai_datetime ให้แสดงเฉพาะวันที่และเวลา
-    if (columnKey === 'thai_datetime') {
+    // เพื่อความสม่ำเสมอ ให้แสดง thai_datetime ตามที่มีในฐานข้อมูลโดยตรง
+    if (columnKey === 'thai_datetime' || dateString.includes('T')) {
       // แยกส่วนวันที่และเวลาจาก thai_datetime
       const [datePart, timePart] = dateString.split('T');
       // ตัดส่วน timezone ออกจากเวลา (ถ้ามี)
