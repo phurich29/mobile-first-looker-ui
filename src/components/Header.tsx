@@ -76,7 +76,7 @@ export const Header = () => {
         <div className="flex flex-col h-full p-4 bg-[#fff9df]">
           <div className="flex justify-between items-center mb-8 mt-4">
             <div className="flex items-center gap-2">
-              <img src="/lovable-uploads/93c9c8f7-4897-4dae-b13b-462f7b25c39b.png" alt="RiceFlow Logo" className="h-8 w-auto" />
+              <img src="/lovable-uploads/649554cd-4d80-484a-995d-e49f2721a07d.png" alt="RiceFlow Logo" className="h-8 w-auto rounded-full" />
               <h2 className="text-xl font-semibold text-emerald-700">RiceFlow</h2>
             </div>
             <Button variant="ghost" size="icon" className="text-gray-500 md:hidden" onClick={() => setSidebarOpen(false)}>
@@ -151,10 +151,22 @@ export const Header = () => {
       
       {/* Enhanced header for full-width on desktop with better aesthetics */}
       <header className={`flex items-center justify-between bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-lg ${!isMobile ? 'w-full md:ml-64 md:py-6 px-8' : 'px-4 py-5'}`}>
-        {/* Mobile Menu Trigger */}
-        <Button variant="ghost" size="icon" className="text-white p-1 hover:bg-emerald-600/70 md:hidden" onClick={() => setSidebarOpen(true)}>
-          <Menu className="h-5 w-5" />
-        </Button>
+        {/* Mobile Menu and Logo Group */}
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" className="text-white p-1 hover:bg-emerald-600/70 md:hidden" onClick={() => setSidebarOpen(true)}>
+            <Menu className="h-5 w-5" />
+          </Button>
+          
+          {/* Add RiceFlow Logo in header */}
+          <div className="flex items-center gap-2">
+            <img 
+              src="/lovable-uploads/649554cd-4d80-484a-995d-e49f2721a07d.png" 
+              alt="RiceFlow Logo" 
+              className="h-8 w-8 rounded-full border-2 border-white/40 shadow-sm" 
+            />
+            {!isMobile && <span className="font-semibold text-white">RiceFlow</span>}
+          </div>
+        </div>
 
         {/* Digital Clock with enhanced styling */}
         <div className="flex items-center gap-2 mx-auto md:mx-0">
