@@ -90,22 +90,17 @@ export function AddDeviceForm({ onDeviceAdded }: AddDeviceFormProps) {
         <CardTitle>เพิ่มอุปกรณ์ใหม่ (แบบกำหนดเอง)</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleAddDevice} className="flex items-end gap-2">
-          <div className="flex-1">
-            <label htmlFor="device-code" className="text-sm font-medium mb-1 block">
-              รหัสอุปกรณ์
-            </label>
-            <Input
-              id="device-code"
-              placeholder="ระบุรหัสอุปกรณ์"
-              value={deviceCode}
-              onChange={(e) => setDeviceCode(e.target.value)}
-              disabled={isLoading}
-            />
-          </div>
+        <form onSubmit={handleAddDevice} className="flex items-center gap-2">
+          <Input
+            id="device-code"
+            placeholder="ระบุรหัสอุปกรณ์"
+            value={deviceCode}
+            onChange={(e) => setDeviceCode(e.target.value)}
+            disabled={isLoading}
+          />
           <Button type="submit" disabled={isLoading}>
             <PlusCircle className="h-4 w-4 mr-2" />
-            เพิ่มอุปกรณ์
+            เพิ่ม
           </Button>
         </form>
       </CardContent>
