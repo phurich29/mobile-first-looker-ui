@@ -1,9 +1,10 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { EquipmentCard } from "@/components/EquipmentCard";
 import { supabase, supabaseAdmin } from "@/integrations/supabase/client";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { FooterNav } from "@/components/FooterNav";
@@ -11,6 +12,17 @@ import { useAuth } from "@/components/AuthProvider";
 import { useQuery } from "@tanstack/react-query";
 import { DatabaseTable } from "@/components/DatabaseTable";
 import { AddDeviceForm } from "@/components/device-management/AddDeviceForm";
+
+// List of required device codes that must be displayed
+const REQUIRED_DEVICE_CODES = [
+  '6000306302144',
+  '6000306302140',
+  '6400000401493',
+  '6000306302141',
+  '6400000401483',
+  '6400000401398',
+  '6400000401503'
+];
 
 interface DeviceInfo {
   device_code: string;
@@ -28,15 +40,27 @@ export default function Equipment() {
   const isAdmin = userRoles.includes('admin') || userRoles.includes('superadmin');
   const isSuperAdmin = userRoles.includes('superadmin');
 
-  // Function to fetch ALL device data using direct query without limits 
+  // Function to fetch ALL device data including required devices
   const fetchAllDevices = useCallback(async () => {
     try {
       if (!user) return [];
 
-      console.log('Fetching devices for superadmin...');
+      console.log('Fetching devices...');
+      
+      // Always include these specific devices in the result
+      const requiredDevices = [...REQUIRED_DEVICE_CODES];
+      console.log('Required devices:', requiredDevices);
       
       if (isSuperAdmin) {
-        // For superadmin, fetch ALL unique devices with no limit
+        // For superadmin, start with required devices
+        const requiredDeviceObjects = requiredDevices.map(deviceCode => ({
+          device_code: deviceCode,
+          updated_at: null
+        }));
+        
+        console.log('Starting with required devices for superadmin');
+        
+        // Then fetch all devices from the database
         const { data, error } = await supabaseAdmin
           .from('rice_quality_analysis')
           .select('device_code')
@@ -45,17 +69,25 @@ export default function Equipment() {
           
         if (error) {
           console.error("Error fetching all devices:", error);
-          throw error;
+          // Even if there's an error, still return the required devices
+          return requiredDeviceObjects;
         }
         
         // Process to get unique devices with latest timestamp
         if (!data || data.length === 0) {
-          console.log("No devices found");
-          return [];
+          console.log("No devices found in database, using required devices only");
+          return requiredDeviceObjects;
         }
         
         // Use Set to get unique device codes
         const uniqueDeviceCodes = new Set<string>();
+        
+        // First add all required devices
+        requiredDevices.forEach(code => {
+          uniqueDeviceCodes.add(code);
+        });
+        
+        // Then add any additional devices from the database
         data.forEach(item => {
           if (item.device_code) {
             uniqueDeviceCodes.add(item.device_code);
@@ -64,10 +96,34 @@ export default function Equipment() {
         
         // Convert Set to array of device codes
         const deviceCodes = Array.from(uniqueDeviceCodes);
-        console.log(`Found ${deviceCodes.length} unique device codes:`, deviceCodes);
+        console.log(`Found ${deviceCodes.length} unique device codes after merging`);
         
         // For each unique device code, get the latest entry
         const devicePromises = deviceCodes.map(async (deviceCode) => {
+          // For required devices that aren't in the database yet, just return with null timestamp
+          if (requiredDevices.includes(deviceCode)) {
+            const { data: latestEntry, error: latestError } = await supabaseAdmin
+              .from('rice_quality_analysis')
+              .select('device_code, created_at')
+              .eq('device_code', deviceCode)
+              .order('created_at', { ascending: false })
+              .limit(1);
+              
+            // If there's data, use it, otherwise use null timestamp
+            if (latestError || !latestEntry || latestEntry.length === 0) {
+              return {
+                device_code: deviceCode,
+                updated_at: null
+              };
+            }
+            
+            return {
+              device_code: deviceCode,
+              updated_at: latestEntry[0].created_at
+            };
+          }
+          
+          // For other devices, get their latest timestamp
           const { data: latestEntry, error: latestError } = await supabaseAdmin
             .from('rice_quality_analysis')
             .select('device_code, created_at')
@@ -90,7 +146,7 @@ export default function Equipment() {
         });
         
         const deviceResults = await Promise.all(devicePromises);
-        console.log(`Processed ${deviceResults.length} devices with timestamps:`, deviceResults);
+        console.log(`Processed ${deviceResults.length} devices with timestamps`);
         
         return deviceResults;
       } 
@@ -106,49 +162,70 @@ export default function Equipment() {
 
         if (userDevicesError) {
           console.error("Error fetching user device access:", userDevicesError);
-          throw userDevicesError;
+          return [];
         }
 
-        if (!userDevices || userDevices.length === 0) {
+        // Create a set of authorized device codes
+        const authorizedDeviceCodes = new Set<string>();
+        
+        // Add user's authorized devices
+        userDevices?.forEach(d => {
+          if (d.device_code) {
+            authorizedDeviceCodes.add(d.device_code);
+          }
+        });
+        
+        // If user is admin, also add required devices
+        if (isAdmin) {
+          requiredDevices.forEach(code => {
+            authorizedDeviceCodes.add(code);
+          });
+        }
+        
+        if (authorizedDeviceCodes.size === 0) {
           console.log("User has no device access permissions.");
           return [];
         }
 
-        // Get list of authorized device codes
-        const authorizedDeviceCodes = userDevices.map(d => d.device_code);
-        console.log("Authorized device codes:", authorizedDeviceCodes);
+        console.log("Authorized device codes:", Array.from(authorizedDeviceCodes));
         
         // Get data for authorized devices
-        const { data: deviceData, error: deviceError } = await supabase
-          .from('rice_quality_analysis')
-          .select('device_code, created_at')
-          .in('device_code', authorizedDeviceCodes)
-          .order('created_at', { ascending: false });
+        const authorizedDeviceArray = Array.from(authorizedDeviceCodes);
+        const devicePromises = authorizedDeviceArray.map(async (deviceCode) => {
+          const { data: deviceData, error: deviceError } = await supabase
+            .from('rice_quality_analysis')
+            .select('device_code, created_at')
+            .eq('device_code', deviceCode)
+            .order('created_at', { ascending: false })
+            .limit(1);
 
-        if (deviceError) {
-          console.error("Error fetching authorized devices:", deviceError);
-          throw deviceError;
-        }
-
-        // Process to get unique devices
-        const deviceMap = new Map<string, DeviceInfo>();
-        deviceData?.forEach(item => {
-          if (item.device_code && !deviceMap.has(item.device_code)) {
-            deviceMap.set(item.device_code, {
-              device_code: item.device_code,
-              updated_at: item.created_at
-            });
+          if (deviceError) {
+            console.error(`Error fetching data for device ${deviceCode}:`, deviceError);
+            return {
+              device_code: deviceCode,
+              updated_at: null
+            };
           }
+
+          return {
+            device_code: deviceCode,
+            updated_at: deviceData && deviceData.length > 0 ? deviceData[0].created_at : null
+          };
         });
 
-        console.log("Fetched authorized devices for user:", deviceMap.size);
-        return Array.from(deviceMap.values());
+        const deviceResults = await Promise.all(devicePromises);
+        console.log("Fetched authorized devices for user:", deviceResults.length);
+        return deviceResults;
       }
     } catch (error) {
       console.error("Error in fetchAllDevices:", error);
-      throw error;
+      // Return required devices even if there's an error
+      return REQUIRED_DEVICE_CODES.map(code => ({
+        device_code: code,
+        updated_at: null
+      }));
     }
-  }, [user, userRoles, isSuperAdmin]);
+  }, [user, userRoles, isSuperAdmin, isAdmin]);
 
   // Count total unique devices (for superadmin only)
   const getUniqueDevicesCount = useCallback(async () => {
@@ -175,6 +252,11 @@ export default function Equipment() {
         if (item.device_code) {
           uniqueDeviceCodes.add(item.device_code);
         }
+      });
+      
+      // Also add required devices to the count
+      REQUIRED_DEVICE_CODES.forEach(code => {
+        uniqueDeviceCodes.add(code);
       });
       
       const count = uniqueDeviceCodes.size;
@@ -231,75 +313,6 @@ export default function Equipment() {
       console.log("Refreshing device data...");
       setIsRefreshing(true);
       
-      // For superadmins, use the direct query approach to ensure ALL devices are fetched
-      if (isSuperAdmin) {
-        // Get ALL unique device codes from rice_quality_analysis
-        const { data: allDevicesData, error: allDevicesError } = await supabaseAdmin
-          .from('rice_quality_analysis')
-          .select('device_code')
-          .not('device_code', 'is', null)
-          .not('device_code', 'eq', '');
-          
-        if (allDevicesError) {
-          throw allDevicesError;
-        }
-        
-        if (!allDevicesData || allDevicesData.length === 0) {
-          console.log("No devices found in refresh");
-          setDevices([]);
-          return;
-        }
-        
-        // Get unique device codes
-        const uniqueDeviceCodes = new Set<string>();
-        allDevicesData.forEach(item => {
-          if (item.device_code) {
-            uniqueDeviceCodes.add(item.device_code);
-          }
-        });
-        
-        // For each unique device code, get the latest entry
-        const deviceCodes = Array.from(uniqueDeviceCodes);
-        const devicePromises = deviceCodes.map(async (deviceCode) => {
-          const { data: latestEntry, error: latestError } = await supabaseAdmin
-            .from('rice_quality_analysis')
-            .select('device_code, created_at')
-            .eq('device_code', deviceCode)
-            .order('created_at', { ascending: false })
-            .limit(1);
-            
-          if (latestError) {
-            console.error(`Error refreshing data for device ${deviceCode}:`, latestError);
-            return {
-              device_code: deviceCode,
-              updated_at: null
-            };
-          }
-          
-          return {
-            device_code: deviceCode,
-            updated_at: latestEntry && latestEntry.length > 0 ? latestEntry[0].created_at : null
-          };
-        });
-        
-        const deviceResults = await Promise.all(devicePromises);
-        console.log(`Refresh found ${deviceResults.length} unique devices with timestamps`);
-        
-        setDevices(deviceResults);
-        
-        // Update count for superadmin
-        const count = uniqueDeviceCodes.size;
-        setTotalUniqueDevices(count);
-        
-        toast({
-          title: "อัพเดทข้อมูลสำเร็จ",
-          description: `พบ ${deviceResults.length} อุปกรณ์ทั้งหมด`,
-        });
-        
-        return;
-      } 
-      
-      // For non-superadmin users, use the regular refetch
       await refetch();
       
       toast({
@@ -309,6 +322,11 @@ export default function Equipment() {
           : "ไม่พบอุปกรณ์ที่คุณมีสิทธิ์เข้าถึง",
       });
       
+      // For superadmin, update the total count too
+      if (isSuperAdmin) {
+        const count = await getUniqueDevicesCount();
+        setTotalUniqueDevices(count);
+      }
     } catch (error) {
       console.error("Refresh error:", error);
       toast({

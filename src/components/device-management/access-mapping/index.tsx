@@ -1,10 +1,11 @@
 
 import { DeviceListSelector } from "./DeviceList";
-import { UserList } from "./UserList";
+import { UserListSelector } from "./UserList";
 import { AccessMappingHeader } from "./AccessMappingHeader";
 import { Dispatch, SetStateAction, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 interface User {
   id: string;
@@ -137,7 +138,11 @@ const AccessMapping = ({
   
   return (
     <div className="space-y-4">
-      <AccessMappingHeader />
+      <AccessMappingHeader 
+        selectedDevice={selectedDevice}
+        selectedUser={selectedUser}
+        users={users}
+      />
       
       <div className="grid md:grid-cols-2 gap-6">
         {/* Device List */}
@@ -154,8 +159,10 @@ const AccessMapping = ({
         {/* User List */}
         <div>
           <h3 className="text-lg font-medium mb-3">ผู้ใช้งาน</h3>
-          <UserList 
+          <UserListSelector 
             users={users}
+            devices={devices}
+            deviceUserMap={deviceUserMap}
             selectedUser={selectedUser}
             onSelect={handleSelectUser}
           />
