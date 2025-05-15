@@ -6,6 +6,7 @@ import { IconMenu } from "@/components/IconMenu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { NotificationList } from "@/components/NotificationList";
+import { File } from "lucide-react";
 
 const Index = () => {
   const isMobile = useIsMobile();
@@ -20,14 +21,7 @@ const Index = () => {
           <div className={`${!isMobile ? 'mb-8 mt-3' : 'mb-6 mt-3'}`}>
             <div className="flex justify-between items-center mb-3">
               <h2 className="font-semibold text-lg text-gray-800 flex items-center gap-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600">
-                  <path d="M6 4v16"></path>
-                  <path d="M18 4v16"></path>
-                  <path d="M6 8h12"></path>
-                  <path d="M6 16h12"></path>
-                  <path d="m8 16 4-4 4 4"></path>
-                  <path d="m16 8-4 4-4-4"></path>
-                </svg>
+                <File className="text-white bg-emerald-600 p-0.5 rounded-sm" size={20} />
                 ข่าวสารและประกาศ
               </h2>
               <CountdownTimer 
