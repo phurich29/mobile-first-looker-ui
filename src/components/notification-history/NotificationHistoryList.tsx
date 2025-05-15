@@ -16,6 +16,7 @@ import {
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, RefreshCcw } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 
 export interface Notification {
   id: string;
@@ -27,11 +28,10 @@ export interface Notification {
   notification_count: number;
   timestamp: string;
   read: boolean;
+  analysis_id?: number;
 }
 
 export const NotificationHistoryList = () => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -39,60 +39,65 @@ export const NotificationHistoryList = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchNotifications();
-  }, [currentPage]);
-
-  const fetchNotifications = async () => {
-    try {
-      setLoading(true);
-      
-      // Fetch total count for pagination
-      const { count, error: countError } = await supabase
-        .from("notifications")
-        .select("*", { count: "exact", head: true });
+  // Use React Query for data fetching with auto-refresh
+  const { 
+    data: notifications = [], 
+    isLoading: loading,
+    refetch,
+    isFetching
+  } = useQuery({
+    queryKey: ['notification_history', currentPage, rowsPerPage],
+    queryFn: async () => {
+      try {
+        // Fetch total count for pagination
+        const { count, error: countError } = await supabase
+          .from("notifications")
+          .select("*", { count: "exact", head: true });
+          
+        if (countError) {
+          throw countError;
+        }
         
-      if (countError) {
-        throw countError;
-      }
-      
-      setTotalCount(count || 0);
-      setTotalPages(Math.ceil((count || 0) / rowsPerPage));
-      
-      // Calculate pagination range
-      const from = (currentPage - 1) * rowsPerPage;
-      const to = from + rowsPerPage - 1;
-      
-      // Fetch notifications with pagination
-      const { data, error } = await supabase
-        .from("notifications")
-        .select("*")
-        .order("timestamp", { ascending: false })
-        .range(from, to);
+        setTotalCount(count || 0);
+        setTotalPages(Math.ceil((count || 0) / rowsPerPage));
         
-      if (error) {
-        throw error;
+        // Calculate pagination range
+        const from = (currentPage - 1) * rowsPerPage;
+        const to = from + rowsPerPage - 1;
+        
+        // Fetch notifications with pagination
+        const { data, error } = await supabase
+          .from("notifications")
+          .select("*")
+          .order("timestamp", { ascending: false })
+          .range(from, to);
+          
+        if (error) {
+          throw error;
+        }
+        
+        console.log("Fetched notifications:", data);
+        return data as Notification[];
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+        toast({
+          title: "เกิดข้อผิดพลาด",
+          description: "ไม่สามารถดึงข้อมูลประวัติการแจ้งเตือนได้",
+          variant: "destructive",
+        });
+        return [];
       }
-      
-      setNotifications(data as Notification[]);
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-      toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถดึงข้อมูลประวัติการแจ้งเตือนได้",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    staleTime: 30000, // Consider data fresh for 30 seconds
+    refetchInterval: 60000, // Auto-refetch every 60 seconds
+  });
 
   const handleViewDetails = (deviceCode: string, riceTypeId: string) => {
-    navigate(`/measurement-history/${deviceCode}/${riceTypeId}`);
+    navigate(`/device/${deviceCode}`);
   };
 
   const handleRefresh = () => {
-    fetchNotifications();
+    refetch();
     toast({
       title: "รีเฟรชข้อมูล",
       description: "อัปเดตข้อมูลประวัติการแจ้งเตือนล่าสุด",
@@ -124,14 +129,15 @@ export const NotificationHistoryList = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold">ประวัติการแจ้งเตือน</h2>
+        <h2 className="text-lg font-semibold">ประวัติการแจ้งเตือน ({totalCount})</h2>
         <Button 
           variant="outline" 
           onClick={handleRefresh} 
           className="flex items-center gap-1"
           size="sm"
+          disabled={isFetching}
         >
-          <RefreshCcw className="h-4 w-4" />
+          <RefreshCcw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
           <span>รีเฟรช</span>
         </Button>
       </div>
@@ -145,6 +151,7 @@ export const NotificationHistoryList = () => {
       ) : notifications.length === 0 ? (
         <div className="text-center py-8 border rounded-lg bg-gray-50">
           <p className="text-gray-500">ไม่พบประวัติการแจ้งเตือน</p>
+          <p className="text-sm text-gray-400 mt-1">ตาราง notifications ในฐานข้อมูลยังไม่มีข้อมูล</p>
         </div>
       ) : (
         <>
@@ -152,10 +159,11 @@ export const NotificationHistoryList = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>ID</TableHead>
                   <TableHead>เวลา</TableHead>
                   <TableHead>อุปกรณ์</TableHead>
+                  <TableHead>ค่าที่วัด</TableHead>
                   <TableHead>ประเภท</TableHead>
-                  <TableHead>ค่าวัด</TableHead>
                   <TableHead>ข้อความ</TableHead>
                   <TableHead className="text-right">จำนวนครั้ง</TableHead>
                   <TableHead></TableHead>
@@ -164,17 +172,20 @@ export const NotificationHistoryList = () => {
               <TableBody>
                 {notifications.map((notification) => (
                   <TableRow key={notification.id}>
+                    <TableCell className="font-mono text-xs text-gray-500">
+                      {notification.id.substring(0, 8)}...
+                    </TableCell>
                     <TableCell className="font-medium whitespace-nowrap">
                       {formatDate(notification.timestamp)}
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
                       {notification.device_code}
                     </TableCell>
+                    <TableCell className="font-medium">
+                      {notification.value?.toFixed(2) || 'N/A'}
+                    </TableCell>
                     <TableCell>
                       {getThresholdBadge(notification.threshold_type)}
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {notification.value.toFixed(2)}
                     </TableCell>
                     <TableCell className="max-w-xs truncate">
                       {notification.notification_message}
