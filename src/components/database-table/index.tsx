@@ -4,6 +4,7 @@ import { TableControls } from "./TableControls";
 import { TableContent } from "./TableContent";
 import { TablePagination } from "./TablePagination";
 import { useDatabaseTable } from "./useDatabaseTable";
+import { formatDate } from "./utils";
 
 export function DatabaseTable() {
   const {
@@ -38,6 +39,7 @@ export function DatabaseTable() {
           error={error}
           columnKeys={columnKeys}
           fetchData={fetchData}
+          formatDate={formatDate}
         />
         
         {/* Pagination Controls */}
