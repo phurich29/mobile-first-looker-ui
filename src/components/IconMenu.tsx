@@ -48,7 +48,7 @@ export const IconMenu = () => {
   return (
     <div className="px-4 mb-6">
       <div className="px-[5%] mb-3 flex justify-between items-center md:px-0">
-        <h2 className="font-semibold text-gray-700 border-b-2 border-[#f7cd56] inline-block pb-1">รายการแนะนำ</h2>
+        <h2 className="font-semibold text-gray-700 border-b-2 border-[#f7cd56] inline-block pb-1">บริการทั้งหมด</h2>
         <div className="flex items-center relative">
           {/* Wheat icon group with varied sizes and positions */}
           <Wheat className="text-amber-400 absolute -top-3 -left-8" size={16} strokeWidth={2.5} />

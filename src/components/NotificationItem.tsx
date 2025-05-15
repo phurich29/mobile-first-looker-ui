@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Bell, BellOff, CircleAlert, AlertTriangle, ThermometerSnowflake, GaugeCircle, ArrowUp, ArrowDown, Wheat } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import "./notification-item-animation.css"; // สำหรับ animation
 import { getLatestMeasurement } from "./measurement-history/api";
 
 type NotificationItemProps = {
@@ -200,6 +201,13 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
     >
       {/* เพิ่มองค์ประกอบด้านหลังเพื่อความมีมิติ */}
       <div className="absolute inset-0 w-full h-full bg-white opacity-80"></div>
+      
+      {/* แสดงไอคอนกระดิ่งกระพริบเมื่อเข้าเงื่อนไขแจ้งเตือน */}
+      {isAlertActive && (
+        <div className="absolute top-1/2 right-1/4 transform -translate-y-1/2 z-20 bell-animation">
+          <Bell size={18} className="text-yellow-400 fill-yellow-400" />
+        </div>
+      )}
       
       {/* ลบการแสดงค่าล่าสุดชิดขวาบนออก เพราะจะย้ายไปอยู่ในกรอบเดียวกับกฎ */}
       
