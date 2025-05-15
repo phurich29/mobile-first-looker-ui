@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { CalendarDays } from "lucide-react";
@@ -26,14 +25,11 @@ export const NewsSlider = () => {
   // Auto-slide effect that runs every 6 seconds
   useEffect(() => {
     if (!api || news.length <= 1) return;
-    
     const interval = setInterval(() => {
       api.scrollNext();
     }, 6000);
-    
     return () => clearInterval(interval);
   }, [api, news.length]);
-
   useEffect(() => {
     const fetchNews = async () => {
       try {
@@ -78,7 +74,7 @@ export const NewsSlider = () => {
       </div>;
   }
   return <div className="mb-6 w-full">
-      <h2 className="font-semibold text-lg text-gray-800 mb-3">ข่าวสารและประกาศ</h2>
+      
       <Carousel opts={{
       align: "start",
       loop: true
