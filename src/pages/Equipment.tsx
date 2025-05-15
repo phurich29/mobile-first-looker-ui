@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -122,41 +121,30 @@ export default function Equipment() {
     }
   }, [user, userRoles, isSuperAdmin]);
 
-  // Function to execute the raw SQL query during refresh
-  const fetchDevicesWithRawQuery = useCallback(async () => {
+  // Function to fetch devices using the get_device_data database function
+  const fetchDevicesWithDatabaseFunction = useCallback(async () => {
     try {
-      console.log('Executing raw SQL query for devices...');
+      console.log('Using get_device_data database function to fetch devices...');
       
-      // Execute the query directly using REST call to avoid TypeScript errors with RPC
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/rpc/execute_raw_query`, {
-        method: 'POST',
-        headers: {
-          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=representation'
-        },
-        body: JSON.stringify({
-          sql_query: 'SELECT rqa.device_code, MAX(rqa.created_at) as updated_at FROM rice_quality_analysis rqa GROUP BY rqa.device_code'
-        })
-      });
+      const { data, error } = await supabase
+        .rpc('get_device_data');
         
-      if (!response.ok) {
-        throw new Error(`Error executing raw SQL query: ${response.statusText}`);
+      if (error) {
+        console.error("Error fetching devices with get_device_data:", error);
+        throw error;
       }
       
-      const data = await response.json();
-      
-      if (!data || !Array.isArray(data)) {
-        console.log("Raw query returned no results or invalid format");
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        console.log("get_device_data returned no results");
         return [];
       }
       
-      console.log(`Raw query returned ${data.length} unique devices`);
+      console.log(`get_device_data returned ${data.length} unique devices`);
       return data as DeviceInfo[];
       
     } catch (error) {
-      console.error("Error in fetchDevicesWithRawQuery:", error);
-      // Fallback to regular fetch if the raw query fails
+      console.error("Error in fetchDevicesWithDatabaseFunction:", error);
+      // Fallback to regular fetch if the database function fails
       return fetchDeviceData();
     }
   }, [fetchDeviceData]);
@@ -168,25 +156,17 @@ export default function Equipment() {
       
       console.log('Counting unique devices...');
       
+      // Using the database function to get full device list
       const { data, error } = await supabase
-        .from('rice_quality_analysis')
-        .select('device_code')
-        .not('device_code', 'is', null);
+        .rpc('get_device_data');
       
       if (error) {
         console.error("Error counting unique devices:", error);
         return 0;
       }
       
-      // Use Set to count unique device codes
-      const uniqueDeviceCodes = new Set();
-      data?.forEach(item => {
-        if (item.device_code) {
-          uniqueDeviceCodes.add(item.device_code);
-        }
-      });
-      
-      const count = uniqueDeviceCodes.size;
+      // The function already returns unique devices
+      const count = Array.isArray(data) ? data.length : 0;
       console.log(`Found ${count} unique devices`);
       return count;
     } catch (error) {
@@ -234,33 +214,40 @@ export default function Equipment() {
     }
   }, [user, isSuperAdmin, getUniqueDevicesCount]);
 
-  // Handle refresh - Using direct fetch API for the raw SQL query
+  // Handle refresh - Using the database function for reliable results
   const handleRefresh = async () => {
     try {
-      console.log("Refreshing device data using raw SQL query...");
+      console.log("Refreshing device data using database function...");
       setIsRefreshing(true);
       
-      // Use the fetchDevicesWithRawQuery function that handles proper typing
-      const deviceResults = await fetchDevicesWithRawQuery();
+      // Use the database function to get all devices
+      const deviceResults = await fetchDevicesWithDatabaseFunction();
       
       if (Array.isArray(deviceResults) && deviceResults.length > 0) {
-        console.log(`Raw SQL query returned ${deviceResults.length} devices`);
+        console.log(`Database function returned ${deviceResults.length} devices`);
         setDevices(deviceResults);
+        
+        toast({
+          title: "อัพเดทข้อมูลสำเร็จ",
+          description: `พบ ${deviceResults.length} อุปกรณ์ที่คุณมีสิทธิ์เข้าถึง`,
+        });
       } else {
-        // Fallback to regular refetch if raw query returns no results
+        // Fallback to regular refetch if database function returns no results
         console.log("Falling back to regular refetch...");
         await refetch();
+        
+        toast({
+          title: "อัพเดทข้อมูลสำเร็จ",
+          description: devices.length > 0 
+            ? `พบ ${devices.length} อุปกรณ์ที่คุณมีสิทธิ์เข้าถึง` 
+            : "ไม่พบอุปกรณ์ที่คุณมีสิทธิ์เข้าถึง",
+        });
       }
       
       if (isSuperAdmin) {
         const count = await getUniqueDevicesCount();
         setTotalUniqueDevices(count);
       }
-      
-      toast({
-        title: "อัพเดทข้อมูลสำเร็จ",
-        description: `พบ ${devices.length} อุปกรณ์ที่คุณมีสิทธิ์เข้าถึง`,
-      });
     } catch (error) {
       console.error("Refresh error:", error);
       toast({
@@ -305,7 +292,7 @@ export default function Equipment() {
             {isLoading ? (
               <p className="text-gray-500 text-sm">กำลังดึงข้อมูลอุปกรณ์...</p>
             ) : isSuperAdmin ? (
-              <p className="text-gray-500 text-sm">ไม่พบอุปกรณ์ กรุณากดปุ่มรีเฟรชเพื่อค้นหาอุปกรณ์</p>
+              <p className="text-gray-500 text-sm">ไม่พบอุปกรณ์ กรุณากดปุ่มรีเฟรชเพื่อค้นหาอุปก��ณ์</p>
             ) : (
               <p className="text-gray-500 text-sm">
                 คุณยังไม่ได้รับสิทธิ์ให้เข้าถึงอุปกรณ์ใดๆ กรุณาติดต่อ Super Admin เพื่อขอสิทธิ์การเข้าถึง
