@@ -216,7 +216,7 @@ export function FilteredDatabaseTable({ deviceCode, symbol, name }: FilteredData
     });
   };
 
-  // ปรับปรุงฟังก์ชัน formatDate เพื่อให้แสดง thai_datetime ในรูปแบบวันที่และเวลาแยกกัน
+  // ปรับปรุงฟังก์ชัน formatDate เพื่อให้แสดง thai_datetime ในรูปแบบที่ต้องการ
   const formatDate = (dateString: string | null, columnKey?: string) => {
     if (!dateString) return "-";
     try {
@@ -232,8 +232,8 @@ export function FilteredDatabaseTable({ deviceCode, symbol, name }: FilteredData
             // ตัดส่วนของ timezone (+00) ออกจากเวลา
             const timeWithoutTimezone = dateParts[1].split('+')[0];
             
-            // แสดงในรูปแบบ "วันที่: [date], เวลา: [time]"
-            return `วันที่: ${dateParts[0]}, เวลา: ${timeWithoutTimezone}`;
+            // แสดงในรูปแบบ "YYYY-MM-DD HH:MM:SS" (ไม่มีคำนำหน้า "วันที่:" หรือ "เวลา:")
+            return `${dateParts[0]} ${timeWithoutTimezone}`;
           }
           
           // หากไม่สามารถแยกได้ ให้แสดงค่าเดิม

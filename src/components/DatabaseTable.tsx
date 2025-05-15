@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ResponsiveTable } from "@/components/ui/responsive-table";
@@ -226,8 +227,8 @@ export function DatabaseTable() {
             // ตัดส่วนของ timezone (+00) ออกจากเวลา
             const timeWithoutTimezone = dateParts[1].split('+')[0];
             
-            // แสดงในรูปแบบ "วันที่: [date], เวลา: [time]"
-            return `วันที่: ${dateParts[0]}, เวลา: ${timeWithoutTimezone}`;
+            // แสดงในรูปแบบ "YYYY-MM-DD HH:MM:SS" (ไม่มีคำนำหน้า "วันที่:" หรือ "เวลา:")
+            return `${dateParts[0]} ${timeWithoutTimezone}`;
           }
           
           // หากไม่สามารถแยกได้ ให้แสดงค่าเดิม
