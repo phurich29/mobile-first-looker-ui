@@ -209,15 +209,19 @@ export function DatabaseTable() {
     });
   };
 
-  // ปรับปรุงฟังก์ชัน formatDate เพื่อให้แสดง thai_datetime ตรงตามค่าในฐานข้อมูล
+  // ปรับปรุงฟังก์ชัน formatDate เพื่อให้แสดง thai_datetime ในรูปแบบวันที่และเวลาเท่านั้น
   const formatDate = (dateString: string | null, columnKey?: string) => {
     if (!dateString) return "-";
     
     try {
-      // ถ้าเป็นคอลัมน์ thai_datetime ให้แสดงค่าตามที่มีในฐานข้อมูลโดยตรง
+      // ถ้าเป็นคอลัมน์ thai_datetime ให้แสดงเฉพาะวันที่และเวลา
       if (columnKey === 'thai_datetime') {
-        // แสดงค่า thai_datetime ตามที่อยู่ในฐานข้อมูลโดยไม่ต้องแปลง timezone
-        return dateString;
+        // แยกส่วนวันที่และเวลาจาก thai_datetime
+        const [datePart, timePart] = dateString.split('T');
+        // ตัดส่วน timezone ออกจากเวลา (ถ้ามี)
+        const timeOnly = timePart ? timePart.split('+')[0] : '';
+        
+        return `${datePart} ${timeOnly}`;
       }
       
       // สำหรับคอลัมน์อื่นๆ ยังคงใช้การแปลงวันที่แบบเดิม
