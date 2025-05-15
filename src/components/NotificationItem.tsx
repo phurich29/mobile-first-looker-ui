@@ -1,5 +1,5 @@
 import React from "react";
-import { Bell, BellOff, CircleAlert, AlertTriangle, ThermometerSnowflake, GaugeCircle, ArrowUp, ArrowDown } from "lucide-react";
+import { Bell, BellOff, CircleAlert, AlertTriangle, ThermometerSnowflake, GaugeCircle, ArrowUp, ArrowDown, Wheat } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 type NotificationItemProps = {
@@ -40,12 +40,26 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
     return '#8b5cf6'; // purple
   };
   
-  // Get icon based on notification type - updated to match device details page
+  // Get icon based on rice type and notification type - updated to match device details page
   const getIcon = () => {
     if (!enabled) {
       return <BellOff className="w-5 h-5 text-white" />;
     }
     
+    // Match rice type symbols from device details page
+    if (symbol === 'class1' || name.includes('ชั้น1')) {
+      return <Wheat className="w-5 h-5 text-white" />;
+    }
+    
+    if (symbol === 'class2' || name.includes('ชั้น2')) {
+      return <Wheat className="w-5 h-5 text-white" />;
+    }
+    
+    if (symbol === 'class3' || name.includes('ชั้น3')) {
+      return <Wheat className="w-5 h-5 text-white" />;
+    }
+    
+    // For regular threshold notifications
     if (type === 'min') {
       return <ArrowDown className="w-5 h-5 text-white" />;
     }
