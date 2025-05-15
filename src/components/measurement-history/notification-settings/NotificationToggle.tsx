@@ -9,7 +9,7 @@ interface NotificationToggleProps {
 }
 
 export const NotificationToggle = ({ 
-  enabled, 
+  enabled = false, 
   onChange, 
   disabled = false 
 }: NotificationToggleProps) => {
