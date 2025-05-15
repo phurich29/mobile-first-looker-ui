@@ -13,8 +13,14 @@ import {
 import { calculateAverage, formatBangkokTime, getTimeFrameHours } from './api';
 import { TimeFrame } from './MeasurementHistory';
 
+interface HistoryItem {
+  [key: string]: any;
+  created_at?: string;
+  thai_datetime?: string;
+}
+
 type HistoryChartProps = {
-  historyData: any[] | undefined;
+  historyData: HistoryItem[] | undefined;
   isLoading: boolean;
   symbol: string;
   timeFrame: TimeFrame;
@@ -57,12 +63,16 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
     }
     
     return historyData
-      .map((item: any) => ({
-        time: formatBangkokTime(item.created_at || item.thai_datetime).thaiTime,
-        value: (item as any)[symbol] !== null && (item as any)[symbol] !== undefined 
-               ? (item as any)[symbol] : null,
-        date: formatBangkokTime(item.created_at || item.thai_datetime).thaiDate
-      }))
+      .map((item: HistoryItem) => {
+        const dateString = item.created_at || item.thai_datetime;
+        const { thaiTime, thaiDate } = formatBangkokTime(dateString);
+        
+        return {
+          time: thaiTime,
+          value: item[symbol] !== null && item[symbol] !== undefined ? Number(item[symbol]) : null,
+          date: thaiDate
+        };
+      })
       .reverse();
   }, [historyData, symbol, timeFrame]);
 
@@ -74,9 +84,11 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
     );
   }
 
+  console.log("Chart data:", chartData);
+
   return (
     <div className="flex-1 bg-white rounded-lg shadow-lg border border-gray-200 p-2 hover:shadow-xl transition-shadow duration-300">
-      <div className="h-full">
+      <div className="h-[300px] sm:h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={chartData}
@@ -133,7 +145,7 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
               stroke="#9b87f5" 
               strokeWidth={2}
               dot={false}
-              activeDot={false}
+              activeDot={{ r: 4, stroke: '#9b87f5', strokeWidth: 2, fill: 'white' }}
               animationDuration={500}
             />
           </LineChart>

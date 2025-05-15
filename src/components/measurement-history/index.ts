@@ -1,7 +1,7 @@
 
-import MeasurementHistory from "./measurement-history/MeasurementHistory";
+import MeasurementHistory from "./MeasurementHistory";
 import NotificationSettingsDialog from "./notification-settings";
-import type { TimeFrame } from "./measurement-history/MeasurementHistory";
+import type { TimeFrame } from "./MeasurementHistory";
 
 export { 
   MeasurementHistory,

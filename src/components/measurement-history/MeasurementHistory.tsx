@@ -1,14 +1,13 @@
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import HistoryChart from "./HistoryChart";
-import { fetchMeasurementHistory, calculateAverage, formatBangkokTime } from "./api";
-import TimeframeSelector from "./TimeframeSelector";
 import HistoryHeader from "./HistoryHeader";
+import TimeframeSelector from "./TimeframeSelector";
 import HistoryFooter from "./HistoryFooter";
 import { NotificationSettingsDialog } from "./notification-settings";
+import { useMeasurementData } from "./hooks/useMeasurementData";
 
 export type TimeFrame = '1h' | '24h' | '7d' | '30d';
 
@@ -19,42 +18,16 @@ interface MeasurementHistoryProps {
   onClose: () => void;
 }
 
-// Define a type for the history data items to avoid type errors
-interface HistoryDataItem {
-  [key: string]: any;
-  created_at?: string;
-  thai_datetime?: string;
-}
-
 const MeasurementHistory = ({ symbol, name, deviceCode, onClose }: MeasurementHistoryProps) => {
-  const [timeFrame, setTimeFrame] = useState<TimeFrame>('24h');
   const [openSettings, setOpenSettings] = useState(false);
   
-  const { data: historyData, isLoading, isError, refetch } = useQuery({
-    queryKey: ['measurementHistory', deviceCode, symbol, timeFrame],
-    queryFn: () => fetchMeasurementHistory(deviceCode, symbol, timeFrame),
-  });
+  const {
+    historyData,
+    isLoading,
+    timeFrame,
+    setTimeFrame
+  } = useMeasurementData({ deviceCode, symbol });
 
-  const averageValue = historyData ? calculateAverage(historyData, symbol) : 0;
-  const latestEntry = historyData && historyData.length > 0 ? historyData[0] as HistoryDataItem : null;
-  const latestValue = latestEntry ? latestEntry[symbol] : 0;
-  
-  // Safely handle date formatting with proper type checking
-  const dateTimeInfo = { thaiDate: "", thaiTime: "" };
-  if (latestEntry) {
-    const dateString = latestEntry.created_at || latestEntry.thai_datetime;
-    if (dateString) {
-      const formatted = formatBangkokTime(dateString);
-      dateTimeInfo.thaiDate = formatted.thaiDate;
-      dateTimeInfo.thaiTime = formatted.thaiTime;
-    }
-  }
-  const { thaiDate, thaiTime } = dateTimeInfo;
-
-  const handleTimeFrameChange = (newTimeFrame: TimeFrame) => {
-    setTimeFrame(newTimeFrame);
-  };
-  
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50">
       <div className="pt-4 px-4 pb-2 bg-white shadow-sm">
@@ -82,7 +55,7 @@ const MeasurementHistory = ({ symbol, name, deviceCode, onClose }: MeasurementHi
         
         <TimeframeSelector
           timeFrame={timeFrame}
-          setTimeFrame={handleTimeFrameChange}
+          setTimeFrame={setTimeFrame}
         />
       </div>
 
