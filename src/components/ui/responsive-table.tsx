@@ -1,6 +1,6 @@
 
 import { cn } from "@/lib/utils";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./table";
+import { Table } from "./table";
 
 interface ResponsiveTableProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
@@ -8,8 +8,8 @@ interface ResponsiveTableProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function ResponsiveTable({ children, className, ...props }: ResponsiveTableProps) {
   return (
-    <div className={cn("w-full overflow-auto rounded-md border", className)} {...props}>
-      <Table>{children}</Table>
+    <div className={cn("w-full overflow-auto", className)} {...props}>
+      <Table className="min-w-full">{children}</Table>
     </div>
   );
 }

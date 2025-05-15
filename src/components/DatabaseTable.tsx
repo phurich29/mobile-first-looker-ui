@@ -5,6 +5,7 @@ import { ResponsiveTable } from "@/components/ui/responsive-table";
 import { TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface RiceQualityAnalysisRow {
   id: number;
@@ -29,7 +30,7 @@ export function DatabaseTable() {
       
       const { data, error } = await supabase
         .from('rice_quality_analysis')
-        .select('id, device_code, created_at, thai_datetime')
+        .select('*')
         .order('created_at', { ascending: false })
         .limit(100);
       
@@ -97,6 +98,20 @@ export function DatabaseTable() {
     );
   }
 
+  // Get all column keys from the first data item, excluding internal columns
+  const getColumnKeys = () => {
+    if (!data || data.length === 0) return ['id', 'device_code', 'created_at', 'thai_datetime'];
+    
+    const firstItem = data[0];
+    return Object.keys(firstItem).filter(key => 
+      !key.startsWith('_') && 
+      key !== 'sample_index' && 
+      key !== 'output'
+    );
+  };
+
+  const columnKeys = getColumnKeys();
+
   return (
     <div className="mt-8">
       <div className="flex justify-between items-center mb-4">
@@ -112,34 +127,38 @@ export function DatabaseTable() {
       </div>
       
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <ResponsiveTable>
-          <TableHeader>
-            <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>Device Code</TableHead>
-              <TableHead>Created At</TableHead>
-              <TableHead>Thai Datetime</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.length === 0 ? (
+        <ScrollArea className="h-[500px]">
+          <ResponsiveTable>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-4">
-                  ไม่พบข้อมูล
-                </TableCell>
+                {columnKeys.map((key) => (
+                  <TableHead key={key}>{key}</TableHead>
+                ))}
               </TableRow>
-            ) : (
-              data.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>{row.id}</TableCell>
-                  <TableCell>{row.device_code || "-"}</TableCell>
-                  <TableCell>{formatDate(row.created_at)}</TableCell>
-                  <TableCell>{formatDate(row.thai_datetime)}</TableCell>
+            </TableHeader>
+            <TableBody>
+              {data.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={columnKeys.length} className="text-center py-4">
+                    ไม่พบข้อมูล
+                  </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </ResponsiveTable>
+              ) : (
+                data.map((row) => (
+                  <TableRow key={row.id}>
+                    {columnKeys.map((key) => (
+                      <TableCell key={`${row.id}-${key}`}>
+                        {key.includes('date') || key.includes('_at') 
+                          ? formatDate(row[key]) 
+                          : row[key]?.toString() || "-"}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </ResponsiveTable>
+        </ScrollArea>
       </div>
     </div>
   );
