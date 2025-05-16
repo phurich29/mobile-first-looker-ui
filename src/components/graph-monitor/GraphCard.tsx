@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,6 +31,12 @@ interface ChartDataPoint {
   time: string;
   value: number;
   fullDate: string;
+}
+
+// Define the shape of data returned from Supabase
+interface RiceQualityDataPoint {
+  created_at: string;
+  [key: string]: any; // Dynamic property for measurement values
 }
 
 export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
@@ -74,7 +79,10 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
       // Transform the data for the chart with proper type checking
       const chartData: ChartDataPoint[] = [];
       
-      for (const item of responseData) {
+      // Make sure we're dealing with actual data points from the response
+      const validData = responseData as RiceQualityDataPoint[];
+      
+      for (const item of validData) {
         // Ensure the item exists and has the required properties
         if (item && 
             item[graph.symbol] !== undefined && 
