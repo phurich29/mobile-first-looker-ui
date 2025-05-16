@@ -42,7 +42,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
     try {
       const { data, error } = await supabase
         .from("rice_quality_analysis")
-        .select("created_at, measurements")
+        .select("*")  // Select all columns instead of specific measurements
         .eq("device_code", graph.deviceCode)
         .order("created_at", { ascending: false })
         .limit(30);
@@ -59,16 +59,13 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
         return;
       }
 
-      // Transform the data for the chart
+      // Transform the data for the chart, accessing the specific column directly
       const chartData = data
         .filter(item => 
-          item.measurements && 
-          item.measurements[graph.symbol] !== undefined
+          item[graph.symbol] !== undefined
         )
         .map(item => {
-          const value = item.measurements[graph.symbol];
-          const measurementValue = typeof value === 'object' ? 
-            (value as any).value : value;
+          const value = item[graph.symbol];
           
           // Format date for display
           const date = new Date(item.created_at);
@@ -76,7 +73,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
           
           return {
             time: formattedDate,
-            value: Number(measurementValue),
+            value: Number(value),
             fullDate: item.created_at
           };
         })

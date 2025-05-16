@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SelectedGraph } from "./types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search } from "lucide-react";
+import { Search, Circle, Star, Gauge, Award, Thermometer, Percent } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/components/AuthProvider";
 import { REQUIRED_DEVICE_CODES } from "@/features/equipment/services/deviceDataService";
@@ -22,7 +22,7 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
   const [loading, setLoading] = useState(true);
   const [devices, setDevices] = useState<Array<{ device_code: string; device_name: string }>>([]);
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
-  const [measurements, setMeasurements] = useState<Array<{ symbol: string; name: string }>>([]);
+  const [measurements, setMeasurements] = useState<Array<{ symbol: string; name: string; icon?: React.ReactNode }>>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const { user, userRoles } = useAuth();
   
@@ -113,31 +113,59 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
     }
   };
 
+  const getIconForMeasurement = (symbol: string) => {
+    // Assign different icons based on measurement type
+    if (symbol.includes("temp") || symbol.includes("temperature")) {
+      return <Thermometer className="h-5 w-5 text-blue-500" />;
+    } else if (symbol.includes("rate") || symbol.includes("percent")) {
+      return <Percent className="h-5 w-5 text-purple-500" />;
+    } else if (symbol.includes("class") || symbol.includes("grade")) {
+      return <Award className="h-5 w-5 text-amber-500" />;
+    } else if (symbol.includes("whole") || symbol.includes("head")) {
+      return <Star className="h-5 w-5 text-emerald-500" />;
+    } else if (symbol.includes("precision") || symbol.includes("whiteness")) {
+      return <Gauge className="h-5 w-5 text-cyan-500" />;
+    } else {
+      return <Circle className="h-5 w-5 text-gray-500" />;
+    }
+  };
+
   const fetchMeasurements = async (deviceCode: string) => {
     setLoading(true);
     try {
-      // Get unique measurement types from the database for this device
+      // Get latest data for this device
       const { data, error } = await supabase
         .from('rice_quality_analysis')
-        .select('measurements')
+        .select('*')
         .eq('device_code', deviceCode)
         .order('created_at', { ascending: false })
         .limit(1);
 
       if (error) {
         console.error("Error fetching measurements:", error);
+        setLoading(false);
         return;
       }
 
-      if (data && data.length > 0 && data[0].measurements) {
-        // Extract measurement keys and names from the measurements object
-        const measurementsData = Object.entries(data[0].measurements)
-          .map(([key, value]) => ({
-            symbol: key,
-            name: typeof value === 'object' && value !== null ? 
-              (value as any).name || key : 
-              key
-          }));
+      if (data && data.length > 0) {
+        // Extract all keys except system fields
+        const excludeFields = ['id', 'created_at', 'updated_at', 'device_code', 'thai_datetime'];
+        
+        // Get all columns from data[0] and filter out excluded fields
+        const measurementsData = Object.entries(data[0])
+          .filter(([key]) => !excludeFields.includes(key))
+          .map(([key, value]) => {
+            // Format the name to be more user-friendly
+            const formattedName = key
+              .replace(/_/g, ' ')
+              .replace(/\b\w/g, l => l.toUpperCase());
+              
+            return {
+              symbol: key,
+              name: formattedName,
+              icon: getIconForMeasurement(key)
+            };
+          });
         
         setMeasurements(measurementsData);
       }
@@ -192,7 +220,7 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
           <Tabs defaultValue="devices">
             <TabsList className="grid w-full grid-cols-2 mb-4">
               <TabsTrigger value="devices">อุปกรณ์</TabsTrigger>
-              <TabsTrigger value="measurements" disabled={!selectedDevice}>การวัด</TabsTrigger>
+              <TabsTrigger value="measurements" disabled={!selectedDevice}>ค่าคุณภาพ</TabsTrigger>
             </TabsList>
             
             <TabsContent value="devices" className="space-y-2">
@@ -239,16 +267,21 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
                 filteredMeasurements.map((measurement) => (
                   <div
                     key={measurement.symbol}
-                    className="p-3 rounded-lg cursor-pointer transition-colors bg-gray-50 hover:bg-purple-50 border border-gray-200"
+                    className="flex items-center p-3 rounded-lg cursor-pointer transition-colors bg-gray-50 hover:bg-purple-50 border border-gray-200"
                     onClick={() => handleSelectMeasurement(measurement.symbol, measurement.name)}
                   >
-                    <p className="font-medium text-gray-800">{measurement.name}</p>
-                    <p className="text-xs text-gray-500">รหัส: {measurement.symbol}</p>
+                    <div className="bg-gray-100 rounded-full p-2 mr-3">
+                      {measurement.icon}
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-800">{measurement.name}</p>
+                      <p className="text-xs text-gray-500">รหัส: {measurement.symbol}</p>
+                    </div>
                   </div>
                 ))
               ) : (
                 <p className="text-center text-gray-500 py-4">
-                  ไม่พบค่าการวัดที่ตรงกับการค้นหา
+                  ไม่พบค่าคุณภาพที่ตรงกับการค้นหา
                 </p>
               )}
             </TabsContent>
