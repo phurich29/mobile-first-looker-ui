@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SelectedGraph } from "./types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Wheat, Clock } from "lucide-react";
+import { Search, Wheat, Clock, Machine } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/components/AuthProvider";
 import { REQUIRED_DEVICE_CODES } from "@/features/equipment/services/deviceDataService";
@@ -347,7 +347,12 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
                       }`}
                       onClick={() => setSelectedDevice(device.device_code)}
                     >
-                      <p className="font-medium text-gray-800 text-sm">{device.device_name}</p>
+                      <div className="flex items-center">
+                        <div className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                          <Machine className="h-4 w-4 text-purple-600" />
+                        </div>
+                        <p className="font-medium text-gray-800 text-sm">{device.device_name}</p>
+                      </div>
                       <div className="flex items-center text-xs text-gray-500 mt-1">
                         <Clock className="h-3 w-3 mr-1" />
                         <span>อัปเดต: {formatLastUpdated(device.last_updated)}</span>
