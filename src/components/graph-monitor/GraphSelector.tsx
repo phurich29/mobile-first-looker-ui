@@ -7,10 +7,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { SelectedGraph } from "./types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Wheat } from "lucide-react";
+import { Search, Wheat, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/components/AuthProvider";
 import { REQUIRED_DEVICE_CODES } from "@/features/equipment/services/deviceDataService";
+import { formatDistanceToNow } from "date-fns";
+import { th } from "date-fns/locale";
 
 interface GraphSelectorProps {
   open: boolean;
@@ -26,9 +28,15 @@ interface MeasurementData {
   value?: any; // Added value property to match what we're using
 }
 
+interface DeviceInfo {
+  device_code: string;
+  device_name: string;
+  last_updated?: Date | null;
+}
+
 export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelectorProps) => {
   const [loading, setLoading] = useState(true);
-  const [devices, setDevices] = useState<Array<{ device_code: string; device_name: string }>>([]);
+  const [devices, setDevices] = useState<DeviceInfo[]>([]);
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
   const [measurements, setMeasurements] = useState<MeasurementData[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -107,12 +115,27 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
         }));
       }
       
-      // Format devices with names
-      const formattedDevices = deviceResults.map(device => ({
-        device_code: device.device_code,
-        device_name: `อุปกรณ์วัด ${device.device_code}`
-      }));
+      // Get last update time for each device and format with device name
+      const devicePromises = deviceResults.map(async (device) => {
+        const { data: latestData, error } = await supabase
+          .from('rice_quality_analysis')
+          .select('created_at')
+          .eq('device_code', device.device_code)
+          .order('created_at', { ascending: false })
+          .limit(1);
+        
+        const lastUpdated = latestData && latestData.length > 0 
+          ? new Date(latestData[0].created_at) 
+          : null;
+        
+        return {
+          device_code: device.device_code,
+          device_name: `อุปกรณ์วัด ${device.device_code}`,
+          last_updated: lastUpdated
+        };
+      });
       
+      const formattedDevices = await Promise.all(devicePromises);
       setDevices(formattedDevices);
     } catch (error) {
       console.error("Error fetching devices:", error);
@@ -166,7 +189,7 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
       // Get latest data for this device
       const { data, error } = await supabase
         .from('rice_quality_analysis')
-        .select('*')
+        .select('*')  // Select all columns instead of specific measurements
         .eq('device_code', deviceCode)
         .order('created_at', { ascending: false })
         .limit(1);
@@ -177,28 +200,29 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
         return;
       }
 
-      if (data && data.length > 0) {
-        // Extract all keys except system fields
-        const excludeFields = ['id', 'created_at', 'updated_at', 'device_code', 'thai_datetime'];
-        
-        // Get all columns from data[0] and filter out excluded fields
-        const measurementsData = Object.entries(data[0])
-          .filter(([key]) => !excludeFields.includes(key))
-          .map(([key, value]) => {
-            // Format the name to be more user-friendly
-            const formattedName = key
-              .replace(/_/g, ' ')
-              .replace(/\b\w/g, l => l.toUpperCase());
-              
-            return {
-              symbol: key,
-              name: formattedName,
-              value: value // Store the actual value from the data
-            };
-          });
-        
-        setMeasurements(measurementsData);
+      if (!data || data.length === 0) {
+        setError("ไม่พบข้อมูล");
+        setData([]);
+        return;
       }
+
+      // Transform the data for the chart, accessing the specific column directly
+      const measurementsData = Object.entries(data[0])
+        .filter(([key]) => !['id', 'created_at', 'updated_at', 'device_code', 'thai_datetime'].includes(key))
+        .map(([key, value]) => {
+          // Format the name to be more user-friendly
+          const formattedName = key
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, l => l.toUpperCase());
+            
+          return {
+            symbol: key,
+            name: formattedName,
+            value: value // Store the actual value from the data
+          };
+        });
+      
+      setMeasurements(measurementsData);
     } catch (error) {
       console.error("Unexpected error:", error);
     } finally {
@@ -264,6 +288,12 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
     // Default to the formatted name if no specific Thai name is available
     return name;
   };
+  
+  // Format the last updated time
+  const formatLastUpdated = (date: Date | null | undefined) => {
+    if (!date) return "ไม่มีข้อมูล";
+    return formatDistanceToNow(date, { addSuffix: true, locale: th });
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -312,7 +342,10 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
                     onClick={() => setSelectedDevice(device.device_code)}
                   >
                     <p className="font-medium text-gray-800">{device.device_name}</p>
-                    <p className="text-xs text-gray-500">รหัส: {device.device_code}</p>
+                    <div className="flex items-center text-xs text-gray-500 mt-1">
+                      <Clock className="h-3 w-3 mr-1" />
+                      <span>อัปเดตล่าสุด: {formatLastUpdated(device.last_updated)}</span>
+                    </div>
                   </div>
                 ))
               ) : (
