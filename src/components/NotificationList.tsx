@@ -56,7 +56,7 @@ export const NotificationList = () => {
   };
 
   const handleNavigateToSettings = () => {
-    navigate('/notification-settings');
+    navigate('/notifications');
   };
   
   return (

@@ -107,7 +107,7 @@ export const FooterNav = () => {
           
           <NavLink to={isAuthenticated ? "/profile" : "/login"} className="flex flex-col items-center justify-center w-1/5 h-full">
             <User className="h-5 w-5 text-white" />
-            <span className="text-xs mt-1 text-white">{isAuthenticated ? "โปรไฟล์" : "เข้าสู่ระบบ"}</span>
+            <span className="text-xs mt-0.5 text-white">{isAuthenticated ? "โปรไฟล์" : "เข้าสู่ระบบ"}</span>
           </NavLink>
         </nav>
       </div>

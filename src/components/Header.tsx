@@ -127,6 +127,12 @@ export const Header = () => {
                 <span className="text-sm">ประวัติการแจ้งเตือน</span>
               </Link>}
             
+            {/* เพิ่มเมนู Graph Monitor */}
+            <Link to="/graph-monitor" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/graph-monitor") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
+                <BarChart2 className="h-5 w-5" />
+                <span className="text-sm">Graph Monitor</span>
+            </Link>
+            
             {/* เพิ่มเมนูข้อมูลส่วนตัว */}
             {user && <Link to="/profile" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/profile") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
                 <User className="h-5 w-5" />
