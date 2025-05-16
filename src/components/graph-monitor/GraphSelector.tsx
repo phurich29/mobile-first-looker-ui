@@ -7,12 +7,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { SelectedGraph } from "./types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Wheat, Clock, Factory } from "lucide-react";
+import { Search, Wheat, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/components/AuthProvider";
 import { REQUIRED_DEVICE_CODES } from "@/features/equipment/services/deviceDataService";
 import { formatDistanceToNow, format } from "date-fns";
 import { th } from "date-fns/locale";
+
+// Import the equipment icon SVG
+import { ReactComponent as EquipmentIcon } from "@/assets/equipment-icon.svg";
 
 interface GraphSelectorProps {
   open: boolean;
@@ -350,7 +353,11 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
                     >
                       <div className="flex items-center">
                         <div className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center mr-2">
-                          <Factory className="h-4 w-4 text-purple-600" />
+                          <img 
+                            src="/src/assets/equipment-icon.svg" 
+                            alt="Equipment" 
+                            className="h-4 w-4 text-purple-600" 
+                          />
                         </div>
                         <p className="font-medium text-gray-800 text-sm">{device.device_name}</p>
                       </div>
