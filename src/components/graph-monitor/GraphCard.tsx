@@ -18,6 +18,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { 
   ChartContainer,
 } from "@/components/ui/chart";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { TimeFrame } from "@/components/measurement-history/MeasurementHistory";
+import { getTimeFrameHours } from "@/components/measurement-history/api";
 
 interface GraphCardProps {
   graph: SelectedGraph;
@@ -28,20 +37,27 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [timeFrame, setTimeFrame] = useState<TimeFrame>("24h");
 
   useEffect(() => {
     fetchGraphData();
-  }, [graph]);
+  }, [graph, timeFrame]);
 
   const fetchGraphData = async () => {
     setLoading(true);
     setError(null);
 
     try {
+      // Calculate cutoff date based on timeframe
+      const hours = getTimeFrameHours(timeFrame);
+      const cutoffDate = new Date();
+      cutoffDate.setHours(cutoffDate.getHours() - hours);
+      
       const { data, error } = await supabase
         .from("rice_quality_analysis")
-        .select("*")  // Select all columns instead of specific measurements
+        .select("*")
         .eq("device_code", graph.deviceCode)
+        .gt("created_at", cutoffDate.toISOString())
         .order("created_at", { ascending: false })
         .limit(30);
 
@@ -155,15 +171,28 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
               </p>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onRemove}
-            className="h-8 w-8 p-0 opacity-70 group-hover:opacity-100 hover:bg-purple-100 hover:text-purple-700"
-          >
-            <X className="h-4 w-4" />
-            <span className="sr-only">ลบกราฟ</span>
-          </Button>
+          <div className="flex items-center space-x-2">
+            <Select value={timeFrame} onValueChange={(value) => setTimeFrame(value as TimeFrame)}>
+              <SelectTrigger className="h-7 w-20 text-xs border-gray-200 bg-white">
+                <SelectValue placeholder="กรอบเวลา" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1h">1 ชั่วโมง</SelectItem>
+                <SelectItem value="24h">24 ชั่วโมง</SelectItem>
+                <SelectItem value="7d">7 วัน</SelectItem>
+                <SelectItem value="30d">30 วัน</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onRemove}
+              className="h-8 w-8 p-0 opacity-70 group-hover:opacity-100 hover:bg-purple-100 hover:text-purple-700"
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">ลบกราฟ</span>
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="p-4 h-64">
