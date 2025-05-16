@@ -26,7 +26,7 @@ export const loadPresetsFromDB = async (userId: string, deviceCode: string): Pro
     if (data && data.length > 0) {
       // Add unique presets from the database
       data.forEach(item => {
-        if (!allPresets.some(p => p.name === item.preset_name)) {
+        if (!allPresets.some(p => p.name === item.preset_name) && item.preset_name !== 'Default') {
           allPresets.push({
             id: item.id,
             name: item.preset_name

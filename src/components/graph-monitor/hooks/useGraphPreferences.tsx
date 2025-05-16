@@ -24,22 +24,14 @@ export const useGraphPreferences = ({ deviceCode = "all" }: UseGraphPreferencesP
     deletePreset
   } = usePresetOperations(user?.id, deviceCode);
   
-  // Load available presets
-  useEffect(() => {
-    if (user) {
-      loadPresets();
-    } else {
-      // Reset presets to just Default when not logged in
-      setActivePreset("Default");
-    }
-  }, [user, deviceCode]);
-
-  // Load saved graph preferences when component mounts or preset changes
+  // Load saved graph preferences when component mounts, 
+  // preset changes, or user changes
   useEffect(() => {
     if (user) {
       loadSavedGraphs(activePreset);
     } else {
       setLoading(false);
+      setSavedGraphs([]);
     }
   }, [user, deviceCode, activePreset]);
 

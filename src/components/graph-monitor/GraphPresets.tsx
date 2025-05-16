@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,6 +46,14 @@ export const GraphPresets: React.FC<GraphPresetsProps> = ({
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
+
+  // Ensure active preset is always valid
+  useEffect(() => {
+    // If activePreset doesn't exist in presets, set it to "Default"
+    if (presets.length > 0 && !presets.some(preset => preset.name === activePreset)) {
+      onChangePreset("Default");
+    }
+  }, [presets, activePreset, onChangePreset]);
 
   const handleCreatePreset = () => {
     if (!newPresetName.trim()) {

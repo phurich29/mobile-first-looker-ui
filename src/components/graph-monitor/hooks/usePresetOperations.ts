@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SelectedGraph } from "@/components/graph-monitor/types";
 import { PresetItem } from "./graphPreferenceTypes";
 import { loadPresetsFromDB, deletePresetFromDB, saveGraphPreferencesToDB } from "./graphPreferenceService";
@@ -10,10 +10,31 @@ export const usePresetOperations = (userId: string | undefined, deviceCode: stri
   const [activePreset, setActivePreset] = useState<string>("Default");
   const { toast } = useToast();
 
+  // Load presets when user ID or device code changes
+  useEffect(() => {
+    if (userId) {
+      loadPresets();
+    }
+  }, [userId, deviceCode]);
+
   const loadPresets = async () => {
     if (!userId) return;
     
     const loadedPresets = await loadPresetsFromDB(userId, deviceCode);
+
+    // Ensure the Default preset is always present
+    let hasDefault = false;
+    for (const preset of loadedPresets) {
+      if (preset.name === "Default") {
+        hasDefault = true;
+        break;
+      }
+    }
+
+    if (!hasDefault) {
+      loadedPresets.unshift({ id: 'default', name: 'Default' });
+    }
+
     setPresets(loadedPresets);
   };
 
