@@ -47,26 +47,36 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-950 overflow-x-hidden">
       <Header />
       
       {/* Main content with proper padding to avoid menu overlap */}
-      <div className="container px-3 py-6 md:py-12 pb-24 mx-auto max-w-6xl md:ml-64">
-        <div className="flex items-center mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-emerald-800">ข้อมูลส่วนตัว</h1>
+      <div className="container px-4 py-6 md:py-10 pb-32 mx-auto max-w-6xl md:ml-64">
+        <div className="flex items-center mb-8">
+          <div className="relative">
+            <h1 className="text-2xl md:text-3xl font-bold text-emerald-800 dark:text-emerald-400">ข้อมูลส่วนตัว</h1>
+            <div className="absolute -bottom-2 left-0 w-16 h-1 bg-emerald-500 rounded-full"></div>
+          </div>
         </div>
         
-        <div className={`grid ${!isMobile ? 'grid-cols-1 md:grid-cols-3 gap-6' : 'grid-cols-1 gap-4'}`}>
-          {/* ข้อมูลส่วนตัว */}
-          <UserInfoCard 
-            userEmail={userEmail}
-            lastSignIn={lastSignIn}
-            created={created}
-            onChangePasswordClick={() => setShowPasswordDialog(true)}
-          />
+        <div className="relative">
+          {/* Background decorative elements */}
+          <div className="absolute top-12 right-8 w-24 h-24 bg-emerald-400 rounded-full filter blur-3xl opacity-10 -z-10"></div>
+          <div className="absolute bottom-12 left-8 w-32 h-32 bg-blue-400 rounded-full filter blur-3xl opacity-10 -z-10"></div>
           
-          {/* กล่องแสดงสถานะ */}
-          <AccountStatusCard user={user} />
+          {/* Main grid layout */}
+          <div className={`grid ${!isMobile ? 'grid-cols-1 md:grid-cols-3 gap-8' : 'grid-cols-1 gap-6'}`}>
+            {/* ข้อมูลส่วนตัว */}
+            <UserInfoCard 
+              userEmail={userEmail}
+              lastSignIn={lastSignIn}
+              created={created}
+              onChangePasswordClick={() => setShowPasswordDialog(true)}
+            />
+            
+            {/* กล่องแสดงสถานะ */}
+            <AccountStatusCard user={user} />
+          </div>
         </div>
 
         {/* Password Change Dialog */}

@@ -72,25 +72,50 @@ export default function RicePrices() {
   }, [isLoading, ricePrices, ricePriceDocuments, error]);
   
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-950 overflow-x-hidden md:ml-64">
       <Header />
       <main className="flex-1 p-4 pb-32 md:pb-16 md:mx-auto md:max-w-5xl md:px-8 w-full">
-        <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold mb-4 text-emerald-800`}>
-          ราคาข้าว สมาคมโรงสีข้าวไทย
-        </h1>
+        <div className="flex flex-col mb-8">
+          <div className="relative">
+            <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold mb-2 text-emerald-800 dark:text-emerald-400`}>
+              ราคาข้าว สมาคมโรงสีข้าวไทย
+            </h1>
+            <div className="absolute -bottom-1 left-0 w-16 h-1 bg-emerald-500 rounded-full"></div>
+          </div>
+          <p className="text-gray-500 dark:text-gray-400 mt-3 text-sm">
+            ข้อมูลราคาข้าวจากสมาคมโรงสีข้าวไทย อัพเดทล่าสุด
+          </p>
+        </div>
+
+        {/* Background decorative elements */}
+        <div className="absolute top-32 right-16 w-48 h-48 bg-emerald-300 rounded-full filter blur-3xl opacity-10 -z-10"></div>
+        <div className="absolute bottom-32 left-16 w-64 h-64 bg-teal-400 rounded-full filter blur-3xl opacity-10 -z-10"></div>
 
         {isLoading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+          <div className="flex justify-center items-center py-24 bg-white/50 dark:bg-gray-800/20 rounded-xl backdrop-blur-sm border border-gray-100 dark:border-gray-700/30">
+            <div className="flex flex-col items-center">
+              <Loader2 className="h-10 w-10 animate-spin text-emerald-600 mb-2" />
+              <p className="text-gray-500 dark:text-gray-400">กำลังโหลดข้อมูลราคาข้าว...</p>
+            </div>
           </div>
         ) : (
           <div className="mt-4">
-            <Card className="border-emerald-100 mb-4 p-1 overflow-x-auto">
-              <div className="p-2">
-                <RicePriceTable />
+            <Card className="border border-emerald-100 dark:border-emerald-800/30 dark:bg-gray-900/50 shadow-md backdrop-blur-sm rounded-xl overflow-hidden">
+              <div className="p-4">
+                <div className="bg-emerald-50/50 dark:bg-emerald-900/20 py-2 px-4 rounded-lg mb-3 flex flex-wrap gap-2 items-center justify-between border border-emerald-100 dark:border-emerald-800/30">
+                  <h2 className="text-sm font-medium text-emerald-800 dark:text-emerald-300">ตารางราคาข้าวล่าสุด</h2>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 bg-white/70 dark:bg-gray-800/70 py-1 px-2 rounded-md border border-gray-100 dark:border-gray-700/30">
+                    อัพเดทเมื่อ: {new Date().toLocaleDateString('th-TH')}
+                  </div>
+                </div>
+                <div className="overflow-x-auto">
+                  <RicePriceTable />
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-3 text-right">
+                  * ราคาอาจมีการเปลี่ยนแปลงตามประกาศของสมาคมโรงสีข้าวไทย
+                </div>
               </div>
             </Card>
-            
           </div>
         )}
       </main>
