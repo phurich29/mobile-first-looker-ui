@@ -38,6 +38,7 @@ export const NotificationHistoryList = () => {
   const rowsPerPage = 10;
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [isCheckingNotifications, setIsCheckingNotifications] = useState(false);
 
   // Use React Query for data fetching with auto-refresh
   const { 
@@ -55,6 +56,7 @@ export const NotificationHistoryList = () => {
           .select("*", { count: "exact", head: true });
           
         if (countError) {
+          console.error("Error fetching notification count:", countError);
           throw countError;
         }
         
@@ -73,6 +75,7 @@ export const NotificationHistoryList = () => {
           .range(from, to);
           
         if (error) {
+          console.error("Error fetching notifications:", error);
           throw error;
         }
         
@@ -88,8 +91,8 @@ export const NotificationHistoryList = () => {
         return [];
       }
     },
-    staleTime: 15000, // Consider data fresh for 15 seconds (reduced from 30)
-    refetchInterval: 30000, // Auto-refetch every 30 seconds (reduced from 60)
+    staleTime: 15000, // Consider data fresh for 15 seconds
+    refetchInterval: 30000, // Auto-refetch every 30 seconds
   });
 
   // Subscribe to real-time notification changes
@@ -136,11 +139,19 @@ export const NotificationHistoryList = () => {
       description: "กำลังเรียกใช้ฟังก์ชันตรวจสอบ",
     });
     
+    setIsCheckingNotifications(true);
+    
     try {
       // Call the edge function to manually trigger notification check
-      const { error } = await supabase.functions.invoke('check_notifications');
+      const { data, error } = await supabase.functions.invoke('check_notifications', {
+        method: 'POST',
+        body: { timestamp: new Date().toISOString() }
+      });
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error invoking notification check:", error);
+        throw error;
+      }
       
       toast({
         title: "ตรวจสอบการแจ้งเตือนสำเร็จ",
@@ -157,6 +168,8 @@ export const NotificationHistoryList = () => {
         description: "ไม่สามารถเรียกใช้ฟังก์ชันตรวจสอบการแจ้งเตือนได้",
         variant: "destructive",
       });
+    } finally {
+      setIsCheckingNotifications(false);
     }
   };
 
@@ -200,9 +213,9 @@ export const NotificationHistoryList = () => {
             onClick={handleManualCheck}
             className="flex items-center gap-1"
             size="sm"
-            disabled={isFetching}
+            disabled={isFetching || isCheckingNotifications}
           >
-            <Bell className="h-4 w-4" />
+            <Bell className={`h-4 w-4 ${isCheckingNotifications ? 'animate-pulse' : ''}`} />
             <span>ตรวจสอบการแจ้งเตือน</span>
           </Button>
           <Button 

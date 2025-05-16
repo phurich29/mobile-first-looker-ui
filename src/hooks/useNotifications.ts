@@ -9,6 +9,7 @@ export const useNotifications = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [lastRefreshTime, setLastRefreshTime] = useState<Date>(new Date());
+  const [isCheckingNotifications, setIsCheckingNotifications] = useState(false);
 
   // Function to fetch notification data from the database
   const fetchNotifications = useCallback(async () => {
@@ -65,7 +66,19 @@ export const useNotifications = () => {
   // Function to manually check notifications via the edge function
   const checkNotifications = useCallback(async (): Promise<boolean> => {
     try {
-      const { data, error } = await supabase.functions.invoke('check_notifications');
+      setIsCheckingNotifications(true);
+      
+      toast({
+        title: "กำลังตรวจสอบการแจ้งเตือน...",
+        description: "กำลังเรียกใช้ฟังก์ชันตรวจสอบ",
+      });
+      
+      const { data, error } = await supabase.functions.invoke('check_notifications', {
+        method: 'POST',
+        body: { 
+          timestamp: new Date().toISOString() 
+        },
+      });
       
       if (error) {
         console.error("Error checking notifications:", error);
@@ -84,10 +97,21 @@ export const useNotifications = () => {
       
       // Invalidate query to trigger refetch
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      
+      // Also invalidate notification history
+      queryClient.invalidateQueries({ queryKey: ['notification_history'] });
+      
       return true;
     } catch (error) {
       console.error("Error invoking check_notifications function:", error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถเรียกใช้ฟังก์ชันตรวจสอบการแจ้งเตือนได้",
+        variant: "destructive",
+      });
       return false;
+    } finally {
+      setIsCheckingNotifications(false);
     }
   }, [toast, queryClient]);
 
@@ -95,6 +119,7 @@ export const useNotifications = () => {
     notifications,
     loading,
     isFetching,
+    isCheckingNotifications,
     lastRefreshTime,
     fetchNotifications: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
     checkNotifications

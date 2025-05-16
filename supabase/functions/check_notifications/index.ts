@@ -17,21 +17,41 @@ serve(async (req) => {
   }
 
   try {
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    console.log("Edge function started: check_notification_thresholds");
     
-    // Call the database function to check notifications
-    const { error } = await supabase.rpc('check_notification_thresholds');
+    // Initialize Supabase client with SERVICE_ROLE key for admin privileges
+    const supabase = createClient(
+      SUPABASE_URL, 
+      SUPABASE_SERVICE_ROLE_KEY,
+      {
+        auth: {
+          persistSession: false,
+        }
+      }
+    );
+    
+    // Call the database function to check notifications directly with RPC
+    const { data, error } = await supabase.rpc('check_notification_thresholds');
     
     if (error) {
       console.error('Error executing check_notification_thresholds:', error);
-      return new Response(JSON.stringify({ error: error.message }), {
+      return new Response(JSON.stringify({ 
+        error: error.message,
+        success: false,
+        time: new Date().toISOString() 
+      }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     }
     
+    console.log("Notification check completed successfully");
+    
+    // Return success response
     return new Response(JSON.stringify({ 
-      message: "Notification check completed successfully" 
+      message: "Notification check completed successfully",
+      success: true,
+      time: new Date().toISOString()
     }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
@@ -39,7 +59,11 @@ serve(async (req) => {
     
   } catch (error) {
     console.error('Unexpected error:', error);
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
+    return new Response(JSON.stringify({ 
+      error: "Internal server error", 
+      details: error.message || String(error),
+      time: new Date().toISOString()
+    }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
