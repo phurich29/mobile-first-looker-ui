@@ -3,7 +3,6 @@ import React from "react";
 import { Clock } from "lucide-react";
 import { formatDistanceToNow, format, differenceInHours } from "date-fns";
 import { th } from "date-fns/locale";
-import { Badge } from "@/components/ui/badge";
 
 interface DeviceInfo {
   device_code: string;
@@ -58,15 +57,10 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({
             className="h-4 w-4" 
           />
         </div>
-        <div className="flex flex-col flex-1">
-          <div className="flex items-center">
-            <p className="font-medium text-gray-800 text-sm dark:text-gray-200">
-              {device.device_name}
-            </p>
-            <Badge variant="outline" className="ml-2 text-xs py-0 h-5 bg-gray-50 dark:bg-gray-800">
-              {device.device_code}
-            </Badge>
-          </div>
+        <div className="flex flex-col">
+          <p className="font-medium text-gray-800 text-sm dark:text-gray-200">
+            {device.device_name}
+          </p>
           <p className="text-xs text-gray-500 dark:text-gray-400">
             รหัส: {device.device_code}
           </p>
