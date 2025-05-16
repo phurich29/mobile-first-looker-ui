@@ -48,9 +48,12 @@ export default function UserManagement() {
   if (!user) {
     return <Navigate to="/login" />;
   }
+  
+  // Remove the admin/superadmin check - we will now rely on the ProtectedRoute component
+  // to handle all role-based access control
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64 overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
       <Header />
 
       <main className="flex-1 p-4 pb-28 md:pb-16 md:mx-auto md:max-w-6xl md:px-8 w-full">

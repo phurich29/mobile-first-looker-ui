@@ -12,7 +12,7 @@ import { GraphHeader } from "@/components/graph-monitor/GraphHeader";
 import { EmptyGraphState } from "@/components/graph-monitor/EmptyGraphState";
 import { LoadingGraphState } from "@/components/graph-monitor/LoadingGraphState";
 import { useGraphMonitor } from "@/components/graph-monitor/hooks/useGraphMonitor";
-import { SelectedGraph } from "@/components/graph-monitor/types";
+import { RiceIconDecoration } from "@/components/graph-monitor/RiceIconDecoration";
 
 const GraphMonitor = () => {
   const isMobile = useIsMobile();
@@ -72,32 +72,17 @@ const GraphMonitor = () => {
   // Calculate sidebar width for layout
   const sidebarWidth = !isMobile ? (isCollapsed ? 'ml-20' : 'ml-64') : '';
 
-  // Add logging to debug device name issues
-  console.log("Selected Graphs:", selectedGraphs);
-  
-  // Modified handler to properly use the SelectedGraph object
-  const handleAddGraphWithDeviceName = (deviceCode: string, symbol: string, name: string, deviceName?: string) => {
-    console.log("Adding graph with device name:", deviceName);
-    
-    // Create a SelectedGraph object with the correct device name
-    const graph: SelectedGraph = {
-      deviceCode: deviceCode,
-      symbol: symbol,
-      name: name,
-      deviceName: deviceName || `อุปกรณ์วัด ${deviceCode}`
-    };
-    
-    // Pass the SelectedGraph object to handleAddGraph
-    handleAddGraph(graph);
-  };
-
   return (
-    <div className="flex flex-col min-h-screen relative overflow-x-hidden">
+    <div className="flex flex-col min-h-screen relative">
       <BackgroundImage />
       <Header />
 
-      <main className={`flex-1 ${isMobile ? 'pb-24' : sidebarWidth} relative`}>
-        <div className="max-w-7xl mx-auto p-4">
+      <main className={`flex-1 p-4 ${isMobile ? 'pb-24' : sidebarWidth} overflow-y-auto relative`}>
+        {/* Position decorations only at corners far from content */}
+        <RiceIconDecoration position="top-right" />
+        <RiceIconDecoration position="bottom-left" />
+        
+        <div className="max-w-7xl mx-auto">
           <GraphHeader
             showSaveIndicator={showSaveIndicator}
             saving={saving}
@@ -122,12 +107,10 @@ const GraphMonitor = () => {
           ) : selectedGraphs.length === 0 ? (
             <EmptyGraphState onAddGraph={() => setSelectorOpen(true)} />
           ) : (
-            <div className="h-[calc(100vh-240px)]">
-              <GraphDisplay 
-                selectedGraphs={selectedGraphs} 
-                onRemoveGraph={handleRemoveGraph} 
-              />
-            </div>
+            <GraphDisplay 
+              selectedGraphs={selectedGraphs} 
+              onRemoveGraph={handleRemoveGraph} 
+            />
           )}
         </div>
       </main>
@@ -135,7 +118,7 @@ const GraphMonitor = () => {
       <GraphSelector 
         open={selectorOpen} 
         onOpenChange={setSelectorOpen} 
-        onSelectGraph={handleAddGraphWithDeviceName}
+        onSelectGraph={handleAddGraph}
       />
 
       <FooterNav />

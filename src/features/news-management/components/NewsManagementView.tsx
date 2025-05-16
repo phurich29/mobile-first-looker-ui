@@ -46,7 +46,7 @@ export function NewsManagementView() {
   const draftCount = filteredNews.filter(news => !news.published).length;
 
   return (
-    <div className="overflow-x-hidden">
+    <>
       <div className="mb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div>
@@ -203,6 +203,6 @@ export function NewsManagementView() {
           />
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

@@ -59,7 +59,7 @@ export function NewsGrid({
   }
   
   return (
-    <div className={`${viewType === 'list' && !isMobile ? 'flex flex-col gap-4' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'} w-full`}>
+    <div className={`${viewType === 'list' && !isMobile ? 'flex flex-col gap-4' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4'}`}>
       {sortedNews.map((news) => (
         <div key={news.id} className={`${viewType === 'list' && !isMobile ? 'w-full' : ''}`}>
           <NewsCard 

@@ -91,26 +91,6 @@ export const useGraphSelector = () => {
         }));
       }
       
-      // Fetch custom display names from device_settings table
-      const { data: deviceSettings, error: settingsError } = await supabase
-        .from('device_settings')
-        .select('device_code, display_name')
-        .in('device_code', deviceResults.map(d => d.device_code));
-      
-      if (settingsError) {
-        console.error("Error fetching device settings:", settingsError);
-      }
-      
-      // Create a map of device_code to display_name
-      const displayNameMap: Record<string, string> = {};
-      if (deviceSettings) {
-        deviceSettings.forEach(setting => {
-          if (setting.display_name) {
-            displayNameMap[setting.device_code] = setting.display_name;
-          }
-        });
-      }
-      
       // Get last update time for each device and format with device name
       const devicePromises = deviceResults.map(async (device) => {
         const { data: latestData, error } = await supabase
@@ -124,12 +104,9 @@ export const useGraphSelector = () => {
           ? new Date(latestData[0].created_at) 
           : null;
         
-        // Use custom display name if available, otherwise use default format
-        const deviceName = displayNameMap[device.device_code] || `อุปกรณ์วัด ${device.device_code}`;
-        
         return {
           device_code: device.device_code,
-          device_name: deviceName,
+          device_name: `อุปกรณ์วัด ${device.device_code}`,
           last_updated: lastUpdated
         };
       });

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import HistoryHeader from "./HistoryHeader";
@@ -98,9 +97,9 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
   // If we don't have required parameters, show error message
   if (!deviceCode || !symbol) {
     return (
-      <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64 overflow-x-hidden">
+      <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
         <Header />
-        <main className="flex-1 p-4 overflow-x-hidden">
+        <main className="flex-1 p-4">
           <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 text-center">
             <h3 className="text-lg font-medium text-red-600 mb-2">ข้อมูลไม่ครบถ้วน</h3>
             <p className="text-gray-600">ไม่พบข้อมูลอุปกรณ์หรือค่าที่ต้องการแสดง กรุณาลองใหม่อีกครั้ง</p>
@@ -112,10 +111,10 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64 overflow-x-hidden">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
       <Header />
       
-      <main className="flex-1 p-4 pb-32 overflow-x-hidden">
+      <main className="flex-1 p-4 pb-32">
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
           <HistoryHeader 
             name={name}
