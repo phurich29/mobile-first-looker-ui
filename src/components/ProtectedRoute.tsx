@@ -61,6 +61,12 @@ export const ProtectedRoute = ({
     return <Navigate to="/waiting" replace />;
   }
 
+  // ถ้าผู้ใช้เป็น superadmin ให้สามารถเข้าถึงได้ทุกส่วน โดยไม่ต้องตรวจสอบ requiredRoles
+  if (userRoles.includes('superadmin')) {
+    console.log("User is a superadmin, granting access");
+    return <>{children}</>;
+  }
+
   // ตรวจสอบว่าผู้ใช้มีสิทธิ์ตามที่กำหนดหรือไม่ (ถ้ามีการกำหนด)
   const hasRequiredRole =
     requiredRoles.length === 0 ||

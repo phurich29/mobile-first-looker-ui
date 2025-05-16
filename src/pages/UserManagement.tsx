@@ -44,14 +44,13 @@ export default function UserManagement() {
     );
   }
 
-  // If user not logged in or doesn't have admin role, redirect to login
+  // If user not logged in, redirect to login
   if (!user) {
     return <Navigate to="/login" />;
   }
   
-  if (!userRoles.includes('admin') && !userRoles.includes('superadmin')) {
-    return <Navigate to="/" />;
-  }
+  // Remove the admin/superadmin check - we will now rely on the ProtectedRoute component
+  // to handle all role-based access control
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
