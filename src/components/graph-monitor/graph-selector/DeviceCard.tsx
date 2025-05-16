@@ -58,9 +58,14 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({
           />
         </div>
         <div className="flex flex-col">
-          <p className="font-medium text-gray-800 text-sm dark:text-gray-200">
-            {device.device_name}
-          </p>
+          <div className="flex items-center">
+            <p className="font-medium text-gray-800 text-sm dark:text-gray-200">
+              {device.device_name}
+            </p>
+            <span className="ml-1 px-1.5 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded">
+              {device.device_code}
+            </span>
+          </div>
           <p className="text-xs text-gray-500 dark:text-gray-400">
             รหัส: {device.device_code}
           </p>
