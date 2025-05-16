@@ -6,7 +6,6 @@ import { getNeonStyle } from "./neon-style";
 import { getPastelStyle } from "./pastel-style";
 import { getMonochromeStyle } from "./monochrome-style";
 import { getGradientStyle } from "./gradient-style";
-import { getNaturalStyle } from "./natural-style";
 import { getIconColor } from "./color-utils";
 
 export * from "./types";
@@ -19,8 +18,6 @@ export const getGraphStyles = (graphStyle: GraphStyle, graphSymbol: string): Sty
   switch (graphStyle) {
     case "classic":
       return getClassicStyle(graphSymbol);
-    case "natural":
-      return getNaturalStyle();
     case "neon":
       return getNeonStyle();
     case "pastel":
