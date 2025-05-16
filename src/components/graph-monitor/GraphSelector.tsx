@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -325,33 +324,37 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
             
             <TabsContent value="devices" className="space-y-2">
               {loading ? (
-                Array(5).fill(0).map((_, i) => (
-                  <div key={i} className="flex items-center p-3 mb-2">
-                    <Skeleton className="h-10 w-10 rounded-full mr-3" />
-                    <div className="space-y-2">
-                      <Skeleton className="h-4 w-40" />
-                      <Skeleton className="h-3 w-24" />
+                <div className="grid grid-cols-2 gap-2">
+                  {Array(6).fill(0).map((_, i) => (
+                    <div key={i} className="flex items-center p-3 mb-2">
+                      <Skeleton className="h-10 w-10 rounded-full mr-3" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-3 w-16" />
+                      </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+                </div>
               ) : filteredDevices.length > 0 ? (
-                filteredDevices.map((device) => (
-                  <div
-                    key={device.device_code}
-                    className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                      selectedDevice === device.device_code
-                        ? "bg-purple-100 border border-purple-300"
-                        : "bg-gray-50 hover:bg-gray-100 border border-gray-200"
-                    }`}
-                    onClick={() => setSelectedDevice(device.device_code)}
-                  >
-                    <p className="font-medium text-gray-800">{device.device_name}</p>
-                    <div className="flex items-center text-xs text-gray-500 mt-1">
-                      <Clock className="h-3 w-3 mr-1" />
-                      <span>อัปเดตล่าสุด: {formatLastUpdated(device.last_updated)}</span>
+                <div className="grid grid-cols-2 gap-2">
+                  {filteredDevices.map((device) => (
+                    <div
+                      key={device.device_code}
+                      className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                        selectedDevice === device.device_code
+                          ? "bg-purple-100 border border-purple-300"
+                          : "bg-gray-50 hover:bg-gray-100 border border-gray-200"
+                      }`}
+                      onClick={() => setSelectedDevice(device.device_code)}
+                    >
+                      <p className="font-medium text-gray-800 text-sm">{device.device_name}</p>
+                      <div className="flex items-center text-xs text-gray-500 mt-1">
+                        <Clock className="h-3 w-3 mr-1" />
+                        <span>อัปเดต: {formatLastUpdated(device.last_updated)}</span>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+                </div>
               ) : (
                 <p className="text-center text-gray-500 py-4">
                   ไม่พบอุปกรณ์ที่ตรงกับการค้นหา
@@ -361,17 +364,19 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
             
             <TabsContent value="measurements" className="space-y-2">
               {loading ? (
-                Array(5).fill(0).map((_, i) => (
-                  <div key={i} className="flex items-center p-3 mb-2">
-                    <Skeleton className="h-10 w-10 rounded-full mr-3" />
-                    <div className="space-y-2">
-                      <Skeleton className="h-4 w-40" />
-                      <Skeleton className="h-3 w-24" />
+                <div className="grid grid-cols-2 gap-2">
+                  {Array(6).fill(0).map((_, i) => (
+                    <div key={i} className="flex items-center p-3 mb-2">
+                      <Skeleton className="h-10 w-10 rounded-full mr-3" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-3 w-16" />
+                      </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+                </div>
               ) : filteredMeasurements.length > 0 ? (
-                <div className="grid gap-0">
+                <div className="grid grid-cols-2 gap-2">
                   {filteredMeasurements.map((measurement) => {
                     const iconColor = getIconColor(measurement.symbol);
                     const thaiName = getThaiName(measurement.symbol, measurement.name);
@@ -380,27 +385,27 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
                       <div
                         key={measurement.symbol}
                         onClick={() => handleSelectMeasurement(measurement.symbol, thaiName)}
-                        className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50 hover:brightness-95 transition-all duration-300 relative overflow-hidden cursor-pointer"
+                        className="flex flex-col p-3 border border-gray-100 bg-gray-50 hover:brightness-95 transition-all duration-300 relative overflow-hidden cursor-pointer rounded-lg"
                       >
                         {/* Background layer */}
                         <div className="absolute inset-0 w-full h-full bg-white opacity-80"></div>
                         
                         <div className="flex items-center relative z-10">
                           <div 
-                            className="w-12 h-12 rounded-full flex items-center justify-center mr-3 shadow-md relative overflow-hidden"
+                            className="w-8 h-8 rounded-full flex items-center justify-center mr-2 shadow-md relative overflow-hidden"
                             style={{ background: `linear-gradient(135deg, ${iconColor}, ${iconColor}cc)` }}
                           >
                             <div className="absolute inset-0 bg-white/10"></div>
-                            <div className="absolute top-0 left-0 w-3 h-3 bg-white/30 rounded-full blur-sm"></div>
-                            <Wheat className="h-5 w-5 text-white" />
+                            <div className="absolute top-0 left-0 w-2 h-2 bg-white/30 rounded-full blur-sm"></div>
+                            <Wheat className="h-3 w-3 text-white" />
                           </div>
-                          <div className="px-3 py-2">
-                            <h3 className="font-bold text-base text-gray-800">{thaiName}</h3>
-                            <span className="text-xs text-gray-500">{measurement.symbol}</span>
+                          <div className="px-1">
+                            <h3 className="font-bold text-sm text-gray-800 truncate max-w-[80px]">{thaiName}</h3>
+                            <span className="text-xs text-gray-500 hidden sm:block">{measurement.symbol}</span>
                           </div>
                         </div>
-                        <div className="text-right relative z-10">
-                          <p className="font-bold text-base text-gray-600">
+                        <div className="text-right relative z-10 text-sm mt-2">
+                          <p className="font-bold text-gray-600">
                             {typeof measurement.value === 'number' ? 
                               `${measurement.value.toFixed(1)}%` : 
                               measurement.value || '0%'}
