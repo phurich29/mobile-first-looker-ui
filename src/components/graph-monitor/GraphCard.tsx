@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,8 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Area,
+  AreaChart,
 } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
@@ -175,49 +178,59 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
           dotColor: getIconColor(),
           dotSize: 6,
           lineWidth: 2,
+          chartType: "line",
+          strokeType: "monotone",
           tooltip: "bg-white border border-purple-100 shadow-md rounded-md",
         };
       case "neon":
         return {
-          chartBackground: "rgb(18, 18, 32)",
-          lineColor: "#8B5CF6",
-          gridColor: "rgba(139, 92, 246, 0.2)",
-          dotColor: "#8B5CF6",
+          chartBackground: "rgb(8, 8, 32)",
+          lineColor: "#00FFFF",
+          gridColor: "rgba(0, 255, 255, 0.2)",
+          dotColor: "#FFFFFF",
           dotSize: 8,
           lineWidth: 3,
-          tooltip: "bg-gray-900 border border-purple-500 text-white shadow-lg rounded-md",
+          chartType: "line",
+          strokeType: "monotone", 
+          tooltip: "bg-gray-900 border border-cyan-500 text-white shadow-lg rounded-md",
         };
       case "pastel":
         return {
           chartBackground: "#F8F7FF",
-          lineColor: "#D3B0FF",
+          lineColor: "#FFA69E",
           gridColor: "#E9E8FF",
-          dotColor: "#D3B0FF",
+          dotColor: "#FF7E6B",
           dotSize: 5,
           lineWidth: 2,
-          tooltip: "bg-white border border-purple-50 shadow-sm rounded-lg",
+          chartType: "area",
+          strokeType: "basis",
+          tooltip: "bg-white border border-pink-100 shadow-sm rounded-lg",
         };
       case "monochrome":
         return {
-          chartBackground: "#F9FAFB",
-          lineColor: "#4B5563",
-          gridColor: "#E5E7EB",
-          dotColor: "#111827",
+          chartBackground: "#111827",
+          lineColor: "#FFFFFF",
+          gridColor: "rgba(255, 255, 255, 0.1)",
+          dotColor: "#FFFFFF",
           dotSize: 4,
           lineWidth: 1,
-          tooltip: "bg-gray-100 border border-gray-300 shadow-sm rounded-md",
+          chartType: "line",
+          strokeType: "stepAfter",
+          tooltip: "bg-gray-800 border border-gray-600 text-white shadow-sm rounded-md",
         };
       case "gradient":
         return {
-          chartBackground: "linear-gradient(180deg, rgba(249,250,251,1) 0%, rgba(243,244,246,1) 100%)",
-          lineColor: "#8B5CF6",
-          gradientFrom: "#C4B5FD",
-          gradientTo: "rgba(196, 181, 253, 0.1)",
-          gridColor: "rgba(156, 163, 175, 0.2)",
-          dotColor: "#8B5CF6",
+          chartBackground: "linear-gradient(180deg, #2E1065 0%, #1E1B4B 100%)",
+          lineColor: "#10B981",
+          gradientFrom: "#10B981",
+          gradientTo: "rgba(16, 185, 129, 0.1)",
+          gridColor: "rgba(255, 255, 255, 0.1)",
+          dotColor: "#34D399",
           dotSize: 6,
           lineWidth: 2,
-          tooltip: "bg-white border border-purple-100 backdrop-blur-sm shadow-md rounded-md",
+          chartType: "area",
+          strokeType: "monotone",
+          tooltip: "bg-emerald-900 border border-emerald-700 text-white backdrop-blur-sm shadow-md rounded-md",
         };
       default:
         return {
@@ -227,6 +240,8 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
           dotColor: getIconColor(),
           dotSize: 6,
           lineWidth: 2,
+          chartType: "line", 
+          strokeType: "monotone",
           tooltip: "bg-white border border-purple-100 shadow-md rounded-md",
         };
     }
@@ -240,7 +255,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
       case "classic": return "คลาสสิก";
       case "neon": return "นีออน";
       case "pastel": return "พาสเทล";
-      case "monochrome": return "ขาวดำ";
+      case "monochrome": return "โมโนโครม";
       case "gradient": return "ไล่สี";
       default: return "คลาสสิก";
     }
@@ -282,7 +297,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
           
           <div className="flex justify-end">
             <Select value={timeFrame} onValueChange={(value) => setTimeFrame(value as TimeFrame)}>
-              <SelectTrigger className="h-7 w-28 text-xs border-gray-200 bg-white">
+              <SelectTrigger className="h-7 w-36 text-xs border-gray-200 bg-white">
                 <SelectValue placeholder="กรอบเวลา" />
               </SelectTrigger>
               <SelectContent>
@@ -314,51 +329,81 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
               className="h-full w-full" 
               config={{}}
               style={{ 
-                background: graphStyle === "gradient" 
+                background: typeof styles.chartBackground === 'string' 
                   ? styles.chartBackground 
-                  : typeof styles.chartBackground === 'string' 
-                    ? styles.chartBackground 
-                    : undefined 
+                  : undefined 
               }}
             >
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data}>
-                  <defs>
-                    {graphStyle === "gradient" && (
+                {styles.chartType === 'area' ? (
+                  <AreaChart data={data}>
+                    <defs>
                       <linearGradient id={`colorValue-${graph.symbol}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={styles.gradientFrom} stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor={styles.gradientTo} stopOpacity={0}/>
+                        <stop offset="5%" stopColor={styles.gradientFrom || styles.lineColor} stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor={styles.gradientTo || styles.lineColor} stopOpacity={0.1}/>
                       </linearGradient>
-                    )}
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke={styles.gridColor} />
-                  <XAxis 
-                    dataKey="time"
-                    tick={{ fontSize: 10 }}
-                    tickFormatter={(value) => value.split(' ')[0]}
-                    stroke={graphStyle === "neon" ? "rgba(255,255,255,0.5)" : "#666"}
-                  />
-                  <YAxis 
-                    tick={{ fontSize: 10 }} 
-                    stroke={graphStyle === "neon" ? "rgba(255,255,255,0.5)" : "#666"}
-                  />
-                  <Tooltip content={<CustomTooltip className={styles.tooltip} />} />
-                  <Line
-                    type="monotone"
-                    dataKey="value"
-                    stroke={styles.lineColor}
-                    strokeWidth={styles.lineWidth}
-                    activeDot={{ r: styles.dotSize, fill: styles.dotColor }}
-                    name={graph.name}
-                    dot={false}
-                    fill={graphStyle === "gradient" ? `url(#colorValue-${graph.symbol})` : undefined}
-                  />
-                </LineChart>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke={styles.gridColor} />
+                    <XAxis 
+                      dataKey="time"
+                      tick={{ fontSize: 10, fill: graphStyle === "monochrome" || graphStyle === "neon" || graphStyle === "gradient" ? "rgba(255,255,255,0.7)" : "#666" }}
+                      tickFormatter={(value) => value.split(' ')[0]}
+                      stroke={graphStyle === "monochrome" || graphStyle === "neon" || graphStyle === "gradient" ? "rgba(255,255,255,0.5)" : "#666"}
+                    />
+                    <YAxis 
+                      tick={{ 
+                        fontSize: 10, 
+                        fill: graphStyle === "monochrome" || graphStyle === "neon" || graphStyle === "gradient" ? "rgba(255,255,255,0.7)" : "#666" 
+                      }} 
+                      stroke={graphStyle === "monochrome" || graphStyle === "neon" || graphStyle === "gradient" ? "rgba(255,255,255,0.5)" : "#666"}
+                    />
+                    <Tooltip content={<CustomTooltip className={styles.tooltip} />} />
+                    <Area
+                      type={styles.strokeType as any}
+                      dataKey="value"
+                      stroke={styles.lineColor}
+                      fill={`url(#colorValue-${graph.symbol})`}
+                      strokeWidth={styles.lineWidth}
+                      activeDot={{ r: styles.dotSize, fill: styles.dotColor }}
+                      name={graph.name}
+                    />
+                  </AreaChart>
+                ) : (
+                  <LineChart data={data}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={styles.gridColor} />
+                    <XAxis 
+                      dataKey="time"
+                      tick={{ 
+                        fontSize: 10,
+                        fill: graphStyle === "monochrome" || graphStyle === "neon" ? "rgba(255,255,255,0.7)" : "#666"
+                      }}
+                      tickFormatter={(value) => value.split(' ')[0]}
+                      stroke={graphStyle === "monochrome" || graphStyle === "neon" ? "rgba(255,255,255,0.5)" : "#666"}
+                    />
+                    <YAxis 
+                      tick={{ 
+                        fontSize: 10,
+                        fill: graphStyle === "monochrome" || graphStyle === "neon" ? "rgba(255,255,255,0.7)" : "#666"
+                      }} 
+                      stroke={graphStyle === "monochrome" || graphStyle === "neon" ? "rgba(255,255,255,0.5)" : "#666"}
+                    />
+                    <Tooltip content={<CustomTooltip className={styles.tooltip} />} />
+                    <Line
+                      type={styles.strokeType as any}
+                      dataKey="value"
+                      stroke={styles.lineColor}
+                      strokeWidth={styles.lineWidth}
+                      activeDot={{ r: styles.dotSize, fill: styles.dotColor }}
+                      name={graph.name}
+                      dot={false}
+                    />
+                  </LineChart>
+                )}
               </ResponsiveContainer>
             </ChartContainer>
 
             {/* Style selector at the bottom left */}
-            <div className="absolute bottom-2 left-2 z-10">
+            <div className="absolute bottom-2 left-2 z-10 flex flex-row gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
@@ -392,7 +437,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
                     className={`text-sm ${graphStyle === 'monochrome' ? 'bg-purple-50' : ''}`} 
                     onClick={() => setGraphStyle('monochrome')}
                   >
-                    ขาวดำ
+                    โมโนโครม
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     className={`text-sm ${graphStyle === 'gradient' ? 'bg-purple-50' : ''}`} 
