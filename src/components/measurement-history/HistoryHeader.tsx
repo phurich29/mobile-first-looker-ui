@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface HistoryHeaderProps {
   name: string;
@@ -23,6 +24,26 @@ const HistoryHeader: React.FC<HistoryHeaderProps> = ({
   deviceCode
 }) => {
   const navigate = useNavigate();
+  const [displayName, setDisplayName] = useState<string | null>(null);
+  
+  // Fetch device display name from device_settings
+  useEffect(() => {
+    if (!deviceCode) return;
+
+    const fetchDisplayName = async () => {
+      const { data, error } = await supabase
+        .from('device_settings')
+        .select('display_name')
+        .eq('device_code', deviceCode)
+        .maybeSingle();
+
+      if (!error && data) {
+        setDisplayName(data.display_name);
+      }
+    };
+
+    fetchDisplayName();
+  }, [deviceCode]);
   
   const handleGoBack = () => {
     // Always navigate to equipment page
@@ -42,7 +63,18 @@ const HistoryHeader: React.FC<HistoryHeaderProps> = ({
       
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-medium text-gray-800">{name}</h3>
+          <div className="mb-1">
+            <h3 className="text-lg font-medium text-gray-800">{name}</h3>
+            {deviceCode && (
+              <div className="flex items-center mt-0.5">
+                <p className="text-xs text-gray-500">
+                  {displayName && <span className="font-medium">{displayName}</span>}
+                  {displayName && " - "}
+                  <span>รหัสอุปกรณ์: {deviceCode}</span>
+                </p>
+              </div>
+            )}
+          </div>
           <p className="text-sm text-gray-500">
             ค่าเฉลี่ย: <span className="font-medium text-emerald-600">{average.toFixed(2)}{unit}</span>
           </p>
