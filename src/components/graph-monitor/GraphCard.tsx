@@ -152,37 +152,26 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
   return (
     <Card className="shadow-md overflow-hidden border-purple-100 group transition-all hover:shadow-lg">
       <CardHeader className="bg-gray-50 border-b border-purple-100 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <div 
-              className="w-10 h-10 rounded-full flex items-center justify-center mr-3 shadow-sm relative overflow-hidden"
-              style={{ background: `linear-gradient(135deg, ${getIconColor()}, ${getIconColor()}cc)` }}
-            >
-              <div className="absolute inset-0 bg-white/10"></div>
-              <div className="absolute top-0 left-0 w-2 h-2 bg-white/30 rounded-full blur-sm"></div>
-              <Wheat className="h-5 w-5 text-white" />
+        <div className="flex flex-col space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div 
+                className="w-10 h-10 rounded-full flex items-center justify-center mr-3 shadow-sm relative overflow-hidden"
+                style={{ background: `linear-gradient(135deg, ${getIconColor()}, ${getIconColor()}cc)` }}
+              >
+                <div className="absolute inset-0 bg-white/10"></div>
+                <div className="absolute top-0 left-0 w-2 h-2 bg-white/30 rounded-full blur-sm"></div>
+                <Wheat className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-lg font-medium text-gray-800">
+                  {graph.name}
+                </CardTitle>
+                <p className="text-xs text-gray-500">
+                  อุปกรณ์: {graph.deviceName}
+                </p>
+              </div>
             </div>
-            <div>
-              <CardTitle className="text-lg font-medium text-gray-800">
-                {graph.name}
-              </CardTitle>
-              <p className="text-xs text-gray-500">
-                อุปกรณ์: {graph.deviceName}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Select value={timeFrame} onValueChange={(value) => setTimeFrame(value as TimeFrame)}>
-              <SelectTrigger className="h-7 w-20 text-xs border-gray-200 bg-white">
-                <SelectValue placeholder="กรอบเวลา" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1h">1 ชั่วโมง</SelectItem>
-                <SelectItem value="24h">24 ชั่วโมง</SelectItem>
-                <SelectItem value="7d">7 วัน</SelectItem>
-                <SelectItem value="30d">30 วัน</SelectItem>
-              </SelectContent>
-            </Select>
             <Button
               variant="ghost"
               size="sm"
@@ -192,6 +181,20 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
               <X className="h-4 w-4" />
               <span className="sr-only">ลบกราฟ</span>
             </Button>
+          </div>
+          
+          <div className="flex justify-end">
+            <Select value={timeFrame} onValueChange={(value) => setTimeFrame(value as TimeFrame)}>
+              <SelectTrigger className="h-7 w-28 text-xs border-gray-200 bg-white">
+                <SelectValue placeholder="กรอบเวลา" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1h">1 ชั่วโมง</SelectItem>
+                <SelectItem value="24h">24 ชั่วโมง</SelectItem>
+                <SelectItem value="7d">7 วัน</SelectItem>
+                <SelectItem value="30d">30 วัน</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </CardHeader>
@@ -249,3 +252,4 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
   return null;
 };
+
