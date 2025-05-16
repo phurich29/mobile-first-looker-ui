@@ -37,22 +37,23 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
         setGraphStyle={setGraphStyle}
       />
       <CardContent className={`p-4 h-64 relative ${chartTextColorClass}`}>
-        {/* Ultra subtle watermark - barely visible */}
-        <div className="absolute inset-0 z-0 flex items-center justify-center opacity-[0.005] dark:opacity-[0.01] pointer-events-none">
+        {/* Rice grain logo watermark with much reduced opacity */}
+        <div className="absolute inset-0 z-0 flex items-center justify-center opacity-[0.01] dark:opacity-[0.015] pointer-events-none">
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
-            viewBox="0 0 120 120"
-            className="w-20 h-20" // Even smaller size
-            style={{ transform: 'translateZ(0)' }}
+            viewBox="0 0 100 120"
+            className="w-24 h-24" // Smaller size
+            style={{ 
+              transform: 'translateZ(0)', // Force GPU rendering for stability
+            }}
           >
-            {/* Simplified rice grain ellipse */}
-            <ellipse 
-              cx="60" cy="20" rx="10" ry="15"
-              transform="rotate(-15 60 20)"
+            {/* Rice grain simplified */}
+            <path 
+              d="M43,20 C43,15 45,10 50,10 C55,10 57,15 57,20 C57,25 55,30 50,30 C45,30 43,25 43,20 Z" 
               fill="currentColor" 
               stroke="currentColor"
               strokeWidth="1"
-              opacity="0.3"
+              opacity="0.5"
             />
           </svg>
         </div>
