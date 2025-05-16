@@ -13,11 +13,12 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { DevicesList } from "./DevicesList";
 import { MeasurementsList } from "./MeasurementsList";
 import { useGraphSelector } from "./useGraphSelector";
+import { SelectedGraph } from "../types";
 
 interface GraphSelectorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSelectGraph: (deviceCode: string, symbol: string, name: string) => void;
+  onSelectGraph: ((deviceCode: string, symbol: string, name: string) => void) | ((graph: SelectedGraph) => void);
 }
 
 export const GraphSelector: React.FC<GraphSelectorProps> = ({
@@ -61,7 +62,21 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
   // Handle measurement selection
   const handleSelectMeasurement = (symbol: string, name: string) => {
     if (selectedDevice) {
-      onSelectGraph(selectedDevice, symbol, name);
+      // Check if onSelectGraph accepts parameters separately or as an object
+      if (typeof onSelectGraph === 'function') {
+        // Call onSelectGraph in a way that works for both signatures
+        const deviceName = getSelectedDeviceName();
+        const graphData = {
+          deviceCode: selectedDevice,
+          deviceName,
+          symbol,
+          name
+        };
+        
+        // Using Function.prototype.apply to handle both function signatures
+        // This works because in JavaScript we can call a function with more arguments than it expects
+        (onSelectGraph as Function)(selectedDevice, symbol, name);
+      }
     }
   };
 
