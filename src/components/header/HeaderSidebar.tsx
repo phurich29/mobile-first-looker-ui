@@ -1,3 +1,4 @@
+
 import { Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, FileText, AlertCircle, History, Monitor, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -57,11 +58,6 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
                 <X className="h-5 w-5" />
               </Button>
             ) : null}
-          </div>
-          
-          {/* Theme Switcher at top right */}
-          <div className={cn("absolute top-4 right-4", isCollapsed && "right-2")}>
-            <ThemeSwitcher />
           </div>
           
           <ScrollArea className="flex-1 -mr-4 pr-4">
@@ -154,13 +150,29 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
           
           <div className="mt-auto pt-4">
             {user && <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
-                <Link to="/logout" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors text-red-600 hover:bg-red-50 hover:border hover:border-red-200 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:border-red-800",
-                  isCollapsed && "justify-center"
-                )}>
-                  <LogOut className="h-5 w-5" />
-                  {!isCollapsed && <span className="text-sm">ออกจากระบบ</span>}
-                </Link>
+                <div className={cn("flex items-center", isCollapsed ? "justify-center mb-4" : "justify-between")}>
+                  {!isCollapsed && (
+                    <Link to="/logout" className="flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors text-red-600 hover:bg-red-50 hover:border hover:border-red-200 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:border-red-800">
+                      <LogOut className="h-5 w-5" />
+                      <span className="text-sm">ออกจากระบบ</span>
+                    </Link>
+                  )}
+                  
+                  <ThemeSwitcher />
+                  
+                  {isCollapsed && (
+                    <Link to="/logout" className="flex items-center justify-center py-2.5 px-3 mt-3 rounded-lg transition-colors text-red-600 hover:bg-red-50 hover:border hover:border-red-200 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:border-red-800">
+                      <LogOut className="h-5 w-5" />
+                    </Link>
+                  )}
+                </div>
               </div>}
+              
+            {!user && (
+              <div className="flex justify-center mt-2">
+                <ThemeSwitcher />
+              </div>
+            )}
           </div>
         </div>
       </div>
