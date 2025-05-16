@@ -41,6 +41,7 @@ export default function Equipment() {
           isAdmin={isAdmin} 
           isLoading={isLoading}
           isSuperAdmin={isSuperAdmin}
+          onDeviceUpdated={handleRefresh}
         />
         
         {/* Database Table Section - Only visible to admins and superadmins */}
