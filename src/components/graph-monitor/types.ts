@@ -5,3 +5,10 @@ export interface SelectedGraph {
   symbol: string;
   name: string;
 }
+
+export type GraphStyle = 
+  | "classic" 
+  | "neon" 
+  | "pastel" 
+  | "monochrome" 
+  | "gradient";
