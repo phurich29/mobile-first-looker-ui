@@ -25,7 +25,7 @@ const NotificationHistory: React.FC = () => {
         </div>
       </main>
       
-      <FooterNav />
+      {isMobile && <FooterNav />}
     </div>
   );
 };

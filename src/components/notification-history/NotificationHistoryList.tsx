@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { NotificationHeader } from "./components/NotificationHeader";
-import { NotificationTable } from "./components/NotificationTable";
+import { NotificationCardList } from "./components/NotificationCardList";
 import { NotificationPagination } from "./components/NotificationPagination";
 import { EmptyState } from "./components/EmptyState";
 import { LoadingState } from "./components/LoadingState";
@@ -70,7 +70,7 @@ export const NotificationHistoryList = () => {
         <EmptyState />
       ) : (
         <>
-          <NotificationTable 
+          <NotificationCardList 
             notifications={notifications}
             handleViewDetails={handleViewDetails}
           />
