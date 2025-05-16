@@ -14,6 +14,7 @@ interface GraphContentProps {
   graphData: any[];
   onOpenSelector: () => void;
   onRemoveMetric: (deviceCode: string, symbol: string) => void;
+  onUpdateMetricColor?: (deviceCode: string, symbol: string, color: string) => void;
 }
 
 export const GraphContent: React.FC<GraphContentProps> = ({
@@ -21,7 +22,8 @@ export const GraphContent: React.FC<GraphContentProps> = ({
   selectedMetrics,
   graphData,
   onOpenSelector,
-  onRemoveMetric
+  onRemoveMetric,
+  onUpdateMetricColor
 }) => {
   return (
     <Card className="flex flex-col bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 h-[600px]">
@@ -35,7 +37,8 @@ export const GraphContent: React.FC<GraphContentProps> = ({
         <>
           <MetricBadges 
             selectedMetrics={selectedMetrics} 
-            onRemoveMetric={onRemoveMetric} 
+            onRemoveMetric={onRemoveMetric}
+            onUpdateMetricColor={onUpdateMetricColor}
           />
           <div className="flex-1">
             <MainChart 

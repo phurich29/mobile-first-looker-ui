@@ -1,5 +1,6 @@
 
 import React from "react";
+import { ColorPicker } from "./ColorPicker";
 import { Button } from "@/components/ui/button";
 import { 
   DropdownMenu,
@@ -28,16 +29,34 @@ interface GraphStyleControlsProps {
   setTimeFrame: (value: TimeFrame) => void;
   graphStyle: GraphStyle;
   setGraphStyle: (value: GraphStyle) => void;
+  barColor?: string;
+  setBarColor: (value: string) => void;
+  lineColor?: string;
+  setLineColor: (value: string) => void;
 }
 
 export const GraphStyleControls: React.FC<GraphStyleControlsProps> = ({
   timeFrame,
   setTimeFrame,
   graphStyle,
-  setGraphStyle
+  setGraphStyle,
+  barColor,
+  setBarColor,
+  lineColor,
+  setLineColor
 }) => {
+  // สีกราฟแท่งที่ใช้ได้
+  const barColorOptions = [
+    { value: '#4863AD', label: 'สีน้ำเงิน' },
+    { value: '#48AD57', label: 'สีเขียว' },
+    { value: '#E63946', label: 'สีแดง' },
+    { value: '#FF9500', label: 'สีส้ม' },
+    { value: '#9B5DE5', label: 'สีม่วง' },
+    { value: '#14213D', label: 'สีน้ำเงินเข้ม' }
+  ];
+  
   return (
-    <div className="flex items-center justify-end space-x-2">
+    <div className="flex flex-wrap items-center justify-end space-x-2 space-y-2 sm:space-y-0">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button 
@@ -102,6 +121,23 @@ export const GraphStyleControls: React.FC<GraphStyleControlsProps> = ({
           <SelectItem value="30d">30 วัน</SelectItem>
         </SelectContent>
       </Select>
+
+      {/* ตัวเลือกสีกราฟแบบอิสระ */}
+      <div className="flex space-x-2">
+        {/* ตัวเลือกสีกราฟ */}
+        <ColorPicker 
+          color={barColor || '#4863AD'} 
+          onChange={setBarColor} 
+          className={getStyleSelectButtonClass(graphStyle)}
+        />
+
+        {/* ตัวเลือกสีเส้นค่าเฉลี่ย */}
+        <ColorPicker 
+          color={lineColor || '#ff5722'} 
+          onChange={setLineColor} 
+          className={getStyleSelectButtonClass(graphStyle)}
+        />
+      </div>
     </div>
   );
 };

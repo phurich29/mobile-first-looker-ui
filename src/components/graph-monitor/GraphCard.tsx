@@ -17,6 +17,10 @@ interface GraphCardProps {
 export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
   const [timeFrame, setTimeFrame] = useState<TimeFrame>("24h");
   const [graphStyle, setGraphStyle] = useState<GraphStyle>("classic");
+  // กำหนดสีกราฟแท่งเริ่มต้นเป็นสีน้ำเงินหรือใช้สีที่ผู้ใช้กำหนดไว้แล้ว
+  const [barColor, setBarColor] = useState<string>(graph.barColor || "#4863AD");
+  // กำหนดสีเส้นค่าเฉลี่ยเริ่มต้นเป็นสีส้มหรือใช้สีที่ผู้ใช้กำหนดไว้แล้ว
+  const [lineColor, setLineColor] = useState<string>(graph.lineColor || "#ff5722");
   const { loading, data, error } = useGraphData(graph, timeFrame);
   
   const styles = getGraphStyles(graphStyle, graph.symbol);
@@ -35,6 +39,10 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
         setTimeFrame={setTimeFrame}
         graphStyle={graphStyle}
         setGraphStyle={setGraphStyle}
+        barColor={barColor}
+        setBarColor={setBarColor}
+        lineColor={lineColor}
+        setLineColor={setLineColor}
       />
       <CardContent className={`p-4 h-64 relative ${chartTextColorClass}`}>
         {/* Ultra subtle watermark - barely visible */}
@@ -64,6 +72,8 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
           graphSymbol={graph.symbol}
           graphName={graph.name}
           graphStyle={graphStyle}
+          barColor={barColor}
+          lineColor={lineColor}
         />
       </CardContent>
     </Card>

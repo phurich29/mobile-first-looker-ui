@@ -16,6 +16,10 @@ interface GraphHeaderProps {
   setTimeFrame: (value: TimeFrame) => void;
   graphStyle: GraphStyle;
   setGraphStyle: (value: GraphStyle) => void;
+  barColor?: string;
+  setBarColor: (value: string) => void;
+  lineColor?: string;
+  setLineColor: (value: string) => void;
 }
 
 export const GraphHeader: React.FC<GraphHeaderProps> = ({
@@ -24,7 +28,11 @@ export const GraphHeader: React.FC<GraphHeaderProps> = ({
   timeFrame,
   setTimeFrame,
   graphStyle,
-  setGraphStyle
+  setGraphStyle,
+  barColor,
+  setBarColor,
+  lineColor,
+  setLineColor
 }) => {
   const styles = getGraphStyles(graphStyle, graph.symbol);
 
@@ -65,6 +73,10 @@ export const GraphHeader: React.FC<GraphHeaderProps> = ({
           setTimeFrame={setTimeFrame}
           graphStyle={graphStyle}
           setGraphStyle={setGraphStyle}
+          barColor={barColor}
+          setBarColor={setBarColor}
+          lineColor={lineColor}
+          setLineColor={setLineColor}
         />
       </div>
     </CardHeader>

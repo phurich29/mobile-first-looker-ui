@@ -9,15 +9,13 @@ import {
   Tooltip,
   ResponsiveContainer,
   ReferenceLine,
+  AreaChart,
+  Area
 } from "recharts";
 import { calculateAverage, formatBangkokTime, getTimeFrameHours } from './api';
-import { TimeFrame } from './MeasurementHistory';
+import { GraphStyleOptions, HistoryItem, TimeFrame } from './types';
 
-interface HistoryItem {
-  [key: string]: any;
-  created_at?: string;
-  thai_datetime?: string;
-}
+
 
 type HistoryChartProps = {
   historyData: HistoryItem[] | undefined;
@@ -26,6 +24,7 @@ type HistoryChartProps = {
   error: string | null;
   unit?: string;
   timeFrame?: TimeFrame;
+  styleOptions?: GraphStyleOptions;
 };
 
 const HistoryChart: React.FC<HistoryChartProps> = ({ 
@@ -34,8 +33,13 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
   dataKey,
   error,
   unit,
-  timeFrame = '24h'
+  timeFrame = '24h',
+  styleOptions = {}
 }) => {
+  // สไตล์เริ่มต้น - ถ้าไม่ระบุให้ใช้แบบเส้นธรรมดา
+  const graphStyle = styleOptions.graphStyle || 'line';
+  const barColor = styleOptions.barColor || '#9b87f5';
+  const lineColor = styleOptions.lineColor || '#F97316';
   // Calculate average
   const average = useMemo(() => 
     calculateAverage(historyData || [], dataKey), 
@@ -94,65 +98,139 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
     <div className="flex-1 bg-white rounded-lg shadow-lg border border-gray-200 p-2 hover:shadow-xl transition-shadow duration-300">
       <div className="h-[300px] sm:h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart
-            data={chartData}
-            margin={{ top: 10, right: 20, left: 10, bottom: 10 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" vertical={true} stroke="#e0e0e0" strokeWidth={1} />
-            <XAxis 
-              dataKey="time" 
-              tick={{ fontSize: 10, fill: '#64748b' }} 
-              axisLine={{ stroke: '#e2e8f0' }}
-              tickLine={false}
-              padding={{ left: 10, right: 10 }}
-            />
-            <YAxis 
-              domain={['auto', 'auto']} 
-              tick={{ fontSize: 10, fill: '#64748b' }} 
-              tickFormatter={(value) => `${value}%`}
-              axisLine={false}
-              tickLine={false}
-              width={30}
-            />
-            <Tooltip 
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  return (
-                    <div className="bg-white p-2 border border-gray-200 rounded-md shadow-lg">
-                      <p className="text-xs font-medium">{`เวลา: ${payload[0].payload.time} น.`}</p>
-                      <p className="text-xs font-medium text-[#9b87f5]">{`ค่า: ${payload[0].value}%`}</p>
-                      <p className="text-xs text-gray-500">{payload[0].payload.date}</p>
-                    </div>
-                  );
-                }
-                return null;
-              }}
-            />
-            <ReferenceLine 
-              y={average} 
-              stroke="#F97316" 
-              strokeDasharray="3 3"
-              label={{
-                position: 'top',
-                value: `ค่าเฉลี่ย: ${average.toFixed(2)}%\n(ช่วง ${(average * 0.95).toFixed(2)} - ${(average * 1.05).toFixed(2)}%)`,
-                fill: '#F97316',
-                fontSize: 12,
-                offset: 0,
-                dy: -20,
-                dx: 20,
-                textAnchor: 'start'
-              }}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="value" 
-              stroke="#9b87f5" 
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 4, stroke: '#9b87f5', strokeWidth: 2, fill: 'white' }}
-              animationDuration={500}
-            />
-          </LineChart>
+          {graphStyle === 'area' ? (
+            <AreaChart
+              data={chartData}
+              margin={{ top: 10, right: 20, left: 10, bottom: 10 }}
+            >
+              <defs>
+                <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={barColor} stopOpacity={0.8} />
+                  <stop offset="95%" stopColor={barColor} stopOpacity={0.1} />
+                </linearGradient>
+                <filter id="shadow" height="200%">
+                  <feDropShadow dx="0" dy="3" stdDeviation="3" floodColor="rgba(0,0,0,0.1)" />
+                </filter>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={true} stroke="#e0e0e0" strokeWidth={1} />
+              <XAxis 
+                dataKey="time" 
+                tick={{ fontSize: 10, fill: '#64748b' }} 
+                axisLine={{ stroke: '#e2e8f0' }}
+                tickLine={false}
+                padding={{ left: 10, right: 10 }}
+              />
+              <YAxis 
+                domain={['auto', 'auto']} 
+                tick={{ fontSize: 10, fill: '#64748b' }} 
+                tickFormatter={(value) => `${value}%`}
+                axisLine={false}
+                tickLine={false}
+                width={30}
+              />
+              <Tooltip 
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    return (
+                      <div className="bg-white p-2 border border-gray-200 rounded-md shadow-lg">
+                        <p className="text-xs font-medium">{`เวลา: ${payload[0].payload.time} น.`}</p>
+                        <p className="text-xs font-medium" style={{ color: barColor }}>{`ค่า: ${payload[0].value}%`}</p>
+                        <p className="text-xs text-gray-500">{payload[0].payload.date}</p>
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
+              <ReferenceLine 
+                y={average} 
+                stroke={lineColor} 
+                strokeDasharray="3 3"
+                label={{
+                  position: 'top',
+                  value: `ค่าเฉลี่ย: ${average.toFixed(2)}%\n(ช่วง ${(average * 0.95).toFixed(2)} - ${(average * 1.05).toFixed(2)}%)`,
+                  fill: lineColor,
+                  fontSize: 12,
+                  offset: 0,
+                  dy: -20,
+                  dx: 20,
+                  textAnchor: 'start'
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="value"
+                stroke={barColor}
+                strokeWidth={2}
+                fill={`url(#colorValue)`}
+                fillOpacity={0.9}
+                dot={false}
+                style={{ filter: "url(#shadow)" }}
+                activeDot={{ r: 4, stroke: barColor, strokeWidth: 2, fill: 'white' }}
+                animationDuration={500}
+              />
+            </AreaChart>
+          ) : (
+            <LineChart
+              data={chartData}
+              margin={{ top: 10, right: 20, left: 10, bottom: 10 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" vertical={true} stroke="#e0e0e0" strokeWidth={1} />
+              <XAxis 
+                dataKey="time" 
+                tick={{ fontSize: 10, fill: '#64748b' }} 
+                axisLine={{ stroke: '#e2e8f0' }}
+                tickLine={false}
+                padding={{ left: 10, right: 10 }}
+              />
+              <YAxis 
+                domain={['auto', 'auto']} 
+                tick={{ fontSize: 10, fill: '#64748b' }} 
+                tickFormatter={(value) => `${value}%`}
+                axisLine={false}
+                tickLine={false}
+                width={30}
+              />
+              <Tooltip 
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    return (
+                      <div className="bg-white p-2 border border-gray-200 rounded-md shadow-lg">
+                        <p className="text-xs font-medium">{`เวลา: ${payload[0].payload.time} น.`}</p>
+                        <p className="text-xs font-medium" style={{ color: barColor }}>{`ค่า: ${payload[0].value}%`}</p>
+                        <p className="text-xs text-gray-500">{payload[0].payload.date}</p>
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
+              <ReferenceLine 
+                y={average} 
+                stroke={lineColor} 
+                strokeDasharray="3 3"
+                label={{
+                  position: 'top',
+                  value: `ค่าเฉลี่ย: ${average.toFixed(2)}%\n(ช่วง ${(average * 0.95).toFixed(2)} - ${(average * 1.05).toFixed(2)}%)`,
+                  fill: lineColor,
+                  fontSize: 12,
+                  offset: 0,
+                  dy: -20,
+                  dx: 20,
+                  textAnchor: 'start'
+                }}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="value" 
+                stroke={barColor} 
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 4, stroke: barColor, strokeWidth: 2, fill: 'white' }}
+                animationDuration={500}
+              />
+            </LineChart>
+          )}
         </ResponsiveContainer>
       </div>
     </div>

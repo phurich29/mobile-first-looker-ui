@@ -114,6 +114,19 @@ const GraphSummary = () => {
       m => !(m.deviceCode === deviceCode && m.symbol === symbol)
     ));
   };
+  
+  // Function to update the color of a metric's line on the graph
+  const updateMetricColor = (deviceCode: string, symbol: string, color: string) => {
+    setSelectedMetrics(selectedMetrics.map(metric => {
+      if (metric.deviceCode === deviceCode && metric.symbol === symbol) {
+        return {
+          ...metric,
+          color: color
+        };
+      }
+      return metric;
+    }));
+  };
 
   // Calculate sidebar width for layout
   const sidebarWidth = !isMobile ? (isCollapsed ? 'ml-20' : 'ml-64') : '';
@@ -136,6 +149,7 @@ const GraphSummary = () => {
             graphData={graphData}
             onOpenSelector={() => setSelectorOpen(true)}
             onRemoveMetric={removeMetric}
+            onUpdateMetricColor={updateMetricColor}
           />
         </div>
       </main>

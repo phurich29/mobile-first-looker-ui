@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   LineChart,
@@ -11,6 +11,9 @@ import {
   ResponsiveContainer,
   Area,
   AreaChart,
+  BarChart,
+  Bar,
+  ReferenceLine
 } from "recharts";
 import { ChartContainer } from "@/components/ui/chart";
 import { GraphStyle } from "../types";
@@ -29,6 +32,8 @@ interface GraphChartContentProps {
   graphSymbol: string;
   graphName: string;
   graphStyle: GraphStyle;
+  barColor?: string; // เพิ่มสีของกราฟแท่งที่ผู้ใช้เลือก
+  lineColor?: string; // เพิ่มสีของเส้นค่าเฉลี่ยที่ผู้ใช้เลือก
 }
 
 export const GraphChartContent: React.FC<GraphChartContentProps> = ({
@@ -37,9 +42,18 @@ export const GraphChartContent: React.FC<GraphChartContentProps> = ({
   data,
   graphSymbol,
   graphName,
-  graphStyle
+  graphStyle,
+  barColor,
+  lineColor
 }) => {
   const styles = getGraphStyles(graphStyle, graphSymbol);
+  
+  // คำนวณค่าเฉลี่ยของข้อมูล
+  const average = useMemo(() => {
+    if (!data || data.length === 0) return 0;
+    const sum = data.reduce((acc, item) => acc + (parseFloat(item.value) || 0), 0);
+    return sum / data.length;
+  }, [data]);
 
   if (loading) {
     return (
@@ -127,11 +141,20 @@ export const GraphChartContent: React.FC<GraphChartContentProps> = ({
             />
           </AreaChart>
         ) : (
-          <LineChart 
+          <AreaChart 
             data={data} 
             className="transition-all duration-500"
             margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
           >
+            <defs>
+              <linearGradient id={`colorValue-${graphSymbol}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={barColor || styles.lineColor} stopOpacity={0.8} />
+                <stop offset="95%" stopColor={barColor || styles.lineColor} stopOpacity={0.1} />
+              </linearGradient>
+              <filter id="shadow" height="200%">
+                <feDropShadow dx="0" dy="3" stdDeviation="3" floodColor="rgba(0,0,0,0.1)" />
+              </filter>
+            </defs>
             <CartesianGrid strokeDasharray="3 3" stroke={styles.gridColor} />
             <XAxis
               dataKey="time"
@@ -159,17 +182,34 @@ export const GraphChartContent: React.FC<GraphChartContentProps> = ({
                 : "#666"}
             />
             <Tooltip content={<CustomTooltip graphStyle={graphStyle} />} />
-            <Line
-              type={styles.strokeType as any}
+            <Area
               dataKey="value"
-              stroke={styles.lineColor}
-              strokeWidth={styles.lineWidth}
-              activeDot={{ r: styles.dotSize, fill: styles.dotColor }}
+              stroke={barColor || styles.lineColor}
+              strokeWidth={2}
+              fill={`url(#colorValue-${graphSymbol})`}
+              fillOpacity={0.9}
+              type="monotone"
               name={graphName}
-              dot={false}
               animationDuration={1000}
+              dot={false}
+              style={{ filter: "url(#shadow)" }}
             />
-          </LineChart>
+            {/* เส้นค่าเฉลี่ย */}
+            <ReferenceLine
+              y={average}
+              stroke={lineColor || "#ff5722"}
+              strokeWidth={2}
+              strokeDasharray="3 3"
+              label={{
+                value: `ค่าเฉลี่ย: ${average.toFixed(2)}`,
+                fill: graphStyle === "monochrome" || graphStyle === "neon" || graphStyle === "gradient"
+                  ? "rgba(255,255,255,0.9)"
+                  : "#333",
+                fontSize: 11,
+                position: "insideTopRight"
+              }}
+            />
+          </AreaChart>
         )}
       </ResponsiveContainer>
     </ChartContainer>
