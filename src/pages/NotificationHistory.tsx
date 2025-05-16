@@ -1,15 +1,12 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
-import NotificationHistoryList from "@/components/notification-history/NotificationHistoryList";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { NotificationDebugger } from "@/components/notification-history/components/NotificationDebugger";
 
 const NotificationHistory: React.FC = () => {
   const isMobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState<string>("list");
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -24,20 +21,9 @@ const NotificationHistory: React.FC = () => {
             </p>
           </div>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="mb-4">
-              <TabsTrigger value="list">การแสดงผลปกติ</TabsTrigger>
-              <TabsTrigger value="debug">ข้อมูลดิบ (Debug)</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="list" className="mt-0">
-              <NotificationHistoryList />
-            </TabsContent>
-            
-            <TabsContent value="debug" className="mt-0">
-              <NotificationDebugger />
-            </TabsContent>
-          </Tabs>
+          <div className="mt-0">
+            <NotificationDebugger />
+          </div>
         </div>
       </main>
       
