@@ -12,7 +12,7 @@ const Index = () => {
   const isMobile = useIsMobile();
   
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 overflow-y-auto">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-950 overflow-y-auto">
       <Header />
       
       <main className={`flex-1 ${isMobile ? 'pb-20' : 'pb-16 ml-64'}`}>
@@ -20,8 +20,8 @@ const Index = () => {
           {/* News slider section with countdown timer */}
           <div className={`${!isMobile ? 'mb-8 mt-3' : 'mb-6 mt-3'}`}>
             <div className="flex justify-between items-center mb-3">
-              <h2 className="font-semibold text-lg text-gray-800 flex items-center gap-1.5">
-                <File className="text-white bg-emerald-600 p-0.5 rounded-sm" size={20} />
+              <h2 className="font-semibold text-lg text-gray-800 dark:text-gray-100 flex items-center gap-1.5">
+                <File className="text-white bg-emerald-600 dark:bg-emerald-700 p-0.5 rounded-sm" size={20} />
                 ข่าวสารและประกาศ
               </h2>
               <CountdownTimer 
