@@ -44,24 +44,31 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({
     <div
       className={`p-3 rounded-lg cursor-pointer transition-colors ${
         isSelected
-          ? "bg-purple-100 border border-purple-300"
-          : "bg-gray-50 hover:bg-gray-100 border border-gray-200"
+          ? "bg-purple-100 border border-purple-300 dark:bg-purple-900/30 dark:border-purple-700"
+          : "bg-gray-50 hover:bg-gray-100 border border-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 dark:border-gray-700"
       }`}
       onClick={onClick}
     >
       <div className="flex items-center">
-        <div className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+        <div className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center mr-2 dark:bg-purple-900/30">
           <img 
             src={equipmentIconDataUrl}
             alt="Equipment" 
-            className="h-4 w-4 text-purple-600" 
+            className="h-4 w-4" 
           />
         </div>
-        <p className="font-medium text-gray-800 text-sm">{device.device_name}</p>
+        <div className="flex flex-col">
+          <p className="font-medium text-gray-800 text-sm dark:text-gray-200">
+            {device.device_name}
+          </p>
+          <p className="text-xs text-gray-400 dark:text-gray-500">
+            {device.device_code}
+          </p>
+        </div>
       </div>
       <div className="flex items-center text-xs mt-1">
-        <Clock className="h-3 w-3 mr-1" />
-        <span className={isRecentUpdate(device.last_updated) ? "text-green-500" : "text-gray-500"}>
+        <Clock className="h-3 w-3 mr-1 text-gray-500 dark:text-gray-400" />
+        <span className={isRecentUpdate(device.last_updated) ? "text-green-500" : "text-gray-500 dark:text-gray-400"}>
           อัปเดต: {formatLastUpdated(device.last_updated)}
         </span>
       </div>

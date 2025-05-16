@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { CalendarDays } from "lucide-react";
@@ -99,7 +100,7 @@ export const NewsSlider = () => {
         </div>
       </div>;
   }
-  return <div className="mb-6 w-full">
+  return <div className="mb-6 w-full overflow-hidden">
       
       <Carousel opts={{
       align: "start",
@@ -110,7 +111,7 @@ export const NewsSlider = () => {
               <div className={cn(
                 "bg-white rounded-xl overflow-hidden h-full relative",
                 "before:content-[''] before:absolute before:inset-0 before:rounded-xl before:border before:border-gray-900/20 before:z-10",
-                "after:content-[''] after:absolute after:inset-0 after:rounded-xl after:shadow-[3px_3px_0px_#00000010] after:z-0",
+                "after:content-[''] after:absolute before:inset-0 before:rounded-xl after:shadow-[3px_3px_0px_#00000010] after:z-0",
                 /* เพิ่มเสน้แบบดินสอด้วย SVG filter */
                 "[filter:url(#pencil-border)]"
               )}>

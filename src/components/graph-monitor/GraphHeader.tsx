@@ -19,15 +19,15 @@ export const GraphHeader: React.FC<GraphHeaderProps> = ({
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">Graph Monitor</h1>
-        <p className="text-gray-600 text-sm mt-1">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Graph Monitor</h1>
+        <p className="text-gray-600 text-sm mt-1 dark:text-gray-400">
           แสดงผลกราฟจากอุปกรณ์ต่างๆ ในรูปแบบ dashboard
         </p>
       </div>
 
       <div className="flex items-center mt-4 md:mt-0 gap-2">
         {(showSaveIndicator || saving) && (
-          <div className="flex items-center text-sm text-purple-600 mr-2">
+          <div className="flex items-center text-sm text-purple-600 mr-2 dark:text-purple-400">
             {saving ? (
               <>
                 <Loader2 className="h-4 w-4 mr-1 animate-spin" />
@@ -46,7 +46,7 @@ export const GraphHeader: React.FC<GraphHeaderProps> = ({
           variant="outline"
           size="sm"
           disabled={saving || (!showSaveIndicator)}
-          className="bg-white hover:bg-gray-50"
+          className="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white dark:border-gray-700"
         >
           <Save className="h-4 w-4 mr-2" />
           บันทึก
@@ -54,7 +54,7 @@ export const GraphHeader: React.FC<GraphHeaderProps> = ({
 
         <Button 
           onClick={onAddGraph} 
-          className="bg-purple-600 hover:bg-purple-700"
+          className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-800 dark:hover:bg-purple-900"
         >
           <Plus className="h-4 w-4 mr-2" />
           เพิ่มกราฟ

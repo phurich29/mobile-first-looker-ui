@@ -1,4 +1,3 @@
-
 export interface SelectedGraph {
   deviceCode: string;
   deviceName: string;
@@ -8,6 +7,7 @@ export interface SelectedGraph {
 
 export type GraphStyle = 
   | "classic" 
+  | "natural" 
   | "neon" 
   | "pastel" 
   | "monochrome" 

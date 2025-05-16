@@ -17,11 +17,11 @@ import {
 import { TimeFrame } from "@/components/measurement-history/MeasurementHistory";
 import { GraphStyle } from "../types";
 import { 
-  getStyleName, 
   getStyleSelectButtonClass, 
   getStyleMenuClass,
   getTimeframeSelectClass
-} from "./graph-styles";
+} from "./styles";
+import { getStyleName } from "./styles/color-utils";
 
 interface GraphStyleControlsProps {
   timeFrame: TimeFrame;
@@ -50,10 +50,16 @@ export const GraphStyleControls: React.FC<GraphStyleControlsProps> = ({
         </DropdownMenuTrigger>
         <DropdownMenuContent className={`min-w-32 ${getStyleMenuClass(graphStyle)}`}>
           <DropdownMenuItem 
-            className={`text-sm ${graphStyle === 'classic' ? 'bg-purple-50' : ''}`} 
+            className={`text-sm ${graphStyle === 'classic' ? 'bg-purple-50 dark:bg-purple-900/30' : ''}`} 
             onClick={() => setGraphStyle('classic')}
           >
             คลาสสิก
+          </DropdownMenuItem>
+          <DropdownMenuItem 
+            className={`text-sm ${graphStyle === 'natural' ? 'bg-green-50 dark:bg-green-900/30' : ''}`} 
+            onClick={() => setGraphStyle('natural')}
+          >
+            ธรรมชาติ
           </DropdownMenuItem>
           <DropdownMenuItem 
             className={`text-sm ${graphStyle === 'neon' ? 'bg-cyan-900' : ''}`} 
@@ -62,7 +68,7 @@ export const GraphStyleControls: React.FC<GraphStyleControlsProps> = ({
             นีออน
           </DropdownMenuItem>
           <DropdownMenuItem 
-            className={`text-sm ${graphStyle === 'pastel' ? 'bg-pink-100' : ''}`} 
+            className={`text-sm ${graphStyle === 'pastel' ? 'bg-pink-100 dark:bg-pink-900/30' : ''}`} 
             onClick={() => setGraphStyle('pastel')}
           >
             พาสเทล
