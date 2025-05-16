@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -16,6 +16,7 @@ import { useGraphMonitor } from "@/components/graph-monitor/hooks/useGraphMonito
 const GraphMonitor = () => {
   const isMobile = useIsMobile();
   const { user } = useAuth();
+  const [isCollapsed, setIsCollapsed] = useState(false);
   
   const {
     selectedGraphs,
@@ -33,13 +34,45 @@ const GraphMonitor = () => {
     handleChangePreset,
     handleResetGraphs,
   } = useGraphMonitor();
+  
+  useEffect(() => {
+    // Get sidebar collapsed state from localStorage
+    const savedCollapsedState = localStorage.getItem('sidebarCollapsed');
+    if (savedCollapsedState) {
+      setIsCollapsed(savedCollapsedState === 'true');
+    }
+    
+    // Listen for changes in localStorage
+    const handleStorageChange = () => {
+      const currentState = localStorage.getItem('sidebarCollapsed');
+      setIsCollapsed(currentState === 'true');
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also check periodically for changes within the same window
+    const interval = setInterval(() => {
+      const currentState = localStorage.getItem('sidebarCollapsed');
+      if (currentState === 'true' !== isCollapsed) {
+        setIsCollapsed(currentState === 'true');
+      }
+    }, 1000);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [isCollapsed]);
+  
+  // Calculate sidebar width for layout
+  const sidebarWidth = !isMobile ? (isCollapsed ? 'ml-20' : 'ml-64') : '';
 
   return (
     <div className="flex flex-col min-h-screen relative">
       <BackgroundImage />
       <Header />
 
-      <main className={`flex-1 p-4 ${isMobile ? 'pb-24' : 'ml-64'} overflow-y-auto`}>
+      <main className={`flex-1 p-4 ${isMobile ? 'pb-24' : sidebarWidth} overflow-y-auto`}>
         <div className="max-w-7xl mx-auto">
           <GraphHeader
             showSaveIndicator={showSaveIndicator}
