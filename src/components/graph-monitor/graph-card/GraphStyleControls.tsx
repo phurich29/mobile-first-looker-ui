@@ -17,11 +17,11 @@ import {
 import { TimeFrame } from "@/components/measurement-history/MeasurementHistory";
 import { GraphStyle } from "../types";
 import { 
-  getStyleName, 
   getStyleSelectButtonClass, 
   getStyleMenuClass,
   getTimeframeSelectClass
 } from "./styles";
+import { getStyleName } from "./styles/color-utils";
 
 interface GraphStyleControlsProps {
   timeFrame: TimeFrame;
@@ -54,6 +54,12 @@ export const GraphStyleControls: React.FC<GraphStyleControlsProps> = ({
             onClick={() => setGraphStyle('classic')}
           >
             คลาสสิก
+          </DropdownMenuItem>
+          <DropdownMenuItem 
+            className={`text-sm ${graphStyle === 'natural' ? 'bg-green-50 dark:bg-green-900/30' : ''}`} 
+            onClick={() => setGraphStyle('natural')}
+          >
+            ธรรมชาติ
           </DropdownMenuItem>
           <DropdownMenuItem 
             className={`text-sm ${graphStyle === 'neon' ? 'bg-cyan-900' : ''}`} 

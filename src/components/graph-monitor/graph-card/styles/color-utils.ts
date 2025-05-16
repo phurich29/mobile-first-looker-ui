@@ -45,3 +45,23 @@ export const getIconColor = (symbol: string) => {
   // Default to a generated color based on the symbol
   return getColorFromSymbol(symbol);
 };
+
+// Convert GraphStyle to a user-friendly name
+export const getStyleName = (style: string): string => {
+  switch (style) {
+    case 'classic':
+      return 'คลาสสิก';
+    case 'neon':
+      return 'นีออน';
+    case 'pastel':
+      return 'พาสเทล';
+    case 'monochrome':
+      return 'โมโนโครม';
+    case 'gradient':
+      return 'ไล่สี';
+    case 'natural':
+      return 'ธรรมชาติ';
+    default:
+      return style;
+  }
+};
