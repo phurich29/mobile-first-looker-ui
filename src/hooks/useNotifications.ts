@@ -63,6 +63,30 @@ export const useNotifications = () => {
     refetchIntervalInBackground: true, // Refetch even when tab is not active
   });
 
+  // Subscribe to real-time notification updates
+  useEffect(() => {
+    const channel = supabase
+      .channel('notification_changes')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'notifications' 
+        }, 
+        (payload) => {
+          console.log('Real-time notification update:', payload);
+          // Invalidate the queries to refresh the data
+          queryClient.invalidateQueries({ queryKey: ['notifications'] });
+          queryClient.invalidateQueries({ queryKey: ['notification_history'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
   // Function to manually check notifications via the edge function
   const checkNotifications = useCallback(async (): Promise<boolean> => {
     try {
@@ -76,7 +100,8 @@ export const useNotifications = () => {
       const { data, error } = await supabase.functions.invoke('check_notifications', {
         method: 'POST',
         body: { 
-          timestamp: new Date().toISOString() 
+          timestamp: new Date().toISOString(),
+          checkType: 'manual' // Adding parameter to indicate this is a manual check
         },
       });
       

@@ -16,7 +16,8 @@ export const NotificationList = () => {
     loading, 
     isFetching,
     lastRefreshTime,
-    checkNotifications 
+    checkNotifications,
+    isCheckingNotifications
   } = useNotifications();
 
   const formatRefreshTime = () => {
@@ -68,9 +69,9 @@ export const NotificationList = () => {
             variant="ghost"
             size="sm"
             className="text-xs text-blue-600 font-medium hover:bg-blue-50 flex items-center"
-            disabled={isFetching}
+            disabled={isCheckingNotifications}
           >
-            <RefreshCw size={12} className={`mr-1 ${isFetching ? 'animate-spin' : ''}`} />
+            <RefreshCw size={12} className={`mr-1 ${isCheckingNotifications ? 'animate-spin' : ''}`} />
             ตรวจสอบแจ้งเตือน
           </Button>
           <a href="/notifications" className="text-xs text-green-600 font-medium">ตั้งค่าแจ้งเตือน</a>

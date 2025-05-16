@@ -19,6 +19,12 @@ serve(async (req) => {
   try {
     console.log("Edge function started: check_notification_thresholds");
     
+    // Parse the request body
+    const requestData = await req.json();
+    const checkType = requestData?.checkType || 'auto';
+    
+    console.log(`Notification check type: ${checkType}`);
+    
     // Initialize Supabase client with SERVICE_ROLE key for admin privileges
     const supabase = createClient(
       SUPABASE_URL, 
@@ -208,6 +214,7 @@ serve(async (req) => {
       message: `Notification check completed successfully. Created/updated ${notificationCount} notifications.`,
       success: true,
       notificationCount: notificationCount,
+      checkType: checkType,
       time: new Date().toISOString()
     }), {
       status: 200,

@@ -81,7 +81,10 @@ export function useNotificationHistory() {
       // Call the edge function to manually trigger notification check
       const { data, error } = await supabase.functions.invoke('check_notifications', {
         method: 'POST',
-        body: { timestamp: new Date().toISOString() }
+        body: { 
+          timestamp: new Date().toISOString(),
+          checkType: 'manual'
+        }
       });
       
       if (error) {
