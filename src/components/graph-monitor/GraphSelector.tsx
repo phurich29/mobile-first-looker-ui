@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { REQUIRED_DEVICE_CODES } from "@/features/equipment/services/deviceDataService";
 
 interface GraphSelectorProps {
   open: boolean;
@@ -37,6 +38,7 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
   const [measurements, setMeasurements] = useState<Array<{ symbol: string; name: string }>>(MEASUREMENT_TYPES);
   const [searchQuery, setSearchQuery] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -46,26 +48,58 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
 
   const fetchDevices = async () => {
     setLoading(true);
+    setErrorMessage(null);
+    
     try {
-      const { data, error } = await supabase
+      // First, get device settings for all devices
+      const { data: deviceSettingsData, error: deviceSettingsError } = await supabase
         .from('device_settings')
         .select('device_code, display_name')
         .order('display_name', { ascending: true });
 
-      if (error) {
-        console.error("Error fetching devices:", error);
+      if (deviceSettingsError) {
+        console.error("Error fetching device settings:", deviceSettingsError);
+        setErrorMessage("ไม่สามารถโหลดข้อมูลอุปกรณ์ได้");
         return;
       }
 
-      // Format the response to match our device structure
-      const formattedDevices = (data || []).map(item => ({
-        device_code: item.device_code,
-        device_name: item.display_name || item.device_code
-      }));
+      // Convert device settings to our format
+      const deviceSettingsMap = new Map();
+      (deviceSettingsData || []).forEach(item => {
+        deviceSettingsMap.set(item.device_code, {
+          device_code: item.device_code,
+          device_name: item.display_name || item.device_code
+        });
+      });
 
-      setDevices(formattedDevices);
+      // Make sure all required devices are included
+      const allDevices: Array<{ device_code: string; device_name: string }> = [];
+      
+      // First, add all known devices from settings
+      deviceSettingsMap.forEach((device) => {
+        allDevices.push(device);
+      });
+
+      // Then ensure all required devices are included
+      for (const requiredCode of REQUIRED_DEVICE_CODES) {
+        if (!deviceSettingsMap.has(requiredCode)) {
+          // If we don't have settings for this device, add it with a default name
+          allDevices.push({
+            device_code: requiredCode,
+            device_name: `อุปกรณ์ ${requiredCode}`
+          });
+        }
+      }
+
+      console.log(`Found ${allDevices.length} devices in total (including ${REQUIRED_DEVICE_CODES.length} required)`);
+      
+      // Sort by name for better UX
+      allDevices.sort((a, b) => a.device_name.localeCompare(b.device_name));
+      
+      setDevices(allDevices);
     } catch (error) {
-      console.error("Unexpected error:", error);
+      console.error("Unexpected error fetching devices:", error);
+      setErrorMessage("เกิดข้อผิดพลาดในการโหลดข้อมูลอุปกรณ์");
     } finally {
       setLoading(false);
     }
@@ -131,6 +165,17 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
                     </div>
                   </div>
                 ))
+              ) : errorMessage ? (
+                <div className="p-4 text-center">
+                  <p className="text-red-500">{errorMessage}</p>
+                  <Button 
+                    onClick={fetchDevices} 
+                    variant="outline" 
+                    className="mt-2"
+                  >
+                    ลองอีกครั้ง
+                  </Button>
+                </div>
               ) : filteredDevices.length > 0 ? (
                 filteredDevices.map((device) => (
                   <div
