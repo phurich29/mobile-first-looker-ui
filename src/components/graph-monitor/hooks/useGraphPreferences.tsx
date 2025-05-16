@@ -60,20 +60,29 @@ export const useGraphPreferences = ({ deviceCode = "all" }: UseGraphPreferencesP
       return;
     }
     
+    // Skip saving if the graphs are exactly the same as what's already saved
+    if (JSON.stringify(graphs) === JSON.stringify(savedGraphs) && graphs.length > 0) {
+      return;
+    }
+    
     setSaving(true);
     try {
       const success = await saveGraphPreferencesToDB(user.id, deviceCode, graphs, presetName);
 
       if (success) {
-        // Update local state
-        setSavedGraphs(graphs);
+        // Update local state only if the active preset matches the one being saved
+        if (presetName === activePreset) {
+          setSavedGraphs(graphs);
+        }
         
-        // Show success toast
-        toast({
-          title: "บันทึกแล้ว",
-          description: "บันทึกการตั้งค่าการแสดงผลกราฟเรียบร้อยแล้ว",
-          variant: "update",
-        });
+        // Show success toast only for manual saves (when graphs are different from savedGraphs)
+        if (JSON.stringify(graphs) !== JSON.stringify(savedGraphs)) {
+          toast({
+            title: "บันทึกแล้ว",
+            description: "บันทึกการตั้งค่าการแสดงผลกราฟเรียบร้อยแล้ว",
+            variant: "update",
+          });
+        }
         
         // Refresh presets list if a new preset was created
         if (!presets.some(p => p.name === presetName)) {

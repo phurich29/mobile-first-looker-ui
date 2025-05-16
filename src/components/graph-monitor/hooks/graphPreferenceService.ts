@@ -80,7 +80,7 @@ export const loadSavedGraphsFromDB = async (
 };
 
 /**
- * Saves graph preferences to the database
+ * Saves graph preferences to the database or deletes record if no graphs
  */
 export const saveGraphPreferencesToDB = async (
   userId: string,
@@ -89,6 +89,23 @@ export const saveGraphPreferencesToDB = async (
   presetName: string
 ): Promise<boolean> => {
   try {
+    // If there are no graphs and it's not the Default preset, delete the record
+    if (graphs.length === 0) {
+      const { error } = await supabase
+        .from("user_chart_preferences")
+        .delete()
+        .eq("user_id", userId)
+        .eq("device_code", deviceCode)
+        .eq("preset_name", presetName);
+      
+      if (error) {
+        console.error("Error deleting empty graph preferences:", error);
+        return false;
+      }
+      
+      return true;
+    }
+
     // Check if a record already exists for this user, device and preset
     const { data, error: checkError } = await supabase
       .from("user_chart_preferences")
@@ -137,6 +154,30 @@ export const saveGraphPreferencesToDB = async (
     return true;
   } catch (err) {
     console.error("Unexpected error saving graph preferences:", err);
+    return false;
+  }
+};
+
+/**
+ * Cleans up empty graph preferences from the database
+ */
+export const cleanupEmptyPreferences = async (userId: string): Promise<boolean> => {
+  try {
+    // Delete records where selected_metrics is an empty array
+    const { error } = await supabase
+      .from("user_chart_preferences")
+      .delete()
+      .eq("user_id", userId)
+      .eq("selected_metrics", "[]");
+    
+    if (error) {
+      console.error("Error cleaning up empty preferences:", error);
+      return false;
+    }
+    
+    return true;
+  } catch (err) {
+    console.error("Unexpected error cleaning up preferences:", err);
     return false;
   }
 };

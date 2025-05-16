@@ -45,8 +45,11 @@ const GraphMonitor = () => {
   useEffect(() => {
     if (user && selectedGraphs.length > 0) {
       const timer = setTimeout(() => {
-        // Always save to the current active preset, including Default
-        saveGraphPreferences(selectedGraphs, activePreset);
+        // Only save if there are changes and at least one graph
+        if (JSON.stringify(selectedGraphs) !== JSON.stringify(savedGraphs)) {
+          // Always save to the current active preset, including Default
+          saveGraphPreferences(selectedGraphs, activePreset);
+        }
       }, 2000); // 2-second delay before saving
       
       return () => clearTimeout(timer);
@@ -72,6 +75,11 @@ const GraphMonitor = () => {
   const handleRemoveGraph = (index: number) => {
     const newGraphs = selectedGraphs.filter((_, i) => i !== index);
     setSelectedGraphs(newGraphs);
+    
+    // If we're removing the last graph, explicitly save an empty array to remove the record
+    if (newGraphs.length === 0 && user) {
+      saveGraphPreferences([], activePreset);
+    }
   };
 
   const handleSaveGraphs = () => {
@@ -96,7 +104,14 @@ const GraphMonitor = () => {
   };
 
   const handleResetGraphs = () => {
+    // First save the empty array to remove the preference from database
+    if (user) {
+      saveGraphPreferences([], activePreset);
+    }
+    
+    // Then clear the local state
     setSelectedGraphs([]);
+    
     toast({
       title: "รีเซ็ตการตั้งค่าแล้ว",
       description: "ลบกราฟทั้งหมดออกจากการแสดงผลแล้ว",

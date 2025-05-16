@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { SelectedGraph } from "@/components/graph-monitor/types";
 import { PresetItem } from "./graphPreferenceTypes";
-import { loadPresetsFromDB, deletePresetFromDB, saveGraphPreferencesToDB } from "./graphPreferenceService";
+import { loadPresetsFromDB, deletePresetFromDB, saveGraphPreferencesToDB, cleanupEmptyPreferences } from "./graphPreferenceService";
 import { useToast } from "@/hooks/use-toast";
 
 export const usePresetOperations = (userId: string | undefined, deviceCode: string) => {
@@ -14,6 +14,12 @@ export const usePresetOperations = (userId: string | undefined, deviceCode: stri
   useEffect(() => {
     if (userId) {
       loadPresets();
+      // Clean up any empty preferences when component mounts
+      cleanupEmptyPreferences(userId).then(success => {
+        if (success) {
+          console.log("Cleaned up empty preferences");
+        }
+      });
     }
   }, [userId, deviceCode]);
 
