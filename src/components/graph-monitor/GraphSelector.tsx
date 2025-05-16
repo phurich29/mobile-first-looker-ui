@@ -9,6 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/components/AuthProvider";
+import { REQUIRED_DEVICE_CODES } from "@/features/equipment/services/deviceDataService";
 
 interface GraphSelectorProps {
   open: boolean;
@@ -22,6 +24,10 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
   const [measurements, setMeasurements] = useState<Array<{ symbol: string; name: string }>>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const { user, userRoles } = useAuth();
+  
+  const isAdmin = userRoles.includes('admin') || userRoles.includes('superadmin');
+  const isSuperAdmin = userRoles.includes('superadmin');
 
   useEffect(() => {
     if (open) {
@@ -40,19 +46,68 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
   const fetchDevices = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('devices')
-        .select('device_code, device_name')
-        .order('device_name', { ascending: true });
-
-      if (error) {
-        console.error("Error fetching devices:", error);
+      if (!user) {
+        setDevices([]);
+        setLoading(false);
         return;
       }
+      
+      let deviceResults: { device_code: string }[] = [];
+      
+      // Use the same logic as in useDeviceData.ts
+      if (isSuperAdmin) {
+        // For superadmin, start with required devices
+        const requiredDeviceObjects = REQUIRED_DEVICE_CODES.map(deviceCode => ({
+          device_code: deviceCode,
+        }));
+        
+        deviceResults = requiredDeviceObjects;
+      } else {
+        // For regular users or admins
+        // Get devices that user has access to
+        const { data: userDevices, error: userDevicesError } = await supabase
+          .from('user_device_access')
+          .select('device_code')
+          .eq('user_id', user.id);
 
-      setDevices(data || []);
+        if (userDevicesError) {
+          console.error("Error fetching user device access:", userDevicesError);
+          setDevices([]);
+          setLoading(false);
+          return;
+        }
+
+        // Create a set of authorized device codes
+        const authorizedDeviceCodes = new Set<string>();
+        
+        // Add user's authorized devices
+        userDevices?.forEach(d => {
+          if (d.device_code) {
+            authorizedDeviceCodes.add(d.device_code);
+          }
+        });
+        
+        // If user is admin, also add required devices
+        if (isAdmin) {
+          REQUIRED_DEVICE_CODES.forEach(code => {
+            authorizedDeviceCodes.add(code);
+          });
+        }
+        
+        deviceResults = Array.from(authorizedDeviceCodes).map(code => ({
+          device_code: code
+        }));
+      }
+      
+      // Format devices with names
+      const formattedDevices = deviceResults.map(device => ({
+        device_code: device.device_code,
+        device_name: `อุปกรณ์วัด ${device.device_code}`
+      }));
+      
+      setDevices(formattedDevices);
     } catch (error) {
-      console.error("Unexpected error:", error);
+      console.error("Error fetching devices:", error);
     } finally {
       setLoading(false);
     }
