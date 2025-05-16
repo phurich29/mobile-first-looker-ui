@@ -6,7 +6,7 @@ import { X, Wheat } from "lucide-react";
 import { GraphStyle } from "../types";
 import { SelectedGraph } from "../types";
 import { TimeFrame } from "@/components/measurement-history/MeasurementHistory";
-import { getGraphStyles } from "./graph-styles";
+import { getGraphStyles } from "./styles";
 import { GraphStyleControls } from "./GraphStyleControls";
 
 interface GraphHeaderProps {

@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { SelectedGraph } from "./types";
 import { TimeFrame } from "@/components/measurement-history/MeasurementHistory";
 import { GraphStyle } from "./types";
-import { getGraphStyles, getChartTextColor } from "./graph-card/graph-styles";
+import { getGraphStyles, getChartTextColor } from "./graph-card/styles";
 import { GraphHeader } from "./graph-card/GraphHeader";
 import { GraphChartContent } from "./graph-card/GraphChartContent";
 import { useGraphData } from "./graph-card/useGraphData";
