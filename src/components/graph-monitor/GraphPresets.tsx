@@ -56,6 +56,16 @@ export const GraphPresets: React.FC<GraphPresetsProps> = ({
       return;
     }
 
+    // Check if the preset name already exists
+    if (presets.some(preset => preset.name === newPresetName.trim())) {
+      toast({
+        title: "ชื่อชุดการตั้งค่านี้มีอยู่แล้ว",
+        description: "กรุณาใช้ชื่ออื่น",
+        variant: "destructive",
+      });
+      return;
+    }
+
     onCreatePreset(newPresetName);
     setNewPresetName("");
     setCreateDialogOpen(false);
@@ -81,7 +91,7 @@ export const GraphPresets: React.FC<GraphPresetsProps> = ({
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="เลือกชุดการตั้งค่า" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white">
             {presets.map((preset) => (
               <SelectItem key={preset.id} value={preset.name}>
                 {preset.name}

@@ -14,7 +14,7 @@ export const useGraphPreferences = ({ deviceCode = "all" }: UseGraphPreferencesP
   const [savedGraphs, setSavedGraphs] = useState<SelectedGraph[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [presets, setPresets] = useState<{id: string, name: string}[]>([]);
+  const [presets, setPresets] = useState<{id: string, name: string}[]>([{ id: 'default', name: 'Default' }]);
   const [activePreset, setActivePreset] = useState<string>("Default");
   const { user } = useAuth();
   const { toast } = useToast();
@@ -23,6 +23,9 @@ export const useGraphPreferences = ({ deviceCode = "all" }: UseGraphPreferencesP
   useEffect(() => {
     if (user) {
       loadPresets();
+    } else {
+      // Reset presets to just Default when not logged in
+      setPresets([{ id: 'default', name: 'Default' }]);
     }
   }, [user, deviceCode]);
 
@@ -51,12 +54,22 @@ export const useGraphPreferences = ({ deviceCode = "all" }: UseGraphPreferencesP
         return;
       }
 
+      // Always ensure Default exists
+      const allPresets = [{ id: 'default', name: 'Default' }];
+      
       if (data && data.length > 0) {
-        setPresets(data.map(item => ({
-          id: item.id,
-          name: item.preset_name
-        })));
+        // Add unique presets from the database
+        data.forEach(item => {
+          if (!allPresets.some(p => p.name === item.preset_name)) {
+            allPresets.push({
+              id: item.id,
+              name: item.preset_name
+            });
+          }
+        });
       }
+      
+      setPresets(allPresets);
     } catch (err) {
       console.error("Unexpected error loading presets:", err);
     }
@@ -89,13 +102,13 @@ export const useGraphPreferences = ({ deviceCode = "all" }: UseGraphPreferencesP
             variant: "destructive",
           });
         }
+        setSavedGraphs([]);
         setLoading(false);
         return;
       }
 
       if (data && data.selected_metrics) {
         // Convert the stored JSON data to SelectedGraph array
-        // Use type assertion to tell TypeScript we know what we're doing
         const graphsData = data.selected_metrics as unknown as SelectedGraph[];
         setSavedGraphs(graphsData);
       } else {
@@ -206,17 +219,28 @@ export const useGraphPreferences = ({ deviceCode = "all" }: UseGraphPreferencesP
       return;
     }
 
+    // Check if the preset name already exists
+    if (presets.some(preset => preset.name === presetName.trim())) {
+      toast({
+        title: "ชื่อชุดการตั้งค่านี้มีอยู่แล้ว",
+        description: "กรุณาใช้ชื่ออื่น",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSaving(true);
     try {
       // Create new preset record
-      const { error } = await supabase
+      const { error, data } = await supabase
         .from("user_chart_preferences")
         .insert({
           user_id: user.id,
           device_code: deviceCode,
           preset_name: presetName,
           selected_metrics: graphs as unknown as Json
-        });
+        })
+        .select("id");
 
       if (error) {
         console.error("Error creating preset:", error);
@@ -278,8 +302,8 @@ export const useGraphPreferences = ({ deviceCode = "all" }: UseGraphPreferencesP
       });
       
       // Update presets and switch to default preset
-      loadPresets();
       setActivePreset("Default");
+      loadPresets();
       return true;
     } catch (err) {
       console.error("Unexpected error deleting preset:", err);
