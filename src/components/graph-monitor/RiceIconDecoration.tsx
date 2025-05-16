@@ -1,6 +1,7 @@
 
 import React from "react";
 import { useTheme } from "@/components/theme/ThemeProvider";
+import { Heart } from "lucide-react";
 
 interface RiceIconDecorationProps {
   position: "top-left" | "top-right" | "bottom-left" | "bottom-right";
@@ -26,7 +27,15 @@ export const RiceIconDecoration: React.FC<RiceIconDecorationProps> = ({ position
         transform: 'translateZ(0)', // Force GPU rendering for stability
       }}
     >
-      <RiceLogoIcon className={`w-32 h-32 ${position.includes('right') ? 'transform rotate-12' : 'transform -rotate-12'}`} />
+      <div className="relative group">
+        <RiceLogoIcon className={`w-32 h-32 ${position.includes('right') ? 'transform rotate-12' : 'transform -rotate-12'} transition-transform duration-300 hover:scale-110`} />
+        
+        {/* Cute heart that appears on hover */}
+        <Heart 
+          className={`absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-8 opacity-0 group-hover:opacity-100 transition-all duration-300 text-pink-400 animate-bounce`}
+          size={20}
+        />
+      </div>
     </div>
   );
 };
@@ -100,6 +109,19 @@ const RiceLogoIcon: React.FC<{ className?: string }> = ({ className }) => {
         fill="none" 
         stroke="#0A5A36" 
         strokeWidth="4" 
+        strokeLinecap="round"
+      />
+      
+      {/* Add cute eyes for the grain */}
+      <circle cx="47" cy="17" r="1.5" fill="#0A5A36" />
+      <circle cx="53" cy="17" r="1.5" fill="#0A5A36" />
+      
+      {/* Add a smile */}
+      <path 
+        d="M48,22 Q50,25 52,22" 
+        fill="none" 
+        stroke="#0A5A36"
+        strokeWidth="1.5"
         strokeLinecap="round"
       />
     </svg>

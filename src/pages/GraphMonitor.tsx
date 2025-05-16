@@ -13,6 +13,7 @@ import { EmptyGraphState } from "@/components/graph-monitor/EmptyGraphState";
 import { LoadingGraphState } from "@/components/graph-monitor/LoadingGraphState";
 import { useGraphMonitor } from "@/components/graph-monitor/hooks/useGraphMonitor";
 import { RiceIconDecoration } from "@/components/graph-monitor/RiceIconDecoration";
+import { Heart } from "lucide-react";
 
 const GraphMonitor = () => {
   const isMobile = useIsMobile();
@@ -81,6 +82,14 @@ const GraphMonitor = () => {
         {/* Large rice plant decorations */}
         <RiceIconDecoration position="top-right" />
         <RiceIconDecoration position="bottom-left" />
+        
+        {/* Small floating hearts */}
+        <div className="fixed top-40 right-10 z-10 animate-bounce" style={{animationDuration: "3s"}}>
+          <Heart size={16} className="text-pink-400/50" />
+        </div>
+        <div className="fixed bottom-40 left-16 z-10 animate-bounce" style={{animationDuration: "4s"}}>
+          <Heart size={12} className="text-pink-300/40" />
+        </div>
         
         <div className="max-w-7xl mx-auto">
           <GraphHeader

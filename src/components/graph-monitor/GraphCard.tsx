@@ -24,7 +24,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
 
   return (
     <Card 
-      className={`shadow-md overflow-hidden ${styles.cardBg} group transition-all duration-300 hover:shadow-lg border-l-4 border-l-emerald-500/70 dark:border-l-emerald-600/50`}
+      className={`shadow-md overflow-hidden ${styles.cardBg} group transition-all duration-300 hover:shadow-lg border-l-4 border-l-emerald-500/70 dark:border-l-emerald-600/50 rounded-xl`}
       data-graph-id={`graph-${graph.deviceCode}-${graph.symbol}`}
       style={{ transform: 'translateZ(0)' }} // Force GPU rendering for stability
     >
@@ -42,8 +42,11 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
             viewBox="0 0 100 120"
-            className="w-36 h-36"
-            style={{ transform: 'translateZ(0)' }} // Force GPU rendering for stability
+            className="w-36 h-36 animate-pulse"
+            style={{ 
+              transform: 'translateZ(0)', // Force GPU rendering for stability
+              animationDuration: '4s'
+            }}
           >
             {/* Rice grains like the logo */}
             <path 
@@ -76,6 +79,17 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
               stroke="currentColor"
               strokeWidth="2"
               opacity="0.8"
+            />
+            
+            {/* Add cute eyes and smile to the grain for extra cuteness */}
+            <circle cx="47" cy="17" r="1.5" fill="currentColor" />
+            <circle cx="53" cy="17" r="1.5" fill="currentColor" />
+            <path 
+              d="M48,22 Q50,24 52,22" 
+              fill="none" 
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
             />
           </svg>
         </div>
