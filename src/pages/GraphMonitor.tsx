@@ -78,7 +78,7 @@ const GraphMonitor = () => {
       <Header />
 
       <main className={`flex-1 p-4 ${isMobile ? 'pb-24' : sidebarWidth} overflow-y-auto relative`}>
-        {/* Decorations positioned at extreme corners to avoid overlapping with content */}
+        {/* Position decorations only at corners far from content */}
         <RiceIconDecoration position="top-right" />
         <RiceIconDecoration position="bottom-left" />
         
