@@ -5,16 +5,9 @@ import { HeaderMainContent } from "./header/HeaderMainContent";
 
 export const Header = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
 
+  // ทำงานเมื่อหน้าจอเปลี่ยนขนาด
   useEffect(() => {
-    // Initialize sidebar collapsed state from localStorage
-    const savedCollapsedState = localStorage.getItem('sidebarCollapsed');
-    if (savedCollapsedState) {
-      setIsCollapsed(savedCollapsedState === 'true');
-    }
-    
-    // Handle responsive sidebar behavior
     const handleResize = () => {
       if (window.innerWidth >= 768) {
         // md breakpoint
@@ -32,12 +25,7 @@ export const Header = () => {
 
   return (
     <>
-      <HeaderSidebar 
-        sidebarOpen={sidebarOpen} 
-        setSidebarOpen={setSidebarOpen}
-        isCollapsed={isCollapsed}
-        setIsCollapsed={setIsCollapsed}
-      />
+      <HeaderSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       <HeaderMainContent setSidebarOpen={setSidebarOpen} />
     </>
   );

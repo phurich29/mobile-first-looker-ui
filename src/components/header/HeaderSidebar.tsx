@@ -1,20 +1,18 @@
-import { Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, FileText, AlertCircle, History, Monitor, ChevronLeft, ChevronRight } from "lucide-react";
+
+import { Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, FileText, AlertCircle, History, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/AuthProvider";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
 
 interface HeaderSidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
-  isCollapsed: boolean;
-  setIsCollapsed: (collapsed: boolean) => void;
 }
 
-export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsCollapsed }: HeaderSidebarProps) => {
+export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen }: HeaderSidebarProps) => {
   const location = useLocation();
   const { user, userRoles } = useAuth();
 
@@ -23,12 +21,6 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
 
   // ตรวจสอบว่าผู้ใช้มีสิทธิ์ในการเข้าถึงหน้าจัดการผู้ใช้งานหรือไม่
   const canAccessUserManagement = userRoles.includes('admin') || userRoles.includes('superadmin');
-  
-  const toggleCollapse = () => {
-    setIsCollapsed(!isCollapsed);
-    // Save preference to localStorage
-    localStorage.setItem('sidebarCollapsed', (!isCollapsed).toString());
-  };
   
   return (
     <>
@@ -41,124 +33,75 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
       )}
       
       {/* Sidebar for Desktop */}
-      <div className={cn("fixed left-0 top-0 bottom-0 z-40 transition-all duration-300 ease-in-out shadow-sm border-r border-gray-100 bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:border-gray-800", 
+      <div className={cn("fixed left-0 top-0 bottom-0 z-40 w-64 bg-white text-gray-800 transition-transform duration-300 ease-in-out shadow-sm border-r border-gray-100", 
         sidebarOpen ? "translate-x-0" : "-translate-x-full", 
-        isCollapsed ? "w-20" : "w-64",
         "md:translate-x-0" // แสดงเสมอในหน้าจอขนาดใหญ่
       )}>
-        <div className="flex flex-col h-full p-4 bg-[#fff9df] dark:bg-gray-900">
+        <div className="flex flex-col h-full p-4 bg-[#fff9df]">
           <div className="flex justify-between items-center mb-8 mt-4">
-            <div className={cn("flex items-center gap-2", isCollapsed && "justify-center w-full")}>
+            <div className="flex items-center gap-2">
               <img src="/lovable-uploads/649554cd-4d80-484a-995d-e49f2721a07d.png" alt="RiceFlow Logo" className="h-10 w-auto rounded-full" />
-              {!isCollapsed && <h2 className="text-xl font-semibold text-emerald-700 dark:text-emerald-400">RiceFlow</h2>}
+              <h2 className="text-xl font-semibold text-emerald-700">RiceFlow</h2>
             </div>
-            {!isCollapsed ? (
-              <Button variant="ghost" size="icon" className="text-gray-500 md:hidden dark:text-gray-400" onClick={() => setSidebarOpen(false)}>
-                <X className="h-5 w-5" />
-              </Button>
-            ) : null}
-          </div>
-          
-          {/* Theme Switcher at top right */}
-          <div className={cn("absolute top-4 right-4", isCollapsed && "right-2")}>
-            <ThemeSwitcher />
+            <Button variant="ghost" size="icon" className="text-gray-500 md:hidden" onClick={() => setSidebarOpen(false)}>
+              <X className="h-5 w-5" />
+            </Button>
           </div>
           
           <ScrollArea className="flex-1 -mr-4 pr-4">
             <nav className="flex flex-col space-y-1 mt-4">
-              <Link to="/" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
-                isActive("/") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
-                isCollapsed && "justify-center"
-              )}>
+              <Link to="/" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
                 <Home className="h-5 w-5" />
-                {!isCollapsed && <span className="text-sm">หน้าหลัก</span>}
+                <span className="text-sm">หน้าหลัก</span>
               </Link>
               
-              <Link to="/equipment" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
-                isActive("/equipment") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
-                isCollapsed && "justify-center"
-              )}>
+              <Link to="/equipment" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/equipment") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
                 <Settings className="h-5 w-5" />
-                {!isCollapsed && <span className="text-sm">อุปกรณ์</span>}
+                <span className="text-sm">อุปกรณ์</span>
               </Link>
               
-              <Link to="/device/default" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
-                isActive("/device/default") || location.pathname.startsWith("/device") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
-                isCollapsed && "justify-center"
-              )}>
+              <Link to="/device/default" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/device/default") || location.pathname.startsWith("/device") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
                 <BarChart2 className="h-5 w-5" />
-                {!isCollapsed && <span className="text-sm">ค่าวัดคุณภาพ</span>}
+                <span className="text-sm">ค่าวัดคุณภาพ</span>
               </Link>
               
-              {user && <Link to="/notifications" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
-                isActive("/notifications") || isActive("/notification-settings") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
-                isCollapsed && "justify-center"
-              )}>
+              {user && <Link to="/notifications" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/notifications") || isActive("/notification-settings") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
                   <AlertCircle className="h-5 w-5" />
-                  {!isCollapsed && <span className="text-sm">การแจ้งเตือนที่กำหนดไว้</span>}
+                  <span className="text-sm">การแจ้งเตือนที่กำหนดไว้</span>
                 </Link>}
                 
-              {user && <Link to="/notification-history" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
-                isActive("/notification-history") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
-                isCollapsed && "justify-center"
-              )}>
+              {user && <Link to="/notification-history" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/notification-history") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
                   <History className="h-5 w-5" />
-                  {!isCollapsed && <span className="text-sm">ประวัติการแจ้งเตือน</span>}
+                  <span className="text-sm">ประวัติการแจ้งเตือน</span>
                 </Link>}
               
-              <Link to="/graph-monitor" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
-                isActive("/graph-monitor") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
-                isCollapsed && "justify-center"
-              )}>
+              <Link to="/graph-monitor" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/graph-monitor") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
                   <Monitor className="h-5 w-5" />
-                  {!isCollapsed && <span className="text-sm">Graph Monitor</span>}
+                  <span className="text-sm">Graph Monitor</span>
               </Link>
               
-              {user && <Link to="/profile" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
-                isActive("/profile") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
-                isCollapsed && "justify-center"
-              )}>
+              {user && <Link to="/profile" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/profile") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
                   <User className="h-5 w-5" />
-                  {!isCollapsed && <span className="text-sm">ข้อมูลส่วนตัว</span>}
+                  <span className="text-sm">ข้อมูลส่วนตัว</span>
                 </Link>}
               
-              {user && canAccessUserManagement && <Link to="/user-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
-                isActive("/user-management") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
-                isCollapsed && "justify-center"
-              )}>
+              {user && canAccessUserManagement && <Link to="/user-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/user-management") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
                   <Users className="h-5 w-5" />
-                  {!isCollapsed && <span className="text-sm">จัดการผู้ใช้งาน</span>}
+                  <span className="text-sm">จัดการผู้ใช้งาน</span>
                 </Link>}
               
-              {user && canAccessUserManagement && <Link to="/news-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
-                isActive("/news-management") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
-                isCollapsed && "justify-center"
-              )}>
+              {user && canAccessUserManagement && <Link to="/news-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/news-management") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
                   <FileText className="h-5 w-5" />
-                  {!isCollapsed && <span className="text-sm">จัดการข่าวสาร</span>}
+                  <span className="text-sm">จัดการข่าวสาร</span>
                 </Link>}
             </nav>
           </ScrollArea>
           
-          {/* Collapse/Expand Button */}
-          <div className="hidden md:flex justify-center mt-4 mb-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={toggleCollapse}
-              className="bg-white dark:bg-gray-800"
-            >
-              {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-            </Button>
-          </div>
-          
           <div className="mt-auto pt-4">
-            {user && <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
-                <Link to="/logout" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors text-red-600 hover:bg-red-50 hover:border hover:border-red-200 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:border-red-800",
-                  isCollapsed && "justify-center"
-                )}>
+            {user && <div className="border-t border-gray-200 pt-4">
+                <Link to="/logout" className="flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors text-red-600 hover:bg-red-50 hover:border hover:border-red-200">
                   <LogOut className="h-5 w-5" />
-                  {!isCollapsed && <span className="text-sm">ออกจากระบบ</span>}
+                  <span className="text-sm">ออกจากระบบ</span>
                 </Link>
               </div>}
           </div>
