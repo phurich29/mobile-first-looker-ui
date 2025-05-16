@@ -7,10 +7,12 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { RefreshCw, Bell, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useNavigate } from "react-router-dom";
 
 export const NotificationList = () => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const { 
     notifications, 
     loading, 
@@ -51,6 +53,10 @@ export const NotificationList = () => {
     const result = await checkNotifications();
     // No need to show explicit message here as the checkNotifications function 
     // in useNotifications.ts now handles the toast notifications
+  };
+
+  const handleNavigateToSettings = () => {
+    navigate('/notification-settings');
   };
   
   return (
@@ -99,7 +105,10 @@ export const NotificationList = () => {
         </div>
       </div>
 
-      <div className={`bg-white ${!isMobile && 'rounded-xl shadow-sm'}`}>
+      <div 
+        className={`bg-white ${!isMobile && 'rounded-xl shadow-sm'} cursor-pointer`} 
+        onClick={handleNavigateToSettings}
+      >
         {loading ? (
           renderSkeletons()
         ) : notifications.length === 0 ? (
@@ -125,3 +134,4 @@ export const NotificationList = () => {
     </>
   );
 };
+
