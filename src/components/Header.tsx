@@ -7,6 +7,7 @@ import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "./AuthProvider";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const Header = () => {
   const [open, setOpen] = useState(false);
@@ -99,58 +100,60 @@ export const Header = () => {
             </div>
           )}
           
-          <nav className="flex flex-col space-y-1 mt-4">
-            <Link to="/" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
-              <Home className="h-5 w-5" />
-              <span className="text-sm">หน้าหลัก</span>
-            </Link>
-            
-            <Link to="/equipment" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/equipment") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
-              <Settings className="h-5 w-5" />
-              <span className="text-sm">อุปกรณ์</span>
-            </Link>
-            
-            {/* แก้ไขลิงก์ไปยังรายการอุปกรณ์ที่อัพเดทล่าสุด */}
-            <Link to="/device/default" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/device/default") || location.pathname.startsWith("/device") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
-              <BarChart2 className="h-5 w-5" />
-              <span className="text-sm">ค่าวัดคุณภาพ</span>
-            </Link>
-            
-            {user && <Link to="/notifications" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/notifications") || isActive("/notification-settings") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
-                <AlertCircle className="h-5 w-5" />
-                <span className="text-sm">การแจ้งเตือนที่กำหนดไว้</span>
-              </Link>}
+          <ScrollArea className="flex-1 -mr-4 pr-4">
+            <nav className="flex flex-col space-y-1 mt-4">
+              <Link to="/" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
+                <Home className="h-5 w-5" />
+                <span className="text-sm">หน้าหลัก</span>
+              </Link>
               
-            {/* เพิ่มเมนูประวัติการแจ้งเตือน */}
-            {user && <Link to="/notification-history" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/notification-history") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
-                <History className="h-5 w-5" />
-                <span className="text-sm">ประวัติการแจ้งเตือน</span>
-              </Link>}
-            
-            {/* เพิ่มเมนู Graph Monitor */}
-            <Link to="/graph-monitor" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/graph-monitor") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
-                <Monitor className="h-5 w-5" />
-                <span className="text-sm">Graph Monitor</span>
-            </Link>
-            
-            {/* เพิ่มเมนูข้อมูลส่วนตัว */}
-            {user && <Link to="/profile" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/profile") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
-                <User className="h-5 w-5" />
-                <span className="text-sm">ข้อมูลส่วนตัว</span>
-              </Link>}
-            
-            {/* แก้ไขเมนูจัดการผู้ใช้งานสำหรับ admin และ superadmin */}
-            {user && canAccessUserManagement && <Link to="/user-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/user-management") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
-                <Users className="h-5 w-5" />
-                <span className="text-sm">จัดการผู้ใช้งาน</span>
-              </Link>}
-            
-            {/* แก้ไขเมนูจัดการข่าวสารสำหรับ admin และ superadmin */}
-            {user && canAccessUserManagement && <Link to="/news-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/news-management") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
-                <FileText className="h-5 w-5" />
-                <span className="text-sm">จัดการข่าวสาร</span>
-              </Link>}
-          </nav>
+              <Link to="/equipment" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/equipment") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
+                <Settings className="h-5 w-5" />
+                <span className="text-sm">อุปกรณ์</span>
+              </Link>
+              
+              {/* แก้ไขลิงก์ไปยังรายการอุปกรณ์ที่อัพเดทล่าสุด */}
+              <Link to="/device/default" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/device/default") || location.pathname.startsWith("/device") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
+                <BarChart2 className="h-5 w-5" />
+                <span className="text-sm">ค่าวัดคุณภาพ</span>
+              </Link>
+              
+              {user && <Link to="/notifications" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/notifications") || isActive("/notification-settings") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
+                  <AlertCircle className="h-5 w-5" />
+                  <span className="text-sm">การแจ้งเตือนที่กำหนดไว้</span>
+                </Link>}
+                
+              {/* เพิ่มเมนูประวัติการแจ้งเตือน */}
+              {user && <Link to="/notification-history" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/notification-history") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
+                  <History className="h-5 w-5" />
+                  <span className="text-sm">ประวัติการแจ้งเตือน</span>
+                </Link>}
+              
+              {/* เพิ่มเมนู Graph Monitor */}
+              <Link to="/graph-monitor" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/graph-monitor") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
+                  <Monitor className="h-5 w-5" />
+                  <span className="text-sm">Graph Monitor</span>
+              </Link>
+              
+              {/* เพิ่มเมนูข้อมูลส่วนตัว */}
+              {user && <Link to="/profile" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/profile") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
+                  <User className="h-5 w-5" />
+                  <span className="text-sm">ข้อมูลส่วนตัว</span>
+                </Link>}
+              
+              {/* แก้ไขเมนูจัดการผู้ใช้งานสำหรับ admin และ superadmin */}
+              {user && canAccessUserManagement && <Link to="/user-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/user-management") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
+                  <Users className="h-5 w-5" />
+                  <span className="text-sm">จัดการผู้ใช้งาน</span>
+                </Link>}
+              
+              {/* แก้ไขเมนูจัดการข่าวสารสำหรับ admin และ superadmin */}
+              {user && canAccessUserManagement && <Link to="/news-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/news-management") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
+                  <FileText className="h-5 w-5" />
+                  <span className="text-sm">จัดการข่าวสาร</span>
+                </Link>}
+            </nav>
+          </ScrollArea>
           
           <div className="mt-auto pt-4">
             {user && <div className="border-t border-gray-200 pt-4">
