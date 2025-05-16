@@ -11,7 +11,7 @@ import { Search, Wheat, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/components/AuthProvider";
 import { REQUIRED_DEVICE_CODES } from "@/features/equipment/services/deviceDataService";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, format } from "date-fns";
 import { th } from "date-fns/locale";
 
 interface GraphSelectorProps {
@@ -201,8 +201,8 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
       }
 
       if (!data || data.length === 0) {
-        setError("ไม่พบข้อมูล");
-        setData([]);
+        // Replace setError and setData with direct state updates since those functions don't exist
+        setMeasurements([]);
         return;
       }
 
@@ -292,7 +292,11 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
   // Format the last updated time
   const formatLastUpdated = (date: Date | null | undefined) => {
     if (!date) return "ไม่มีข้อมูล";
-    return formatDistanceToNow(date, { addSuffix: true, locale: th });
+    
+    const timeDistance = formatDistanceToNow(date, { addSuffix: true, locale: th });
+    const exactTime = format(date, "HH:mm น.", { locale: th });
+    
+    return `${timeDistance} (${exactTime})`;
   };
 
   return (
