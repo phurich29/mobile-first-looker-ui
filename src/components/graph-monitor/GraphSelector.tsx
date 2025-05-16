@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -17,11 +18,19 @@ interface GraphSelectorProps {
   onSelectGraph: (graph: SelectedGraph) => void;
 }
 
+// Define the type for the measurement data
+interface MeasurementData {
+  symbol: string;
+  name: string;
+  icon?: React.ReactNode;
+  value?: any; // Added value property to match what we're using
+}
+
 export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelectorProps) => {
   const [loading, setLoading] = useState(true);
   const [devices, setDevices] = useState<Array<{ device_code: string; device_name: string }>>([]);
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
-  const [measurements, setMeasurements] = useState<Array<{ symbol: string; name: string; icon?: React.ReactNode }>>([]);
+  const [measurements, setMeasurements] = useState<MeasurementData[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const { user, userRoles } = useAuth();
   
@@ -184,7 +193,7 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
             return {
               symbol: key,
               name: formattedName,
-              value: value
+              value: value // Store the actual value from the data
             };
           });
         
