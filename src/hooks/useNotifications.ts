@@ -90,8 +90,13 @@ export const useNotifications = () => {
         return false;
       }
       
+      const notificationCount = data?.notificationCount || 0;
+      
       toast({
         title: "ตรวจสอบการแจ้งเตือนสำเร็จ",
+        description: notificationCount > 0 
+          ? `พบการแจ้งเตือนใหม่/อัพเดท ${notificationCount} รายการ`
+          : "ไม่พบการแจ้งเตือนใหม่",
         variant: "update",
       });
       

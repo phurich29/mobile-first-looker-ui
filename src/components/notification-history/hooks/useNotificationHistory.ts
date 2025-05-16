@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Notification } from "../types";
 
 export function useNotificationHistory() {
@@ -12,6 +12,7 @@ export function useNotificationHistory() {
   const [isCheckingNotifications, setIsCheckingNotifications] = useState(false);
   const rowsPerPage = 10;
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Use React Query for data fetching with auto-refresh
   const { 
@@ -88,14 +89,19 @@ export function useNotificationHistory() {
         throw error;
       }
       
+      const notificationCount = data?.notificationCount || 0;
+      
       toast({
         title: "ตรวจสอบการแจ้งเตือนสำเร็จ",
-        description: "ระบบได้ตรวจสอบการแจ้งเตือนล่าสุดแล้ว",
+        description: notificationCount > 0
+          ? `พบการแจ้งเตือนใหม่/อัพเดท ${notificationCount} รายการ`
+          : "ไม่พบการแจ้งเตือนใหม่", 
         variant: "update",
       });
       
       // Refetch notifications after manual check
-      refetch();
+      queryClient.invalidateQueries({ queryKey: ['notification_history'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
     } catch (error) {
       console.error("Error invoking notification check:", error);
       toast({
