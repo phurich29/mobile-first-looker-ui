@@ -22,7 +22,7 @@ export const HeaderMainContent = ({ setSidebarOpen }: HeaderMainContentProps) =>
           className="text-white p-1 hover:bg-emerald-600/70 md:hidden" 
           onClick={() => setSidebarOpen(true)}
         >
-          <Menu className="h-5 w-5 text-white" />
+          <Menu className="h-5 w-5" />
         </Button>
         
         {/* Add RiceFlow Logo in header - Made larger and more prominent */}
@@ -40,7 +40,7 @@ export const HeaderMainContent = ({ setSidebarOpen }: HeaderMainContentProps) =>
       <HeaderClock />
     
       <div className="flex items-center">
-        {/* Bell notification link with regular styling, no forced colors */}
+        {/* แก้ไขลิงค์ปุ่มแจ้งเตือนให้นำไปยังหน้า notifications */}
         <Link to="/notifications" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30 transition-colors shadow-inner">
           <Bell className="h-5 w-5 text-white" />
         </Link>

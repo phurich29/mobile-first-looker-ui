@@ -54,13 +54,13 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({
           <img 
             src={equipmentIconDataUrl}
             alt="Equipment" 
-            className="h-4 w-4" 
+            className="h-4 w-4 text-purple-600" 
           />
         </div>
         <p className="font-medium text-gray-800 text-sm">{device.device_name}</p>
       </div>
       <div className="flex items-center text-xs mt-1">
-        <Clock className="h-3 w-3 mr-1 text-gray-500" />
+        <Clock className="h-3 w-3 mr-1" />
         <span className={isRecentUpdate(device.last_updated) ? "text-green-500" : "text-gray-500"}>
           อัปเดต: {formatLastUpdated(device.last_updated)}
         </span>

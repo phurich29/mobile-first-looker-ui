@@ -21,7 +21,7 @@ import {
   getStyleSelectButtonClass, 
   getStyleMenuClass,
   getTimeframeSelectClass
-} from "./styles";
+} from "./graph-styles";
 
 interface GraphStyleControlsProps {
   timeFrame: TimeFrame;

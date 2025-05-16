@@ -20,7 +20,7 @@ import {
   getSkeletonClass,
   getErrorTextClass,
   getChartTextColor
-} from "./styles";
+} from "./graph-styles";
 
 interface GraphChartContentProps {
   loading: boolean;
