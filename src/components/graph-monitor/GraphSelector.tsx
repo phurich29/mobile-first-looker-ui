@@ -132,17 +132,17 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-auto">
+      <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-auto bg-background text-foreground">
         <DialogHeader>
-          <DialogTitle className="text-center text-xl">เลือกอุปกรณ์และค่าที่ต้องการแสดง</DialogTitle>
+          <DialogTitle className="text-center text-xl text-foreground">เลือกอุปกรณ์และค่าที่ต้องการแสดง</DialogTitle>
         </DialogHeader>
         
         <div className="mt-4">
           <div className="relative mb-4">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="ค้นหาอุปกรณ์หรือค่าการวัด"
-              className="pl-9"
+              className="pl-9 bg-background border-input"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -167,7 +167,7 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
                 ))
               ) : errorMessage ? (
                 <div className="p-4 text-center">
-                  <p className="text-red-500">{errorMessage}</p>
+                  <p className="text-red-500 dark:text-red-400">{errorMessage}</p>
                   <Button 
                     onClick={fetchDevices} 
                     variant="outline" 
@@ -182,17 +182,17 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
                     key={device.device_code}
                     className={`p-3 rounded-lg cursor-pointer transition-colors ${
                       selectedDevice === device.device_code
-                        ? "bg-purple-100 border border-purple-300"
-                        : "bg-gray-50 hover:bg-gray-100 border border-gray-200"
+                        ? "bg-accent text-accent-foreground border border-accent"
+                        : "bg-muted/50 hover:bg-muted border border-muted"
                     }`}
                     onClick={() => setSelectedDevice(device.device_code)}
                   >
-                    <p className="font-medium text-gray-800">{device.device_name}</p>
-                    <p className="text-xs text-gray-500">รหัส: {device.device_code}</p>
+                    <p className="font-medium">{device.device_name}</p>
+                    <p className="text-xs text-muted-foreground">รหัส: {device.device_code}</p>
                   </div>
                 ))
               ) : (
-                <p className="text-center text-gray-500 py-4">
+                <p className="text-center text-muted-foreground py-4">
                   ไม่พบอุปกรณ์ที่ตรงกับการค้นหา
                 </p>
               )}
@@ -209,15 +209,15 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
                 filteredMeasurements.map((measurement) => (
                   <div
                     key={measurement.symbol}
-                    className="p-3 rounded-lg cursor-pointer transition-colors bg-gray-50 hover:bg-purple-50 border border-gray-200"
+                    className="p-3 rounded-lg cursor-pointer transition-colors bg-muted/50 hover:bg-accent hover:text-accent-foreground border border-muted"
                     onClick={() => handleSelectMeasurement(measurement.symbol, measurement.name)}
                   >
-                    <p className="font-medium text-gray-800">{measurement.name}</p>
-                    <p className="text-xs text-gray-500">รหัส: {measurement.symbol}</p>
+                    <p className="font-medium">{measurement.name}</p>
+                    <p className="text-xs text-muted-foreground">รหัส: {measurement.symbol}</p>
                   </div>
                 ))
               ) : (
-                <p className="text-center text-gray-500 py-4">
+                <p className="text-center text-muted-foreground py-4">
                   ไม่พบค่าการวัดที่ตรงกับการค้นหา
                 </p>
               )}

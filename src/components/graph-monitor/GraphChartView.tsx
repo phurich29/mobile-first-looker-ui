@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   LineChart,
@@ -12,6 +13,7 @@ import { ChartContainer } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChartDataPoint } from "./hooks/useGraphData";
 import { SelectedGraph } from "./types";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface GraphChartViewProps {
   loading: boolean;
@@ -27,11 +29,13 @@ interface CustomTooltipProps {
 }
 
 const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+  const { theme } = useTheme();
+  
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white p-2 border border-gray-200 shadow-md rounded-md">
+      <div className={`${theme === 'dark' ? 'bg-secondary' : 'bg-white'} p-2 border border-border shadow-md rounded-md`}>
         <p className="text-xs font-medium">{label}</p>
-        <p className="text-xs text-gray-600">{`${payload[0].name}: ${payload[0].value}`}</p>
+        <p className="text-xs text-muted-foreground">{`${payload[0].name}: ${payload[0].value}`}</p>
       </div>
     );
   }
@@ -45,6 +49,9 @@ export const GraphChartView: React.FC<GraphChartViewProps> = ({
   error,
   graph,
 }) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  
   const getColor = () => {
     // Generate a color based on the graph name to keep it consistent
     const hash = graph.symbol.split("").reduce((acc, char) => {
@@ -78,7 +85,7 @@ export const GraphChartView: React.FC<GraphChartViewProps> = ({
   if (error) {
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <p className="text-gray-500 text-sm">{error}</p>
+        <p className="text-muted-foreground text-sm">{error}</p>
       </div>
     );
   }
@@ -86,7 +93,7 @@ export const GraphChartView: React.FC<GraphChartViewProps> = ({
   if (data.length === 0) {
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <p className="text-gray-500 text-sm">ไม่พบข้อมูล</p>
+        <p className="text-muted-foreground text-sm">ไม่พบข้อมูล</p>
       </div>
     );
   }
@@ -95,13 +102,21 @@ export const GraphChartView: React.FC<GraphChartViewProps> = ({
     <ChartContainer className="h-full w-full" config={{}}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+          <CartesianGrid 
+            strokeDasharray="3 3" 
+            stroke={isDark ? "#374151" : "#f0f0f0"} 
+            vertical={false}
+          />
           <XAxis 
             dataKey="time"
-            tick={{ fontSize: 10 }}
+            tick={{ fontSize: 10, fill: isDark ? "#9CA3AF" : "#6B7280" }}
             tickFormatter={(value) => value.split(' ')[0]}
+            stroke={isDark ? "#4B5563" : "#E5E7EB"}
           />
-          <YAxis tick={{ fontSize: 10 }} />
+          <YAxis 
+            tick={{ fontSize: 10, fill: isDark ? "#9CA3AF" : "#6B7280" }} 
+            stroke={isDark ? "#4B5563" : "#E5E7EB"}
+          />
           <Tooltip content={<CustomTooltip />} />
           <Line
             type="monotone"
