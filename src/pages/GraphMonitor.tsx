@@ -10,6 +10,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/AuthProvider";
 import { Separator } from "@/components/ui/separator";
+import { BackgroundImage } from "@/components/graph-monitor/BackgroundImage";
 
 const GraphMonitor = () => {
   const isMobile = useIsMobile();
@@ -27,7 +28,8 @@ const GraphMonitor = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen relative">
+      <BackgroundImage />
       <Header />
 
       <main className={`flex-1 p-4 ${isMobile ? 'pb-24' : 'ml-64'}`}>
@@ -50,7 +52,7 @@ const GraphMonitor = () => {
           </div>
 
           {selectedGraphs.length === 0 ? (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center bg-opacity-90">
               <div className="mx-auto w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
                 <Plus className="h-8 w-8 text-purple-600" />
               </div>
