@@ -39,7 +39,7 @@ const GraphMonitor = () => {
       <BackgroundImage />
       <Header />
 
-      <main className={`flex-1 p-4 ${isMobile ? 'pb-24' : 'ml-64'}`}>
+      <main className={`flex-1 p-4 ${isMobile ? 'pb-24' : 'ml-64'} overflow-y-auto`}>
         <div className="max-w-7xl mx-auto">
           <GraphHeader
             showSaveIndicator={showSaveIndicator}
