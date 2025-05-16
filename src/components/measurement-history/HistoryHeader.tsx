@@ -1,10 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Smartphone } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { ChevronLeft } from "lucide-react";
 
 interface HistoryHeaderProps {
   name: string;
@@ -24,26 +23,6 @@ const HistoryHeader: React.FC<HistoryHeaderProps> = ({
   deviceCode
 }) => {
   const navigate = useNavigate();
-  const [displayName, setDisplayName] = useState<string | null>(null);
-  
-  // Fetch device display name from device_settings
-  useEffect(() => {
-    if (!deviceCode) return;
-
-    const fetchDisplayName = async () => {
-      const { data, error } = await supabase
-        .from('device_settings')
-        .select('display_name')
-        .eq('device_code', deviceCode)
-        .maybeSingle();
-
-      if (!error && data) {
-        setDisplayName(data.display_name);
-      }
-    };
-
-    fetchDisplayName();
-  }, [deviceCode]);
   
   const handleGoBack = () => {
     // Always navigate to equipment page
@@ -61,24 +40,9 @@ const HistoryHeader: React.FC<HistoryHeaderProps> = ({
         <span>ย้อนกลับ</span>
       </Button>
       
-      {/* Device information with more prominent display */}
-      {deviceCode && displayName && (
-        <div className="mb-4 p-3 bg-emerald-50 rounded-lg border border-emerald-100">
-          <div className="flex items-center">
-            <Smartphone className="h-5 w-5 text-emerald-600 mr-2" />
-            <div>
-              <h2 className="text-lg font-semibold text-emerald-800">{displayName}</h2>
-              <p className="text-xs text-emerald-600">รหัสอุปกรณ์: {deviceCode}</p>
-            </div>
-          </div>
-        </div>
-      )}
-      
       <div className="flex items-center justify-between">
         <div>
-          <div className="mb-1">
-            <h3 className="text-lg font-medium text-gray-800">{name}</h3>
-          </div>
+          <h3 className="text-lg font-medium text-gray-800">{name}</h3>
           <p className="text-sm text-gray-500">
             ค่าเฉลี่ย: <span className="font-medium text-emerald-600">{average.toFixed(2)}{unit}</span>
           </p>
