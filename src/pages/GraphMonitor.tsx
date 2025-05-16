@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
@@ -46,12 +45,13 @@ const GraphMonitor = () => {
   useEffect(() => {
     if (user && selectedGraphs.length > 0) {
       const timer = setTimeout(() => {
+        // Always save to the current active preset, including Default
         saveGraphPreferences(selectedGraphs, activePreset);
       }, 2000); // 2-second delay before saving
       
       return () => clearTimeout(timer);
     }
-  }, [selectedGraphs]);
+  }, [selectedGraphs, activePreset]);
 
   // Show indicator that changes are pending save
   useEffect(() => {
@@ -76,6 +76,7 @@ const GraphMonitor = () => {
 
   const handleSaveGraphs = () => {
     if (user) {
+      // Explicitly save to the current active preset, including Default
       saveGraphPreferences(selectedGraphs, activePreset);
     } else {
       toast({
