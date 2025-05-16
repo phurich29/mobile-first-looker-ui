@@ -22,7 +22,6 @@ import NotificationHistory from "./pages/NotificationHistory";
 import Equipment from "./pages/Equipment";
 import GraphMonitor from "./pages/GraphMonitor";
 import GraphSummary from "./pages/GraphSummary";
-import GraphSummaryDetail from "./pages/GraphSummaryDetail";
 
 export const router = createBrowserRouter([
   {
@@ -118,14 +117,6 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute requiredRoles={["user"]}>
         <GraphSummary />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/graph-summary-detail",
-    element: (
-      <ProtectedRoute requiredRoles={["user"]}>
-        <GraphSummaryDetail />
       </ProtectedRoute>
     ),
   },
