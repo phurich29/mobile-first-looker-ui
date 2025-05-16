@@ -13,6 +13,7 @@ import { EmptyGraphState } from "@/components/graph-monitor/EmptyGraphState";
 import { LoadingGraphState } from "@/components/graph-monitor/LoadingGraphState";
 import { useGraphMonitor } from "@/components/graph-monitor/hooks/useGraphMonitor";
 import { RiceIconDecoration } from "@/components/graph-monitor/RiceIconDecoration";
+import { SelectedGraph } from "@/components/graph-monitor/types";
 
 const GraphMonitor = () => {
   const isMobile = useIsMobile();
@@ -78,7 +79,15 @@ const GraphMonitor = () => {
   // Modified handler to ensure device name is properly captured
   const handleAddGraphWithDeviceName = (deviceCode: string, symbol: string, name: string, deviceName?: string) => {
     console.log("Adding graph with device name:", deviceName);
-    handleAddGraph(deviceCode, symbol, name, deviceName);
+    // Create a SelectedGraph object from the parameters
+    const graph: SelectedGraph = {
+      deviceCode: deviceCode,
+      symbol: symbol,
+      name: name,
+      deviceName: deviceName || `อุปกรณ์วัด ${deviceCode}`
+    };
+    // Pass the SelectedGraph object to handleAddGraph
+    handleAddGraph(graph);
   };
 
   return (
