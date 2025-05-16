@@ -111,7 +111,7 @@ export const Header = () => {
             </Link>
             
             {/* แก้ไขลิงก์ไปยังรายการอุปกรณ์ที่อัพเดทล่าสุด */}
-            <Link to="/measurements" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/measurements") || location.pathname.startsWith("/device") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
+            <Link to="/device/default" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/device/default") || location.pathname.startsWith("/device") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
               <BarChart2 className="h-5 w-5" />
               <span className="text-sm">ค่าวัดคุณภาพ</span>
             </Link>
