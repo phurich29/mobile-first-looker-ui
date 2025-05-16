@@ -27,9 +27,16 @@ interface GraphCardProps {
   onRemove: () => void;
 }
 
+// Define a chart data point type for proper typing
+interface ChartDataPoint {
+  time: string;
+  value: number;
+  fullDate: string;
+}
+
 export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<ChartDataPoint[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -64,11 +71,18 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
         return;
       }
 
-      // Transform the data for the chart
-      const chartData = responseData
-        .filter(item => item && item[graph.symbol] !== undefined && item[graph.symbol] !== null)
-        .map(item => {
+      // Transform the data for the chart with proper type checking
+      const chartData: ChartDataPoint[] = [];
+      
+      for (const item of responseData) {
+        // Ensure the item exists and has the required properties
+        if (item && 
+            item[graph.symbol] !== undefined && 
+            item[graph.symbol] !== null &&
+            item.created_at) {
+          
           const value = item[graph.symbol];
+          // Handle object or primitive value
           const measurementValue = typeof value === 'object' ? 
             (value as any).value : value;
           
@@ -76,14 +90,16 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
           const date = new Date(item.created_at);
           const formattedDate = `${date.getDate()}/${date.getMonth() + 1} ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
           
-          return {
+          chartData.push({
             time: formattedDate,
             value: Number(measurementValue),
             fullDate: item.created_at
-          };
-        })
-        .reverse(); // Display oldest to newest
-
+          });
+        }
+      }
+      
+      // Reverse to display oldest to newest
+      chartData.reverse();
       setData(chartData);
     } catch (err) {
       console.error("Unexpected error:", err);
