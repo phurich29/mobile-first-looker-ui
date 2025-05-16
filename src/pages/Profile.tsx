@@ -102,7 +102,9 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50">
       <Header />
-      <div className="container px-3 py-6 md:py-12 pb-24 mx-auto max-w-6xl">
+      
+      {/* Main content with proper padding to avoid menu overlap */}
+      <div className="container px-3 py-6 md:py-12 pb-24 mx-auto max-w-6xl md:ml-64">
         <div className="flex items-center mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-emerald-800">ข้อมูลส่วนตัว</h1>
         </div>
