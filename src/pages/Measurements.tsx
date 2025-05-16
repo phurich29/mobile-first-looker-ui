@@ -12,7 +12,7 @@ export default function Measurements() {
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
       <Header />
 
-      <main className="flex-1 p-4 pb-32">
+      <main className="flex-1 p-4 pb-20">
         <div className="mb-6">
           <h1 className="text-xl font-semibold text-gray-800 mb-2">อุปกรณ์ที่มีการอัพเดทล่าสุด</h1>
           <p className="text-sm text-gray-500">แตะที่อุปกรณ์เพื่อดูข้อมูลค่าวัดคุณภาพโดยละเอียด</p>
@@ -36,10 +36,6 @@ export default function Measurements() {
         <DeviceList />
       </main>
 
-      {/* เพิ่มพื้นที่ว่างเพื่อป้องกันเนื้อหาทับกับ footer */}
-      <div className="pb-32"></div>
-
-      {/* ใช้ FooterNav component */}
       <FooterNav />
     </div>
   );
