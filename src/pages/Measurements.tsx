@@ -16,6 +16,11 @@ import {
 } from "@/components/ui/select";
 import { REQUIRED_DEVICE_CODES } from "@/features/equipment/services/deviceDataService";
 
+// Define a proper interface for device data
+interface DeviceData {
+  device_code: string;
+}
+
 export default function Measurements() {
   // สร้าง state และ ref สำหรับฟังก์ชันการลาก (Drag)
   const tabsContainerRef = useRef<HTMLDivElement>(null);
@@ -74,7 +79,7 @@ export default function Measurements() {
   }, []);
 
   // สร้าง state สำหรับรหัสอุปกรณ์
-  const { data: devices } = useQuery({
+  const { data: devices } = useQuery<DeviceData[]>({
     queryKey: ['devices'],
     queryFn: async () => {
       // Get the required device codes first to ensure they are always included
@@ -99,7 +104,7 @@ export default function Measurements() {
       }
       
       // Use a Set to get unique device codes
-      const uniqueDeviceCodes = new Set();
+      const uniqueDeviceCodes = new Set<string>();
       
       // First add all required devices
       requiredDevices.forEach(device => {
@@ -209,7 +214,7 @@ export default function Measurements() {
     queryFn: fetchAllData,
   });
 
-  // กรองข้อมูลตามคำค้นหา
+  // กรองข้อมูลตามคำค��นหา
   const filterItems = (items: any[]) => {
     if (!searchTerm) return items;
     
