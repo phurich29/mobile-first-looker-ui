@@ -37,20 +37,51 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
         setGraphStyle={setGraphStyle}
       />
       <CardContent className={`p-4 h-64 relative ${chartTextColorClass}`}>
-        {/* Rice icon watermark - very subtle in background, optimized for stability */}
+        {/* Rice plant watermark - very subtle in background */}
         <div className="absolute inset-0 z-0 flex items-center justify-center opacity-[0.02] dark:opacity-[0.03] pointer-events-none">
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
-            viewBox="0 0 64 64" 
-            className="w-32 h-32"
+            viewBox="0 0 100 120"
+            className="w-36 h-36"
             fill="currentColor"
             style={{ transform: 'translateZ(0)' }} // Force GPU rendering for stability
           >
-            {/* Simplified rice grain icon with fewer path points */}
-            <path d="M32,10c-12.15,0-22,9.85-22,22s9.85,22,22,22s22-9.85,22-22S44.15,10,32,10z M32,50
-              c-9.94,0-18-8.06-18-18s8.06-18,18-18s18,8.06,18,18S41.94,50,32,50z" />
-            <path d="M41,22.5c-6.71,0-12.18,5.47-12.18,12.18c0,6.71,5.47,12.18,12.18,12.18s12.18-5.47,12.18-12.18
-              C53.18,27.97,47.71,22.5,41,22.5z" />
+            {/* Rice plant stem */}
+            <path d="M50,120 L50,60 C50,60 48,40 50,30 C52,20 55,10 50,0" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round"/>
+            
+            {/* Rice plant leaves */}
+            <path d="M50,80 C60,70 70,75 80,65" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round"/>
+            
+            <path d="M50,70 C60,65 75,70 85,60" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round"/>
+            
+            <path d="M50,60 C40,50 30,55 20,45" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round"/>
+            
+            <path d="M50,50 C40,45 25,50 15,40" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round"/>
+            
+            {/* Rice grains at the top */}
+            <path d="M43,20 C43,15 45,10 50,10 C55,10 57,15 57,20 C57,25 55,30 50,30 C45,30 43,25 43,20 Z" 
+              fill="currentColor" 
+              opacity="0.8"/>
           </svg>
         </div>
         

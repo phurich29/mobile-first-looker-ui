@@ -78,7 +78,7 @@ const GraphMonitor = () => {
       <Header />
 
       <main className={`flex-1 p-4 ${isMobile ? 'pb-24' : sidebarWidth} overflow-y-auto relative`}>
-        {/* Rice icon decorations - positioned more subtly */}
+        {/* Large rice plant decorations */}
         <RiceIconDecoration position="top-right" />
         <RiceIconDecoration position="bottom-left" />
         

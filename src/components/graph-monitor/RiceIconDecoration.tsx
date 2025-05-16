@@ -26,27 +26,65 @@ export const RiceIconDecoration: React.FC<RiceIconDecorationProps> = ({ position
         transform: 'translateZ(0)', // Force GPU rendering for stability
       }}
     >
-      <RiceGrainIcon className={`w-24 h-24 text-emerald-700 dark:text-emerald-500 ${position.includes('right') ? 'transform rotate-45' : 'transform -rotate-45'}`} />
+      <RicePlantIcon className={`w-32 h-32 text-emerald-700 dark:text-emerald-500 ${position.includes('right') ? 'transform rotate-12' : 'transform -rotate-12'}`} />
     </div>
   );
 };
 
-// Simpler, optimized Rice Grain SVG Icon with fewer path points for better performance
-const RiceGrainIcon: React.FC<{ className?: string }> = ({ className }) => {
+// Larger rice plant SVG icon with more detailed plant features
+const RicePlantIcon: React.FC<{ className?: string }> = ({ className }) => {
   return (
     <svg 
       xmlns="http://www.w3.org/2000/svg" 
-      viewBox="0 0 64 64" 
+      viewBox="0 0 100 120"
       className={className}
       fill="currentColor"
-      style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.05))' }}
+      style={{ filter: 'drop-shadow(0 3px 5px rgba(0,0,0,0.08))' }}
     >
-      <path d="M32,10c-12.15,0-22,9.85-22,22s9.85,22,22,22s22-9.85,22-22S44.15,10,32,10z M32,50
-        c-9.94,0-18-8.06-18-18s8.06-18,18-18s18,8.06,18,18S41.94,50,32,50z" />
-      <path d="M41,22.5c-0.85-0.18-1.72-0.28-2.6-0.28c-6.71,0-12.18,5.47-12.18,12.18c0,0.88,0.1,1.75,0.28,2.6
-        c-2.26,0.75-3.9,2.89-3.9,5.4c0,3.14,2.56,5.7,5.7,5.7c2.51,0,4.65-1.64,5.4-3.9c0.85,0.18,1.72,0.28,2.6,0.28
-        c6.71,0,12.18-5.47,12.18-12.18c0-0.88-0.1-1.75-0.28-2.6c2.26-0.75,3.9-2.89,3.9-5.4c0-3.14-2.56-5.7-5.7-5.7
-        C43.89,18.6,41.75,20.24,41,22.5z" />
+      {/* Rice plant stem */}
+      <path d="M50,120 L50,60 C50,60 48,40 50,30 C52,20 55,10 50,0" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round"/>
+      
+      {/* Rice plant leaves */}
+      <path d="M50,80 C60,70 70,75 80,65" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round"/>
+      
+      <path d="M50,70 C60,65 75,70 85,60" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round"/>
+      
+      <path d="M50,60 C40,50 30,55 20,45" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round"/>
+      
+      <path d="M50,50 C40,45 25,50 15,40" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round"/>
+      
+      {/* Rice grains at the top */}
+      <path d="M43,20 C43,15 45,10 50,10 C55,10 57,15 57,20 C57,25 55,30 50,30 C45,30 43,25 43,20 Z" 
+        fill="currentColor" 
+        opacity="0.8"/>
+      
+      <path d="M38,15 C38,11 40,7 44,7 C48,7 50,11 50,15 C50,19 48,23 44,23 C40,23 38,19 38,15 Z" 
+        fill="currentColor" 
+        opacity="0.8"/>
+      
+      <path d="M50,15 C50,11 52,7 56,7 C60,7 62,11 62,15 C62,19 60,23 56,23 C52,23 50,19 50,15 Z" 
+        fill="currentColor" 
+        opacity="0.8"/>
     </svg>
   );
 };
