@@ -12,96 +12,37 @@ export const RiceIconDecoration: React.FC<RiceIconDecorationProps> = ({ position
   
   // Position classes based on the specified position prop
   const positionClasses = {
-    "top-left": "top-8 left-8",
-    "top-right": "top-8 right-8",
-    "bottom-left": "bottom-24 left-8 md:bottom-8",
-    "bottom-right": "bottom-24 right-8 md:bottom-8"
+    "top-left": "top-4 left-4",
+    "top-right": "top-4 right-4",
+    "bottom-left": "bottom-20 left-4 md:bottom-4",
+    "bottom-right": "bottom-20 right-4 md:bottom-4"
   };
   
   return (
     <div 
-      className={`absolute hidden md:block z-10 opacity-70 ${isDarkMode ? 'opacity-50' : 'opacity-70'} ${positionClasses[position]}`}
+      className={`absolute hidden md:flex z-10 opacity-30 ${isDarkMode ? 'opacity-20' : 'opacity-30'} ${positionClasses[position]}`}
       aria-hidden="true"
-      style={{
-        transform: 'translateZ(0)', // Force GPU rendering for stability
-      }}
     >
-      <RiceLogoIcon className={`w-32 h-32 ${position.includes('right') ? 'transform rotate-12' : 'transform -rotate-12'}`} />
+      <RiceGrainIcon className={`w-28 h-28 text-emerald-700 dark:text-emerald-400 ${position.includes('right') ? 'transform rotate-45' : 'transform -rotate-45'}`} />
     </div>
   );
 };
 
-// Rice logo styled icon that matches the RiceFlow logo with yellow grains
-const RiceLogoIcon: React.FC<{ className?: string }> = ({ className }) => {
+// Custom Rice Grain SVG Icon
+const RiceGrainIcon: React.FC<{ className?: string }> = ({ className }) => {
   return (
     <svg 
       xmlns="http://www.w3.org/2000/svg" 
-      viewBox="0 0 100 120"
+      viewBox="0 0 64 64" 
       className={className}
-      style={{ filter: 'drop-shadow(0 3px 5px rgba(0,0,0,0.08))' }}
+      fill="currentColor"
     >
-      {/* Rice plant stem */}
-      <path 
-        d="M50,120 C50,120 47,90 50,60" 
-        fill="none" 
-        stroke="#0A5A36" 
-        strokeWidth="4" 
-        strokeLinecap="round"
-      />
-      
-      {/* Rice grains - styled like the logo with yellow fill and green outline */}
-      <path 
-        d="M43,20 C43,15 45,10 50,10 C55,10 57,15 57,20 C57,25 55,30 50,30 C45,30 43,25 43,20 Z" 
-        fill="#FFD966" 
-        stroke="#0A5A36"
-        strokeWidth="4"
-      />
-      
-      <path 
-        d="M38,35 C38,31 40,27 44,27 C48,27 50,31 50,35 C50,39 48,43 44,43 C40,43 38,39 38,35 Z" 
-        fill="#FFD966" 
-        stroke="#0A5A36"
-        strokeWidth="4"
-      />
-      
-      <path 
-        d="M50,35 C50,31 52,27 56,27 C60,27 62,31 62,35 C62,39 60,43 56,43 C52,43 50,39 50,35 Z" 
-        fill="#FFD966" 
-        stroke="#0A5A36"
-        strokeWidth="4"
-      />
-      
-      <path 
-        d="M43,50 C43,45 45,40 50,40 C55,40 57,45 57,50 C57,55 55,60 50,60 C45,60 43,55 43,50 Z" 
-        fill="#FFD966" 
-        stroke="#0A5A36"
-        strokeWidth="4"
-      />
-      
-      {/* Add the little radiation lines like in the logo */}
-      <path 
-        d="M65,20 L75,15" 
-        fill="none" 
-        stroke="#0A5A36" 
-        strokeWidth="4" 
-        strokeLinecap="round"
-      />
-      
-      <path 
-        d="M65,30 L78,30" 
-        fill="none" 
-        stroke="#0A5A36" 
-        strokeWidth="4" 
-        strokeLinecap="round"
-      />
-      
-      <path 
-        d="M65,40 L75,45" 
-        fill="none" 
-        stroke="#0A5A36" 
-        strokeWidth="4" 
-        strokeLinecap="round"
-      />
+      <path d="M32,8c-13.35,0-24,10.65-24,24c0,13.35,10.65,24,24,24s24-10.65,24-24C56,18.65,45.35,8,32,8z M32,52
+        c-11.03,0-20-8.97-20-20c0-11.03,8.97-20,20-20s20,8.97,20,20C52,43.03,43.03,52,32,52z" />
+      <path d="M41.88,20.6c-0.94-0.2-1.91-0.31-2.88-0.31c-7.44,0-13.5,6.06-13.5,13.5c0,0.97,0.11,1.94,0.31,2.88
+        c-2.51,0.83-4.31,3.21-4.31,6c0,3.49,2.84,6.33,6.33,6.33c2.79,0,5.17-1.8,6-4.31c0.94,0.2,1.91,0.31,2.88,0.31
+        c7.44,0,13.5-6.06,13.5-13.5c0-0.98-0.11-1.94-0.31-2.88c2.51-0.83,4.31-3.21,4.31-6c0-3.49-2.84-6.33-6.33-6.33
+        C45.09,16.29,42.72,18.09,41.88,20.6z" />
     </svg>
   );
 };

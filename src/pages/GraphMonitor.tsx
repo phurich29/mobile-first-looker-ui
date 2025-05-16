@@ -51,21 +51,17 @@ const GraphMonitor = () => {
     
     window.addEventListener('storage', handleStorageChange);
     
-    // Use requestAnimationFrame for smoother checks
-    let rafId: number;
-    const checkState = () => {
+    // Also check periodically for changes within the same window
+    const interval = setInterval(() => {
       const currentState = localStorage.getItem('sidebarCollapsed');
       if (currentState === 'true' !== isCollapsed) {
         setIsCollapsed(currentState === 'true');
       }
-      rafId = requestAnimationFrame(checkState);
-    };
-    
-    rafId = requestAnimationFrame(checkState);
+    }, 1000);
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      cancelAnimationFrame(rafId);
+      clearInterval(interval);
     };
   }, [isCollapsed]);
   
@@ -78,7 +74,7 @@ const GraphMonitor = () => {
       <Header />
 
       <main className={`flex-1 p-4 ${isMobile ? 'pb-24' : sidebarWidth} overflow-y-auto relative`}>
-        {/* Large rice plant decorations */}
+        {/* Rice icon decorations */}
         <RiceIconDecoration position="top-right" />
         <RiceIconDecoration position="bottom-left" />
         
