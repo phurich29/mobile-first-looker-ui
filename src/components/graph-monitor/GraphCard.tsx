@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -40,28 +41,32 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
     setError(null);
 
     try {
-      const { data, error } = await supabase
+      // Use the graph.symbol as the column to select along with created_at
+      const query = supabase
         .from("rice_quality_analysis")
         .select(`created_at, ${graph.symbol}`)
         .eq("device_code", graph.deviceCode)
         .order("created_at", { ascending: false })
         .limit(30);
+      
+      const { data: responseData, error: responseError } = await query;
 
-      if (error) {
-        console.error("Error fetching graph data:", error);
+      if (responseError) {
+        console.error("Error fetching graph data:", responseError);
         setError("ไม่สามารถโหลดข้อมูลได้");
+        setData([]);
         return;
       }
 
-      if (!data || data.length === 0) {
+      if (!responseData || responseData.length === 0) {
         setError("ไม่พบข้อมูล");
         setData([]);
         return;
       }
 
       // Transform the data for the chart
-      const chartData = data
-        .filter(item => item[graph.symbol] !== undefined && item[graph.symbol] !== null)
+      const chartData = responseData
+        .filter(item => item && item[graph.symbol] !== undefined && item[graph.symbol] !== null)
         .map(item => {
           const value = item[graph.symbol];
           const measurementValue = typeof value === 'object' ? 
