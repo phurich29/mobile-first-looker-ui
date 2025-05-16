@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -11,20 +11,48 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/AuthProvider";
 import { Separator } from "@/components/ui/separator";
 import { BackgroundImage } from "@/components/graph-monitor/BackgroundImage";
+import { useGraphPreferences } from "@/components/graph-monitor/hooks/useGraphPreferences";
 
 const GraphMonitor = () => {
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const [selectedGraphs, setSelectedGraphs] = useState<SelectedGraph[]>([]);
   const [selectorOpen, setSelectorOpen] = useState(false);
+  const { savedGraphs, loading: preferencesLoading, saveGraphPreferences } = useGraphPreferences();
+  
+  // Load saved preferences when component mounts
+  useEffect(() => {
+    if (!preferencesLoading && savedGraphs.length > 0) {
+      setSelectedGraphs(savedGraphs);
+    }
+  }, [savedGraphs, preferencesLoading]);
+
+  // Save preferences when graphs change
+  useEffect(() => {
+    if (user && selectedGraphs.length > 0) {
+      saveGraphPreferences(selectedGraphs);
+    }
+  }, [selectedGraphs, user]);
 
   const handleAddGraph = (graph: SelectedGraph) => {
-    setSelectedGraphs((prev) => [...prev, graph]);
+    const newGraphs = [...selectedGraphs, graph];
+    setSelectedGraphs(newGraphs);
     setSelectorOpen(false);
+    
+    // Save the updated preferences
+    if (user) {
+      saveGraphPreferences(newGraphs);
+    }
   };
 
   const handleRemoveGraph = (index: number) => {
-    setSelectedGraphs((prev) => prev.filter((_, i) => i !== index));
+    const newGraphs = selectedGraphs.filter((_, i) => i !== index);
+    setSelectedGraphs(newGraphs);
+    
+    // Save the updated preferences
+    if (user) {
+      saveGraphPreferences(newGraphs);
+    }
   };
 
   return (
@@ -51,7 +79,16 @@ const GraphMonitor = () => {
             </Button>
           </div>
 
-          {selectedGraphs.length === 0 ? (
+          {preferencesLoading ? (
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center bg-opacity-90">
+              <div className="animate-pulse flex flex-col items-center">
+                <div className="w-16 h-16 bg-purple-200 rounded-full mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-1/4 mb-6"></div>
+                <div className="h-10 bg-purple-200 rounded w-32"></div>
+              </div>
+            </div>
+          ) : selectedGraphs.length === 0 ? (
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center bg-opacity-90">
               <div className="mx-auto w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
                 <Plus className="h-8 w-8 text-purple-600" />
