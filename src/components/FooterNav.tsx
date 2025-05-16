@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import { Home, User, PackageOpen, Bell, Info, Monitor } from "lucide-react";
+import { Home, User, PackageOpen, Bell, Info, Monitor, Layout } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "./AuthProvider";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -53,6 +54,11 @@ export const FooterNav = () => {
                   <Monitor className="h-5 w-5 mr-3 text-gray-500" />
                   <span className="text-sm font-medium text-gray-700">Graph Monitor</span>
                 </NavLink>
+                
+                <NavLink to="/graph-summary" className="flex items-center p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                  <Layout className="h-5 w-5 mr-3 text-gray-500" />
+                  <span className="text-sm font-medium text-gray-700">Graph Summary</span>
+                </NavLink>
               </>
             )}
             
@@ -93,9 +99,9 @@ export const FooterNav = () => {
                 <span className="text-xs mt-1 text-white">อุปกรณ์</span>
               </NavLink>
               
-              <NavLink to="/graph-monitor" className="flex flex-col items-center justify-center w-1/5 h-full">
-                <Monitor className="h-5 w-5 text-white" />
-                <span className="text-xs mt-1 text-white">กราฟ</span>
+              <NavLink to="/graph-summary" className="flex flex-col items-center justify-center w-1/5 h-full">
+                <Layout className="h-5 w-5 text-white" />
+                <span className="text-xs mt-1 text-white">สรุป</span>
               </NavLink>
               
               <NavLink to="/notifications" className="flex flex-col items-center justify-center w-1/5 h-full">
@@ -125,6 +131,6 @@ export const FooterNav = () => {
       </div>
     </div>
   );
-};
+}
 
 export default FooterNav;
