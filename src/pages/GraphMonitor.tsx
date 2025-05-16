@@ -12,7 +12,6 @@ import { GraphHeader } from "@/components/graph-monitor/GraphHeader";
 import { EmptyGraphState } from "@/components/graph-monitor/EmptyGraphState";
 import { LoadingGraphState } from "@/components/graph-monitor/LoadingGraphState";
 import { useGraphMonitor } from "@/components/graph-monitor/hooks/useGraphMonitor";
-import { RiceIconDecoration } from "@/components/graph-monitor/RiceIconDecoration";
 import { SelectedGraph } from "@/components/graph-monitor/types";
 
 const GraphMonitor = () => {
@@ -98,10 +97,6 @@ const GraphMonitor = () => {
       <Header />
 
       <main className={`flex-1 ${isMobile ? 'pb-24' : sidebarWidth} relative`}>
-        {/* Position decorations only at corners far from content */}
-        <RiceIconDecoration position="top-right" />
-        <RiceIconDecoration position="bottom-left" />
-        
         <div className="max-w-7xl mx-auto p-4">
           <GraphHeader
             showSaveIndicator={showSaveIndicator}
