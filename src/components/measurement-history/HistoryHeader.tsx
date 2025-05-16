@@ -25,13 +25,8 @@ const HistoryHeader: React.FC<HistoryHeaderProps> = ({
   const navigate = useNavigate();
   
   const handleGoBack = () => {
-    // Navigate to device details page if device code is provided
-    if (deviceCode) {
-      navigate(`/device/${deviceCode}`);
-    } else {
-      // Fallback to previous page if device code is not available
-      navigate(-1);
-    }
+    // Always navigate to equipment page
+    navigate("/equipment");
   };
   
   return (
