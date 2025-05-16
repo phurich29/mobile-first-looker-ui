@@ -1,4 +1,3 @@
-
 import { Header } from "@/components/Header";
 import { MeasurementItem } from "@/components/MeasurementItem";
 import { FooterNav } from "@/components/FooterNav";
@@ -15,6 +14,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import { REQUIRED_DEVICE_CODES } from "@/features/equipment/services/deviceDataService";
 
 export default function Measurements() {
   // สร้าง state และ ref สำหรับฟังก์ชันการลาก (Drag)
@@ -77,6 +77,9 @@ export default function Measurements() {
   const { data: devices } = useQuery({
     queryKey: ['devices'],
     queryFn: async () => {
+      // Get the required device codes first to ensure they are always included
+      const requiredDevices = REQUIRED_DEVICE_CODES.map(code => ({ device_code: code }));
+      
       const { data, error } = await supabase
         .from('rice_quality_analysis')
         .select('device_code')
@@ -86,12 +89,32 @@ export default function Measurements() {
 
       if (error) {
         console.error('Error fetching devices:', error);
-        return [];
+        // Return at least the required devices even if there's an error
+        return requiredDevices;
       }
       
-      // Get unique device codes
-      const uniqueDevices = data ? [...new Set(data.map(item => item.device_code))] : [];
-      return uniqueDevices.map(device_code => ({ device_code }));
+      // Combine database devices with required devices
+      if (!data || data.length === 0) {
+        return requiredDevices;
+      }
+      
+      // Use a Set to get unique device codes
+      const uniqueDeviceCodes = new Set();
+      
+      // First add all required devices
+      requiredDevices.forEach(device => {
+        uniqueDeviceCodes.add(device.device_code);
+      });
+      
+      // Then add devices from the database
+      data.forEach(item => {
+        if (item.device_code) {
+          uniqueDeviceCodes.add(item.device_code);
+        }
+      });
+      
+      // Convert Set back to array of objects
+      return Array.from(uniqueDeviceCodes).map(code => ({ device_code: code }));
     },
   });
 
