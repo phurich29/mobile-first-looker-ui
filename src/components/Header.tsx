@@ -1,4 +1,3 @@
-
 import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, FileText, AlertCircle, History } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
@@ -139,7 +138,7 @@ export const Header = () => {
                 <span className="text-sm">จัดการผู้ใช้งาน</span>
               </Link>}
             
-            {/* แก้ไขเมนูจัดการข่าวสารสำหรับ admin และ superadmin */}
+            {/* แก้ไขเมนูจัดการข่าวสารสำหรับ admin และ superadmin - update the link to correct path */}
             {user && canAccessUserManagement && <Link to="/news-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/news-management") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
                 <FileText className="h-5 w-5" />
                 <span className="text-sm">จัดการข่าวสาร</span>
@@ -191,7 +190,7 @@ export const Header = () => {
         </div>
       
         <div className="flex items-center">
-          {/* Added back the notification bell icon with updated link */}
+          {/* Fixed the notification bell icon link */}
           <Link to="/notification-settings" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30 transition-colors shadow-inner">
             <Bell className="h-5 w-5 text-white" />
           </Link>
