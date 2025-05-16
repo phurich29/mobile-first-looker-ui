@@ -9,10 +9,10 @@ const NotificationHistory: React.FC = () => {
   const isMobile = useIsMobile();
 
   return (
-    <div className="flex flex-col min-h-screen overflow-x-hidden">
+    <div className="flex flex-col min-h-screen">
       <Header />
       
-      <main className={`flex-1 p-4 ${isMobile ? 'pb-32' : 'ml-64'} overflow-x-hidden`}>
+      <main className={`flex-1 p-4 ${isMobile ? 'pb-32' : 'ml-64'}`}>
         <div className="mx-auto max-w-6xl">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-800 mb-2">ประวัติการแจ้งเตือน</h1>

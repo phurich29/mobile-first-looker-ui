@@ -64,7 +64,7 @@ export default function RicePriceManagement() {
   // Check if user is not a superadmin
   if (!userRoles.includes('superadmin')) {
     return (
-      <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
+      <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64 overflow-hidden">
         <Header />
         <main className="flex-1 p-4">
           <AccessDeniedView />
@@ -76,7 +76,7 @@ export default function RicePriceManagement() {
 
   if (isPricesLoading || isDocsLoading) {
     return (
-      <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
+      <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64 overflow-hidden">
         <Header />
         <main className="flex-1 p-4 flex items-center justify-center">
           <LoadingView />
@@ -88,7 +88,7 @@ export default function RicePriceManagement() {
 
   if (pricesError || docsError) {
     return (
-      <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
+      <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64 overflow-hidden">
         <Header />
         <main className="flex-1 p-4">
           <ErrorView 
@@ -105,7 +105,7 @@ export default function RicePriceManagement() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64 overflow-hidden">
       <Header />
       <main className="flex-1 p-4 pb-20">
         <div className="flex justify-between items-center mb-6">

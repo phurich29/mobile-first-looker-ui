@@ -47,7 +47,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 overflow-hidden">
       <Header />
       
       {/* Main content with proper padding to avoid menu overlap */}
