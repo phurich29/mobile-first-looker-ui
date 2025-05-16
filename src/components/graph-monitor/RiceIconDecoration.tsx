@@ -12,23 +12,26 @@ export const RiceIconDecoration: React.FC<RiceIconDecorationProps> = ({ position
   
   // Position classes based on the specified position prop
   const positionClasses = {
-    "top-left": "top-4 left-4",
-    "top-right": "top-4 right-4",
-    "bottom-left": "bottom-20 left-4 md:bottom-4",
-    "bottom-right": "bottom-20 right-4 md:bottom-4"
+    "top-left": "top-8 left-8",
+    "top-right": "top-8 right-8",
+    "bottom-left": "bottom-24 left-8 md:bottom-8",
+    "bottom-right": "bottom-24 right-8 md:bottom-8"
   };
   
   return (
     <div 
-      className={`absolute hidden md:flex z-10 opacity-30 ${isDarkMode ? 'opacity-20' : 'opacity-30'} ${positionClasses[position]}`}
+      className={`absolute hidden md:block z-10 opacity-15 ${isDarkMode ? 'opacity-10' : 'opacity-15'} ${positionClasses[position]}`}
       aria-hidden="true"
+      style={{
+        transform: 'translateZ(0)', // Force GPU rendering for stability
+      }}
     >
-      <RiceGrainIcon className={`w-28 h-28 text-emerald-700 dark:text-emerald-400 ${position.includes('right') ? 'transform rotate-45' : 'transform -rotate-45'}`} />
+      <RiceGrainIcon className={`w-24 h-24 text-emerald-700 dark:text-emerald-500 ${position.includes('right') ? 'transform rotate-45' : 'transform -rotate-45'}`} />
     </div>
   );
 };
 
-// Custom Rice Grain SVG Icon
+// Simpler, optimized Rice Grain SVG Icon with fewer path points for better performance
 const RiceGrainIcon: React.FC<{ className?: string }> = ({ className }) => {
   return (
     <svg 
@@ -36,13 +39,14 @@ const RiceGrainIcon: React.FC<{ className?: string }> = ({ className }) => {
       viewBox="0 0 64 64" 
       className={className}
       fill="currentColor"
+      style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.05))' }}
     >
-      <path d="M32,8c-13.35,0-24,10.65-24,24c0,13.35,10.65,24,24,24s24-10.65,24-24C56,18.65,45.35,8,32,8z M32,52
-        c-11.03,0-20-8.97-20-20c0-11.03,8.97-20,20-20s20,8.97,20,20C52,43.03,43.03,52,32,52z" />
-      <path d="M41.88,20.6c-0.94-0.2-1.91-0.31-2.88-0.31c-7.44,0-13.5,6.06-13.5,13.5c0,0.97,0.11,1.94,0.31,2.88
-        c-2.51,0.83-4.31,3.21-4.31,6c0,3.49,2.84,6.33,6.33,6.33c2.79,0,5.17-1.8,6-4.31c0.94,0.2,1.91,0.31,2.88,0.31
-        c7.44,0,13.5-6.06,13.5-13.5c0-0.98-0.11-1.94-0.31-2.88c2.51-0.83,4.31-3.21,4.31-6c0-3.49-2.84-6.33-6.33-6.33
-        C45.09,16.29,42.72,18.09,41.88,20.6z" />
+      <path d="M32,10c-12.15,0-22,9.85-22,22s9.85,22,22,22s22-9.85,22-22S44.15,10,32,10z M32,50
+        c-9.94,0-18-8.06-18-18s8.06-18,18-18s18,8.06,18,18S41.94,50,32,50z" />
+      <path d="M41,22.5c-0.85-0.18-1.72-0.28-2.6-0.28c-6.71,0-12.18,5.47-12.18,12.18c0,0.88,0.1,1.75,0.28,2.6
+        c-2.26,0.75-3.9,2.89-3.9,5.4c0,3.14,2.56,5.7,5.7,5.7c2.51,0,4.65-1.64,5.4-3.9c0.85,0.18,1.72,0.28,2.6,0.28
+        c6.71,0,12.18-5.47,12.18-12.18c0-0.88-0.1-1.75-0.28-2.6c2.26-0.75,3.9-2.89,3.9-5.4c0-3.14-2.56-5.7-5.7-5.7
+        C43.89,18.6,41.75,20.24,41,22.5z" />
     </svg>
   );
 };
