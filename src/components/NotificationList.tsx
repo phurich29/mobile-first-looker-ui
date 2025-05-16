@@ -4,7 +4,7 @@ import { NotificationItem } from "./notification/NotificationItem";
 import { useAuth } from "@/components/AuthProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNotifications } from "@/hooks/useNotifications";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Bell, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -73,14 +73,29 @@ export const NotificationList = () => {
           <Button 
             onClick={handleCheckNotifications} 
             variant="ghost"
-            size="sm"
-            className="text-xs text-blue-600 font-medium hover:bg-blue-50 flex items-center"
+            size={isMobile ? "icon" : "sm"}
+            className={isMobile ? "text-blue-600 hover:bg-blue-50" : "text-xs text-blue-600 font-medium hover:bg-blue-50 flex items-center"}
             disabled={isCheckingNotifications}
+            title="ตรวจสอบแจ้งเตือน"
           >
-            <RefreshCw size={12} className={`mr-1 ${isCheckingNotifications ? 'animate-spin' : ''}`} />
-            ตรวจสอบแจ้งเตือน
+            <RefreshCw 
+              size={isMobile ? 16 : 12} 
+              className={`${isCheckingNotifications ? 'animate-spin' : ''} ${!isMobile && 'mr-1'}`} 
+            />
+            {!isMobile && "ตรวจสอบแจ้งเตือน"}
           </Button>
-          <a href="/notifications" className="text-xs text-green-600 font-medium">ตั้งค่าแจ้งเตือน</a>
+          
+          <Button
+            asChild
+            variant="ghost"
+            size={isMobile ? "icon" : "sm"}
+            className={isMobile ? "text-green-600 hover:bg-green-50" : "text-xs text-green-600 font-medium hover:bg-green-50"}
+            title="ตั้งค่าแจ้งเตือน"
+          >
+            <a href="/notifications">
+              {isMobile ? <Settings size={16} /> : "ตั้งค่าแจ้งเตือน"}
+            </a>
+          </Button>
         </div>
       </div>
 
