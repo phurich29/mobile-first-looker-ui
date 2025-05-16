@@ -54,7 +54,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({
           <img 
             src={equipmentIconDataUrl}
             alt="Equipment" 
-            className="h-4 w-4 text-purple-600" 
+            className="h-4 w-4" 
           />
         </div>
         <p className="font-medium text-gray-800 text-sm">{device.device_name}</p>
