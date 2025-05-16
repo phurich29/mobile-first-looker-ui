@@ -16,6 +16,9 @@ interface DeviceCardProps {
   onClick: () => void;
 }
 
+// Equipment icon as data URL
+const equipmentIconDataUrl = "data:image/svg+xml,%3c?xml%20version=%271.0%27%20encoding=%27UTF-8%27?%3e%3csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%20800%20800%27%3e%3cg%3e%3c!--%20%E0%B8%90%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B8%E0%B8%9B%E0%B8%81%E0%B8%A3%E0%B8%93%E0%B9%8C%20--%3e%3crect%20x=%270%27%20y=%27700%27%20width=%27800%27%20height=%27100%27%20fill=%27%23606c76%27/%3e%3c!--%20%E0%B8%82%E0%B8%B2%20--%3e%3crect%20x=%27100%27%20y=%27600%27%20width=%2780%27%20height=%27100%27%20fill=%27%23606c76%27/%3e%3crect%20x=%27620%27%20y=%27600%27%20width=%2780%27%20height=%27100%27%20fill=%27%23606c76%27/%3e%3c!--%20%E0%B8%95%E0%B8%B1%E0%B8%A7%E0%B9%80%E0%B8%84%E0%B8%A3%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B8%87%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%81%20--%3e%3crect%20x=%2713%27%20y=%2713%27%20width=%27774%27%20height=%27587%27%20fill=%27%23606c76%27/%3e%3crect%20x=%2793%27%20y=%2793%27%20width=%27521%27%20height=%27427%27%20fill=%27%23d1d3cd%27/%3e%3c!--%20%E0%B9%81%E0%B8%97%E0%B9%88%E0%B8%99%E0%B8%AA%E0%B9%81%E0%B8%81%E0%B8%99%20--%3e%3cpolygon%20points=%27213,180%20520,180%20400,300%20307,300%27%20fill=%27%23606c76%27/%3e%3crect%20x=%27260%27%20y=%27300%27%20width=%27120%27%20height=%2760%27%20fill=%27%239fa1a3%27/%3e%3c!--%20%E0%B9%80%E0%B8%84%E0%B8%A3%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B8%87%E0%B8%A1%E0%B8%B7%E0%B8%AD%E0%B8%94%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%82%E0%B8%A7%E0%B8%B2%20--%3e%3crect%20x=%27573%27%20y=%2766%27%20width=%27160%27%20height=%27107%27%20fill=%27%23d1d3cd%27/%3e%3c!--%20%E0%B8%9B%E0%B8%B8%E0%B9%88%E0%B8%A1%E0%B8%81%E0%B8%94%20--%3e%3ccircle%20cx=%27573%27%20cy=%27234%27%20r=%2730%27%20fill=%27%23d1d3cd%27/%3e%3ccircle%20cx=%27640%27%20cy=%27234%27%20r=%2730%27%20fill=%27%23d1d3cd%27/%3e%3ccircle%20cx=%27707%27%20cy=%27234%27%20r=%2730%27%20fill=%27%23d1d3cd%27/%3e%3ccircle%20cx=%27774%27%20cy=%27234%27%20r=%2730%27%20fill=%27%23d1d3cd%27/%3e%3c!--%20%E0%B8%9B%E0%B8%B8%E0%B9%88%E0%B8%A1%E0%B8%84%E0%B8%A7%E0%B8%9A%E0%B8%84%E0%B8%B8%E0%B8%A1%20--%3e%3crect%20x=%27600%27%20y=%27334%27%20width=%2760%27%20height=%2760%27%20fill=%27%23d1d3cd%27/%3e%3crect%20x=%27700%27%20y=%27334%27%20width=%2760%27%20height=%2760%27%20fill=%27%23d1d3cd%27/%3e%3c!--%20%E0%B8%9B%E0%B8%B8%E0%B9%88%E0%B8%A1%E0%B8%A5%E0%B9%88%E0%B8%B2%E0%B8%87%20--%3e%3ccircle%20cx=%27133%27%20cy=%27520%27%20r=%2733%27%20fill=%27%23606c76%27/%3e%3ccircle%20cx=%27216%27%20cy=%27520%27%20r=%2733%27%20fill=%27%23606c76%27/%3e%3ccircle%20cx=%27299%27%20cy=%27520%27%20r=%2733%27%20fill=%27%23606c76%27/%3e%3ccircle%20cx=%27382%27%20cy=%27520%27%20r=%2733%27%20fill=%27%23606c76%27/%3e%3ccircle%20cx=%27465%27%20cy=%27520%27%20r=%2733%27%20fill=%27%23606c76%27/%3e%3ccircle%20cx=%27548%27%20cy=%27520%27%20r=%2733%27%20fill=%27%23606c76%27/%3e%3ccircle%20cx=%27631%27%20cy=%27520%27%20r=%2733%27%20fill=%27%23606c76%27/%3e%3c/g%3e%3c/svg%3e";
+
 export const DeviceCard: React.FC<DeviceCardProps> = ({ 
   device, 
   isSelected, 
@@ -49,7 +52,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({
       <div className="flex items-center">
         <div className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center mr-2">
           <img 
-            src="/src/assets/equipment-icon.svg" 
+            src={equipmentIconDataUrl}
             alt="Equipment" 
             className="h-4 w-4 text-purple-600" 
           />
