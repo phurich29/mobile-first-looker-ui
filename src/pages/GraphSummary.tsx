@@ -34,6 +34,7 @@ const GraphSummary = () => {
   const [selectorOpen, setSelectorOpen] = useState(false);
   const [selectedMetrics, setSelectedMetrics] = useState<SelectedMetric[]>([]);
   const [timeFrame, setTimeFrame] = useState<TimeFrame>("24h");
+  const [deviceNames, setDeviceNames] = useState<Record<string, string>>({});
   
   // Use the custom hook for graph data
   const { graphData, loading } = useGraphData(selectedMetrics, timeFrame);
@@ -72,14 +73,22 @@ const GraphSummary = () => {
   }, [isCollapsed]);
   
   // Function to add a new metric to the graph
-  const handleAddGraph = (deviceCode: string, symbol: string, name: string) => {
+  const handleAddGraph = (deviceCode: string, symbol: string, name: string, deviceName?: string) => {
     // Don't add if already exists
     if (selectedMetrics.some(m => m.deviceCode === deviceCode && m.symbol === symbol)) {
       return;
     }
 
-    // Get device name from our graph selector component (will be passed to us)
-    const deviceName = deviceCode; // This will be replaced with the actual name
+    // Store device name if provided
+    if (deviceName) {
+      setDeviceNames(prev => ({
+        ...prev,
+        [deviceCode]: deviceName
+      }));
+    }
+    
+    // Get device name from our stored mapping or use deviceCode as fallback
+    const actualDeviceName = deviceName || deviceNames[deviceCode] || `อุปกรณ์ ${deviceCode}`;
     
     // Assign a color from our color palette
     const colorIndex = selectedMetrics.length % colors.length;
@@ -88,7 +97,7 @@ const GraphSummary = () => {
       ...selectedMetrics,
       {
         deviceCode,
-        deviceName,
+        deviceName: actualDeviceName,
         symbol,
         name,
         color: colors[colorIndex],
@@ -134,7 +143,11 @@ const GraphSummary = () => {
       <GraphSelector 
         open={selectorOpen} 
         onOpenChange={setSelectorOpen} 
-        onSelectGraph={(device, symbol, name) => handleAddGraph(device, symbol, name)}
+        onSelectGraph={(deviceCode, symbol, name) => {
+          // Extract deviceName from useGraphSelector's getSelectedDeviceName function if possible
+          // This is a workaround since we don't have direct access to that function here
+          handleAddGraph(deviceCode, symbol, name);
+        }}
       />
       
       <FooterNav />
