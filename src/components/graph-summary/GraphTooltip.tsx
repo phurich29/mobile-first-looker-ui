@@ -41,7 +41,7 @@ export const GraphTooltip: React.FC<GraphTooltipProps> = ({
                     style={{ backgroundColor: metric.color }}
                   ></div>
                   <span className="text-xs font-medium">
-                    {metric.name} ({metric.deviceName}) <span className="text-xs opacity-70">[{metric.deviceCode}]</span>
+                    {metric.name} ({metric.deviceName})
                   </span>
                 </div>
                 <span className="text-xs font-mono ml-4">

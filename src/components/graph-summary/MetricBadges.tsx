@@ -30,7 +30,7 @@ export const MetricBadges: React.FC<MetricBadgesProps> = ({
               className="w-3 h-3 rounded-full"
               style={{ backgroundColor: metric.color }}
             ></div>
-            {metric.name} ({metric.deviceName}) <span className="text-xs opacity-70">[{metric.deviceCode}]</span>
+            {metric.name} ({metric.deviceName})
             <span className="ml-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full p-1 text-gray-500">✕</span>
           </Badge>
         ))}

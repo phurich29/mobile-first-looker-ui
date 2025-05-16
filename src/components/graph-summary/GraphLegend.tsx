@@ -30,7 +30,7 @@ export const GraphLegend: React.FC<GraphLegendProps> = ({
               style={{ backgroundColor: metric.color }}
             ></div>
             <span className="text-xs">
-              {metric.name} ({metric.deviceName}) <span className="text-xs opacity-70">[{metric.deviceCode}]</span>
+              {metric.name} ({metric.deviceName})
             </span>
           </div>
         );
