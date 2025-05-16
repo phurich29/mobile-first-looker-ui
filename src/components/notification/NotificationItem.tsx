@@ -6,6 +6,7 @@ import { getNotificationBgColor } from "./notification-utils";
 import NotificationIcon from "./NotificationIcon";
 import NotificationValue from "./NotificationValue";
 import NotificationAlert from "./NotificationAlert";
+import { NotificationSettingsDialog } from "../measurement-history/notification-settings";
 import "../notification-item-animation.css";
 
 export type NotificationItemProps = {
@@ -38,6 +39,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   const [latestTimestamp, setLatestTimestamp] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAlertActive, setIsAlertActive] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   // Memoized fetch function to reduce re-creations
   const fetchLatestValue = useCallback(async () => {
@@ -102,54 +104,65 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
     navigate(`/measurement-history/${deviceCode}/${symbol}?name=${encodeURIComponent(name)}`);
   };
 
-  // Navigate to notification settings page
+  // Open the notification settings dialog for this specific item
   const handleBackgroundClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the parent onClick
-    navigate('/notification-settings');
+    setIsDialogOpen(true); // Open the dialog for this specific notification
   };
 
   return (
-    <div 
-      onClick={handleClick}
-      className={`flex items-center justify-between py-3 px-3 border-b border-gray-100 ${getNotificationBgColor(type)} hover:brightness-95 transition-all duration-300 relative overflow-hidden cursor-pointer active:bg-gray-100`}
-    >
-      {/* Background layer - now clickable to go to notification settings */}
+    <>
       <div 
-        className="absolute inset-0 w-full h-full bg-white opacity-80 cursor-pointer"
-        onClick={handleBackgroundClick}
-      ></div>
-      
-      {/* Alert bell animation */}
-      <NotificationAlert isAlertActive={isAlertActive} />
-      
-      {/* Device info and icon */}
-      <div className="flex items-center relative z-10 w-[60%] h-[60px] py-2">
-        <NotificationIcon 
-          symbol={symbol}
-          name={name}
-          type={type}
-          enabled={enabled}
-        />
-        <div className="min-w-0 h-full flex items-center">
-          <div className="flex flex-col justify-center space-y-1">
-            <h3 className="font-medium text-sm text-gray-800 truncate">{name}</h3>
-            <span className="text-xs text-gray-500 truncate">{deviceName}</span>
+        onClick={handleClick}
+        className={`flex items-center justify-between py-3 px-3 border-b border-gray-100 ${getNotificationBgColor(type)} hover:brightness-95 transition-all duration-300 relative overflow-hidden cursor-pointer active:bg-gray-100`}
+      >
+        {/* Background layer - now opens settings dialog for this notification */}
+        <div 
+          className="absolute inset-0 w-full h-full bg-white opacity-80 cursor-pointer"
+          onClick={handleBackgroundClick}
+        ></div>
+        
+        {/* Alert bell animation */}
+        <NotificationAlert isAlertActive={isAlertActive} />
+        
+        {/* Device info and icon */}
+        <div className="flex items-center relative z-10 w-[60%] h-[60px] py-2">
+          <NotificationIcon 
+            symbol={symbol}
+            name={name}
+            type={type}
+            enabled={enabled}
+          />
+          <div className="min-w-0 h-full flex items-center">
+            <div className="flex flex-col justify-center space-y-1">
+              <h3 className="font-medium text-sm text-gray-800 truncate">{name}</h3>
+              <span className="text-xs text-gray-500 truncate">{deviceName}</span>
+            </div>
           </div>
+        </div>
+
+        {/* Notification values */}
+        <div className="text-right flex items-center justify-end relative z-10 w-[38%] h-[60px] py-2">
+          <NotificationValue 
+            latestValue={latestValue}
+            latestTimestamp={latestTimestamp}
+            enabled={enabled}
+            threshold={threshold}
+            type={type}
+            isAlertActive={isAlertActive}
+          />
         </div>
       </div>
 
-      {/* Notification values */}
-      <div className="text-right flex items-center justify-end relative z-10 w-[38%] h-[60px] py-2">
-        <NotificationValue 
-          latestValue={latestValue}
-          latestTimestamp={latestTimestamp}
-          enabled={enabled}
-          threshold={threshold}
-          type={type}
-          isAlertActive={isAlertActive}
-        />
-      </div>
-    </div>
+      {/* Add the dialog for this specific notification's settings */}
+      <NotificationSettingsDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        deviceCode={deviceCode}
+        symbol={symbol}
+        name={name}
+      />
+    </>
   );
 };
 
