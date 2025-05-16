@@ -20,6 +20,7 @@ import DeviceDetails from "./pages/DeviceDetails";
 import MeasurementHistory from "./components/measurement-history/MeasurementHistory";
 import NotificationHistory from "./pages/NotificationHistory";
 import Equipment from "./pages/Equipment";
+import GraphMonitor from "./pages/GraphMonitor";
 
 export const router = createBrowserRouter([
   {
@@ -99,6 +100,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute requiredRoles={["user"]}>
         <NotificationHistory />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/graph-monitor",
+    element: (
+      <ProtectedRoute requiredRoles={["user"]}>
+        <GraphMonitor />
       </ProtectedRoute>
     ),
   },

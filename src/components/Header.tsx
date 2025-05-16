@@ -1,5 +1,5 @@
 
-import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, FileText, AlertCircle, History } from "lucide-react";
+import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, FileText, AlertCircle, History, Monitor } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -129,7 +129,7 @@ export const Header = () => {
             
             {/* เพิ่มเมนู Graph Monitor */}
             <Link to="/graph-monitor" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/graph-monitor") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
-                <BarChart2 className="h-5 w-5" />
+                <Monitor className="h-5 w-5" />
                 <span className="text-sm">Graph Monitor</span>
             </Link>
             

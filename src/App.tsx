@@ -20,6 +20,7 @@ import NewsManagement from "./pages/NewsManagement";
 import News from "./pages/News";
 import NotificationSettings from "./pages/notification-settings";
 import NotificationHistory from "./pages/NotificationHistory";
+import GraphMonitor from "./pages/GraphMonitor";
 import { CountdownProvider } from "./contexts/CountdownContext";
 import { toast } from "@/components/ui/use-toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -67,6 +68,7 @@ function App() {
               <Route path="/measurements" element={<ProtectedRoute><Measurements /></ProtectedRoute>} />
               <Route path="/device/:deviceCode" element={<ProtectedRoute><DeviceDetails /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/graph-monitor" element={<ProtectedRoute><GraphMonitor /></ProtectedRoute>} />
               
               {/* Admin routes */}
               <Route path="/admin" element={<ProtectedRoute requiredRoles={["admin"]}><Admin /></ProtectedRoute>} />
