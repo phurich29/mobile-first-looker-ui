@@ -41,7 +41,7 @@ export const MainChart: React.FC<MainChartProps> = ({
           content={(props) => <GraphTooltip {...props} selectedMetrics={selectedMetrics} />}
         />
         <Legend 
-          content={(props) => <GraphLegend payload={props.payload || []} selectedMetrics={selectedMetrics} />}
+          content={(props) => <GraphLegend {...props} selectedMetrics={selectedMetrics} />}
         />
         {selectedMetrics.map((metric) => (
           <Line

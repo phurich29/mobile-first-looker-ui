@@ -62,24 +62,20 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
   // Handle measurement selection
   const handleSelectMeasurement = (symbol: string, name: string) => {
     if (selectedDevice) {
-      // Get the device name
-      const deviceName = getSelectedDeviceName();
-      
-      // Call onSelectGraph properly
+      // Check if onSelectGraph accepts parameters separately or as an object
       if (typeof onSelectGraph === 'function') {
-        try {
-          // First try with 3 parameters signature
-          (onSelectGraph as (deviceCode: string, symbol: string, name: string, deviceName?: string) => void)(
-            selectedDevice, 
-            symbol, 
-            name,
-            deviceName
-          );
-        } catch (e) {
-          // Fallback to the old interface if error occurs
-          console.log("Falling back to old interface");
-          (onSelectGraph as any)(selectedDevice, symbol, name);
-        }
+        // Call onSelectGraph in a way that works for both signatures
+        const deviceName = getSelectedDeviceName();
+        const graphData = {
+          deviceCode: selectedDevice,
+          deviceName,
+          symbol,
+          name
+        };
+        
+        // Using Function.prototype.apply to handle both function signatures
+        // This works because in JavaScript we can call a function with more arguments than it expects
+        (onSelectGraph as Function)(selectedDevice, symbol, name);
       }
     }
   };
