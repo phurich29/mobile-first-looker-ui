@@ -102,10 +102,10 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
     navigate(`/measurement-history/${deviceCode}/${symbol}?name=${encodeURIComponent(name)}`);
   };
 
-  // Navigate to notifications page
+  // Navigate to notification settings page
   const handleBackgroundClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the parent onClick
-    navigate('/notifications');
+    navigate('/notification-settings');
   };
 
   return (
@@ -113,7 +113,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
       onClick={handleClick}
       className={`flex items-center justify-between py-3 px-3 border-b border-gray-100 ${getNotificationBgColor(type)} hover:brightness-95 transition-all duration-300 relative overflow-hidden cursor-pointer active:bg-gray-100`}
     >
-      {/* Background layer - now clickable to go to notifications */}
+      {/* Background layer - now clickable to go to notification settings */}
       <div 
         className="absolute inset-0 w-full h-full bg-white opacity-80 cursor-pointer"
         onClick={handleBackgroundClick}
