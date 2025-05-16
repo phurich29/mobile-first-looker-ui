@@ -110,12 +110,12 @@ export const Header = () => {
               <span className="text-sm">อุปกรณ์</span>
             </Link>
             
+            {/* แก้ไขลิงก์ไปยังรายการอุปกรณ์ที่อัพเดทล่าสุด */}
             <Link to="/measurements" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/measurements") || location.pathname.startsWith("/device") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
               <BarChart2 className="h-5 w-5" />
               <span className="text-sm">ค่าวัดคุณภาพ</span>
             </Link>
             
-            {/* แก้ไขการเชื่อมโยงหน้าการแจ้งเตือนที่กำหนดไว้ -> เปลี่ยนจาก notification-settings เป็น notifications */}
             {user && <Link to="/notifications" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/notifications") || isActive("/notification-settings") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
                 <AlertCircle className="h-5 w-5" />
                 <span className="text-sm">การแจ้งเตือนที่กำหนดไว้</span>
