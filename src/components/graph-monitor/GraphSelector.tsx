@@ -9,7 +9,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useDeviceData } from "@/utils/deviceMeasurementUtils";
 
 interface GraphSelectorProps {
   open: boolean;
