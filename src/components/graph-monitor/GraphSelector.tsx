@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SelectedGraph } from "./types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Circle, Star, Gauge, Award, Thermometer, Percent, Wheat } from "lucide-react";
+import { Search, Wheat } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/components/AuthProvider";
 import { REQUIRED_DEVICE_CODES } from "@/features/equipment/services/deviceDataService";
@@ -112,40 +112,43 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
     }
   };
 
+  const getIconColor = (symbol: string) => {
+    // Return different colors based on measurement type
+    if (symbol === "class1") return "#F7931A"; // amber/orange
+    if (symbol === "class2") return "#627EEA"; // blue
+    if (symbol === "class3") return "#F3BA2F"; // yellow
+    if (symbol === "short_grain") return "#333333"; // dark gray
+    if (symbol === "slender_kernel") return "#4B9CD3"; // light blue
+    
+    // Colors for ingredients
+    if (symbol === "whole_kernels") return "#4CAF50"; // green
+    if (symbol === "head_rice") return "#2196F3"; // blue
+    if (symbol === "total_brokens") return "#FF9800"; // orange
+    if (symbol === "small_brokens") return "#9C27B0"; // purple
+    if (symbol === "small_brokens_c1") return "#795548"; // brown
+    
+    // Colors for impurities
+    if (symbol.includes("red")) return "#9b87f5"; // purple
+    if (symbol.includes("white")) return "#EEEEEE"; // light gray
+    if (symbol.includes("yellow")) return "#FFEB3B"; // yellow
+    if (symbol.includes("black")) return "#212121"; // almost black
+    
+    // Hash-based color selection for other measurements
+    const hash = symbol.split("").reduce((sum, char, i) => {
+      return sum + char.charCodeAt(0) * (i + 1);
+    }, 0);
+    
+    const colors = [
+      "#F7931A", "#627EEA", "#F3BA2F", "#E84142", 
+      "#26A17B", "#2775CA", "#345D9D", "#2DABE8",
+      "#FF9900", "#6F41D8", "#0052FF", "#E50914"
+    ];
+    
+    return colors[hash % colors.length];
+  };
+
   const getIconForMeasurement = (symbol: string) => {
-    // Assign different icons based on measurement type
-    if (symbol.includes("temp") || symbol.includes("temperature")) {
-      return <Thermometer className="h-5 w-5 text-blue-500" />;
-    } else if (symbol.includes("rate") || symbol.includes("percent")) {
-      return <Percent className="h-5 w-5 text-purple-500" />;
-    } else if (symbol.includes("class") || symbol.includes("grade")) {
-      return <Award className="h-5 w-5 text-amber-500" />;
-    } else if (symbol.includes("whole") || symbol.includes("head")) {
-      return <Star className="h-5 w-5 text-emerald-500" />;
-    } else if (symbol.includes("precision") || symbol.includes("whiteness")) {
-      return <Gauge className="h-5 w-5 text-cyan-500" />;
-    } else {
-      // Default to wheat icon with different colors based on symbol hash
-      const colors = [
-        "text-amber-300",  // light amber
-        "text-amber-400",  // amber
-        "text-amber-500",  // medium amber
-        "text-amber-600",  // dark amber
-        "text-yellow-400", // yellow
-        "text-yellow-600", // dark yellow
-        "text-orange-400", // orange
-        "text-orange-500", // medium orange
-        "text-green-500",  // green (for special rice types)
-      ];
-      
-      // Create a simple hash from the symbol string
-      const hash = symbol.split("").reduce((sum, char, i) => {
-        return sum + char.charCodeAt(0) * (i + 1);
-      }, 0);
-      
-      const colorIndex = hash % colors.length;
-      return <Wheat className={`h-5 w-5 ${colors[colorIndex]}`} />;
-    }
+    return <Wheat className="h-5 w-5 text-white" />;
   };
 
   const fetchMeasurements = async (deviceCode: string) => {
@@ -181,7 +184,7 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
             return {
               symbol: key,
               name: formattedName,
-              icon: getIconForMeasurement(key)
+              value: value
             };
           });
         
@@ -215,6 +218,42 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
         name
       });
     }
+  };
+
+  // Format Thai name from symbol
+  const getThaiName = (symbol: string, name: string) => {
+    // For class measurement types
+    if (symbol === "class1") return "ชั้น 1 (>7.0mm)";
+    if (symbol === "class2") return "ชั้น 2 (>6.6-7.0mm)";
+    if (symbol === "class3") return "ชั้น 3 (>6.2-6.6mm)";
+    if (symbol === "short_grain") return "เมล็ดสั้น";
+    if (symbol === "slender_kernel") return "ข้าวลีบ";
+    
+    // For ingredient measurement types
+    if (symbol === "whole_kernels") return "เต็มเมล็ด";
+    if (symbol === "head_rice") return "ต้นข้าว";
+    if (symbol === "total_brokens") return "ข้าวหักรวม";
+    if (symbol === "small_brokens") return "ปลายข้าว";
+    if (symbol === "small_brokens_c1") return "ปลายข้าว C1";
+    
+    // For impurities measurement types
+    if (symbol === "red_line_rate") return "สีต่ำกว่ามาตรฐาน";
+    if (symbol === "parboiled_red_line") return "เมล็ดแดง";
+    if (symbol === "parboiled_white_rice") return "ข้าวดิบ";
+    if (symbol === "honey_rice") return "เมล็ดม่วง";
+    if (symbol === "yellow_rice_rate") return "เมล็ดเหลือง";
+    if (symbol === "black_kernel") return "เมล็ดดำ";
+    if (symbol === "partly_black_peck") return "ดำบางส่วน & จุดดำ";
+    if (symbol === "partly_black") return "ดำบางส่วน";
+    if (symbol === "imperfection_rate") return "เมล็ดเสีย";
+    if (symbol === "sticky_rice_rate") return "ข้าวเหนียว";
+    if (symbol === "impurity_num") return "เมล็ดอื่นๆ";
+    if (symbol === "paddy_rate") return "ข้าวเปลือก(เมล็ด/กก.)";
+    if (symbol === "whiteness") return "ความขาว";
+    if (symbol === "process_precision") return "ระดับขัดสี";
+    
+    // Default to the formatted name if no specific Thai name is available
+    return name;
   };
 
   return (
@@ -278,31 +317,52 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
               {loading ? (
                 Array(5).fill(0).map((_, i) => (
                   <div key={i} className="flex items-center p-3 mb-2">
-                    <Skeleton className="h-4 w-40" />
+                    <Skeleton className="h-10 w-10 rounded-full mr-3" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-40" />
+                      <Skeleton className="h-3 w-24" />
+                    </div>
                   </div>
                 ))
               ) : filteredMeasurements.length > 0 ? (
-                <div className="grid gap-2">
-                  {filteredMeasurements.map((measurement) => (
-                    <div
-                      key={measurement.symbol}
-                      className="flex items-center p-3 rounded-lg cursor-pointer transition-colors bg-gray-50 hover:bg-purple-50 border border-gray-200"
-                      onClick={() => handleSelectMeasurement(measurement.symbol, measurement.name)}
-                    >
-                      <div className="mr-3 flex">
-                        <div className="bg-amber-50 w-10 h-10 rounded-full flex items-center justify-center relative">
-                          {measurement.icon}
-                          <Wheat className="h-3 w-3 text-amber-300 absolute -bottom-0.5 -right-0.5" />
-                          <Wheat className="h-3 w-3 text-amber-500 absolute -top-0.5 -right-0.5" />
-                          <Wheat className="h-2 w-2 text-amber-400 absolute top-1 -left-0.5" />
+                <div className="grid gap-0">
+                  {filteredMeasurements.map((measurement) => {
+                    const iconColor = getIconColor(measurement.symbol);
+                    const thaiName = getThaiName(measurement.symbol, measurement.name);
+                    
+                    return (
+                      <div
+                        key={measurement.symbol}
+                        onClick={() => handleSelectMeasurement(measurement.symbol, thaiName)}
+                        className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50 hover:brightness-95 transition-all duration-300 relative overflow-hidden cursor-pointer"
+                      >
+                        {/* Background layer */}
+                        <div className="absolute inset-0 w-full h-full bg-white opacity-80"></div>
+                        
+                        <div className="flex items-center relative z-10">
+                          <div 
+                            className="w-12 h-12 rounded-full flex items-center justify-center mr-3 shadow-md relative overflow-hidden"
+                            style={{ background: `linear-gradient(135deg, ${iconColor}, ${iconColor}cc)` }}
+                          >
+                            <div className="absolute inset-0 bg-white/10"></div>
+                            <div className="absolute top-0 left-0 w-3 h-3 bg-white/30 rounded-full blur-sm"></div>
+                            <Wheat className="h-5 w-5 text-white" />
+                          </div>
+                          <div className="px-3 py-2">
+                            <h3 className="font-bold text-base text-gray-800">{thaiName}</h3>
+                            <span className="text-xs text-gray-500">{measurement.symbol}</span>
+                          </div>
+                        </div>
+                        <div className="text-right relative z-10">
+                          <p className="font-bold text-base text-gray-600">
+                            {typeof measurement.value === 'number' ? 
+                              `${measurement.value.toFixed(1)}%` : 
+                              measurement.value || '0%'}
+                          </p>
                         </div>
                       </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-800">{measurement.name}</p>
-                        <p className="text-xs text-gray-500">รหัส: {measurement.symbol}</p>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <p className="text-center text-gray-500 py-4">

@@ -1,7 +1,8 @@
+
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, Wheat } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SelectedGraph } from "./types";
 import {
@@ -12,13 +13,10 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
-  ChartContainer, 
-  ChartTooltip,
-  ChartTooltipContent 
+  ChartContainer,
 } from "@/components/ui/chart";
 
 interface GraphCardProps {
@@ -110,17 +108,53 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
     return colors[Math.abs(hash) % colors.length];
   };
 
+  // Get icon color based on measurement type
+  const getIconColor = () => {
+    // For class measurement types
+    if (graph.symbol === "class1") return "#F7931A"; // amber/orange  
+    if (graph.symbol === "class2") return "#627EEA"; // blue
+    if (graph.symbol === "class3") return "#F3BA2F"; // yellow
+    if (graph.symbol === "short_grain") return "#333333"; // dark gray
+    if (graph.symbol === "slender_kernel") return "#4B9CD3"; // light blue
+    
+    // Colors for ingredients
+    if (graph.symbol === "whole_kernels") return "#4CAF50"; // green
+    if (graph.symbol === "head_rice") return "#2196F3"; // blue
+    if (graph.symbol === "total_brokens") return "#FF9800"; // orange
+    if (graph.symbol === "small_brokens") return "#9C27B0"; // purple
+    if (graph.symbol === "small_brokens_c1") return "#795548"; // brown
+    
+    // Colors for impurities
+    if (graph.symbol.includes("red")) return "#9b87f5"; // purple
+    if (graph.symbol.includes("white")) return "#EEEEEE"; // light gray
+    if (graph.symbol.includes("yellow")) return "#FFEB3B"; // yellow
+    if (graph.symbol.includes("black")) return "#212121"; // almost black
+    
+    // Default to a generated color based on the symbol
+    return getColor();
+  };
+
   return (
     <Card className="shadow-md overflow-hidden">
       <CardHeader className="bg-gray-50 border-b border-gray-200 py-3">
         <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-lg font-medium text-gray-800">
-              {graph.name}
-            </CardTitle>
-            <p className="text-xs text-gray-500">
-              อุปกรณ์: {graph.deviceName}
-            </p>
+          <div className="flex items-center">
+            <div 
+              className="w-10 h-10 rounded-full flex items-center justify-center mr-3 shadow-sm relative overflow-hidden"
+              style={{ background: `linear-gradient(135deg, ${getIconColor()}, ${getIconColor()}cc)` }}
+            >
+              <div className="absolute inset-0 bg-white/10"></div>
+              <div className="absolute top-0 left-0 w-2 h-2 bg-white/30 rounded-full blur-sm"></div>
+              <Wheat className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-lg font-medium text-gray-800">
+                {graph.name}
+              </CardTitle>
+              <p className="text-xs text-gray-500">
+                อุปกรณ์: {graph.deviceName}
+              </p>
+            </div>
           </div>
           <Button
             variant="ghost"
@@ -161,7 +195,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
                 <Line
                   type="monotone"
                   dataKey="value"
-                  stroke={getColor()}
+                  stroke={getIconColor()}
                   activeDot={{ r: 6 }}
                   strokeWidth={2}
                   name={graph.name}
