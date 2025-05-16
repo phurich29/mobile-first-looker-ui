@@ -125,7 +125,7 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
               </Link>
               
               <Link to="/graph-summary" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
-                isActive("/graph-summary") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
+                isActive("/graph-summary") || isActive("/graph-summary-detail") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
                 isCollapsed && "justify-center"
               )}>
                   <Layout className="h-5 w-5" />
@@ -157,8 +157,6 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
                 </Link>}
             </nav>
           </ScrollArea>
-          
-          {/* Removed the original collapse/expand button section */}
           
           <div className="mt-auto pt-4">
             {user && <div className="border-t border-gray-200 pt-4 dark:border-gray-700">

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { FileChartLine, Layout, ChartBar } from "lucide-react";
+import { FileChartLine, Layout, ChartBar, BarChart3 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/components/AuthProvider";
 import { Button } from "@/components/ui/button";
@@ -69,6 +69,13 @@ const GraphSummary = () => {
                   View Graphs
                 </Link>
               </Button>
+              
+              <Button asChild variant="default" className="bg-emerald-600 hover:bg-emerald-700">
+                <Link to="/graph-summary-detail" className="flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4" />
+                  Compare Metrics
+                </Link>
+              </Button>
             </div>
           </div>
           
@@ -116,6 +123,24 @@ const GraphSummary = () => {
               </div>
             </Card>
           </div>
+          
+          {/* New Feature Highlight Card */}
+          <Card className="mb-8 bg-gradient-to-r from-emerald-500 to-green-500 text-white p-6 border-none shadow-lg">
+            <div className="flex flex-col md:flex-row items-center justify-between">
+              <div className="mb-4 md:mb-0">
+                <h2 className="text-xl font-semibold mb-2">New Feature: Compare Multiple Metrics</h2>
+                <p className="text-emerald-100 max-w-2xl">
+                  Now you can compare multiple measurements from different devices on a single graph. 
+                  Perfect for analyzing trends and correlations between different metrics.
+                </p>
+              </div>
+              <Button asChild size="lg" variant="secondary" className="text-emerald-600 hover:text-emerald-800">
+                <Link to="/graph-summary-detail">
+                  Try It Now
+                </Link>
+              </Button>
+            </div>
+          </Card>
           
           {/* Recent Activity Section */}
           <div className="mb-8">
