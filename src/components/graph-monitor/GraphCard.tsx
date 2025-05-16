@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -295,7 +294,51 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
             </Button>
           </div>
           
-          <div className="flex justify-end">
+          <div className="flex items-center justify-end space-x-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-7 px-2 text-xs border-gray-200 bg-white/90 hover:bg-white"
+                >
+                  สไตล์: {getStyleName(graphStyle)}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="min-w-32">
+                <DropdownMenuItem 
+                  className={`text-sm ${graphStyle === 'classic' ? 'bg-purple-50' : ''}`} 
+                  onClick={() => setGraphStyle('classic')}
+                >
+                  คลาสสิก
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className={`text-sm ${graphStyle === 'neon' ? 'bg-purple-50' : ''}`} 
+                  onClick={() => setGraphStyle('neon')}
+                >
+                  นีออน
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className={`text-sm ${graphStyle === 'pastel' ? 'bg-purple-50' : ''}`} 
+                  onClick={() => setGraphStyle('pastel')}
+                >
+                  พาสเทล
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className={`text-sm ${graphStyle === 'monochrome' ? 'bg-purple-50' : ''}`} 
+                  onClick={() => setGraphStyle('monochrome')}
+                >
+                  โมโนโครม
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className={`text-sm ${graphStyle === 'gradient' ? 'bg-purple-50' : ''}`} 
+                  onClick={() => setGraphStyle('gradient')}
+                >
+                  ไล่สี
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <Select value={timeFrame} onValueChange={(value) => setTimeFrame(value as TimeFrame)}>
               <SelectTrigger className="h-7 w-36 text-xs border-gray-200 bg-white">
                 <SelectValue placeholder="กรอบเวลา" />
@@ -324,131 +367,82 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
             <p className="text-gray-500 text-sm">ไม่พบข้อมูล</p>
           </div>
         ) : (
-          <>
-            <ChartContainer 
-              className="h-full w-full" 
-              config={{}}
-              style={{ 
-                background: typeof styles.chartBackground === 'string' 
-                  ? styles.chartBackground 
-                  : undefined 
-              }}
-            >
-              <ResponsiveContainer width="100%" height="100%">
-                {styles.chartType === 'area' ? (
-                  <AreaChart data={data}>
-                    <defs>
-                      <linearGradient id={`colorValue-${graph.symbol}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={styles.gradientFrom || styles.lineColor} stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor={styles.gradientTo || styles.lineColor} stopOpacity={0.1}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke={styles.gridColor} />
-                    <XAxis 
-                      dataKey="time"
-                      tick={{ fontSize: 10, fill: graphStyle === "monochrome" || graphStyle === "neon" || graphStyle === "gradient" ? "rgba(255,255,255,0.7)" : "#666" }}
-                      tickFormatter={(value) => value.split(' ')[0]}
-                      stroke={graphStyle === "monochrome" || graphStyle === "neon" || graphStyle === "gradient" ? "rgba(255,255,255,0.5)" : "#666"}
-                    />
-                    <YAxis 
-                      tick={{ 
-                        fontSize: 10, 
-                        fill: graphStyle === "monochrome" || graphStyle === "neon" || graphStyle === "gradient" ? "rgba(255,255,255,0.7)" : "#666" 
-                      }} 
-                      stroke={graphStyle === "monochrome" || graphStyle === "neon" || graphStyle === "gradient" ? "rgba(255,255,255,0.5)" : "#666"}
-                    />
-                    <Tooltip content={<CustomTooltip className={styles.tooltip} />} />
-                    <Area
-                      type={styles.strokeType as any}
-                      dataKey="value"
-                      stroke={styles.lineColor}
-                      fill={`url(#colorValue-${graph.symbol})`}
-                      strokeWidth={styles.lineWidth}
-                      activeDot={{ r: styles.dotSize, fill: styles.dotColor }}
-                      name={graph.name}
-                    />
-                  </AreaChart>
-                ) : (
-                  <LineChart data={data}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={styles.gridColor} />
-                    <XAxis 
-                      dataKey="time"
-                      tick={{ 
-                        fontSize: 10,
-                        fill: graphStyle === "monochrome" || graphStyle === "neon" ? "rgba(255,255,255,0.7)" : "#666"
-                      }}
-                      tickFormatter={(value) => value.split(' ')[0]}
-                      stroke={graphStyle === "monochrome" || graphStyle === "neon" ? "rgba(255,255,255,0.5)" : "#666"}
-                    />
-                    <YAxis 
-                      tick={{ 
-                        fontSize: 10,
-                        fill: graphStyle === "monochrome" || graphStyle === "neon" ? "rgba(255,255,255,0.7)" : "#666"
-                      }} 
-                      stroke={graphStyle === "monochrome" || graphStyle === "neon" ? "rgba(255,255,255,0.5)" : "#666"}
-                    />
-                    <Tooltip content={<CustomTooltip className={styles.tooltip} />} />
-                    <Line
-                      type={styles.strokeType as any}
-                      dataKey="value"
-                      stroke={styles.lineColor}
-                      strokeWidth={styles.lineWidth}
-                      activeDot={{ r: styles.dotSize, fill: styles.dotColor }}
-                      name={graph.name}
-                      dot={false}
-                    />
-                  </LineChart>
-                )}
-              </ResponsiveContainer>
-            </ChartContainer>
-
-            {/* Style selector at the bottom left */}
-            <div className="absolute bottom-2 left-2 z-10 flex flex-row gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="h-7 px-2 text-xs border-gray-200 bg-white/90 hover:bg-white"
-                  >
-                    สไตล์: {getStyleName(graphStyle)}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="min-w-32">
-                  <DropdownMenuItem 
-                    className={`text-sm ${graphStyle === 'classic' ? 'bg-purple-50' : ''}`} 
-                    onClick={() => setGraphStyle('classic')}
-                  >
-                    คลาสสิก
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    className={`text-sm ${graphStyle === 'neon' ? 'bg-purple-50' : ''}`} 
-                    onClick={() => setGraphStyle('neon')}
-                  >
-                    นีออน
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    className={`text-sm ${graphStyle === 'pastel' ? 'bg-purple-50' : ''}`} 
-                    onClick={() => setGraphStyle('pastel')}
-                  >
-                    พาสเทล
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    className={`text-sm ${graphStyle === 'monochrome' ? 'bg-purple-50' : ''}`} 
-                    onClick={() => setGraphStyle('monochrome')}
-                  >
-                    โมโนโครม
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    className={`text-sm ${graphStyle === 'gradient' ? 'bg-purple-50' : ''}`} 
-                    onClick={() => setGraphStyle('gradient')}
-                  >
-                    ไล่สี
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </>
+          <ChartContainer 
+            className="h-full w-full" 
+            config={{}}
+            style={{ 
+              background: typeof styles.chartBackground === 'string' 
+                ? styles.chartBackground 
+                : undefined 
+            }}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              {styles.chartType === 'area' ? (
+                <AreaChart data={data}>
+                  <defs>
+                    <linearGradient id={`colorValue-${graph.symbol}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={styles.gradientFrom || styles.lineColor} stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor={styles.gradientTo || styles.lineColor} stopOpacity={0.1}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke={styles.gridColor} />
+                  <XAxis 
+                    dataKey="time"
+                    tick={{ fontSize: 10, fill: graphStyle === "monochrome" || graphStyle === "neon" || graphStyle === "gradient" ? "rgba(255,255,255,0.7)" : "#666" }}
+                    tickFormatter={(value) => value.split(' ')[0]}
+                    stroke={graphStyle === "monochrome" || graphStyle === "neon" || graphStyle === "gradient" ? "rgba(255,255,255,0.5)" : "#666"}
+                  />
+                  <YAxis 
+                    tick={{ 
+                      fontSize: 10, 
+                      fill: graphStyle === "monochrome" || graphStyle === "neon" || graphStyle === "gradient" ? "rgba(255,255,255,0.7)" : "#666" 
+                    }} 
+                    stroke={graphStyle === "monochrome" || graphStyle === "neon" || graphStyle === "gradient" ? "rgba(255,255,255,0.5)" : "#666"}
+                  />
+                  <Tooltip content={<CustomTooltip className={styles.tooltip} />} />
+                  <Area
+                    type={styles.strokeType as any}
+                    dataKey="value"
+                    stroke={styles.lineColor}
+                    fill={`url(#colorValue-${graph.symbol})`}
+                    strokeWidth={styles.lineWidth}
+                    activeDot={{ r: styles.dotSize, fill: styles.dotColor }}
+                    name={graph.name}
+                  />
+                </AreaChart>
+              ) : (
+                <LineChart data={data}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={styles.gridColor} />
+                  <XAxis 
+                    dataKey="time"
+                    tick={{ 
+                      fontSize: 10,
+                      fill: graphStyle === "monochrome" || graphStyle === "neon" ? "rgba(255,255,255,0.7)" : "#666"
+                    }}
+                    tickFormatter={(value) => value.split(' ')[0]}
+                    stroke={graphStyle === "monochrome" || graphStyle === "neon" ? "rgba(255,255,255,0.5)" : "#666"}
+                  />
+                  <YAxis 
+                    tick={{ 
+                      fontSize: 10,
+                      fill: graphStyle === "monochrome" || graphStyle === "neon" ? "rgba(255,255,255,0.7)" : "#666"
+                    }} 
+                    stroke={graphStyle === "monochrome" || graphStyle === "neon" ? "rgba(255,255,255,0.5)" : "#666"}
+                  />
+                  <Tooltip content={<CustomTooltip className={styles.tooltip} />} />
+                  <Line
+                    type={styles.strokeType as any}
+                    dataKey="value"
+                    stroke={styles.lineColor}
+                    strokeWidth={styles.lineWidth}
+                    activeDot={{ r: styles.dotSize, fill: styles.dotColor }}
+                    name={graph.name}
+                    dot={false}
+                  />
+                </LineChart>
+              )}
+            </ResponsiveContainer>
+          </ChartContainer>
         )}
       </CardContent>
     </Card>
