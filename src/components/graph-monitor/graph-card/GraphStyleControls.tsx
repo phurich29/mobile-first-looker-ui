@@ -50,7 +50,7 @@ export const GraphStyleControls: React.FC<GraphStyleControlsProps> = ({
         </DropdownMenuTrigger>
         <DropdownMenuContent className={`min-w-32 ${getStyleMenuClass(graphStyle)}`}>
           <DropdownMenuItem 
-            className={`text-sm ${graphStyle === 'classic' ? 'bg-purple-50 dark:bg-purple-900/30' : ''}`} 
+            className={`text-sm ${graphStyle === 'classic' ? 'bg-purple-50' : ''}`} 
             onClick={() => setGraphStyle('classic')}
           >
             คลาสสิก
@@ -62,7 +62,7 @@ export const GraphStyleControls: React.FC<GraphStyleControlsProps> = ({
             นีออน
           </DropdownMenuItem>
           <DropdownMenuItem 
-            className={`text-sm ${graphStyle === 'pastel' ? 'bg-pink-100 dark:bg-pink-900/30' : ''}`} 
+            className={`text-sm ${graphStyle === 'pastel' ? 'bg-pink-100' : ''}`} 
             onClick={() => setGraphStyle('pastel')}
           >
             พาสเทล
