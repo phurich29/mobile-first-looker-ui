@@ -76,16 +76,18 @@ const GraphMonitor = () => {
   // Add logging to debug device name issues
   console.log("Selected Graphs:", selectedGraphs);
   
-  // Modified handler to ensure device name is properly captured
+  // Modified handler to properly use the SelectedGraph object
   const handleAddGraphWithDeviceName = (deviceCode: string, symbol: string, name: string, deviceName?: string) => {
     console.log("Adding graph with device name:", deviceName);
-    // Create a SelectedGraph object from the parameters
+    
+    // Create a SelectedGraph object with the correct device name
     const graph: SelectedGraph = {
       deviceCode: deviceCode,
       symbol: symbol,
       name: name,
       deviceName: deviceName || `อุปกรณ์วัด ${deviceCode}`
     };
+    
     // Pass the SelectedGraph object to handleAddGraph
     handleAddGraph(graph);
   };
