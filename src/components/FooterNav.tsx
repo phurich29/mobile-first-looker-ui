@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import { Home, User, PackageOpen, Bell, Info, Settings } from "lucide-react";
+import { Home, User, PackageOpen, Bell, Info } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "./AuthProvider";
 
@@ -45,16 +46,6 @@ export const FooterNav = () => {
               <NavLink to="/notifications" className="flex items-center p-2 rounded-lg hover:bg-gray-100 transition-colors">
                 <Bell className="h-5 w-5 mr-3 text-gray-500" />
                 <span className="text-sm font-medium text-gray-700">การแจ้งเตือน</span>
-              </NavLink>
-
-              <NavLink to="/notification-settings" className="flex items-center p-2 rounded-lg hover:bg-gray-100 transition-colors pl-10">
-                <Settings className="h-4 w-4 mr-3 text-gray-500" />
-                <span className="text-sm font-medium text-gray-700">ตั้งค่าแจ้งเตือน</span>
-              </NavLink>
-
-              <NavLink to="/notification-history" className="flex items-center p-2 rounded-lg hover:bg-gray-100 transition-colors pl-10">
-                <Info className="h-4 w-4 mr-3 text-gray-500" />
-                <span className="text-sm font-medium text-gray-700">ประวัติแจ้งเตือน</span>
               </NavLink>
             </>
           )}
