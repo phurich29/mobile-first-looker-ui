@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,11 +9,12 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Header } from "@/components/Header";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { FooterNav } from "@/components/FooterNav";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Shield, Clock, Calendar, Mail } from "lucide-react";
 
 const passwordSchema = z.object({
   password: z.string().min(6, {
@@ -31,6 +33,7 @@ const Profile = () => {
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const isMobile = useIsMobile();
 
   const form = useForm({
     resolver: zodResolver(passwordSchema),
@@ -99,35 +102,48 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50">
       <Header />
-      <div className="container px-3 py-6 md:py-8 pb-24 mx-auto max-w-5xl">
-        <h1 className="text-2xl font-bold mb-4 text-emerald-800">ข้อมูลส่วนตัว</h1>
+      <div className="container px-3 py-6 md:py-12 pb-24 mx-auto max-w-6xl">
+        <div className="flex items-center mb-6">
+          <h1 className="text-2xl md:text-3xl font-bold text-emerald-800">ข้อมูลส่วนตัว</h1>
+        </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className={`grid ${!isMobile ? 'grid-cols-1 md:grid-cols-3 gap-6' : 'grid-cols-1 gap-4'}`}>
           {/* ข้อมูลส่วนตัว */}
-          <Card className="md:col-span-2">
-            <CardHeader>
-              <CardTitle className="text-xl">ข้อมูลผู้ใช้</CardTitle>
+          <Card className="md:col-span-2 shadow-md border-t-4 border-t-emerald-500">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-xl md:text-2xl flex items-center">
+                <Mail className="w-5 h-5 mr-2 text-emerald-600" />
+                ข้อมูลผู้ใช้
+              </CardTitle>
               <CardDescription>ข้อมูลบัญชีผู้ใช้ของคุณ</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
+            <CardContent className="space-y-5">
+              <div className="bg-gray-50 p-4 rounded-lg">
                 <p className="text-sm font-medium text-gray-500">อีเมลผู้ใช้</p>
-                <p className="text-base font-medium">{userEmail}</p>
+                <p className="text-base md:text-lg font-medium">{userEmail}</p>
               </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">เข้าสู่ระบบครั้งล่าสุด</p>
-                <p className="text-base font-medium">{lastSignIn}</p>
+              
+              <div className="bg-gray-50 p-4 rounded-lg flex items-start md:items-center">
+                <Clock className="w-5 h-5 mt-1 md:mt-0 mr-3 text-emerald-500 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-gray-500">เข้าสู่ระบบครั้งล่าสุด</p>
+                  <p className="text-base font-medium">{lastSignIn}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">สมัครเมื่อ</p>
-                <p className="text-base font-medium">{created}</p>
+              
+              <div className="bg-gray-50 p-4 rounded-lg flex items-start md:items-center">
+                <Calendar className="w-5 h-5 mt-1 md:mt-0 mr-3 text-emerald-500 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-gray-500">สมัครเมื่อ</p>
+                  <p className="text-base font-medium">{created}</p>
+                </div>
               </div>
             </CardContent>
-            <CardFooter className="py-3">
+            <CardFooter className="py-4 flex flex-wrap gap-3 bg-gray-50 rounded-b-lg mt-2">
               <Button 
                 onClick={() => setShowPasswordDialog(true)}
                 variant="outline"
-                className="border-emerald-600 text-emerald-700 hover:bg-emerald-50"
+                className="border-emerald-600 text-emerald-700 hover:bg-emerald-50 md:px-6"
               >
                 เปลี่ยนรหัสผ่าน
               </Button>
@@ -135,20 +151,36 @@ const Profile = () => {
           </Card>
           
           {/* กล่องแสดงสถานะ */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xl">สถานะบัญชี</CardTitle>
+          <Card className="shadow-md h-fit border-t-4 border-t-blue-500">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-xl md:text-2xl flex items-center">
+                <Shield className="w-5 h-5 mr-2 text-blue-500" />
+                สถานะบัญชี
+              </CardTitle>
               <CardDescription>สถานะการเข้าใช้งานปัจจุบัน</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3 py-2">
-              <div className="bg-emerald-50 border border-emerald-200 rounded-md p-2 flex items-center justify-between">
-                <p className="text-emerald-800 font-medium">เข้าสู่ระบบแล้ว</p>
-                <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
+            <CardContent className="space-y-4">
+              <div className="bg-emerald-50 border border-emerald-200 rounded-md p-4 flex items-center justify-between">
+                <p className="text-emerald-800 font-medium flex items-center">
+                  <span className="w-3 h-3 bg-emerald-500 rounded-full mr-2"></span>
+                  เข้าสู่ระบบแล้ว
+                </p>
               </div>
-              <div>
+              
+              <div className="bg-gray-50 p-4 rounded-lg">
                 <p className="text-sm font-medium text-gray-500">อีเมลที่ยืนยันแล้ว</p>
-                <p className="text-base font-medium">
-                  {user?.email_confirmed_at ? "ยืนยันแล้ว ✓" : "ยังไม่ได้ยืนยัน"}
+                <p className="text-base font-medium flex items-center">
+                  {user?.email_confirmed_at ? (
+                    <>
+                      <span className="w-3 h-3 bg-emerald-500 rounded-full mr-2"></span>
+                      ยืนยันแล้ว
+                    </>
+                  ) : (
+                    <>
+                      <span className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>
+                      ยังไม่ได้ยืนยัน
+                    </>
+                  )}
                 </p>
               </div>
             </CardContent>
