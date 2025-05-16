@@ -12,6 +12,7 @@ import { GraphHeader } from "@/components/graph-monitor/GraphHeader";
 import { EmptyGraphState } from "@/components/graph-monitor/EmptyGraphState";
 import { LoadingGraphState } from "@/components/graph-monitor/LoadingGraphState";
 import { useGraphMonitor } from "@/components/graph-monitor/hooks/useGraphMonitor";
+import { RiceIconDecoration } from "@/components/graph-monitor/RiceIconDecoration";
 
 const GraphMonitor = () => {
   const isMobile = useIsMobile();
@@ -72,7 +73,11 @@ const GraphMonitor = () => {
       <BackgroundImage />
       <Header />
 
-      <main className={`flex-1 p-4 ${isMobile ? 'pb-24' : sidebarWidth} overflow-y-auto`}>
+      <main className={`flex-1 p-4 ${isMobile ? 'pb-24' : sidebarWidth} overflow-y-auto relative`}>
+        {/* Rice icon decorations */}
+        <RiceIconDecoration position="top-right" />
+        <RiceIconDecoration position="bottom-left" />
+        
         <div className="max-w-7xl mx-auto">
           <GraphHeader
             showSaveIndicator={showSaveIndicator}
