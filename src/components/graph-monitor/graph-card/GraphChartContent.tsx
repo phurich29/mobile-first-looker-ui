@@ -77,7 +77,11 @@ export const GraphChartContent: React.FC<GraphChartContentProps> = ({
     >
       <ResponsiveContainer width="100%" height="100%">
         {styles.chartType === 'area' ? (
-          <AreaChart data={data} className="transition-all duration-500">
+          <AreaChart 
+            data={data} 
+            className="transition-all duration-500" 
+            margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+          >
             <defs>
               <linearGradient id={`colorValue-${graphSymbol}`} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor={styles.gradientFrom || styles.lineColor} stopOpacity={0.8} />
@@ -99,6 +103,7 @@ export const GraphChartContent: React.FC<GraphChartContentProps> = ({
                 : "#666"}
             />
             <YAxis
+              width={30}
               tick={{
                 fontSize: 10,
                 fill: graphStyle === "monochrome" || graphStyle === "neon" || graphStyle === "gradient"
@@ -122,7 +127,11 @@ export const GraphChartContent: React.FC<GraphChartContentProps> = ({
             />
           </AreaChart>
         ) : (
-          <LineChart data={data} className="transition-all duration-500">
+          <LineChart 
+            data={data} 
+            className="transition-all duration-500"
+            margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+          >
             <CartesianGrid strokeDasharray="3 3" stroke={styles.gridColor} />
             <XAxis
               dataKey="time"
@@ -138,6 +147,7 @@ export const GraphChartContent: React.FC<GraphChartContentProps> = ({
                 : "#666"}
             />
             <YAxis
+              width={30}
               tick={{
                 fontSize: 10,
                 fill: graphStyle === "monochrome" || graphStyle === "neon" || graphStyle === "gradient"

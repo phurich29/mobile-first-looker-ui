@@ -1,0 +1,18 @@
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke-width: 1px !important;
+  stroke-opacity: 0.6 !important;
+  stroke-dasharray: 2 2 !important;
+}
+
+/* เพิ่มความชัดของเส้นกริดในโหมดมืด */
+.dark .recharts-cartesian-grid-horizontal line,
+.dark .recharts-cartesian-grid-vertical line {
+  stroke: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* เพิ่มความชัดของเส้นกริดในโหมดสว่าง */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: rgba(100, 100, 100, 0.6) !important;
+}

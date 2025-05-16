@@ -9,6 +9,8 @@ import { useAuth } from "@/components/AuthProvider";
 import { BackgroundImage } from "@/components/graph-monitor/BackgroundImage";
 import { GraphPresets } from "@/components/graph-monitor/GraphPresets";
 import { GraphHeader } from "@/components/graph-monitor/GraphHeader";
+// นำเข้าไฟล์ CSS สำหรับปรับแต่งกราฟให้ชัดเจนขึ้น
+import "@/components/graph-monitor/graph-card/graph-custom.css";
 import { EmptyGraphState } from "@/components/graph-monitor/EmptyGraphState";
 import { LoadingGraphState } from "@/components/graph-monitor/LoadingGraphState";
 import { useGraphMonitor } from "@/components/graph-monitor/hooks/useGraphMonitor";

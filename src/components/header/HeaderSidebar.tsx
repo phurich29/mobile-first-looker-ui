@@ -1,5 +1,5 @@
 
-import { Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, FileText, AlertCircle, History, Monitor, ChevronLeft, ChevronRight, Layout } from "lucide-react";
+import { Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, FileText, AlertCircle, History, Monitor, ChevronLeft, ChevronRight, Layout, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -67,11 +67,6 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
               <img src="/lovable-uploads/649554cd-4d80-484a-995d-e49f2721a07d.png" alt="RiceFlow Logo" className="h-10 w-auto rounded-full" />
               {!isCollapsed && <h2 className="text-xl font-semibold text-emerald-700 dark:text-emerald-400">RiceFlow</h2>}
             </div>
-            {!isCollapsed ? (
-              <Button variant="ghost" size="icon" className="text-gray-500 md:hidden dark:text-gray-400" onClick={() => setSidebarOpen(false)}>
-                <X className="h-5 w-5" />
-              </Button>
-            ) : null}
           </div>
           
           <ScrollArea className="flex-1 -mr-4 pr-4">
@@ -162,15 +157,33 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
             {user && <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
                 {!isCollapsed ? (
                   <div className="flex items-center justify-between">
-                    <Link to="/logout" className="flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors text-red-600 hover:bg-red-50 hover:border hover:border-red-200 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:border-red-800">
-                      <LogOut className="h-5 w-5" />
-                      <span className="text-sm">ออกจากระบบ</span>
-                    </Link>
-                    <ThemeSwitcher />
+                    <div className="flex items-center space-x-2">
+                      <Link to="/logout" className="flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors text-red-600 hover:bg-red-50 hover:border hover:border-red-200 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:border-red-800">
+                        <LogOut className="h-5 w-5" />
+                        <span className="text-sm">ออกจากระบบ</span>
+                      </Link>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      {/* Mobile only notifications link */}
+                      <Link 
+                        to="/notifications" 
+                        className="md:hidden flex items-center justify-center h-9 w-9 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
+                      >
+                        <Bell className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                      </Link>
+                      <ThemeSwitcher />
+                    </div>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center space-y-3">
                     <ThemeSwitcher />
+                    {/* Mobile only notifications link */}
+                    <Link 
+                      to="/notifications" 
+                      className="md:hidden flex items-center justify-center h-9 w-9 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <Bell className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                    </Link>
                     <Link to="/logout" className="flex items-center justify-center py-2.5 px-3 rounded-lg transition-colors text-red-600 hover:bg-red-50 hover:border hover:border-red-200 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:border-red-800">
                       <LogOut className="h-5 w-5" />
                     </Link>
