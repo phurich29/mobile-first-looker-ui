@@ -9,7 +9,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { REQUIRED_DEVICE_CODES } from "@/features/equipment/services/deviceDataService";
 
 interface GraphSelectorProps {
   open: boolean;
@@ -17,28 +16,12 @@ interface GraphSelectorProps {
   onSelectGraph: (graph: SelectedGraph) => void;
 }
 
-// Define the measurement types we want to offer
-const MEASUREMENT_TYPES = [
-  { symbol: 'whiteness', name: 'ความขาว' },
-  { symbol: 'head_rice', name: 'ปริมาณต้นข้าว' },
-  { symbol: 'whole_kernels', name: 'เมล็ดข้าวสมบูรณ์' },
-  { symbol: 'imperfection_rate', name: 'อัตราความไม่สมบูรณ์' },
-  { symbol: 'small_brokens', name: 'ปลายข้าว' },
-  { symbol: 'small_brokens_c1', name: 'ปลายข้าว C1' },
-  { symbol: 'total_brokens', name: 'ปริมาณข้าวหัก' },
-  { symbol: 'paddy_rate', name: 'อัตราข้าวเปลือก' },
-  { symbol: 'yellow_rice_rate', name: 'อัตราข้าวเหลือง' },
-  { symbol: 'sticky_rice_rate', name: 'อัตราข้าวเหนียว' },
-  { symbol: 'red_line_rate', name: 'อัตราข้าวมีเส้นแดง' }
-];
-
 export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelectorProps) => {
   const [loading, setLoading] = useState(true);
   const [devices, setDevices] = useState<Array<{ device_code: string; device_name: string }>>([]);
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
-  const [measurements, setMeasurements] = useState<Array<{ symbol: string; name: string }>>(MEASUREMENT_TYPES);
+  const [measurements, setMeasurements] = useState<Array<{ symbol: string; name: string }>>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -46,72 +29,75 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
     }
   }, [open]);
 
+  useEffect(() => {
+    if (selectedDevice) {
+      fetchMeasurements(selectedDevice);
+    } else {
+      setMeasurements([]);
+    }
+  }, [selectedDevice]);
+
   const fetchDevices = async () => {
     setLoading(true);
-    setErrorMessage(null);
-    
     try {
-      // First, get device settings for all devices
-      const { data: deviceSettingsData, error: deviceSettingsError } = await supabase
-        .from('device_settings')
-        .select('device_code, display_name')
-        .order('display_name', { ascending: true });
+      const { data, error } = await supabase
+        .from('devices')
+        .select('device_code, device_name')
+        .order('device_name', { ascending: true });
 
-      if (deviceSettingsError) {
-        console.error("Error fetching device settings:", deviceSettingsError);
-        setErrorMessage("ไม่สามารถโหลดข้อมูลอุปกรณ์ได้");
+      if (error) {
+        console.error("Error fetching devices:", error);
         return;
       }
 
-      // Convert device settings to our format
-      const deviceSettingsMap = new Map();
-      (deviceSettingsData || []).forEach(item => {
-        deviceSettingsMap.set(item.device_code, {
-          device_code: item.device_code,
-          device_name: item.display_name || item.device_code
-        });
-      });
-
-      // Make sure all required devices are included
-      const allDevices: Array<{ device_code: string; device_name: string }> = [];
-      
-      // First, add all known devices from settings
-      deviceSettingsMap.forEach((device) => {
-        allDevices.push(device);
-      });
-
-      // Then ensure all required devices are included
-      for (const requiredCode of REQUIRED_DEVICE_CODES) {
-        if (!deviceSettingsMap.has(requiredCode)) {
-          // If we don't have settings for this device, add it with a default name
-          allDevices.push({
-            device_code: requiredCode,
-            device_name: `อุปกรณ์ ${requiredCode}`
-          });
-        }
-      }
-
-      console.log(`Found ${allDevices.length} devices in total (including ${REQUIRED_DEVICE_CODES.length} required)`);
-      
-      // Sort by name for better UX
-      allDevices.sort((a, b) => a.device_name.localeCompare(b.device_name));
-      
-      setDevices(allDevices);
+      setDevices(data || []);
     } catch (error) {
-      console.error("Unexpected error fetching devices:", error);
-      setErrorMessage("เกิดข้อผิดพลาดในการโหลดข้อมูลอุปกรณ์");
+      console.error("Unexpected error:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Filter devices based on search query
+  const fetchMeasurements = async (deviceCode: string) => {
+    setLoading(true);
+    try {
+      // Get unique measurement types from the database for this device
+      const { data, error } = await supabase
+        .from('rice_quality_analysis')
+        .select('measurements')
+        .eq('device_code', deviceCode)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (error) {
+        console.error("Error fetching measurements:", error);
+        return;
+      }
+
+      if (data && data.length > 0 && data[0].measurements) {
+        // Extract measurement keys and names from the measurements object
+        const measurementsData = Object.entries(data[0].measurements)
+          .map(([key, value]) => ({
+            symbol: key,
+            name: typeof value === 'object' && value !== null ? 
+              (value as any).name || key : 
+              key
+          }));
+        
+        setMeasurements(measurementsData);
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filteredDevices = devices.filter(device => 
-    (device.device_name?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+    device.device_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     device.device_code.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Filter measurements based on search query
   const filteredMeasurements = measurements.filter(measurement => 
     measurement.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     measurement.symbol.toLowerCase().includes(searchQuery.toLowerCase())
@@ -132,17 +118,17 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-auto bg-background text-foreground">
+      <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-auto">
         <DialogHeader>
-          <DialogTitle className="text-center text-xl text-foreground">เลือกอุปกรณ์และค่าที่ต้องการแสดง</DialogTitle>
+          <DialogTitle className="text-center text-xl">เลือกอุปกรณ์และค่าที่ต้องการแสดง</DialogTitle>
         </DialogHeader>
         
         <div className="mt-4">
           <div className="relative mb-4">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
             <Input
               placeholder="ค้นหาอุปกรณ์หรือค่าการวัด"
-              className="pl-9 bg-background border-input"
+              className="pl-9"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -165,34 +151,23 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
                     </div>
                   </div>
                 ))
-              ) : errorMessage ? (
-                <div className="p-4 text-center">
-                  <p className="text-red-500 dark:text-red-400">{errorMessage}</p>
-                  <Button 
-                    onClick={fetchDevices} 
-                    variant="outline" 
-                    className="mt-2"
-                  >
-                    ลองอีกครั้ง
-                  </Button>
-                </div>
               ) : filteredDevices.length > 0 ? (
                 filteredDevices.map((device) => (
                   <div
                     key={device.device_code}
                     className={`p-3 rounded-lg cursor-pointer transition-colors ${
                       selectedDevice === device.device_code
-                        ? "bg-accent text-accent-foreground border border-accent"
-                        : "bg-muted/50 hover:bg-muted border border-muted"
+                        ? "bg-purple-100 border border-purple-300"
+                        : "bg-gray-50 hover:bg-gray-100 border border-gray-200"
                     }`}
                     onClick={() => setSelectedDevice(device.device_code)}
                   >
-                    <p className="font-medium">{device.device_name}</p>
-                    <p className="text-xs text-muted-foreground">รหัส: {device.device_code}</p>
+                    <p className="font-medium text-gray-800">{device.device_name}</p>
+                    <p className="text-xs text-gray-500">รหัส: {device.device_code}</p>
                   </div>
                 ))
               ) : (
-                <p className="text-center text-muted-foreground py-4">
+                <p className="text-center text-gray-500 py-4">
                   ไม่พบอุปกรณ์ที่ตรงกับการค้นหา
                 </p>
               )}
@@ -209,15 +184,15 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
                 filteredMeasurements.map((measurement) => (
                   <div
                     key={measurement.symbol}
-                    className="p-3 rounded-lg cursor-pointer transition-colors bg-muted/50 hover:bg-accent hover:text-accent-foreground border border-muted"
+                    className="p-3 rounded-lg cursor-pointer transition-colors bg-gray-50 hover:bg-purple-50 border border-gray-200"
                     onClick={() => handleSelectMeasurement(measurement.symbol, measurement.name)}
                   >
-                    <p className="font-medium">{measurement.name}</p>
-                    <p className="text-xs text-muted-foreground">รหัส: {measurement.symbol}</p>
+                    <p className="font-medium text-gray-800">{measurement.name}</p>
+                    <p className="text-xs text-gray-500">รหัส: {measurement.symbol}</p>
                   </div>
                 ))
               ) : (
-                <p className="text-center text-muted-foreground py-4">
+                <p className="text-center text-gray-500 py-4">
                   ไม่พบค่าการวัดที่ตรงกับการค้นหา
                 </p>
               )}

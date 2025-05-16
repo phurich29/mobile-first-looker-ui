@@ -22,10 +22,8 @@ import NotificationSettings from "./pages/notification-settings";
 import NotificationHistory from "./pages/NotificationHistory";
 import GraphMonitor from "./pages/GraphMonitor";
 import { CountdownProvider } from "./contexts/CountdownContext";
-import { ThemeProvider } from "./components/ThemeProvider";
 import { toast } from "@/components/ui/use-toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { SidebarProvider } from "./components/ui/sidebar";
 
 function App() {
   // Create a client
@@ -53,47 +51,43 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light">
-        <SidebarProvider>
-          <Router>
-            <CountdownProvider initialSeconds={60} onComplete={handleGlobalCountdownComplete}>
-              <AuthProvider>
-                <Routes>
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/waiting" element={<ProtectedRoute><Waiting /></ProtectedRoute>} />
-                  
-                  {/* Public routes */}
-                  <Route path="/" element={<Index />} />
-                  <Route path="/news" element={<News />} />
-                  <Route path="/rice-prices" element={<RicePrices />} />
-                  
-                  {/* Protected routes */}
-                  <Route path="/equipment" element={<ProtectedRoute><Equipment /></ProtectedRoute>} />
-                  <Route path="/measurements" element={<ProtectedRoute><Measurements /></ProtectedRoute>} />
-                  <Route path="/device/:deviceCode" element={<ProtectedRoute><DeviceDetails /></ProtectedRoute>} />
-                  <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-                  <Route path="/graph-monitor" element={<ProtectedRoute><GraphMonitor /></ProtectedRoute>} />
-                  
-                  {/* Admin routes */}
-                  <Route path="/admin" element={<ProtectedRoute requiredRoles={["admin"]}><Admin /></ProtectedRoute>} />
-                  <Route path="/user-management" element={<ProtectedRoute requiredRoles={["admin"]}><UserManagement /></ProtectedRoute>} />
-                  <Route path="/device-management" element={<ProtectedRoute requiredRoles={["admin"]}><DeviceManagement /></ProtectedRoute>} />
-                  <Route path="/rice-price-management" element={<ProtectedRoute requiredRoles={["admin"]}><RicePriceManagement /></ProtectedRoute>} />
-                  <Route path="/news-management" element={<ProtectedRoute requiredRoles={["admin"]}><NewsManagement /></ProtectedRoute>} />
-                  
-                  {/* Notification routes */}
-                  <Route path="/notifications" element={<ProtectedRoute><NotificationSettings /></ProtectedRoute>} />
-                  <Route path="/notification-history" element={<ProtectedRoute><NotificationHistory /></ProtectedRoute>} />
-                  
-                  {/* 404 route */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-                <Toaster />
-              </AuthProvider>
-            </CountdownProvider>
-          </Router>
-        </SidebarProvider>
-      </ThemeProvider>
+      <Router>
+        <CountdownProvider initialSeconds={60} onComplete={handleGlobalCountdownComplete}>
+          <AuthProvider>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/waiting" element={<ProtectedRoute><Waiting /></ProtectedRoute>} />
+              
+              {/* Public routes */}
+              <Route path="/" element={<Index />} />
+              <Route path="/news" element={<News />} />
+              <Route path="/rice-prices" element={<RicePrices />} />
+              
+              {/* Protected routes */}
+              <Route path="/equipment" element={<ProtectedRoute><Equipment /></ProtectedRoute>} />
+              <Route path="/measurements" element={<ProtectedRoute><Measurements /></ProtectedRoute>} />
+              <Route path="/device/:deviceCode" element={<ProtectedRoute><DeviceDetails /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/graph-monitor" element={<ProtectedRoute><GraphMonitor /></ProtectedRoute>} />
+              
+              {/* Admin routes */}
+              <Route path="/admin" element={<ProtectedRoute requiredRoles={["admin"]}><Admin /></ProtectedRoute>} />
+              <Route path="/user-management" element={<ProtectedRoute requiredRoles={["admin"]}><UserManagement /></ProtectedRoute>} />
+              <Route path="/device-management" element={<ProtectedRoute requiredRoles={["admin"]}><DeviceManagement /></ProtectedRoute>} />
+              <Route path="/rice-price-management" element={<ProtectedRoute requiredRoles={["admin"]}><RicePriceManagement /></ProtectedRoute>} />
+              <Route path="/news-management" element={<ProtectedRoute requiredRoles={["admin"]}><NewsManagement /></ProtectedRoute>} />
+              
+              {/* Notification routes */}
+              <Route path="/notifications" element={<ProtectedRoute><NotificationSettings /></ProtectedRoute>} />
+              <Route path="/notification-history" element={<ProtectedRoute><NotificationHistory /></ProtectedRoute>} />
+              
+              {/* 404 route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <Toaster />
+          </AuthProvider>
+        </CountdownProvider>
+      </Router>
     </QueryClientProvider>
   );
 }
