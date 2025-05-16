@@ -2,8 +2,11 @@
 import React from "react";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 export function EmptyState() {
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col items-center justify-center py-16 bg-white rounded-lg shadow-sm border border-gray-100">
       <div className="h-16 w-16 rounded-full bg-amber-50 flex items-center justify-center mb-2">
@@ -17,6 +20,7 @@ export function EmptyState() {
         variant="outline" 
         size="sm"
         className="border-amber-200 text-amber-600 hover:bg-amber-50"
+        onClick={() => navigate('/notification-settings')}
       >
         <Bell className="h-4 w-4 mr-2" />
         ตั้งค่าการแจ้งเตือน
