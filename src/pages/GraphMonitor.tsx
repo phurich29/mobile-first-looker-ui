@@ -97,12 +97,12 @@ const GraphMonitor = () => {
       <BackgroundImage />
       <Header />
 
-      <main className={`flex-1 p-4 ${isMobile ? 'pb-24' : sidebarWidth} overflow-y-auto relative`}>
+      <main className={`flex-1 ${isMobile ? 'pb-24' : sidebarWidth} relative`}>
         {/* Position decorations only at corners far from content */}
         <RiceIconDecoration position="top-right" />
         <RiceIconDecoration position="bottom-left" />
         
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto p-4">
           <GraphHeader
             showSaveIndicator={showSaveIndicator}
             saving={saving}
@@ -127,10 +127,12 @@ const GraphMonitor = () => {
           ) : selectedGraphs.length === 0 ? (
             <EmptyGraphState onAddGraph={() => setSelectorOpen(true)} />
           ) : (
-            <GraphDisplay 
-              selectedGraphs={selectedGraphs} 
-              onRemoveGraph={handleRemoveGraph} 
-            />
+            <div className="h-[calc(100vh-240px)]">
+              <GraphDisplay 
+                selectedGraphs={selectedGraphs} 
+                onRemoveGraph={handleRemoveGraph} 
+              />
+            </div>
           )}
         </div>
       </main>
