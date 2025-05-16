@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -171,6 +172,14 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
     switch (graphStyle) {
       case "classic":
         return {
+          cardBg: "bg-white border-purple-100",
+          headerBg: "bg-gray-50 border-b border-purple-100",
+          titleColor: "text-gray-800",
+          subtitleColor: "text-gray-500",
+          buttonHoverBg: "hover:bg-purple-100",
+          buttonHoverText: "hover:text-purple-700",
+          iconBg: `bg-gradient-to-br from-${getIconColor()} to-${getIconColor()}cc`,
+          iconText: "text-white",
           chartBackground: "transparent",
           lineColor: getIconColor(),
           gridColor: "#f0f0f0",
@@ -183,6 +192,14 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
         };
       case "neon":
         return {
+          cardBg: "bg-gray-900 border-cyan-600",
+          headerBg: "bg-gray-950 border-b border-cyan-700",
+          titleColor: "text-cyan-300",
+          subtitleColor: "text-cyan-500",
+          buttonHoverBg: "hover:bg-cyan-900",
+          buttonHoverText: "hover:text-cyan-300",
+          iconBg: "bg-gradient-to-br from-cyan-500 to-blue-600",
+          iconText: "text-white",
           chartBackground: "rgb(8, 8, 32)",
           lineColor: "#00FFFF",
           gridColor: "rgba(0, 255, 255, 0.2)",
@@ -195,6 +212,14 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
         };
       case "pastel":
         return {
+          cardBg: "bg-pink-50 border-pink-200",
+          headerBg: "bg-pink-100 border-b border-pink-200",
+          titleColor: "text-pink-700",
+          subtitleColor: "text-pink-500",
+          buttonHoverBg: "hover:bg-pink-200",
+          buttonHoverText: "hover:text-pink-700",
+          iconBg: "bg-gradient-to-br from-pink-400 to-purple-300",
+          iconText: "text-white",
           chartBackground: "#F8F7FF",
           lineColor: "#FFA69E",
           gridColor: "#E9E8FF",
@@ -207,6 +232,14 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
         };
       case "monochrome":
         return {
+          cardBg: "bg-gray-900 border-gray-700",
+          headerBg: "bg-gray-800 border-b border-gray-700",
+          titleColor: "text-gray-100",
+          subtitleColor: "text-gray-400",
+          buttonHoverBg: "hover:bg-gray-700",
+          buttonHoverText: "hover:text-white",
+          iconBg: "bg-gradient-to-br from-gray-600 to-gray-500",
+          iconText: "text-white",
           chartBackground: "#111827",
           lineColor: "#FFFFFF",
           gridColor: "rgba(255, 255, 255, 0.1)",
@@ -219,6 +252,14 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
         };
       case "gradient":
         return {
+          cardBg: "bg-gradient-to-br from-violet-900 to-indigo-900 border-indigo-700",
+          headerBg: "bg-gradient-to-r from-violet-800 to-indigo-800 border-b border-indigo-700",
+          titleColor: "text-white",
+          subtitleColor: "text-indigo-200",
+          buttonHoverBg: "hover:bg-white/10",
+          buttonHoverText: "hover:text-white",
+          iconBg: "bg-gradient-to-br from-emerald-400 to-green-500",
+          iconText: "text-white",
           chartBackground: "linear-gradient(180deg, #2E1065 0%, #1E1B4B 100%)",
           lineColor: "#10B981",
           gradientFrom: "#10B981",
@@ -233,6 +274,14 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
         };
       default:
         return {
+          cardBg: "bg-white border-purple-100",
+          headerBg: "bg-gray-50 border-b border-purple-100",
+          titleColor: "text-gray-800",
+          subtitleColor: "text-gray-500",
+          buttonHoverBg: "hover:bg-purple-100",
+          buttonHoverText: "hover:text-purple-700",
+          iconBg: `bg-gradient-to-br from-${getIconColor()} to-${getIconColor()}cc`,
+          iconText: "text-white",
           chartBackground: "transparent",
           lineColor: getIconColor(),
           gridColor: "#f0f0f0",
@@ -261,24 +310,23 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
   };
 
   return (
-    <Card className="shadow-md overflow-hidden border-purple-100 group transition-all hover:shadow-lg">
-      <CardHeader className="bg-gray-50 border-b border-purple-100 py-3">
+    <Card className={`shadow-md overflow-hidden ${styles.cardBg} group transition-all hover:shadow-lg`}>
+      <CardHeader className={`${styles.headerBg} py-3`}>
         <div className="flex flex-col space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <div 
-                className="w-10 h-10 rounded-full flex items-center justify-center mr-3 shadow-sm relative overflow-hidden"
-                style={{ background: `linear-gradient(135deg, ${getIconColor()}, ${getIconColor()}cc)` }}
+                className={`w-10 h-10 rounded-full flex items-center justify-center mr-3 shadow-sm relative overflow-hidden ${styles.iconBg}`}
               >
                 <div className="absolute inset-0 bg-white/10"></div>
                 <div className="absolute top-0 left-0 w-2 h-2 bg-white/30 rounded-full blur-sm"></div>
-                <Wheat className="h-5 w-5 text-white" />
+                <Wheat className={`h-5 w-5 ${styles.iconText}`} />
               </div>
               <div>
-                <CardTitle className="text-lg font-medium text-gray-800">
+                <CardTitle className={`text-lg font-medium ${styles.titleColor}`}>
                   {graph.name}
                 </CardTitle>
-                <p className="text-xs text-gray-500">
+                <p className={`text-xs ${styles.subtitleColor}`}>
                   อุปกรณ์: {graph.deviceName}
                 </p>
               </div>
@@ -287,7 +335,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
               variant="ghost"
               size="sm"
               onClick={onRemove}
-              className="h-8 w-8 p-0 opacity-70 group-hover:opacity-100 hover:bg-purple-100 hover:text-purple-700"
+              className={`h-8 w-8 p-0 opacity-70 group-hover:opacity-100 ${styles.buttonHoverBg} ${styles.buttonHoverText}`}
             >
               <X className="h-4 w-4" />
               <span className="sr-only">ลบกราฟ</span>
@@ -300,12 +348,21 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="h-7 px-2 text-xs border-gray-200 bg-white/90 hover:bg-white"
+                  className={`h-7 px-2 text-xs ${graphStyle === 'classic' ? 'border-gray-200 bg-white/90 hover:bg-white' : 
+                              graphStyle === 'neon' ? 'border-cyan-600 bg-gray-800 text-cyan-300 hover:bg-gray-700' : 
+                              graphStyle === 'pastel' ? 'border-pink-200 bg-pink-100/80 text-pink-700 hover:bg-pink-100' :
+                              graphStyle === 'monochrome' ? 'border-gray-700 bg-gray-800 text-gray-200 hover:bg-gray-700' :
+                              'border-indigo-600 bg-indigo-800/80 text-white hover:bg-indigo-700'}`}
                 >
                   สไตล์: {getStyleName(graphStyle)}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="min-w-32">
+              <DropdownMenuContent className={`min-w-32 ${
+                graphStyle === 'neon' ? 'bg-gray-900 border-cyan-600 text-cyan-300' :
+                graphStyle === 'pastel' ? 'bg-pink-50 border-pink-200' :
+                graphStyle === 'monochrome' ? 'bg-gray-900 border-gray-700 text-gray-200' :
+                graphStyle === 'gradient' ? 'bg-indigo-900 border-indigo-700 text-white' : ''
+              }`}>
                 <DropdownMenuItem 
                   className={`text-sm ${graphStyle === 'classic' ? 'bg-purple-50' : ''}`} 
                   onClick={() => setGraphStyle('classic')}
@@ -313,25 +370,25 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
                   คลาสสิก
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className={`text-sm ${graphStyle === 'neon' ? 'bg-purple-50' : ''}`} 
+                  className={`text-sm ${graphStyle === 'neon' ? 'bg-cyan-900' : ''}`} 
                   onClick={() => setGraphStyle('neon')}
                 >
                   นีออน
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className={`text-sm ${graphStyle === 'pastel' ? 'bg-purple-50' : ''}`} 
+                  className={`text-sm ${graphStyle === 'pastel' ? 'bg-pink-100' : ''}`} 
                   onClick={() => setGraphStyle('pastel')}
                 >
                   พาสเทล
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className={`text-sm ${graphStyle === 'monochrome' ? 'bg-purple-50' : ''}`} 
+                  className={`text-sm ${graphStyle === 'monochrome' ? 'bg-gray-800' : ''}`} 
                   onClick={() => setGraphStyle('monochrome')}
                 >
                   โมโนโครม
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className={`text-sm ${graphStyle === 'gradient' ? 'bg-purple-50' : ''}`} 
+                  className={`text-sm ${graphStyle === 'gradient' ? 'bg-indigo-800' : ''}`} 
                   onClick={() => setGraphStyle('gradient')}
                 >
                   ไล่สี
@@ -339,11 +396,25 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Select value={timeFrame} onValueChange={(value) => setTimeFrame(value as TimeFrame)}>
-              <SelectTrigger className="h-7 w-36 text-xs border-gray-200 bg-white">
+            <Select 
+              value={timeFrame} 
+              onValueChange={(value) => setTimeFrame(value as TimeFrame)}
+            >
+              <SelectTrigger className={`h-7 w-36 text-xs ${
+                graphStyle === 'classic' ? 'border-gray-200 bg-white' :
+                graphStyle === 'neon' ? 'border-cyan-600 bg-gray-800 text-cyan-300' :
+                graphStyle === 'pastel' ? 'border-pink-200 bg-pink-100/80 text-pink-700' :
+                graphStyle === 'monochrome' ? 'border-gray-700 bg-gray-800 text-gray-200' :
+                'border-indigo-600 bg-indigo-800/80 text-white'
+              }`}>
                 <SelectValue placeholder="กรอบเวลา" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={`${
+                graphStyle === 'neon' ? 'bg-gray-900 border-cyan-600 text-cyan-300' :
+                graphStyle === 'pastel' ? 'bg-pink-50 border-pink-200' :
+                graphStyle === 'monochrome' ? 'bg-gray-900 border-gray-700 text-gray-200' :
+                graphStyle === 'gradient' ? 'bg-indigo-900 border-indigo-700 text-white' : ''
+              }`}>
                 <SelectItem value="1h">1 ชั่วโมง</SelectItem>
                 <SelectItem value="24h">24 ชั่วโมง</SelectItem>
                 <SelectItem value="7d">7 วัน</SelectItem>
@@ -353,18 +424,41 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-4 h-64 relative">
+      <CardContent className={`p-4 h-64 relative ${graphStyle !== 'classic' ? 'text-' + (
+        graphStyle === 'neon' ? 'cyan-300' :
+        graphStyle === 'pastel' ? 'pink-700' :
+        graphStyle === 'monochrome' ? 'gray-200' :
+        'white'
+      ) : ''}`}>
         {loading ? (
           <div className="w-full h-full flex items-center justify-center">
-            <Skeleton className="h-full w-full bg-purple-50" />
+            <Skeleton className={`h-full w-full ${
+              graphStyle === 'classic' ? 'bg-purple-50' :
+              graphStyle === 'neon' ? 'bg-gray-800' :
+              graphStyle === 'pastel' ? 'bg-pink-100' :
+              graphStyle === 'monochrome' ? 'bg-gray-800' :
+              'bg-indigo-800'
+            }`} />
           </div>
         ) : error ? (
-          <div className="w-full h-full flex items-center justify-center">
-            <p className="text-gray-500 text-sm">{error}</p>
+          <div className={`w-full h-full flex items-center justify-center ${
+            graphStyle === 'classic' ? 'text-gray-500' :
+            graphStyle === 'neon' ? 'text-cyan-400' :
+            graphStyle === 'pastel' ? 'text-pink-500' :
+            graphStyle === 'monochrome' ? 'text-gray-400' :
+            'text-indigo-200'
+          }`}>
+            <p className="text-sm">{error}</p>
           </div>
         ) : data.length === 0 ? (
-          <div className="w-full h-full flex items-center justify-center">
-            <p className="text-gray-500 text-sm">ไม่พบข้อมูล</p>
+          <div className={`w-full h-full flex items-center justify-center ${
+            graphStyle === 'classic' ? 'text-gray-500' :
+            graphStyle === 'neon' ? 'text-cyan-400' :
+            graphStyle === 'pastel' ? 'text-pink-500' :
+            graphStyle === 'monochrome' ? 'text-gray-400' :
+            'text-indigo-200'
+          }`}>
+            <p className="text-sm">ไม่พบข้อมูล</p>
           </div>
         ) : (
           <ChartContainer 
@@ -417,17 +511,17 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
                     dataKey="time"
                     tick={{ 
                       fontSize: 10,
-                      fill: graphStyle === "monochrome" || graphStyle === "neon" ? "rgba(255,255,255,0.7)" : "#666"
+                      fill: graphStyle === "monochrome" || graphStyle === "neon" || graphStyle === "gradient" ? "rgba(255,255,255,0.7)" : "#666"
                     }}
                     tickFormatter={(value) => value.split(' ')[0]}
-                    stroke={graphStyle === "monochrome" || graphStyle === "neon" ? "rgba(255,255,255,0.5)" : "#666"}
+                    stroke={graphStyle === "monochrome" || graphStyle === "neon" || graphStyle === "gradient" ? "rgba(255,255,255,0.5)" : "#666"}
                   />
                   <YAxis 
                     tick={{ 
                       fontSize: 10,
-                      fill: graphStyle === "monochrome" || graphStyle === "neon" ? "rgba(255,255,255,0.7)" : "#666"
+                      fill: graphStyle === "monochrome" || graphStyle === "neon" || graphStyle === "gradient" ? "rgba(255,255,255,0.7)" : "#666"
                     }} 
-                    stroke={graphStyle === "monochrome" || graphStyle === "neon" ? "rgba(255,255,255,0.5)" : "#666"}
+                    stroke={graphStyle === "monochrome" || graphStyle === "neon" || graphStyle === "gradient" ? "rgba(255,255,255,0.5)" : "#666"}
                   />
                   <Tooltip content={<CustomTooltip className={styles.tooltip} />} />
                   <Line
@@ -461,3 +555,4 @@ const CustomTooltip = ({ active, payload, label, className }: any) => {
 
   return null;
 };
+
