@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Clock } from "lucide-react";
-import { formatDistanceToNow, format } from "date-fns";
+import { formatDistanceToNow, format, differenceInHours } from "date-fns";
 import { th } from "date-fns/locale";
 
 interface DeviceInfo {
@@ -31,6 +31,12 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({
     return `${timeDistance} (${exactTime})`;
   };
 
+  // Check if the last update was within 24 hours
+  const isRecentUpdate = (date: Date | null | undefined) => {
+    if (!date) return false;
+    return differenceInHours(new Date(), date) < 24;
+  };
+
   return (
     <div
       className={`p-3 rounded-lg cursor-pointer transition-colors ${
@@ -50,9 +56,11 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({
         </div>
         <p className="font-medium text-gray-800 text-sm">{device.device_name}</p>
       </div>
-      <div className="flex items-center text-xs text-gray-500 mt-1">
+      <div className="flex items-center text-xs mt-1">
         <Clock className="h-3 w-3 mr-1" />
-        <span>อัปเดต: {formatLastUpdated(device.last_updated)}</span>
+        <span className={isRecentUpdate(device.last_updated) ? "text-green-500" : "text-gray-500"}>
+          อัปเดต: {formatLastUpdated(device.last_updated)}
+        </span>
       </div>
     </div>
   );
