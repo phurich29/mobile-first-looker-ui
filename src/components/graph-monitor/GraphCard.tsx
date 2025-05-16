@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -151,17 +152,6 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
   return (
     <Card className="shadow-md overflow-hidden border-purple-100 group transition-all hover:shadow-lg">
       <CardHeader className="bg-gray-50 border-b border-purple-100 py-3">
-        <div className="flex justify-end mb-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onRemove}
-            className="h-8 w-8 p-0 opacity-70 group-hover:opacity-100 hover:bg-purple-100 hover:text-purple-700"
-          >
-            <X className="h-4 w-4" />
-            <span className="sr-only">ลบกราฟ</span>
-          </Button>
-        </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <div 
@@ -181,7 +171,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
               </p>
             </div>
           </div>
-          <div>
+          <div className="flex items-center space-x-2">
             <Select value={timeFrame} onValueChange={(value) => setTimeFrame(value as TimeFrame)}>
               <SelectTrigger className="h-7 w-20 text-xs border-gray-200 bg-white">
                 <SelectValue placeholder="กรอบเวลา" />
@@ -193,6 +183,15 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
                 <SelectItem value="30d">30 วัน</SelectItem>
               </SelectContent>
             </Select>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onRemove}
+              className="h-8 w-8 p-0 opacity-70 group-hover:opacity-100 hover:bg-purple-100 hover:text-purple-700"
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">ลบกราฟ</span>
+            </Button>
           </div>
         </div>
       </CardHeader>
