@@ -70,7 +70,7 @@ export const FooterNav = () => {
   }
   
   return (
-    <div className="fixed bottom-0 left-0 right-0">
+    <div className="fixed bottom-0 left-0 right-0 z-50">
       {/* Green curved background */}
       <div className="bg-gradient-to-r from-emerald-500 to-teal-600 h-16 rounded-t-3xl shadow-lg">
         <nav className="flex justify-around items-center h-full">
