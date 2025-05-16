@@ -19,7 +19,7 @@ export const GraphDisplay: React.FC<GraphDisplayProps> = ({
   const isMobile = useIsMobile();
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {selectedGraphs.map((graph, index) => (
         <GraphCard 
           key={`${graph.deviceCode}-${graph.symbol}-${index}`}
