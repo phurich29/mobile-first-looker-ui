@@ -11,11 +11,11 @@ export default function NewsManagement() {
   const isAuthorized = true;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
       <Header />
       
       {(
-        <main className="container mx-auto px-4 pt-6 pb-32 md:pl-72 md:pr-8">
+        <main className="container mx-auto px-4 pt-6 pb-32 md:pl-72 md:pr-8 overflow-x-hidden">
           <div className="mb-4">
             <Breadcrumb>
               <BreadcrumbList>
@@ -33,7 +33,7 @@ export default function NewsManagement() {
             </Breadcrumb>
           </div>
           
-          <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="bg-white rounded-xl shadow-sm p-6 w-full">
             <NewsManagementView />
           </div>
         </main>
