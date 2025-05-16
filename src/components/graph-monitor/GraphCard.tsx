@@ -42,7 +42,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
     try {
       const { data, error } = await supabase
         .from("rice_quality_analysis")
-        .select("created_at, measurements")
+        .select(`created_at, ${graph.symbol}`)
         .eq("device_code", graph.deviceCode)
         .order("created_at", { ascending: false })
         .limit(30);
@@ -61,12 +61,9 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
 
       // Transform the data for the chart
       const chartData = data
-        .filter(item => 
-          item.measurements && 
-          item.measurements[graph.symbol] !== undefined
-        )
+        .filter(item => item[graph.symbol] !== undefined && item[graph.symbol] !== null)
         .map(item => {
-          const value = item.measurements[graph.symbol];
+          const value = item[graph.symbol];
           const measurementValue = typeof value === 'object' ? 
             (value as any).value : value;
           

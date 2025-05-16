@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useDeviceData } from "@/utils/deviceMeasurementUtils";
 
 interface GraphSelectorProps {
   open: boolean;
@@ -16,11 +17,26 @@ interface GraphSelectorProps {
   onSelectGraph: (graph: SelectedGraph) => void;
 }
 
+// Define the measurement types we want to offer
+const MEASUREMENT_TYPES = [
+  { symbol: 'whiteness', name: 'ความขาว' },
+  { symbol: 'head_rice', name: 'ปริมาณต้นข้าว' },
+  { symbol: 'whole_kernels', name: 'เมล็ดข้าวสมบูรณ์' },
+  { symbol: 'imperfection_rate', name: 'อัตราความไม่สมบูรณ์' },
+  { symbol: 'small_brokens', name: 'ปลายข้าว' },
+  { symbol: 'small_brokens_c1', name: 'ปลายข้าว C1' },
+  { symbol: 'total_brokens', name: 'ปริมาณข้าวหัก' },
+  { symbol: 'paddy_rate', name: 'อัตราข้าวเปลือก' },
+  { symbol: 'yellow_rice_rate', name: 'อัตราข้าวเหลือง' },
+  { symbol: 'sticky_rice_rate', name: 'อัตราข้าวเหนียว' },
+  { symbol: 'red_line_rate', name: 'อัตราข้าวมีเส้นแดง' }
+];
+
 export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelectorProps) => {
   const [loading, setLoading] = useState(true);
   const [devices, setDevices] = useState<Array<{ device_code: string; device_name: string }>>([]);
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
-  const [measurements, setMeasurements] = useState<Array<{ symbol: string; name: string }>>([]);
+  const [measurements, setMeasurements] = useState<Array<{ symbol: string; name: string }>>(MEASUREMENT_TYPES);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -29,28 +45,26 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
     }
   }, [open]);
 
-  useEffect(() => {
-    if (selectedDevice) {
-      fetchMeasurements(selectedDevice);
-    } else {
-      setMeasurements([]);
-    }
-  }, [selectedDevice]);
-
   const fetchDevices = async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('devices')
-        .select('device_code, device_name')
-        .order('device_name', { ascending: true });
+        .from('device_settings')
+        .select('device_code, display_name')
+        .order('display_name', { ascending: true });
 
       if (error) {
         console.error("Error fetching devices:", error);
         return;
       }
 
-      setDevices(data || []);
+      // Format the response to match our device structure
+      const formattedDevices = (data || []).map(item => ({
+        device_code: item.device_code,
+        device_name: item.display_name || item.device_code
+      }));
+
+      setDevices(formattedDevices);
     } catch (error) {
       console.error("Unexpected error:", error);
     } finally {
@@ -58,46 +72,13 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
     }
   };
 
-  const fetchMeasurements = async (deviceCode: string) => {
-    setLoading(true);
-    try {
-      // Get unique measurement types from the database for this device
-      const { data, error } = await supabase
-        .from('rice_quality_analysis')
-        .select('measurements')
-        .eq('device_code', deviceCode)
-        .order('created_at', { ascending: false })
-        .limit(1);
-
-      if (error) {
-        console.error("Error fetching measurements:", error);
-        return;
-      }
-
-      if (data && data.length > 0 && data[0].measurements) {
-        // Extract measurement keys and names from the measurements object
-        const measurementsData = Object.entries(data[0].measurements)
-          .map(([key, value]) => ({
-            symbol: key,
-            name: typeof value === 'object' && value !== null ? 
-              (value as any).name || key : 
-              key
-          }));
-        
-        setMeasurements(measurementsData);
-      }
-    } catch (error) {
-      console.error("Unexpected error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Filter devices based on search query
   const filteredDevices = devices.filter(device => 
-    device.device_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (device.device_name?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
     device.device_code.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Filter measurements based on search query
   const filteredMeasurements = measurements.filter(measurement => 
     measurement.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     measurement.symbol.toLowerCase().includes(searchQuery.toLowerCase())
