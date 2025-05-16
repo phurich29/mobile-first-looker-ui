@@ -6,19 +6,34 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { GraphSelector } from "@/components/graph-monitor/GraphSelector";
 import { GraphDisplay } from "@/components/graph-monitor/GraphDisplay";
 import { SelectedGraph } from "@/components/graph-monitor/types";
-import { Plus } from "lucide-react";
+import { Plus, Save, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/AuthProvider";
 import { Separator } from "@/components/ui/separator";
 import { BackgroundImage } from "@/components/graph-monitor/BackgroundImage";
 import { useGraphPreferences } from "@/components/graph-monitor/hooks/useGraphPreferences";
+import { GraphPresets } from "@/components/graph-monitor/GraphPresets";
+import { useToast } from "@/hooks/use-toast";
 
 const GraphMonitor = () => {
   const isMobile = useIsMobile();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [selectedGraphs, setSelectedGraphs] = useState<SelectedGraph[]>([]);
   const [selectorOpen, setSelectorOpen] = useState(false);
-  const { savedGraphs, loading: preferencesLoading, saveGraphPreferences } = useGraphPreferences();
+  const [showSaveIndicator, setShowSaveIndicator] = useState(false);
+  
+  const { 
+    savedGraphs, 
+    loading: preferencesLoading, 
+    saving,
+    saveGraphPreferences,
+    presets,
+    activePreset,
+    setActivePreset,
+    createPreset,
+    deletePreset
+  } = useGraphPreferences();
   
   // Load saved preferences when component mounts
   useEffect(() => {
@@ -27,32 +42,65 @@ const GraphMonitor = () => {
     }
   }, [savedGraphs, preferencesLoading]);
 
-  // Save preferences when graphs change
+  // Auto-save when graphs change (delayed to prevent too many saves)
   useEffect(() => {
     if (user && selectedGraphs.length > 0) {
-      saveGraphPreferences(selectedGraphs);
+      const timer = setTimeout(() => {
+        saveGraphPreferences(selectedGraphs, activePreset);
+      }, 2000); // 2-second delay before saving
+      
+      return () => clearTimeout(timer);
     }
-  }, [selectedGraphs, user]);
+  }, [selectedGraphs]);
+
+  // Show indicator that changes are pending save
+  useEffect(() => {
+    if (user && selectedGraphs.length > 0 && 
+        JSON.stringify(selectedGraphs) !== JSON.stringify(savedGraphs)) {
+      setShowSaveIndicator(true);
+    } else {
+      setShowSaveIndicator(false);
+    }
+  }, [selectedGraphs, savedGraphs, user]);
 
   const handleAddGraph = (graph: SelectedGraph) => {
     const newGraphs = [...selectedGraphs, graph];
     setSelectedGraphs(newGraphs);
     setSelectorOpen(false);
-    
-    // Save the updated preferences
-    if (user) {
-      saveGraphPreferences(newGraphs);
-    }
   };
 
   const handleRemoveGraph = (index: number) => {
     const newGraphs = selectedGraphs.filter((_, i) => i !== index);
     setSelectedGraphs(newGraphs);
-    
-    // Save the updated preferences
+  };
+
+  const handleSaveGraphs = () => {
     if (user) {
-      saveGraphPreferences(newGraphs);
+      saveGraphPreferences(selectedGraphs, activePreset);
+    } else {
+      toast({
+        title: "กรุณาเข้าสู่ระบบ",
+        description: "คุณต้องเข้าสู่ระบบก่อนจึงจะสามารถบันทึกการตั้งค่าได้",
+        variant: "destructive",
+      });
     }
+  };
+
+  const handleCreatePreset = (name: string) => {
+    createPreset(name, selectedGraphs);
+  };
+
+  const handleChangePreset = (preset: string) => {
+    setActivePreset(preset);
+  };
+
+  const handleResetGraphs = () => {
+    setSelectedGraphs([]);
+    toast({
+      title: "รีเซ็ตการตั้งค่าแล้ว",
+      description: "ลบกราฟทั้งหมดออกจากการแสดงผลแล้ว",
+      variant: "update",
+    });
   };
 
   return (
@@ -62,7 +110,7 @@ const GraphMonitor = () => {
 
       <main className={`flex-1 p-4 ${isMobile ? 'pb-24' : 'ml-64'}`}>
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-800">Graph Monitor</h1>
               <p className="text-gray-600 text-sm mt-1">
@@ -70,14 +118,54 @@ const GraphMonitor = () => {
               </p>
             </div>
 
-            <Button 
-              onClick={() => setSelectorOpen(true)} 
-              className="mt-4 md:mt-0 bg-purple-600 hover:bg-purple-700"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              เพิ่มกราฟ
-            </Button>
+            <div className="flex items-center mt-4 md:mt-0 gap-2">
+              {(showSaveIndicator || saving) && (
+                <div className="flex items-center text-sm text-purple-600 mr-2">
+                  {saving ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                      <span>กำลังบันทึก...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>มีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก</span>
+                    </>
+                  )}
+                </div>
+              )}
+              
+              <Button 
+                onClick={handleSaveGraphs} 
+                variant="outline"
+                size="sm"
+                disabled={saving || (!showSaveIndicator && selectedGraphs.length > 0)}
+                className="bg-white hover:bg-gray-50"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                บันทึก
+              </Button>
+
+              <Button 
+                onClick={() => setSelectorOpen(true)} 
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                เพิ่มกราฟ
+              </Button>
+            </div>
           </div>
+
+          {user && (
+            <GraphPresets 
+              presets={presets}
+              activePreset={activePreset}
+              onChangePreset={handleChangePreset}
+              onCreatePreset={handleCreatePreset}
+              onDeletePreset={deletePreset}
+              onResetGraphs={handleResetGraphs}
+              saving={saving}
+            />
+          )}
 
           {preferencesLoading ? (
             <div className="bg-gray-50 border border-purple-200 rounded-lg p-8 text-center bg-opacity-90">

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -133,7 +134,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
   };
 
   return (
-    <Card className="shadow-md overflow-hidden border-purple-100">
+    <Card className="shadow-md overflow-hidden border-purple-100 group transition-all hover:shadow-lg">
       <CardHeader className="bg-gray-50 border-b border-purple-100 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
@@ -158,7 +159,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
             variant="ghost"
             size="sm"
             onClick={onRemove}
-            className="h-8 w-8 p-0 hover:bg-purple-100 hover:text-purple-700"
+            className="h-8 w-8 p-0 opacity-70 group-hover:opacity-100 hover:bg-purple-100 hover:text-purple-700"
           >
             <X className="h-4 w-4" />
             <span className="sr-only">ลบกราฟ</span>

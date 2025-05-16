@@ -355,6 +355,7 @@ export type Database = {
           created_at: string
           device_code: string
           id: string
+          preset_name: string
           selected_metrics: Json
           updated_at: string
           user_id: string
@@ -363,6 +364,7 @@ export type Database = {
           created_at?: string
           device_code: string
           id?: string
+          preset_name?: string
           selected_metrics?: Json
           updated_at?: string
           user_id: string
@@ -371,6 +373,7 @@ export type Database = {
           created_at?: string
           device_code?: string
           id?: string
+          preset_name?: string
           selected_metrics?: Json
           updated_at?: string
           user_id?: string

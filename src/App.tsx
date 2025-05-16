@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -11,7 +10,7 @@ import { AuthProvider } from "./components/AuthProvider";
 import Profile from "./pages/Profile";
 import Waiting from "./pages/Waiting";
 import Admin from "./pages/Admin";
-import { Toaster } from "./components/ui/toaster";
+import { Toaster } from "@/components/ui/toaster";
 import UserManagement from "./pages/UserManagement";
 import DeviceManagement from "./pages/DeviceManagement";
 import RicePrices from "./pages/RicePrices";
