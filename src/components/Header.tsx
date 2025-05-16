@@ -1,3 +1,4 @@
+
 import { Bell, Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, FileText, AlertCircle, History } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
@@ -114,8 +115,8 @@ export const Header = () => {
               <span className="text-sm">ค่าวัดคุณภาพ</span>
             </Link>
             
-            {/* เมนูการแจ้งเตือนที่กำหนดไว้ */}
-            {user && <Link to="/notification-settings" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/notifications") || isActive("/notification-settings") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
+            {/* แก้ไขการเชื่อมโยงหน้าการแจ้งเตือนที่กำหนดไว้ -> เปลี่ยนจาก notification-settings เป็น notifications */}
+            {user && <Link to="/notifications" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/notifications") || isActive("/notification-settings") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
                 <AlertCircle className="h-5 w-5" />
                 <span className="text-sm">การแจ้งเตือนที่กำหนดไว้</span>
               </Link>}
@@ -138,7 +139,7 @@ export const Header = () => {
                 <span className="text-sm">จัดการผู้ใช้งาน</span>
               </Link>}
             
-            {/* แก้ไขเมนูจัดการข่าวสารสำหรับ admin และ superadmin - update the link to correct path */}
+            {/* แก้ไขเมนูจัดการข่าวสารสำหรับ admin และ superadmin */}
             {user && canAccessUserManagement && <Link to="/news-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", isActive("/news-management") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200" : "hover:bg-gray-50 text-gray-700")}>
                 <FileText className="h-5 w-5" />
                 <span className="text-sm">จัดการข่าวสาร</span>
@@ -190,8 +191,8 @@ export const Header = () => {
         </div>
       
         <div className="flex items-center">
-          {/* Fixed the notification bell icon link */}
-          <Link to="/notification-settings" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30 transition-colors shadow-inner">
+          {/* แก้ไขลิงค์ปุ่มแจ้งเตือนให้นำไปยังหน้า notifications */}
+          <Link to="/notifications" className="bg-white/20 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center hover:bg-white/30 transition-colors shadow-inner">
             <Bell className="h-5 w-5 text-white" />
           </Link>
         </div>
