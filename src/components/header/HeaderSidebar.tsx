@@ -1,4 +1,3 @@
-
 import { Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, FileText, AlertCircle, History, Monitor, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -53,14 +52,16 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
               <img src="/lovable-uploads/649554cd-4d80-484a-995d-e49f2721a07d.png" alt="RiceFlow Logo" className="h-10 w-auto rounded-full" />
               {!isCollapsed && <h2 className="text-xl font-semibold text-emerald-700 dark:text-emerald-400">RiceFlow</h2>}
             </div>
-            {!isCollapsed && (
-              <div className="flex items-center gap-2">
-                <ThemeSwitcher />
-                <Button variant="ghost" size="icon" className="text-gray-500 md:hidden dark:text-gray-400" onClick={() => setSidebarOpen(false)}>
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
-            )}
+            {!isCollapsed ? (
+              <Button variant="ghost" size="icon" className="text-gray-500 md:hidden dark:text-gray-400" onClick={() => setSidebarOpen(false)}>
+                <X className="h-5 w-5" />
+              </Button>
+            ) : null}
+          </div>
+          
+          {/* Theme Switcher at top right */}
+          <div className={cn("absolute top-4 right-4", isCollapsed && "right-2")}>
+            <ThemeSwitcher />
           </div>
           
           <ScrollArea className="flex-1 -mr-4 pr-4">
@@ -160,12 +161,6 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
                   {!isCollapsed && <span className="text-sm">ออกจากระบบ</span>}
                 </Link>
               </div>}
-              
-            {isCollapsed && (
-              <div className="flex justify-center mt-4">
-                <ThemeSwitcher />
-              </div>
-            )}
           </div>
         </div>
       </div>
