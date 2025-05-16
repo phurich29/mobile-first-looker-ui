@@ -57,7 +57,14 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({
             className="h-4 w-4" 
           />
         </div>
-        <p className="font-medium text-gray-800 text-sm dark:text-gray-200">{device.device_name}</p>
+        <div className="flex flex-col">
+          <p className="font-medium text-gray-800 text-sm dark:text-gray-200">
+            {device.device_name}
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            รหัส: {device.device_code}
+          </p>
+        </div>
       </div>
       <div className="flex items-center text-xs mt-1">
         <Clock className="h-3 w-3 mr-1 text-gray-500 dark:text-gray-400" />
