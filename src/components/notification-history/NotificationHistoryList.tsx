@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, RefreshCcw } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, RefreshCcw, Bell } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -88,12 +88,76 @@ export const NotificationHistoryList = () => {
         return [];
       }
     },
-    staleTime: 30000, // Consider data fresh for 30 seconds
-    refetchInterval: 60000, // Auto-refetch every 60 seconds
+    staleTime: 15000, // Consider data fresh for 15 seconds (reduced from 30)
+    refetchInterval: 30000, // Auto-refetch every 30 seconds (reduced from 60)
   });
+
+  // Subscribe to real-time notification changes
+  useEffect(() => {
+    // Set up subscription to notifications table
+    const channel = supabase
+      .channel('notification_updates')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'notifications' 
+        }, 
+        (payload) => {
+          console.log('Real-time notification update:', payload);
+          // Trigger a refetch when notifications change
+          refetch();
+          
+          // Show toast for new notifications
+          if (payload.eventType === 'INSERT') {
+            toast({
+              title: "มีการแจ้งเตือนใหม่",
+              description: "มีข้อมูลการแจ้งเตือนใหม่ถูกเพิ่ม",
+              variant: "update",
+            });
+          }
+        }
+      )
+      .subscribe();
+      
+    // Clean up subscription on component unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refetch, toast]);
 
   const handleViewDetails = (deviceCode: string, riceTypeId: string) => {
     navigate(`/device/${deviceCode}`);
+  };
+
+  const handleManualCheck = async () => {
+    toast({
+      title: "กำลังตรวจสอบการแจ้งเตือน...",
+      description: "กำลังเรียกใช้ฟังก์ชันตรวจสอบ",
+    });
+    
+    try {
+      // Call the edge function to manually trigger notification check
+      const { error } = await supabase.functions.invoke('check_notifications');
+      
+      if (error) throw error;
+      
+      toast({
+        title: "ตรวจสอบการแจ้งเตือนสำเร็จ",
+        description: "ระบบได้ตรวจสอบการแจ้งเตือนล่าสุดแล้ว",
+        variant: "update",
+      });
+      
+      // Refetch notifications after manual check
+      refetch();
+    } catch (error) {
+      console.error("Error invoking notification check:", error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถเรียกใช้ฟังก์ชันตรวจสอบการแจ้งเตือนได้",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleRefresh = () => {
@@ -130,16 +194,28 @@ export const NotificationHistoryList = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">ประวัติการแจ้งเตือน ({totalCount})</h2>
-        <Button 
-          variant="outline" 
-          onClick={handleRefresh} 
-          className="flex items-center gap-1"
-          size="sm"
-          disabled={isFetching}
-        >
-          <RefreshCcw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
-          <span>รีเฟรช</span>
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleManualCheck}
+            className="flex items-center gap-1"
+            size="sm"
+            disabled={isFetching}
+          >
+            <Bell className="h-4 w-4" />
+            <span>ตรวจสอบการแจ้งเตือน</span>
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={handleRefresh} 
+            className="flex items-center gap-1"
+            size="sm"
+            disabled={isFetching}
+          >
+            <RefreshCcw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+            <span>รีเฟรช</span>
+          </Button>
+        </div>
       </div>
 
       {loading ? (
@@ -151,7 +227,7 @@ export const NotificationHistoryList = () => {
       ) : notifications.length === 0 ? (
         <div className="text-center py-8 border rounded-lg bg-gray-50">
           <p className="text-gray-500">ไม่พบประวัติการแจ้งเตือน</p>
-          <p className="text-sm text-gray-400 mt-1">ตาราง notifications ในฐานข้อมูลยังไม่มีข้อมูล</p>
+          <p className="text-sm text-gray-400 mt-1">ยังไม่มีการแจ้งเตือนใดๆ ในระบบ</p>
         </div>
       ) : (
         <>
