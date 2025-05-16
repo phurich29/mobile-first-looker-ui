@@ -18,7 +18,7 @@ import { SelectedGraph } from "../types";
 interface GraphSelectorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSelectGraph: ((deviceCode: string, symbol: string, name: string) => void) | ((graph: SelectedGraph) => void);
+  onSelectGraph: ((deviceCode: string, symbol: string, name: string, deviceName?: string) => void) | ((graph: SelectedGraph) => void);
 }
 
 export const GraphSelector: React.FC<GraphSelectorProps> = ({
@@ -68,7 +68,7 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
       // Call onSelectGraph properly
       if (typeof onSelectGraph === 'function') {
         try {
-          // First try with 3 parameters signature
+          // Pass device name as the fourth parameter
           (onSelectGraph as (deviceCode: string, symbol: string, name: string, deviceName?: string) => void)(
             selectedDevice, 
             symbol, 

@@ -72,6 +72,15 @@ const GraphMonitor = () => {
   // Calculate sidebar width for layout
   const sidebarWidth = !isMobile ? (isCollapsed ? 'ml-20' : 'ml-64') : '';
 
+  // Add logging to debug device name issues
+  console.log("Selected Graphs:", selectedGraphs);
+  
+  // Modified handler to ensure device name is properly captured
+  const handleAddGraphWithDeviceName = (deviceCode: string, symbol: string, name: string, deviceName?: string) => {
+    console.log("Adding graph with device name:", deviceName);
+    handleAddGraph(deviceCode, symbol, name, deviceName);
+  };
+
   return (
     <div className="flex flex-col min-h-screen relative">
       <BackgroundImage />
@@ -118,7 +127,7 @@ const GraphMonitor = () => {
       <GraphSelector 
         open={selectorOpen} 
         onOpenChange={setSelectorOpen} 
-        onSelectGraph={handleAddGraph}
+        onSelectGraph={handleAddGraphWithDeviceName}
       />
 
       <FooterNav />
