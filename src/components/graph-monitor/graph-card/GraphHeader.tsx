@@ -38,7 +38,7 @@ export const GraphHeader: React.FC<GraphHeaderProps> = ({
             >
               <div className="absolute inset-0 bg-white/10"></div>
               <div className="absolute top-0 left-0 w-2 h-2 bg-white/30 rounded-full blur-sm"></div>
-              <Wheat className={`h-5 w-5 ${styles.iconText}`} />
+              <Wheat className={`h-5 w-5 ${graphStyle !== "classic" ? styles.iconText : ""}`} />
             </div>
             <div>
               <CardTitle className={`text-lg font-medium ${styles.titleColor}`}>
