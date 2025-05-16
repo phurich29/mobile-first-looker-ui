@@ -77,7 +77,7 @@ export const GraphChartContent: React.FC<GraphChartContentProps> = ({
     >
       <ResponsiveContainer width="100%" height="100%">
         {styles.chartType === 'area' ? (
-          <AreaChart data={data}>
+          <AreaChart data={data} className="transition-all duration-500">
             <defs>
               <linearGradient id={`colorValue-${graphSymbol}`} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor={styles.gradientFrom || styles.lineColor} stopOpacity={0.8} />
@@ -109,7 +109,7 @@ export const GraphChartContent: React.FC<GraphChartContentProps> = ({
                 ? "rgba(255,255,255,0.5)"
                 : "#666"}
             />
-            <Tooltip content={<CustomTooltip className={styles.tooltip} />} />
+            <Tooltip content={<CustomTooltip graphStyle={graphStyle} />} />
             <Area
               type={styles.strokeType as any}
               dataKey="value"
@@ -118,10 +118,11 @@ export const GraphChartContent: React.FC<GraphChartContentProps> = ({
               strokeWidth={styles.lineWidth}
               activeDot={{ r: styles.dotSize, fill: styles.dotColor }}
               name={graphName}
+              animationDuration={1000}
             />
           </AreaChart>
         ) : (
-          <LineChart data={data}>
+          <LineChart data={data} className="transition-all duration-500">
             <CartesianGrid strokeDasharray="3 3" stroke={styles.gridColor} />
             <XAxis
               dataKey="time"
@@ -147,7 +148,7 @@ export const GraphChartContent: React.FC<GraphChartContentProps> = ({
                 ? "rgba(255,255,255,0.5)"
                 : "#666"}
             />
-            <Tooltip content={<CustomTooltip className={styles.tooltip} />} />
+            <Tooltip content={<CustomTooltip graphStyle={graphStyle} />} />
             <Line
               type={styles.strokeType as any}
               dataKey="value"
@@ -156,6 +157,7 @@ export const GraphChartContent: React.FC<GraphChartContentProps> = ({
               activeDot={{ r: styles.dotSize, fill: styles.dotColor }}
               name={graphName}
               dot={false}
+              animationDuration={1000}
             />
           </LineChart>
         )}

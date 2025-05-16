@@ -23,7 +23,10 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
   const chartTextColorClass = getChartTextColor(graphStyle);
 
   return (
-    <Card className={`shadow-md overflow-hidden ${styles.cardBg} group transition-all hover:shadow-lg`}>
+    <Card 
+      className={`shadow-md overflow-hidden ${styles.cardBg} group transition-all duration-300 hover:shadow-lg hover:scale-[1.01] transform`}
+      data-graph-id={`graph-${graph.deviceCode}-${graph.symbol}`}
+    >
       <GraphHeader 
         graph={graph}
         onRemove={onRemove}
