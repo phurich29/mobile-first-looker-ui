@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SelectedGraph } from "@/components/graph-monitor/types";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
+import { Json } from "@/integrations/supabase/types";
 
 interface UseGraphPreferencesProps {
   deviceCode?: string;
@@ -56,7 +57,8 @@ export const useGraphPreferences = ({ deviceCode = "all" }: UseGraphPreferencesP
 
       if (data && data.selected_metrics) {
         // Convert the stored JSON data to SelectedGraph array
-        const graphsData = data.selected_metrics as SelectedGraph[];
+        // Use type assertion to tell TypeScript we know what we're doing
+        const graphsData = data.selected_metrics as unknown as SelectedGraph[];
         setSavedGraphs(graphsData);
       }
     } catch (err) {
@@ -86,11 +88,14 @@ export const useGraphPreferences = ({ deviceCode = "all" }: UseGraphPreferencesP
         return;
       }
 
+      // Convert graphs to JSON-compatible format using type assertion
+      const graphsJson = graphs as unknown as Json;
+
       if (data) {
         // Update existing record
         const { error } = await supabase
           .from("user_chart_preferences")
-          .update({ selected_metrics: graphs })
+          .update({ selected_metrics: graphsJson })
           .eq("id", data.id);
 
         if (error) {
@@ -104,7 +109,7 @@ export const useGraphPreferences = ({ deviceCode = "all" }: UseGraphPreferencesP
           .insert({
             user_id: user.id,
             device_code: deviceCode,
-            selected_metrics: graphs
+            selected_metrics: graphsJson
           });
 
         if (error) {
