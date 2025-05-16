@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SelectedGraph } from "./types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Circle, Star, Gauge, Award, Thermometer, Percent } from "lucide-react";
+import { Search, Circle, Star, Gauge, Award, Thermometer, Percent, Wheat } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/components/AuthProvider";
 import { REQUIRED_DEVICE_CODES } from "@/features/equipment/services/deviceDataService";
@@ -126,7 +125,26 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
     } else if (symbol.includes("precision") || symbol.includes("whiteness")) {
       return <Gauge className="h-5 w-5 text-cyan-500" />;
     } else {
-      return <Circle className="h-5 w-5 text-gray-500" />;
+      // Default to wheat icon with different colors based on symbol hash
+      const colors = [
+        "text-amber-300",  // light amber
+        "text-amber-400",  // amber
+        "text-amber-500",  // medium amber
+        "text-amber-600",  // dark amber
+        "text-yellow-400", // yellow
+        "text-yellow-600", // dark yellow
+        "text-orange-400", // orange
+        "text-orange-500", // medium orange
+        "text-green-500",  // green (for special rice types)
+      ];
+      
+      // Create a simple hash from the symbol string
+      const hash = symbol.split("").reduce((sum, char, i) => {
+        return sum + char.charCodeAt(0) * (i + 1);
+      }, 0);
+      
+      const colorIndex = hash % colors.length;
+      return <Wheat className={`h-5 w-5 ${colors[colorIndex]}`} />;
     }
   };
 
@@ -264,21 +282,28 @@ export const GraphSelector = ({ open, onOpenChange, onSelectGraph }: GraphSelect
                   </div>
                 ))
               ) : filteredMeasurements.length > 0 ? (
-                filteredMeasurements.map((measurement) => (
-                  <div
-                    key={measurement.symbol}
-                    className="flex items-center p-3 rounded-lg cursor-pointer transition-colors bg-gray-50 hover:bg-purple-50 border border-gray-200"
-                    onClick={() => handleSelectMeasurement(measurement.symbol, measurement.name)}
-                  >
-                    <div className="bg-gray-100 rounded-full p-2 mr-3">
-                      {measurement.icon}
+                <div className="grid gap-2">
+                  {filteredMeasurements.map((measurement) => (
+                    <div
+                      key={measurement.symbol}
+                      className="flex items-center p-3 rounded-lg cursor-pointer transition-colors bg-gray-50 hover:bg-purple-50 border border-gray-200"
+                      onClick={() => handleSelectMeasurement(measurement.symbol, measurement.name)}
+                    >
+                      <div className="mr-3 flex">
+                        <div className="bg-amber-50 w-10 h-10 rounded-full flex items-center justify-center relative">
+                          {measurement.icon}
+                          <Wheat className="h-3 w-3 text-amber-300 absolute -bottom-0.5 -right-0.5" />
+                          <Wheat className="h-3 w-3 text-amber-500 absolute -top-0.5 -right-0.5" />
+                          <Wheat className="h-2 w-2 text-amber-400 absolute top-1 -left-0.5" />
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-800">{measurement.name}</p>
+                        <p className="text-xs text-gray-500">รหัส: {measurement.symbol}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-gray-800">{measurement.name}</p>
-                      <p className="text-xs text-gray-500">รหัส: {measurement.symbol}</p>
-                    </div>
-                  </div>
-                ))
+                  ))}
+                </div>
               ) : (
                 <p className="text-center text-gray-500 py-4">
                   ไม่พบค่าคุณภาพที่ตรงกับการค้นหา
