@@ -37,51 +37,46 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
         setGraphStyle={setGraphStyle}
       />
       <CardContent className={`p-4 h-64 relative ${chartTextColorClass}`}>
-        {/* Rice plant watermark - very subtle in background */}
+        {/* Rice grain logo watermark - very subtle in background */}
         <div className="absolute inset-0 z-0 flex items-center justify-center opacity-[0.02] dark:opacity-[0.03] pointer-events-none">
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
             viewBox="0 0 100 120"
             className="w-36 h-36"
-            fill="currentColor"
             style={{ transform: 'translateZ(0)' }} // Force GPU rendering for stability
           >
-            {/* Rice plant stem */}
-            <path d="M50,120 L50,60 C50,60 48,40 50,30 C52,20 55,10 50,0" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round"/>
-            
-            {/* Rice plant leaves */}
-            <path d="M50,80 C60,70 70,75 80,65" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round"/>
-            
-            <path d="M50,70 C60,65 75,70 85,60" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round"/>
-            
-            <path d="M50,60 C40,50 30,55 20,45" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round"/>
-            
-            <path d="M50,50 C40,45 25,50 15,40" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round"/>
-            
-            {/* Rice grains at the top */}
-            <path d="M43,20 C43,15 45,10 50,10 C55,10 57,15 57,20 C57,25 55,30 50,30 C45,30 43,25 43,20 Z" 
+            {/* Rice grains like the logo */}
+            <path 
+              d="M43,20 C43,15 45,10 50,10 C55,10 57,15 57,20 C57,25 55,30 50,30 C45,30 43,25 43,20 Z" 
               fill="currentColor" 
-              opacity="0.8"/>
+              stroke="currentColor"
+              strokeWidth="2"
+              opacity="0.8"
+            />
+            
+            <path 
+              d="M38,35 C38,31 40,27 44,27 C48,27 50,31 50,35 C50,39 48,43 44,43 C40,43 38,39 38,35 Z" 
+              fill="currentColor" 
+              stroke="currentColor"
+              strokeWidth="2"
+              opacity="0.8"
+            />
+            
+            <path 
+              d="M50,35 C50,31 52,27 56,27 C60,27 62,31 62,35 C62,39 60,43 56,43 C52,43 50,39 50,35 Z" 
+              fill="currentColor" 
+              stroke="currentColor"
+              strokeWidth="2"
+              opacity="0.8"
+            />
+            
+            <path 
+              d="M43,50 C43,45 45,40 50,40 C55,40 57,45 57,50 C57,55 55,60 50,60 C45,60 43,55 43,50 Z" 
+              fill="currentColor" 
+              stroke="currentColor"
+              strokeWidth="2"
+              opacity="0.8"
+            />
           </svg>
         </div>
         

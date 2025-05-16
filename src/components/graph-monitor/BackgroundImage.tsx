@@ -8,29 +8,28 @@ export const BackgroundImage: React.FC = () => {
   
   return (
     <>
-      {/* Fixed background with reduced opacity for stability */}
+      {/* Fixed background with soft cream color like the logo background */}
       <div 
-        className="absolute inset-0 z-[-2] opacity-10 dark:opacity-8"
+        className="absolute inset-0 z-[-2]"
         style={{ 
-          backgroundImage: `url('/lovable-uploads/rice-field-background.jpg')`,
+          backgroundColor: isDarkMode ? '#1A1A1A' : '#FFF9DF',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed',
-          filter: isDarkMode ? 'brightness(0.3) contrast(1.1)' : 'brightness(1.05)',
         }}
       />
       
-      {/* Gradient overlay - simplified with reduced animation potential */}
+      {/* Gradient overlay with subtle pattern */}
       <div 
         className="absolute inset-0 z-[-1] bg-gradient-to-b from-white/95 to-white/85 dark:from-gray-900/90 dark:to-gray-900/80"
       />
       
-      {/* Rice plant pattern overlay - fixed position to prevent movement */}
+      {/* Rice logo pattern overlay - very subtle in background */}
       <div 
         className="absolute inset-0 z-[-1] opacity-3 dark:opacity-2 pointer-events-none"
         style={{ 
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50,120 L50,60 C50,60 48,40 50,30 C52,20 55,10 50,0' fill='none' stroke='%23557153' stroke-width='2' stroke-opacity='0.2' stroke-linecap='round'/%3E%3Cpath d='M50,80 C60,70 70,75 80,65' fill='none' stroke='%23557153' stroke-width='2' stroke-opacity='0.2' stroke-linecap='round'/%3E%3Cpath d='M50,70 C60,65 75,70 85,60' fill='none' stroke='%23557153' stroke-width='2' stroke-opacity='0.2' stroke-linecap='round'/%3E%3Cpath d='M50,60 C40,50 30,55 20,45' fill='none' stroke='%23557153' stroke-width='2' stroke-opacity='0.2' stroke-linecap='round'/%3E%3Cpath d='M50,50 C40,45 25,50 15,40' fill='none' stroke='%23557153' stroke-width='2' stroke-opacity='0.2' stroke-linecap='round'/%3E%3C/svg%3E")`,
-          backgroundSize: '300px 300px',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M43,20 C43,15 45,10 50,10 C55,10 57,15 57,20 C57,25 55,30 50,30 C45,30 43,25 43,20 Z' fill='%23FFD966' fill-opacity='0.03' stroke='%230A5A36' stroke-width='2' stroke-opacity='0.05'/%3E%3C/svg%3E")`,
+          backgroundSize: '200px 200px',
           backgroundAttachment: 'fixed',
         }}
       />
