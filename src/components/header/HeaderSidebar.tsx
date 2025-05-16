@@ -160,22 +160,22 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
           
           <div className="mt-auto pt-4">
             {user && <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
-                <div className={cn("flex items-center", isCollapsed ? "justify-center mb-4" : "justify-between")}>
-                  {!isCollapsed && (
+                {!isCollapsed ? (
+                  <div className="flex items-center justify-between">
                     <Link to="/logout" className="flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors text-red-600 hover:bg-red-50 hover:border hover:border-red-200 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:border-red-800">
                       <LogOut className="h-5 w-5" />
                       <span className="text-sm">ออกจากระบบ</span>
                     </Link>
-                  )}
-                  
-                  <ThemeSwitcher />
-                  
-                  {isCollapsed && (
-                    <Link to="/logout" className="flex items-center justify-center py-2.5 px-3 mt-3 rounded-lg transition-colors text-red-600 hover:bg-red-50 hover:border hover:border-red-200 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:border-red-800">
+                    <ThemeSwitcher />
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center space-y-3">
+                    <ThemeSwitcher />
+                    <Link to="/logout" className="flex items-center justify-center py-2.5 px-3 rounded-lg transition-colors text-red-600 hover:bg-red-50 hover:border hover:border-red-200 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:border-red-800">
                       <LogOut className="h-5 w-5" />
                     </Link>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>}
               
             {!user && (
