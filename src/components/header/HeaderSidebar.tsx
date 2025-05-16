@@ -1,5 +1,4 @@
-
-import { Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, FileText, AlertCircle, History, Monitor, ChevronLeft, ChevronRight, Layout } from "lucide-react";
+import { Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, FileText, AlertCircle, History, Monitor, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -122,14 +121,6 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
               )}>
                   <Monitor className="h-5 w-5" />
                   {!isCollapsed && <span className="text-sm">Graph Monitor</span>}
-              </Link>
-              
-              <Link to="/graph-summary" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
-                isActive("/graph-summary") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
-                isCollapsed && "justify-center"
-              )}>
-                  <Layout className="h-5 w-5" />
-                  {!isCollapsed && <span className="text-sm">Graph Summary</span>}
               </Link>
               
               {user && <Link to="/profile" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
