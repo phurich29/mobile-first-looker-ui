@@ -61,8 +61,8 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({
           <p className="font-medium text-gray-800 text-sm dark:text-gray-200">
             {device.device_name}
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            รหัส: {device.device_code}
+          <p className="text-xs text-gray-400 dark:text-gray-500">
+            {device.device_code}
           </p>
         </div>
       </div>
