@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -94,10 +93,9 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
     
     const colors = [
       "#9b87f5", // primary purple
-      "#33C3F0", // sky blue
-      "#0FA0CE", // bright blue
-      "#D6BCFA", // light purple
       "#7E69AB", // secondary purple
+      "#6E59A5", // tertiary purple
+      "#D6BCFA", // light purple
       "#4C51BF", // indigo
       "#38B2AC", // teal
       "#ED64A6", // pink
@@ -111,23 +109,23 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
   // Get icon color based on measurement type
   const getIconColor = () => {
     // For class measurement types
-    if (graph.symbol === "class1") return "#F7931A"; // amber/orange  
-    if (graph.symbol === "class2") return "#627EEA"; // blue
-    if (graph.symbol === "class3") return "#F3BA2F"; // yellow
+    if (graph.symbol === "class1") return "#9b87f5"; // primary purple 
+    if (graph.symbol === "class2") return "#7E69AB"; // secondary purple
+    if (graph.symbol === "class3") return "#6E59A5"; // tertiary purple
     if (graph.symbol === "short_grain") return "#333333"; // dark gray
-    if (graph.symbol === "slender_kernel") return "#4B9CD3"; // light blue
+    if (graph.symbol === "slender_kernel") return "#D6BCFA"; // light purple
     
     // Colors for ingredients
     if (graph.symbol === "whole_kernels") return "#4CAF50"; // green
-    if (graph.symbol === "head_rice") return "#2196F3"; // blue
-    if (graph.symbol === "total_brokens") return "#FF9800"; // orange
-    if (graph.symbol === "small_brokens") return "#9C27B0"; // purple
-    if (graph.symbol === "small_brokens_c1") return "#795548"; // brown
+    if (graph.symbol === "head_rice") return "#9b87f5"; // primary purple
+    if (graph.symbol === "total_brokens") return "#7E69AB"; // secondary purple
+    if (graph.symbol === "small_brokens") return "#6E59A5"; // tertiary purple
+    if (graph.symbol === "small_brokens_c1") return "#D6BCFA"; // light purple
     
     // Colors for impurities
-    if (graph.symbol.includes("red")) return "#9b87f5"; // purple
+    if (graph.symbol.includes("red")) return "#9b87f5"; // primary purple
     if (graph.symbol.includes("white")) return "#EEEEEE"; // light gray
-    if (graph.symbol.includes("yellow")) return "#FFEB3B"; // yellow
+    if (graph.symbol.includes("yellow")) return "#D6BCFA"; // light purple
     if (graph.symbol.includes("black")) return "#212121"; // almost black
     
     // Default to a generated color based on the symbol
@@ -135,8 +133,8 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
   };
 
   return (
-    <Card className="shadow-md overflow-hidden">
-      <CardHeader className="bg-gray-50 border-b border-gray-200 py-3">
+    <Card className="shadow-md overflow-hidden border-purple-100">
+      <CardHeader className="bg-gray-50 border-b border-purple-100 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <div 
@@ -160,7 +158,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
             variant="ghost"
             size="sm"
             onClick={onRemove}
-            className="h-8 w-8 p-0"
+            className="h-8 w-8 p-0 hover:bg-purple-100 hover:text-purple-700"
           >
             <X className="h-4 w-4" />
             <span className="sr-only">ลบกราฟ</span>
@@ -170,7 +168,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
       <CardContent className="p-4 h-64">
         {loading ? (
           <div className="w-full h-full flex items-center justify-center">
-            <Skeleton className="h-full w-full" />
+            <Skeleton className="h-full w-full bg-purple-50" />
           </div>
         ) : error ? (
           <div className="w-full h-full flex items-center justify-center">
@@ -212,7 +210,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white p-2 border border-gray-200 shadow-md rounded-md">
+      <div className="bg-white p-2 border border-purple-100 shadow-md rounded-md">
         <p className="text-xs font-medium">{label}</p>
         <p className="text-xs text-gray-600">{`${payload[0].name}: ${payload[0].value}`}</p>
       </div>

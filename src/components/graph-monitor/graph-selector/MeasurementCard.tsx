@@ -20,23 +20,23 @@ export const MeasurementCard: React.FC<MeasurementCardProps> = ({
   // Get icon color based on measurement type
   const getIconColor = (symbol: string) => {
     // For class measurement types
-    if (symbol === "class1") return "#F7931A"; // amber/orange
-    if (symbol === "class2") return "#627EEA"; // blue
-    if (symbol === "class3") return "#F3BA2F"; // yellow
+    if (symbol === "class1") return "#9b87f5"; // primary purple instead of amber/orange
+    if (symbol === "class2") return "#7E69AB"; // secondary purple instead of blue
+    if (symbol === "class3") return "#6E59A5"; // tertiary purple instead of yellow
     if (symbol === "short_grain") return "#333333"; // dark gray
-    if (symbol === "slender_kernel") return "#4B9CD3"; // light blue
+    if (symbol === "slender_kernel") return "#D6BCFA"; // light purple instead of light blue
     
     // Colors for ingredients
     if (symbol === "whole_kernels") return "#4CAF50"; // green
-    if (symbol === "head_rice") return "#2196F3"; // blue
-    if (symbol === "total_brokens") return "#FF9800"; // orange
-    if (symbol === "small_brokens") return "#9C27B0"; // purple
-    if (symbol === "small_brokens_c1") return "#795548"; // brown
+    if (symbol === "head_rice") return "#9b87f5"; // primary purple
+    if (symbol === "total_brokens") return "#7E69AB"; // secondary purple
+    if (symbol === "small_brokens") return "#6E59A5"; // tertiary purple
+    if (symbol === "small_brokens_c1") return "#D6BCFA"; // light purple
     
     // Colors for impurities
     if (symbol.includes("red")) return "#9b87f5"; // purple
     if (symbol.includes("white")) return "#EEEEEE"; // light gray
-    if (symbol.includes("yellow")) return "#FFEB3B"; // yellow
+    if (symbol.includes("yellow")) return "#D6BCFA"; // light purple instead of yellow
     if (symbol.includes("black")) return "#212121"; // almost black
     
     // Hash-based color selection for other measurements
@@ -45,9 +45,9 @@ export const MeasurementCard: React.FC<MeasurementCardProps> = ({
     }, 0);
     
     const colors = [
-      "#F7931A", "#627EEA", "#F3BA2F", "#E84142", 
-      "#26A17B", "#2775CA", "#345D9D", "#2DABE8",
-      "#FF9900", "#6F41D8", "#0052FF", "#E50914"
+      "#9b87f5", "#7E69AB", "#6E59A5", "#D6BCFA", 
+      "#4C51BF", "#38B2AC", "#ED64A6", "#ED8936",
+      "#48BB78", "#0EA5E9", "#D946EF", "#F97316"
     ];
     
     return colors[hash % colors.length];
