@@ -53,7 +53,7 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-auto">
+      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-auto">
         <DialogHeader>
           <DialogTitle className="text-center text-xl">เลือกอุปกรณ์และค่าที่ต้องการแสดง</DialogTitle>
         </DialogHeader>

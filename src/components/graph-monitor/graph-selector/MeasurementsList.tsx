@@ -27,8 +27,8 @@ export const MeasurementsList: React.FC<MeasurementsListProps> = ({
 }) => {
   if (loading) {
     return (
-      <div className="grid grid-cols-2 gap-2">
-        {Array(6).fill(0).map((_, i) => (
+      <div className="grid grid-cols-3 gap-2">
+        {Array(9).fill(0).map((_, i) => (
           <div key={i} className="flex items-center p-3 mb-2">
             <Skeleton className="h-10 w-10 rounded-full mr-3" />
             <div className="space-y-2">
@@ -50,7 +50,7 @@ export const MeasurementsList: React.FC<MeasurementsListProps> = ({
   }
   
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <div className="grid grid-cols-3 gap-2">
       {measurements.map((measurement) => (
         <MeasurementCard
           key={measurement.symbol}
