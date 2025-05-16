@@ -24,6 +24,8 @@ export function useNotificationHistory() {
     queryKey: ['notification_history', currentPage, rowsPerPage],
     queryFn: async () => {
       try {
+        console.log("Fetching notification history, page:", currentPage, "limit:", rowsPerPage);
+        
         // Fetch total count for pagination
         const { count, error: countError } = await supabase
           .from("notifications")
@@ -34,6 +36,7 @@ export function useNotificationHistory() {
           throw countError;
         }
         
+        console.log("Total notifications count:", count);
         setTotalCount(count || 0);
         setTotalPages(Math.ceil((count || 0) / rowsPerPage));
         

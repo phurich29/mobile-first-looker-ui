@@ -1,6 +1,5 @@
 
 import React from "react";
-import { Badge } from "@/components/ui/badge";
 
 interface NotificationBadgeProps {
   type: string;
@@ -9,10 +8,25 @@ interface NotificationBadgeProps {
 export function NotificationBadge({ type }: NotificationBadgeProps) {
   switch (type) {
     case "max":
-      return <Badge variant="outline" className="border-orange-500 text-orange-600 bg-orange-50">สูงกว่าค่าสูงสุด</Badge>;
+      return (
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+          <span className="w-1.5 h-1.5 mr-1.5 bg-orange-500 rounded-full"></span>
+          สูงเกินเกณฑ์
+        </span>
+      );
     case "min":
-      return <Badge variant="outline" className="border-blue-500 text-blue-600 bg-blue-50">ต่ำกว่าค่าต่ำสุด</Badge>;
+      return (
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          <span className="w-1.5 h-1.5 mr-1.5 bg-blue-500 rounded-full"></span>
+          ต่ำกว่าเกณฑ์
+        </span>
+      );
     default:
-      return <Badge variant="outline">ไม่ระบุ</Badge>;
+      return (
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+          <span className="w-1.5 h-1.5 mr-1.5 bg-gray-500 rounded-full"></span>
+          ไม่ระบุ
+        </span>
+      );
   }
 }
