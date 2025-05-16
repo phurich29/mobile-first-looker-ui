@@ -119,9 +119,9 @@ export const useNotifications = () => {
       
       toast({
         title: "ตรวจสอบการแจ้งเตือนสำเร็จ",
-        description: notificationCount > 0 
+        description: notificationCount > 0
           ? `พบการแจ้งเตือนใหม่/อัพเดท ${notificationCount} รายการ`
-          : "ไม่พบการแจ้งเตือนใหม่",
+          : "ไม่พบการแจ้งเตือนใหม่", 
         variant: "update",
       });
       

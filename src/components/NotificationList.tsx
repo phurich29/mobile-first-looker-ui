@@ -47,6 +47,12 @@ export const NotificationList = () => {
     </div>
   );
   
+  const handleCheckNotifications = async () => {
+    const result = await checkNotifications();
+    // No need to show explicit message here as the checkNotifications function 
+    // in useNotifications.ts now handles the toast notifications
+  };
+  
   return (
     <>
       <div className="px-[5%] mb-3 flex justify-between items-center md:px-0" style={{ width: '100%', boxSizing: 'border-box' }}>
@@ -65,7 +71,7 @@ export const NotificationList = () => {
         </div>
         <div className="flex items-center space-x-2">
           <Button 
-            onClick={checkNotifications} 
+            onClick={handleCheckNotifications} 
             variant="ghost"
             size="sm"
             className="text-xs text-blue-600 font-medium hover:bg-blue-50 flex items-center"
