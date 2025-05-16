@@ -1,4 +1,3 @@
-
 import { Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, FileText, AlertCircle, History, Monitor, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -48,6 +47,20 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
         "md:translate-x-0" // แสดงเสมอในหน้าจอขนาดใหญ่
       )}>
         <div className="flex flex-col h-full p-4 bg-[#fff9df] dark:bg-gray-900">
+          {/* Added absolute positioned collapse button in top-right corner */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleCollapse}
+            className="absolute right-2 top-2 h-6 w-6 p-0 rounded-full border border-emerald-100 bg-emerald-50/50 hover:bg-emerald-100/60 dark:border-gray-700 dark:bg-gray-800/50 dark:hover:bg-gray-700/60"
+            aria-label={isCollapsed ? "Expand" : "Collapse"}
+          >
+            {isCollapsed ? 
+              <ChevronRight className="h-3 w-3 text-emerald-700 dark:text-emerald-400" /> : 
+              <ChevronLeft className="h-3 w-3 text-emerald-700 dark:text-emerald-400" />
+            }
+          </Button>
+          
           <div className="flex justify-between items-center mb-8 mt-4">
             <div className={cn("flex items-center gap-2", isCollapsed && "justify-center w-full")}>
               <img src="/lovable-uploads/649554cd-4d80-484a-995d-e49f2721a07d.png" alt="RiceFlow Logo" className="h-10 w-auto rounded-full" />
@@ -136,17 +149,7 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
             </nav>
           </ScrollArea>
           
-          {/* Collapse/Expand Button */}
-          <div className="hidden md:flex justify-center mt-4 mb-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={toggleCollapse}
-              className="bg-white dark:bg-gray-800"
-            >
-              {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-            </Button>
-          </div>
+          {/* Removed the original collapse/expand button section */}
           
           <div className="mt-auto pt-4">
             {user && <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
