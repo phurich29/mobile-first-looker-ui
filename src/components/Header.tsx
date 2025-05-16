@@ -52,7 +52,7 @@ const navigation: NavItem[] = [
 export const Header: React.FC = () => {
   const isMobile = useIsMobile();
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user, userRoles, signOut } = useAuth(); // Changed from logout to signOut
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
 
@@ -65,11 +65,17 @@ export const Header: React.FC = () => {
   // Filter nav items based on user role
   const filteredNav = navigation.filter(item => {
     // If no roles specified or user has required role
-    return !item.roles || (user && item.roles.some(role => user.roles?.includes(role)));
+    return !item.roles || (user && item.roles.some(role => userRoles.includes(role))); // Changed from user.roles to userRoles
   });
 
   const toggleDropdown = (name: string) => {
     setDropdownOpen(prev => prev === name ? null : name);
+  };
+
+  // Get display name from email or use email directly
+  const getDisplayName = () => {
+    if (!user) return '';
+    return user.email?.split('@')[0] || user.email;
   };
 
   return (
@@ -114,7 +120,7 @@ export const Header: React.FC = () => {
                             {dropdownOpen === item.name && (
                               <div className="pl-4 space-y-1">
                                 {item.children
-                                  .filter(child => !child.roles || (user && child.roles.some(role => user.roles?.includes(role))))
+                                  .filter(child => !child.roles || (user && child.roles.some(role => userRoles.includes(role)))) // Changed from user.roles to userRoles
                                   .map((child) => (
                                     <Link
                                       key={child.name}
@@ -167,7 +173,7 @@ export const Header: React.FC = () => {
                         <Button
                           variant="destructive"
                           className="w-full"
-                          onClick={logout}
+                          onClick={signOut} // Changed from logout to signOut
                         >
                           ออกจากระบบ
                         </Button>
@@ -216,7 +222,7 @@ export const Header: React.FC = () => {
                     <div className="absolute z-10 mt-2 w-56 rounded-md bg-popover shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <div className="py-1">
                         {item.children
-                          .filter(child => !child.roles || (user && child.roles.some(role => user.roles?.includes(role))))
+                          .filter(child => !child.roles || (user && child.roles.some(role => userRoles.includes(role)))) // Changed from user.roles to userRoles
                           .map((child) => (
                             <Link
                               key={child.name}
@@ -275,9 +281,9 @@ export const Header: React.FC = () => {
                 className="flex items-center gap-2"
               >
                 <div className="h-8 w-8 rounded-full flex items-center justify-center bg-purple-100 text-purple-800">
-                  {user?.display_name?.charAt(0) || user?.email?.charAt(0)}
+                  {getDisplayName().charAt(0).toUpperCase()}
                 </div>
-                <span className="hidden md:block">{user.display_name || user.email}</span>
+                <span className="hidden md:block">{getDisplayName()}</span>
                 <ChevronDown
                   className={`h-4 w-4 transition-transform ${
                     dropdownOpen === 'user' ? 'rotate-180' : ''
@@ -304,7 +310,7 @@ export const Header: React.FC = () => {
                   <button
                     onClick={() => {
                       setDropdownOpen(null);
-                      logout();
+                      signOut(); // Changed from logout to signOut
                     }}
                     className="block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent hover:text-accent-foreground"
                   >
