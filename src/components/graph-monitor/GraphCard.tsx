@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,17 +26,33 @@ import {
 } from "@/components/ui/select";
 import { TimeFrame } from "@/components/measurement-history/MeasurementHistory";
 import { getTimeFrameHours } from "@/components/measurement-history/api";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 interface GraphCardProps {
   graph: SelectedGraph;
   onRemove: () => void;
 }
 
+// Define graph style options
+export type GraphStyle = 
+  | "classic" 
+  | "neon" 
+  | "pastel" 
+  | "monochrome" 
+  | "gradient";
+
 export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [timeFrame, setTimeFrame] = useState<TimeFrame>("24h");
+  const [graphStyle, setGraphStyle] = useState<GraphStyle>("classic");
 
   useEffect(() => {
     fetchGraphData();
@@ -149,6 +164,88 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
     return getColor();
   };
 
+  // Get styling for each graph style
+  const getGraphStyles = () => {
+    switch (graphStyle) {
+      case "classic":
+        return {
+          chartBackground: "transparent",
+          lineColor: getIconColor(),
+          gridColor: "#f0f0f0",
+          dotColor: getIconColor(),
+          dotSize: 6,
+          lineWidth: 2,
+          tooltip: "bg-white border border-purple-100 shadow-md rounded-md",
+        };
+      case "neon":
+        return {
+          chartBackground: "rgb(18, 18, 32)",
+          lineColor: "#8B5CF6",
+          gridColor: "rgba(139, 92, 246, 0.2)",
+          dotColor: "#8B5CF6",
+          dotSize: 8,
+          lineWidth: 3,
+          tooltip: "bg-gray-900 border border-purple-500 text-white shadow-lg rounded-md",
+        };
+      case "pastel":
+        return {
+          chartBackground: "#F8F7FF",
+          lineColor: "#D3B0FF",
+          gridColor: "#E9E8FF",
+          dotColor: "#D3B0FF",
+          dotSize: 5,
+          lineWidth: 2,
+          tooltip: "bg-white border border-purple-50 shadow-sm rounded-lg",
+        };
+      case "monochrome":
+        return {
+          chartBackground: "#F9FAFB",
+          lineColor: "#4B5563",
+          gridColor: "#E5E7EB",
+          dotColor: "#111827",
+          dotSize: 4,
+          lineWidth: 1,
+          tooltip: "bg-gray-100 border border-gray-300 shadow-sm rounded-md",
+        };
+      case "gradient":
+        return {
+          chartBackground: "linear-gradient(180deg, rgba(249,250,251,1) 0%, rgba(243,244,246,1) 100%)",
+          lineColor: "#8B5CF6",
+          gradientFrom: "#C4B5FD",
+          gradientTo: "rgba(196, 181, 253, 0.1)",
+          gridColor: "rgba(156, 163, 175, 0.2)",
+          dotColor: "#8B5CF6",
+          dotSize: 6,
+          lineWidth: 2,
+          tooltip: "bg-white border border-purple-100 backdrop-blur-sm shadow-md rounded-md",
+        };
+      default:
+        return {
+          chartBackground: "transparent",
+          lineColor: getIconColor(),
+          gridColor: "#f0f0f0",
+          dotColor: getIconColor(),
+          dotSize: 6,
+          lineWidth: 2,
+          tooltip: "bg-white border border-purple-100 shadow-md rounded-md",
+        };
+    }
+  };
+
+  const styles = getGraphStyles();
+
+  // Get style names for display
+  const getStyleName = (style: GraphStyle): string => {
+    switch (style) {
+      case "classic": return "คลาสสิก";
+      case "neon": return "นีออน";
+      case "pastel": return "พาสเทล";
+      case "monochrome": return "ขาวดำ";
+      case "gradient": return "ไล่สี";
+      default: return "คลาสสิก";
+    }
+  };
+
   return (
     <Card className="shadow-md overflow-hidden border-purple-100 group transition-all hover:shadow-lg">
       <CardHeader className="bg-gray-50 border-b border-purple-100 py-3">
@@ -198,7 +295,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-4 h-64">
+      <CardContent className="p-4 h-64 relative">
         {loading ? (
           <div className="w-full h-full flex items-center justify-center">
             <Skeleton className="h-full w-full bg-purple-50" />
@@ -212,38 +309,111 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
             <p className="text-gray-500 text-sm">ไม่พบข้อมูล</p>
           </div>
         ) : (
-          <ChartContainer className="h-full w-full" config={{}}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis 
-                  dataKey="time"
-                  tick={{ fontSize: 10 }}
-                  tickFormatter={(value) => value.split(' ')[0]}
-                />
-                <YAxis tick={{ fontSize: 10 }} />
-                <Tooltip content={<CustomTooltip />} />
-                <Line
-                  type="monotone"
-                  dataKey="value"
-                  stroke={getIconColor()}
-                  activeDot={{ r: 6 }}
-                  strokeWidth={2}
-                  name={graph.name}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </ChartContainer>
+          <>
+            <ChartContainer 
+              className="h-full w-full" 
+              config={{}}
+              style={{ 
+                background: graphStyle === "gradient" 
+                  ? styles.chartBackground 
+                  : typeof styles.chartBackground === 'string' 
+                    ? styles.chartBackground 
+                    : undefined 
+              }}
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data}>
+                  <defs>
+                    {graphStyle === "gradient" && (
+                      <linearGradient id={`colorValue-${graph.symbol}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={styles.gradientFrom} stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor={styles.gradientTo} stopOpacity={0}/>
+                      </linearGradient>
+                    )}
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke={styles.gridColor} />
+                  <XAxis 
+                    dataKey="time"
+                    tick={{ fontSize: 10 }}
+                    tickFormatter={(value) => value.split(' ')[0]}
+                    stroke={graphStyle === "neon" ? "rgba(255,255,255,0.5)" : "#666"}
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 10 }} 
+                    stroke={graphStyle === "neon" ? "rgba(255,255,255,0.5)" : "#666"}
+                  />
+                  <Tooltip content={<CustomTooltip className={styles.tooltip} />} />
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    stroke={styles.lineColor}
+                    strokeWidth={styles.lineWidth}
+                    activeDot={{ r: styles.dotSize, fill: styles.dotColor }}
+                    name={graph.name}
+                    dot={false}
+                    fill={graphStyle === "gradient" ? `url(#colorValue-${graph.symbol})` : undefined}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+
+            {/* Style selector at the bottom left */}
+            <div className="absolute bottom-2 left-2 z-10">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-7 px-2 text-xs border-gray-200 bg-white/90 hover:bg-white"
+                  >
+                    สไตล์: {getStyleName(graphStyle)}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="min-w-32">
+                  <DropdownMenuItem 
+                    className={`text-sm ${graphStyle === 'classic' ? 'bg-purple-50' : ''}`} 
+                    onClick={() => setGraphStyle('classic')}
+                  >
+                    คลาสสิก
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className={`text-sm ${graphStyle === 'neon' ? 'bg-purple-50' : ''}`} 
+                    onClick={() => setGraphStyle('neon')}
+                  >
+                    นีออน
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className={`text-sm ${graphStyle === 'pastel' ? 'bg-purple-50' : ''}`} 
+                    onClick={() => setGraphStyle('pastel')}
+                  >
+                    พาสเทล
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className={`text-sm ${graphStyle === 'monochrome' ? 'bg-purple-50' : ''}`} 
+                    onClick={() => setGraphStyle('monochrome')}
+                  >
+                    ขาวดำ
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className={`text-sm ${graphStyle === 'gradient' ? 'bg-purple-50' : ''}`} 
+                    onClick={() => setGraphStyle('gradient')}
+                  >
+                    ไล่สี
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>
   );
 };
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label, className }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white p-2 border border-purple-100 shadow-md rounded-md">
+      <div className={className || "bg-white p-2 border border-purple-100 shadow-md rounded-md"}>
         <p className="text-xs font-medium">{label}</p>
         <p className="text-xs text-gray-600">{`${payload[0].name}: ${payload[0].value}`}</p>
       </div>
@@ -252,4 +422,3 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
   return null;
 };
-
