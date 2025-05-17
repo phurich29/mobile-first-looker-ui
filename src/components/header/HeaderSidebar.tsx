@@ -1,3 +1,4 @@
+
 import { Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, FileText, AlertCircle, History, Monitor, ChevronLeft, ChevronRight, Layout, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -30,7 +31,8 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
   useEffect(() => {
     const handleToggleMobileSidebar = () => {
       if (isMobile) {
-        setSidebarOpen(prev => !prev);
+        // Fixed: Pass a boolean value directly instead of a function
+        setSidebarOpen(!sidebarOpen);
       }
     };
     
@@ -39,7 +41,7 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
     return () => {
       window.removeEventListener('toggleMobileSidebar', handleToggleMobileSidebar);
     }
-  }, [isMobile, setSidebarOpen]);
+  }, [isMobile, setSidebarOpen, sidebarOpen]); // Added sidebarOpen as a dependency
   
   const toggleCollapse = () => {
     // ไม่อนุญาตให้ทำงาน collapse บน mobile
