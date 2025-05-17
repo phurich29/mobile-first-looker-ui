@@ -59,7 +59,10 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
         isMobile ? "w-64" : (isCollapsed ? "w-20" : "w-64"),
         "md:translate-x-0" // แสดงเสมอในหน้าจอขนาดใหญ่
       )}>
-        <div className="flex flex-col h-full p-4 bg-[#fff9df] dark:bg-gray-900">
+        <div className={cn(
+          "flex flex-col h-full bg-[#fff9df] dark:bg-gray-900",
+          isCollapsed ? "p-2" : "p-4" // ลด padding ลงเมื่อ sidebar หดตัวเพื่อให้ไม่มีพื้นที่ว่างด้านขวา
+        )}>
           {/* Mobile Close Button - แสดงเฉพาะบน mobile */}
           {isMobile && (
             <Button
@@ -73,32 +76,29 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
             </Button>
           )}
           
-          {/* Desktop Collapse Button - แสดงเฉพาะบน desktop */}
-          {!isMobile && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleCollapse}
-              className="absolute right-2 top-2 h-6 w-6 p-0 rounded-full border border-emerald-100 bg-emerald-50/50 hover:bg-emerald-100/60 dark:border-gray-700 dark:bg-gray-800/50 dark:hover:bg-gray-700/60"
-              aria-label={isCollapsed ? "Expand" : "Collapse"}
-            >
-              {isCollapsed ? 
-                <ChevronRight className="h-3 w-3 text-emerald-700 dark:text-emerald-400" /> : 
-                <ChevronLeft className="h-3 w-3 text-emerald-700 dark:text-emerald-400" />
-              }
-            </Button>
-          )}
+          {/* ปุ่ม Collapse ถูกลบออกตามความต้องการ */}
           
-          <div className="flex justify-between items-center mb-8 mt-4">
+          <div className={cn(
+            "flex justify-between items-center mt-4",
+            isCollapsed ? "mb-6" : "mb-8" // ลดช่องว่างด้านล่างเมื่อหดตัว
+          )}>
             <div className={cn("flex items-center gap-2", !isMobile && isCollapsed && "justify-center w-full")}>
-              <img src="/lovable-uploads/649554cd-4d80-484a-995d-e49f2721a07d.png" alt="RiceFlow Logo" className="h-10 w-auto rounded-full" />
+              <img src="/lovable-uploads/649554cd-4d80-484a-995d-e49f2721a07d.png" alt="RiceFlow Logo" className={cn(
+                "rounded-full", 
+                isCollapsed ? "h-8 w-auto" : "h-10 w-auto" // ลดขนาดโลโก้ในโหมดหดตัว
+              )} />
               {(isMobile || !isCollapsed) && <h2 className="text-xl font-semibold text-emerald-700 dark:text-emerald-400">RiceFlow</h2>}
             </div>
           </div>
           
-          <ScrollArea className="flex-1 -mr-4 pr-4">
+          <ScrollArea className={cn(
+            "flex-1",
+            isCollapsed ? "-mr-2 pr-2" : "-mr-4 pr-4" // ปรับ margin และ padding ตามขนาดของ sidebar
+          )}>
             <nav className="flex flex-col space-y-1 mt-4">
-              <Link to="/" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
+              <Link to="/" className={cn(
+                "flex items-center rounded-lg transition-colors", 
+                isCollapsed ? "gap-2 py-2 px-1" : "gap-3 py-2.5 px-3", // ปรับขนาดของเมนูตามขนาดของ sidebar
                 isActive("/") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
                 isCollapsed && "justify-center"
               )}>
@@ -106,7 +106,10 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
                 {!isCollapsed && <span className="text-sm">หน้าหลัก</span>}
               </Link>
               
-              <Link to="/equipment" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
+              <Link to="/equipment" className={cn(
+                "flex items-center rounded-lg transition-colors",
+                isCollapsed ? "gap-2 py-2 px-1" : "gap-3 py-2.5 px-3", // ปรับขนาดของเมนูตามขนาดของ sidebar
+                
                 isActive("/equipment") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
                 isCollapsed && "justify-center"
               )}>
@@ -114,7 +117,10 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
                 {!isCollapsed && <span className="text-sm">อุปกรณ์</span>}
               </Link>
               
-              <Link to="/device/default" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
+              <Link to="/device/default" className={cn(
+                "flex items-center rounded-lg transition-colors",
+                isCollapsed ? "gap-2 py-2 px-1" : "gap-3 py-2.5 px-3", // ปรับขนาดของเมนูตามขนาดของ sidebar
+                
                 isActive("/device/default") || location.pathname.startsWith("/device") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
                 isCollapsed && "justify-center"
               )}>
@@ -122,7 +128,10 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
                 {!isCollapsed && <span className="text-sm">ค่าวัดคุณภาพ</span>}
               </Link>
               
-              {user && <Link to="/notifications" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
+              {user && <Link to="/notifications" className={cn(
+                "flex items-center rounded-lg transition-colors",
+                isCollapsed ? "gap-2 py-2 px-1" : "gap-3 py-2.5 px-3", // ปรับขนาดของเมนูตามขนาดของ sidebar
+                
                 isActive("/notifications") || isActive("/notification-settings") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
                 isCollapsed && "justify-center"
               )}>
@@ -130,7 +139,10 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
                   {!isCollapsed && <span className="text-sm">การแจ้งเตือนที่กำหนดไว้</span>}
                 </Link>}
                 
-              {user && <Link to="/notification-history" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
+              {user && <Link to="/notification-history" className={cn(
+                "flex items-center rounded-lg transition-colors",
+                isCollapsed ? "gap-2 py-2 px-1" : "gap-3 py-2.5 px-3", // ปรับขนาดของเมนูตามขนาดของ sidebar
+                
                 isActive("/notification-history") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
                 isCollapsed && "justify-center"
               )}>
@@ -138,7 +150,10 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
                   {!isCollapsed && <span className="text-sm">ประวัติการแจ้งเตือน</span>}
                 </Link>}
               
-              <Link to="/graph-monitor" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
+              <Link to="/graph-monitor" className={cn(
+                "flex items-center rounded-lg transition-colors",
+                isCollapsed ? "gap-2 py-2 px-1" : "gap-3 py-2.5 px-3", // ปรับขนาดของเมนูตามขนาดของ sidebar
+                
                 isActive("/graph-monitor") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
                 isCollapsed && "justify-center"
               )}>
@@ -146,7 +161,10 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
                   {!isCollapsed && <span className="text-sm">Graph Monitor</span>}
               </Link>
               
-              <Link to="/graph-summary" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
+              <Link to="/graph-summary" className={cn(
+                "flex items-center rounded-lg transition-colors",
+                isCollapsed ? "gap-2 py-2 px-1" : "gap-3 py-2.5 px-3", // ปรับขนาดของเมนูตามขนาดของ sidebar
+                
                 isActive("/graph-summary") || isActive("/graph-summary-detail") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
                 isCollapsed && "justify-center"
               )}>
@@ -154,7 +172,10 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
                   {!isCollapsed && <span className="text-sm">Graph Summary</span>}
               </Link>
               
-              {user && <Link to="/profile" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
+              {user && <Link to="/profile" className={cn(
+                "flex items-center rounded-lg transition-colors",
+                isCollapsed ? "gap-2 py-2 px-1" : "gap-3 py-2.5 px-3", // ปรับขนาดของเมนูตามขนาดของ sidebar
+                
                 isActive("/profile") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
                 isCollapsed && "justify-center"
               )}>
@@ -162,7 +183,10 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
                   {!isCollapsed && <span className="text-sm">ข้อมูลส่วนตัว</span>}
                 </Link>}
               
-              {user && canAccessUserManagement && <Link to="/user-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
+              {user && canAccessUserManagement && <Link to="/user-management" className={cn(
+                "flex items-center rounded-lg transition-colors",
+                isCollapsed ? "gap-2 py-2 px-1" : "gap-3 py-2.5 px-3", // ปรับขนาดของเมนูตามขนาดของ sidebar
+                
                 isActive("/user-management") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
                 isCollapsed && "justify-center"
               )}>
@@ -170,7 +194,10 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
                   {!isCollapsed && <span className="text-sm">จัดการผู้ใช้งาน</span>}
                 </Link>}
               
-              {user && canAccessUserManagement && <Link to="/news-management" className={cn("flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors", 
+              {user && canAccessUserManagement && <Link to="/news-management" className={cn(
+                "flex items-center rounded-lg transition-colors",
+                isCollapsed ? "gap-2 py-2 px-1" : "gap-3 py-2.5 px-3", // ปรับขนาดของเมนูตามขนาดของ sidebar
+                
                 isActive("/news-management") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
                 isCollapsed && "justify-center"
               )}>
@@ -180,12 +207,22 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
             </nav>
           </ScrollArea>
           
-          <div className="mt-auto pt-4">
-            {user && <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
+          <div className={cn(
+            "mt-auto",
+            isCollapsed ? "pt-2" : "pt-4" // ลด padding เมื่อ sidebar หดตัว
+          )}>
+            {user && (
+              <div className={cn(
+                "border-t border-gray-200 dark:border-gray-700", 
+                isCollapsed ? "pt-2" : "pt-4" // ลด padding เมื่อ sidebar หดตัว
+              )}>
                 {(isMobile || !isCollapsed) ? (
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      <Link to="/logout" className="flex items-center gap-3 py-2.5 px-3 rounded-lg transition-colors text-red-600 hover:bg-red-50 hover:border hover:border-red-200 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:border-red-800">
+                      <Link to="/logout" className={cn(
+                        "flex items-center rounded-lg transition-colors text-red-600 hover:bg-red-50 hover:border hover:border-red-200 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:border-red-800",
+                        isCollapsed ? "gap-2 py-2 px-1 justify-center" : "gap-3 py-2.5 px-3" // ปรับขนาดของปุ่มตามขนาดของ sidebar
+                      )}>
                         <LogOut className="h-5 w-5" />
                         <span className="text-sm">ออกจากระบบ</span>
                       </Link>
@@ -202,22 +239,16 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
                     </div>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center space-y-3">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <Link to="/logout" className="flex items-center justify-center h-7 w-7 rounded-lg bg-red-100 hover:bg-red-200 dark:bg-red-900/20 dark:hover:bg-red-800/30 transition-colors">
+                      <LogOut className="h-4 w-4 text-red-600 dark:text-red-400" />
+                    </Link>
                     <ThemeSwitcher />
-                    {/* Mobile only notifications link */}
-                    <Link 
-                      to="/notifications" 
-                      className="md:hidden flex items-center justify-center h-9 w-9 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      <Bell className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-                    </Link>
-                    <Link to="/logout" className="flex items-center justify-center py-2.5 px-3 rounded-lg transition-colors text-red-600 hover:bg-red-50 hover:border hover:border-red-200 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:border-red-800">
-                      <LogOut className="h-5 w-5" />
-                    </Link>
                   </div>
                 )}
-              </div>}
-              
+              </div>
+            )}
+            
             {!user && (
               <div className="flex justify-center mt-2">
                 <ThemeSwitcher />

@@ -5,15 +5,36 @@ import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { HeaderClock } from "./HeaderClock";
 import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
 
 interface HeaderMainContentProps {
   setSidebarOpen: (open: boolean) => void;
+  isCollapsed?: boolean;
 }
 
-export const HeaderMainContent = ({ setSidebarOpen }: HeaderMainContentProps) => {
+export const HeaderMainContent = ({ setSidebarOpen, isCollapsed = false }: HeaderMainContentProps) => {
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(isCollapsed);
+  
+  // ติดตามการเปลี่ยนแปลงสถานะ isCollapsed จาก prop
+  useEffect(() => {
+    setSidebarCollapsed(isCollapsed);
+  }, [isCollapsed]);
+  
+  // ติดตาม event sidebarStateChanged จาก HeaderSidebar
+  useEffect(() => {
+    const handleSidebarStateChange = (e: CustomEvent) => {
+      setSidebarCollapsed(e.detail.isCollapsed);
+    };
+    
+    window.addEventListener('sidebarStateChanged', handleSidebarStateChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('sidebarStateChanged', handleSidebarStateChange as EventListener);
+    };
+  }, []);
   
   // สำหรับ mobile ให้ใช้สถานะแยกต่างหาก
   const handleMobileMenuClick = () => {
@@ -25,7 +46,13 @@ export const HeaderMainContent = ({ setSidebarOpen }: HeaderMainContentProps) =>
   };
   
   return (
-    <header className="sticky top-0 z-20 flex items-center justify-between bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-lg dark:from-slate-800 dark:to-slate-900 py-5 px-4 md:px-8 md:py-6 w-full">
+    <header className={cn(
+      "sticky top-0 z-20 flex items-center justify-between bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-lg dark:from-slate-800 dark:to-slate-900 py-5 px-4 md:px-8 md:py-6 transition-all duration-300 ease-in-out",
+      // ใช้ fixed position แทน margin-left เพื่อให้ header เต็มพื้นที่หน้าจอที่เหลือ
+      isMobile ? "w-full left-0" : "right-0 w-auto",  // สำหรับ mobile ให้เต็มจอ สำหรับ desktop ให้ขยายจากด้านขวา
+      !isMobile && sidebarCollapsed ? "left-20" : "", // สำหรับ sidebar หดตัว ให้เลื่อนตามขนาด sidebar 
+      !isMobile && !sidebarCollapsed ? "left-64" : "" // สำหรับ sidebar ขยาย ให้เลื่อนตามขนาด sidebar
+    )}>
       {/* Mobile Menu and Logo Group */}
       <div className="flex items-center gap-3">
         <Button 

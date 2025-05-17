@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from "@/components/AuthProvider";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
@@ -8,6 +8,7 @@ import { UserInfoCard } from "@/components/profile/UserInfoCard";
 import { AccountStatusCard } from "@/components/profile/AccountStatusCard";
 import { PasswordDialog } from "@/components/profile/PasswordDialog";
 import { FeedbackDialogs } from "@/components/profile/FeedbackDialogs";
+import { cn } from "@/lib/utils";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -16,6 +17,34 @@ const Profile = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const isMobile = useIsMobile();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  
+  useEffect(() => {
+    // Listen for sidebar state changes using custom event
+    const updateSidebarState = (event?: Event) => {
+      const customEvent = event as CustomEvent;
+      if (customEvent?.detail) {
+        setIsCollapsed(customEvent.detail.isCollapsed);
+      } else {
+        const savedCollapsedState = localStorage.getItem('sidebarCollapsed');
+        setIsCollapsed(savedCollapsedState === 'true');
+      }
+    };
+    
+    // Initial state
+    updateSidebarState();
+    
+    // Listen for changes in localStorage
+    window.addEventListener('storage', () => updateSidebarState());
+    
+    // Listen for custom event from Header component
+    window.addEventListener('sidebarStateChanged', updateSidebarState);
+    
+    return () => {
+      window.removeEventListener('storage', () => updateSidebarState());
+      window.removeEventListener('sidebarStateChanged', updateSidebarState);
+    };
+  }, []);
 
   // Format user data
   const userEmail = user?.email || "ไม่พบข้อมูลอีเมล";
@@ -51,7 +80,12 @@ const Profile = () => {
       <Header />
       
       {/* Main content with proper padding to avoid menu overlap */}
-      <div className="container px-4 py-6 md:py-10 pb-32 mx-auto max-w-6xl md:ml-64">
+      <main className={cn(
+        "container px-4 py-6 md:py-10 pb-32 mx-auto max-w-6xl transition-all duration-300",
+        // สำหรับหน้าจอ desktop ให้มี margin-left ที่เปลี่ยนตาม sidebar
+        !isMobile && "ml-0 md:ml-[5rem]", // สำหรับ default ให้ margin เท่ากับความกว้างของ sidebar ที่หดตัว (w-20 = 5rem)
+        !isMobile && !isCollapsed && "md:ml-64" // เมื่อ sidebar ขยาย ให้เพิ่ม margin เป็น 64 (เท่ากับความกว้างของ sidebar ที่ขยาย w-64)
+      )}>
         <div className="flex items-center mb-8">
           <div className="relative">
             <h1 className="text-2xl md:text-3xl font-bold text-emerald-800 dark:text-emerald-400">ข้อมูลส่วนตัว</h1>
@@ -95,7 +129,7 @@ const Profile = () => {
           setShowErrorDialog={setShowErrorDialog}
           errorMessage={errorMessage}
         />
-      </div>
+      </main>
       
       <FooterNav />
     </div>

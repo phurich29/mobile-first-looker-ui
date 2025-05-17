@@ -8,6 +8,7 @@ import { CountdownTimer } from "@/components/CountdownTimer";
 import { NotificationList } from "@/components/NotificationList";
 import { File } from "lucide-react";
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 
 const Index = () => {
   const isMobile = useIsMobile();
@@ -40,14 +41,19 @@ const Index = () => {
     };
   }, []);
   
-  // Calculate sidebar width for layout
-  const sidebarWidth = !isMobile ? (isCollapsed ? 'ml-20' : 'ml-64') : '';
+  // สำหรับ desktop เท่านั้น mobile จะไม่มีการปรับ margin
   
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-950 overflow-y-auto overflow-x-hidden">
       <Header />
       
-      <main className={`flex-1 ${isMobile ? 'pb-20' : `pb-16 ${sidebarWidth}`} transition-all duration-300`}>
+      <main className={cn(
+        "flex-1 transition-all duration-300",
+        isMobile ? "pb-20" : "pb-16",
+        // สำหรับหน้าจอ desktop ให้มี margin-left ที่เปลี่ยนตาม sidebar
+        !isMobile && "ml-0 md:ml-[5rem]", // สำหรับ default ให้ margin เท่ากับความกว้างของ sidebar ที่หดตัว (w-20 = 5rem)
+        !isMobile && !isCollapsed && "md:ml-64" // เมื่อ sidebar ขยาย ให้เพิ่ม margin เป็น 64 (เท่ากับความกว้างของ sidebar ที่ขยาย w-64)
+      )}>
         <div className={`mx-auto max-w-7xl px-4 ${!isMobile ? 'py-8' : 'pt-1'}`}>
           {/* News slider section with countdown timer */}
           <div className={`${!isMobile ? 'mb-8 mt-3' : 'mb-6 mt-3'}`}>

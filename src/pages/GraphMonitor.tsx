@@ -15,6 +15,7 @@ import { EmptyGraphState } from "@/components/graph-monitor/EmptyGraphState";
 import { LoadingGraphState } from "@/components/graph-monitor/LoadingGraphState";
 import { useGraphMonitor } from "@/components/graph-monitor/hooks/useGraphMonitor";
 import { SelectedGraph } from "@/components/graph-monitor/types";
+import { cn } from "@/lib/utils";
 
 const GraphMonitor = () => {
   const isMobile = useIsMobile();
@@ -71,8 +72,7 @@ const GraphMonitor = () => {
     };
   }, [isCollapsed]);
   
-  // Calculate sidebar width for layout
-  const sidebarWidth = !isMobile ? (isCollapsed ? 'ml-20' : 'ml-64') : '';
+  // สำหรับ desktop เท่านั้น mobile จะไม่มีการปรับ margin
 
   // Add logging to debug device name issues
   console.log("Selected Graphs:", selectedGraphs);
@@ -98,7 +98,14 @@ const GraphMonitor = () => {
       <BackgroundImage />
       <Header />
 
-      <main className={`flex-1 ${isMobile ? 'pb-24' : sidebarWidth} relative`}>
+      <main className={cn(
+        "flex-1 relative",
+        isMobile ? "pb-24" : "pb-10",
+        // สำหรับหน้าจอ desktop ให้มี margin-left ที่เปลี่ยนตาม sidebar
+        !isMobile && "ml-0 md:ml-[5rem]", // สำหรับ default ให้ margin เท่ากับความกว้างของ sidebar ที่หดตัว (w-20 = 5rem)
+        !isMobile && !isCollapsed && "md:ml-64", // เมื่อ sidebar ขยาย ให้เพิ่ม margin เป็น 64 (เท่ากับความกว้างของ sidebar ที่ขยาย w-64)
+        "transition-all duration-300"
+      )}>
         <div className="max-w-7xl mx-auto p-4">
           <GraphHeader
             showSaveIndicator={showSaveIndicator}
