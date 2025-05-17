@@ -125,6 +125,19 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
     setShowHistory(false);
   };
 
+  // แสดงข้อความการแจ้งเตือน
+  const getNotificationText = () => {
+    if (!enabled || !notificationType) return null;
+    
+    return (
+      <div className="text-[10px] text-orange-600 font-medium ml-1">
+        {notificationType === 'min' ? `เตือนเมื่อต่ำกว่า ${threshold}%` : 
+         notificationType === 'max' ? `เตือนเมื่อสูงกว่า ${threshold}%` : 
+         `เตือนเมื่อนอกช่วง ${threshold}%`}
+      </div>
+    );
+  };
+
   return (
     <>
       <div 
@@ -147,7 +160,7 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
             
             {/* แสดงไอคอน Bot เมื่อมีการแจ้งเตือนถูกเปิดใช้งาน */}
             {enabled && notificationType && (
-              <div className="absolute -top-1 -right-2 bg-white rounded-full p-0.5 shadow-md">
+              <div className="absolute -top-1 -right-1 bg-white rounded-full p-0.5 shadow-md">
                 <Bot size={16} className="text-orange-500" />
               </div>
             )}
@@ -159,6 +172,8 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
                 <h3 className="font-bold text-base text-gray-800">{name}</h3>
                 <div className="flex items-center">
                   <span className="text-xs text-gray-500">{symbol}</span>
+                  {/* ย้ายข้อความการแจ้งเตือนมาไว้ด้านซ้าย */}
+                  {getNotificationText()}
                 </div>
               </div>
               {deviceName && (
@@ -171,16 +186,6 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
           <p className="font-bold text-base text-green-600">
             {valueToShow}%
           </p>
-          
-          {notificationType && (
-            <div className={`text-xs px-2 py-1 rounded-md mb-1 ${enabled ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-500'}`}>
-              {enabled ? (
-                notificationType === 'min' ? `แจ้งเตือนต่ำกว่า ${threshold}%` : 
-                notificationType === 'max' ? `แจ้งเตือนสูงกว่า ${threshold}%` : 
-                `แจ้งเตือนช่วง ${threshold}%`
-              ) : 'ปิดแจ้งเตือน'}
-            </div>
-          )}
           
           <div className="flex flex-col text-xs">
             {updatedAt ? (
@@ -197,3 +202,4 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
     </>
   );
 };
+

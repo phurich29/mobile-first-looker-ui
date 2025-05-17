@@ -88,13 +88,13 @@ export const NotificationSettingCard = ({
           <div className="border-t border-gray-100 pt-2 mt-2 text-sm space-y-2">
             {setting.max_enabled && (
               <p className="flex items-center gap-2">
-                <span className="text-black font-medium">สูงกว่า:</span>
+                <span className="text-black font-medium">เตือนเมื่อสูงกว่า:</span>
                 <span className="font-bold text-red-600 text-base">{setting.max_threshold}</span>
               </p>
             )}
             {setting.min_enabled && (
               <p className="flex items-center gap-2">
-                <span className="text-black font-medium">ต่ำกว่า:</span>
+                <span className="text-black font-medium">เตือนเมื่อต่ำกว่า:</span>
                 <span className="font-bold text-amber-600 text-base">{setting.min_threshold}</span>
               </p>
             )}
@@ -135,3 +135,4 @@ export const NotificationSettingCard = ({
     </>
   );
 };
+

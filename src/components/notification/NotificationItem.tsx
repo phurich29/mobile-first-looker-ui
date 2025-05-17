@@ -136,7 +136,17 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
           <div className="min-w-0 h-full flex items-center">
             <div className="flex flex-col justify-center space-y-1">
               <h3 className="font-medium text-sm text-gray-800 truncate">{name}</h3>
-              <span className="text-xs text-gray-500 truncate">{deviceName}</span>
+              <div className="flex items-center">
+                <span className="text-xs text-gray-500 truncate">{deviceName}</span>
+                {/* Add notification type text here with consistent styling */}
+                {enabled && (
+                  <div className="text-[10px] text-orange-600 font-medium ml-1">
+                    {type === 'min' ? `เตือนเมื่อต่ำกว่า ${threshold}%` : 
+                     type === 'max' ? `เตือนเมื่อสูงกว่า ${threshold}%` : 
+                     `เตือนเมื่อนอกช่วง ${threshold}%`}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -167,3 +177,4 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
 };
 
 export default NotificationItem;
+
