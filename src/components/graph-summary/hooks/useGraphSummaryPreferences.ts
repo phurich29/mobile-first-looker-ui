@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
 import { TimeFrame } from "@/components/measurement-history/MeasurementHistory";
+import { Json } from "@/integrations/supabase/types";
 
 interface GraphSummaryPreferences {
   selectedMetrics: SelectedMetric[];
@@ -83,6 +84,14 @@ export const useGraphSummaryPreferences = () => {
 
     setSaving(true);
     try {
+      // Create a JSON-compatible object to store
+      const preferencesToSave: Json = {
+        selectedMetrics: newPreferences.selectedMetrics,
+        timeFrame: newPreferences.timeFrame,
+        graphStyle: newPreferences.graphStyle,
+        globalLineColor: newPreferences.globalLineColor
+      };
+
       // Check if a record already exists
       const { data: existingData, error: checkError } = await supabase
         .from("user_chart_preferences")
@@ -103,7 +112,7 @@ export const useGraphSummaryPreferences = () => {
         const { error } = await supabase
           .from("user_chart_preferences")
           .update({
-            selected_metrics: newPreferences
+            selected_metrics: preferencesToSave
           })
           .eq("id", existingData.id);
 
@@ -124,7 +133,7 @@ export const useGraphSummaryPreferences = () => {
             user_id: user.id,
             device_code: "graph-summary",
             preset_name: "Default",
-            selected_metrics: newPreferences
+            selected_metrics: preferencesToSave
           });
 
         if (error) {
