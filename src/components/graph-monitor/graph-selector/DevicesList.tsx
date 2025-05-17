@@ -1,58 +1,52 @@
 
 import React from "react";
 import { DeviceCard } from "./DeviceCard";
-import { Skeleton } from "@/components/ui/skeleton";
-
-interface DeviceInfo {
-  device_code: string;
-  device_name: string;
-  last_updated?: Date | null;
-}
+import { Loader2, SearchX } from "lucide-react";
 
 interface DevicesListProps {
-  devices: DeviceInfo[];
+  devices: { device_code: string; display_name?: string; last_updated?: string }[];
   selectedDevice: string | null;
   loading: boolean;
   onSelectDevice: (deviceCode: string) => void;
+  defaultDeviceCode?: string | null;
 }
 
 export const DevicesList: React.FC<DevicesListProps> = ({ 
   devices, 
-  selectedDevice,
+  selectedDevice, 
   loading, 
-  onSelectDevice 
+  onSelectDevice,
+  defaultDeviceCode
 }) => {
   if (loading) {
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2">
-        {Array(9).fill(0).map((_, i) => (
-          <div key={i} className="flex items-center p-3 mb-2">
-            <Skeleton className="h-10 w-10 rounded-full mr-3" />
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-3 w-16" />
-            </div>
-          </div>
-        ))}
+      <div className="flex flex-col items-center justify-center py-8">
+        <Loader2 className="h-8 w-8 text-emerald-500 animate-spin mb-2" />
+        <p className="text-muted-foreground">กำลังโหลดรายการอุปกรณ์...</p>
       </div>
     );
   }
 
   if (devices.length === 0) {
     return (
-      <p className="text-center text-gray-500 py-4">
-        ไม่พบอุปกรณ์ที่ตรงกับการค้นหา
-      </p>
+      <div className="flex flex-col items-center justify-center py-8 text-center">
+        <SearchX className="h-12 w-12 text-muted-foreground mb-2 opacity-50" />
+        <h3 className="font-medium mb-1">ไม่พบอุปกรณ์</h3>
+        <p className="text-muted-foreground text-sm">ไม่พบอุปกรณ์ที่ตรงกับคำค้นหา</p>
+      </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
       {devices.map((device) => (
         <DeviceCard
           key={device.device_code}
-          device={device}
+          deviceCode={device.device_code}
+          displayName={device.display_name}
+          lastUpdated={device.last_updated}
           isSelected={selectedDevice === device.device_code}
+          isDefaultDevice={defaultDeviceCode === device.device_code}
           onClick={() => onSelectDevice(device.device_code)}
         />
       ))}

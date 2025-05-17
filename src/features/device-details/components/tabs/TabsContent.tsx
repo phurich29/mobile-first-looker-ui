@@ -3,6 +3,7 @@ import React from "react";
 import { TabsContent as UITabsContent } from "@/components/ui/tabs";
 import { MeasurementList } from "../MeasurementList";
 import { MeasurementItem } from "../../types";
+import { filterMeasurementsBySearchTerm } from "../../utils/searchUtils";
 
 interface TabContentProps {
   value: string;
@@ -10,6 +11,7 @@ interface TabContentProps {
   isLoading: boolean;
   deviceCode: string | undefined;
   onMeasurementClick: (symbol: string, name: string) => void;
+  searchTerm?: string;
 }
 
 export const TabContent: React.FC<TabContentProps> = ({
@@ -17,12 +19,16 @@ export const TabContent: React.FC<TabContentProps> = ({
   items,
   isLoading,
   deviceCode,
-  onMeasurementClick
+  onMeasurementClick,
+  searchTerm = ""
 }) => {
+  // Filter items based on search term
+  const filteredItems = filterMeasurementsBySearchTerm(items, searchTerm);
+  
   return (
     <UITabsContent value={value} className="space-y-4">
       <MeasurementList
-        items={items}
+        items={filteredItems}
         isLoading={isLoading}
         deviceCode={deviceCode}
         onMeasurementClick={onMeasurementClick}

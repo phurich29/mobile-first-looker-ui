@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart, Edit2 } from "lucide-react";
+import { BarChart, Edit2, Check, Laptop } from "lucide-react";
 import equipmentIcon from "@/assets/equipment-icon.svg";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useDeviceContext } from "@/contexts/DeviceContext";
 
 interface EquipmentCardProps {
   deviceCode: string;
@@ -34,6 +35,10 @@ export function EquipmentCard({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [newDisplayName, setNewDisplayName] = useState(displayName || deviceCode);
   const { toast } = useToast();
+  const { selectedDeviceCode, selectDevice } = useDeviceContext();
+  
+  // Check if this device is currently selected
+  const isSelected = selectedDeviceCode === deviceCode;
   
   // Format the last updated time to show exact date and time with +7 hours
   const formattedTime = lastUpdated 
@@ -95,17 +100,30 @@ export function EquipmentCard({
     }
   };
   
+  // Handle setting this device as the active device
+  const handleSetAsActive = () => {
+    selectDevice(deviceCode, displayName || deviceCode);
+  };
+  
   return (
     <>
-      <Card className="hover:shadow-lg transition-shadow duration-300">
+      <Card className={`hover:shadow-lg transition-shadow duration-300 ${isSelected ? 'border-emerald-500 dark:border-emerald-600' : ''}`}>
         <CardHeader className="pb-1 p-4">
           <div className="flex items-start justify-between">
             <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-2">
               <img src={equipmentIcon} alt="อุปกรณ์" className="w-10 h-10" />
             </div>
-            <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full font-medium">
-              อุปกรณ์
-            </span>
+            <div className="flex items-center gap-2">
+              {isSelected && (
+                <span className="text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-400 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                  <Check className="h-3 w-3" />
+                  อุปกรณ์ที่เลือก
+                </span>
+              )}
+              <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full font-medium">
+                อุปกรณ์
+              </span>
+            </div>
           </div>
           <div className="flex justify-between items-start">
             <CardTitle className="text-base font-bold">{displayName || deviceCode}</CardTitle>
@@ -141,6 +159,16 @@ export function EquipmentCard({
                 <BarChart className="h-3 w-3 mr-1" />
                 ดูข้อมูล
               </Link>
+            </Button>
+            
+            <Button
+              variant={isSelected ? "secondary" : "default"}
+              size="sm"
+              className="w-full text-xs"
+              onClick={handleSetAsActive}
+            >
+              <Laptop className="h-3 w-3 mr-1" />
+              {isSelected ? "กำลังใช้งาน" : "ตั้งเป็นอุปกรณ์เริ่มต้น"}
             </Button>
             
             {isAdmin && (

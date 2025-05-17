@@ -14,6 +14,7 @@ import { DevicesList } from "./DevicesList";
 import { MeasurementsList } from "./MeasurementsList";
 import { useGraphSelector } from "./useGraphSelector";
 import { SelectedGraph } from "../types";
+import { useDeviceContext } from "@/contexts/DeviceContext";
 
 interface GraphSelectorProps {
   open: boolean;
@@ -27,6 +28,8 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
   onSelectGraph,
 }) => {
   const [activeTab, setActiveTab] = useState<"devices" | "measurements">("devices");
+  const { selectedDeviceCode } = useDeviceContext();
+  
   const {
     loading,
     devices,
@@ -37,15 +40,25 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
     setSelectedDevice,
     fetchDevices,
     getSelectedDeviceName,
+    fetchMeasurements,
   } = useGraphSelector();
 
   // Reset state when dialog opens
   useEffect(() => {
     if (open) {
-      setActiveTab("devices");
-      fetchDevices();
+      // If we have a selected device, we can start with measurements tab
+      if (selectedDeviceCode) {
+        setSelectedDevice(selectedDeviceCode);
+        // Fetch measurements for the device
+        fetchMeasurements(selectedDeviceCode);
+        // Jump directly to measurements tab
+        setActiveTab("measurements");
+      } else {
+        setActiveTab("devices");
+        fetchDevices();
+      }
     }
-  }, [open]);
+  }, [open, selectedDeviceCode]);
 
   // When a device is selected, switch to measurements tab
   useEffect(() => {
@@ -127,6 +140,7 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
                 selectedDevice={selectedDevice}
                 loading={loading}
                 onSelectDevice={setSelectedDevice}
+                defaultDeviceCode={selectedDeviceCode}
               />
             </TabsContent>
 
