@@ -6,7 +6,7 @@ import { X, Cpu, Save } from "lucide-react";
 import { SelectedMetric } from "./types";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { HexColorPicker } from "react-colorful";
-import { getMeasurementThaiName } from "@/utils/measurementFormatters";
+import { getMeasurementThaiName } from "@/utils/measurements";
 
 interface MetricBadgesProps {
   selectedMetrics: SelectedMetric[];

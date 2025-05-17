@@ -8,7 +8,7 @@ import { SelectedGraph } from "../types";
 import { TimeFrame } from "@/components/measurement-history/MeasurementHistory";
 import { getGraphStyles } from "./styles";
 import { GraphStyleControls } from "./GraphStyleControls";
-import { getMeasurementThaiName } from "@/utils/measurementFormatters";
+import { getMeasurementThaiName } from "@/utils/measurements";
 
 interface GraphHeaderProps {
   graph: SelectedGraph;

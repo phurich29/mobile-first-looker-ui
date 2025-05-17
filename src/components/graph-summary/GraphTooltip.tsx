@@ -1,7 +1,7 @@
 
 import React from "react";
 import { SelectedMetric } from "./types";
-import { getMeasurementThaiName } from "@/utils/measurementFormatters";
+import { getMeasurementThaiName } from "@/utils/measurements";
 
 interface GraphTooltipProps {
   active?: boolean;
