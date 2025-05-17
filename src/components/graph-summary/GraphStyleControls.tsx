@@ -1,20 +1,10 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { TimeFrame } from "@/components/measurement-history/MeasurementHistory";
 import { GraphStyle } from "./types";
 import { HexColorPicker } from "react-colorful";
-import { 
-  Popover,
-  PopoverTrigger,
-  PopoverContent
-} from "@/components/ui/popover";
-
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 interface GraphStyleControlsProps {
   timeFrame: TimeFrame;
   setTimeFrame: (value: TimeFrame) => void;
@@ -23,7 +13,6 @@ interface GraphStyleControlsProps {
   globalLineColor: string;
   setGlobalLineColor: (value: string) => void;
 }
-
 const getStyleName = (style: GraphStyle): string => {
   const styleNames: Record<GraphStyle, string> = {
     line: "เส้น",
@@ -31,13 +20,12 @@ const getStyleName = (style: GraphStyle): string => {
     classic: "คลาสสิก",
     natural: "ธรรมชาติ",
     neon: "นีออน",
-    pastel: "พาสเทล", 
+    pastel: "พาสเทล",
     monochrome: "โมโนโครม",
     gradient: "ไล่สี"
   };
   return styleNames[style] || "เส้น";
 };
-
 const getStyleSelectButtonClass = (graphStyle: GraphStyle): string => {
   const styleClasses: Record<GraphStyle, string> = {
     line: "border-gray-300",
@@ -51,7 +39,6 @@ const getStyleSelectButtonClass = (graphStyle: GraphStyle): string => {
   };
   return styleClasses[graphStyle] || "border-gray-300";
 };
-
 const getStyleMenuClass = (graphStyle: GraphStyle): string => {
   const menuClasses: Record<GraphStyle, string> = {
     line: "",
@@ -65,7 +52,6 @@ const getStyleMenuClass = (graphStyle: GraphStyle): string => {
   };
   return menuClasses[graphStyle] || "";
 };
-
 export const GraphStyleControls: React.FC<GraphStyleControlsProps> = ({
   timeFrame,
   setTimeFrame,
@@ -74,65 +60,36 @@ export const GraphStyleControls: React.FC<GraphStyleControlsProps> = ({
   globalLineColor,
   setGlobalLineColor
 }) => {
-  return (
-    <div className="flex flex-wrap items-center justify-end space-x-2 space-y-2 sm:space-y-0 mb-2">
+  return <div className="flex flex-wrap items-center justify-end space-x-2 space-y-2 sm:space-y-0 mb-2">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className={`h-7 px-2 text-xs ${getStyleSelectButtonClass(graphStyle)}`}
-          >
+          <Button variant="outline" size="sm" className={`h-7 px-2 text-xs ${getStyleSelectButtonClass(graphStyle)}`}>
             สไตล์: {getStyleName(graphStyle)}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className={`min-w-32 ${getStyleMenuClass(graphStyle)}`}>
-          <DropdownMenuItem 
-            className={`text-sm ${graphStyle === 'line' ? 'bg-blue-50 dark:bg-blue-900/30' : ''}`} 
-            onClick={() => setGraphStyle('line')}
-          >
+          <DropdownMenuItem className={`text-sm ${graphStyle === 'line' ? 'bg-blue-50 dark:bg-blue-900/30' : ''}`} onClick={() => setGraphStyle('line')}>
             เส้น
           </DropdownMenuItem>
-          <DropdownMenuItem 
-            className={`text-sm ${graphStyle === 'area' ? 'bg-green-50 dark:bg-green-900/30' : ''}`} 
-            onClick={() => setGraphStyle('area')}
-          >
+          <DropdownMenuItem className={`text-sm ${graphStyle === 'area' ? 'bg-green-50 dark:bg-green-900/30' : ''}`} onClick={() => setGraphStyle('area')}>
             พื้นที่
           </DropdownMenuItem>
-          <DropdownMenuItem 
-            className={`text-sm ${graphStyle === 'classic' ? 'bg-purple-50 dark:bg-purple-900/30' : ''}`} 
-            onClick={() => setGraphStyle('classic')}
-          >
+          <DropdownMenuItem className={`text-sm ${graphStyle === 'classic' ? 'bg-purple-50 dark:bg-purple-900/30' : ''}`} onClick={() => setGraphStyle('classic')}>
             คลาสสิก
           </DropdownMenuItem>
-          <DropdownMenuItem 
-            className={`text-sm ${graphStyle === 'natural' ? 'bg-green-50 dark:bg-green-900/30' : ''}`} 
-            onClick={() => setGraphStyle('natural')}
-          >
+          <DropdownMenuItem className={`text-sm ${graphStyle === 'natural' ? 'bg-green-50 dark:bg-green-900/30' : ''}`} onClick={() => setGraphStyle('natural')}>
             ธรรมชาติ
           </DropdownMenuItem>
-          <DropdownMenuItem 
-            className={`text-sm ${graphStyle === 'neon' ? 'bg-cyan-900' : ''}`} 
-            onClick={() => setGraphStyle('neon')}
-          >
+          <DropdownMenuItem className={`text-sm ${graphStyle === 'neon' ? 'bg-cyan-900' : ''}`} onClick={() => setGraphStyle('neon')}>
             นีออน
           </DropdownMenuItem>
-          <DropdownMenuItem 
-            className={`text-sm ${graphStyle === 'pastel' ? 'bg-pink-100 dark:bg-pink-900/30' : ''}`} 
-            onClick={() => setGraphStyle('pastel')}
-          >
+          <DropdownMenuItem className={`text-sm ${graphStyle === 'pastel' ? 'bg-pink-100 dark:bg-pink-900/30' : ''}`} onClick={() => setGraphStyle('pastel')}>
             พาสเทล
           </DropdownMenuItem>
-          <DropdownMenuItem 
-            className={`text-sm ${graphStyle === 'monochrome' ? 'bg-gray-800' : ''}`} 
-            onClick={() => setGraphStyle('monochrome')}
-          >
+          <DropdownMenuItem className={`text-sm ${graphStyle === 'monochrome' ? 'bg-gray-800' : ''}`} onClick={() => setGraphStyle('monochrome')}>
             โมโนโครม
           </DropdownMenuItem>
-          <DropdownMenuItem 
-            className={`text-sm ${graphStyle === 'gradient' ? 'bg-indigo-800' : ''}`} 
-            onClick={() => setGraphStyle('gradient')}
-          >
+          <DropdownMenuItem className={`text-sm ${graphStyle === 'gradient' ? 'bg-indigo-800' : ''}`} onClick={() => setGraphStyle('gradient')}>
             ไล่สี
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -141,18 +98,7 @@ export const GraphStyleControls: React.FC<GraphStyleControlsProps> = ({
       {/* ตัวเลือกสีเส้นค่าเฉลี่ยสำหรับทุกกราฟ */}
       <Popover>
         <PopoverTrigger asChild>
-          <Button 
-            variant="outline"
-            size="sm" 
-            className={`h-7 px-2 text-xs relative border-2 ${getStyleSelectButtonClass(graphStyle)}`}
-            style={{ borderColor: globalLineColor }}
-          >
-            <span className="mr-2">สีเส้นเฉลี่ย</span>
-            <div 
-              className="w-4 h-4 rounded-full inline-block" 
-              style={{ backgroundColor: globalLineColor }} 
-            />
-          </Button>
+          
         </PopoverTrigger>
         <PopoverContent className="w-auto p-3">
           <div className="space-y-2">
@@ -167,8 +113,6 @@ export const GraphStyleControls: React.FC<GraphStyleControlsProps> = ({
       
       {/* เพิ่มที่ว่างเล็กน้อย */}
       <div className="w-2"></div>
-    </div>
-  );
+    </div>;
 };
-
 export default GraphStyleControls;
