@@ -31,6 +31,7 @@ export default function DeviceDetails() {
     ingredientsData,
     impuritiesData,
     allData,
+    notificationSettings,
     isLoadingWholeGrain,
     isLoadingIngredients,
     isLoadingImpurities,
@@ -80,6 +81,7 @@ export default function DeviceDetails() {
             ingredientsData={ingredientsData}
             impuritiesData={impuritiesData}
             allData={allData}
+            notificationSettings={notificationSettings || []}
             isLoadingWholeGrain={isLoadingWholeGrain}
             isLoadingIngredients={isLoadingIngredients}
             isLoadingImpurities={isLoadingImpurities}

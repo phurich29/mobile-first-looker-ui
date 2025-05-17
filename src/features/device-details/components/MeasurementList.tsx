@@ -48,6 +48,10 @@ export const MeasurementList: React.FC<MeasurementListProps> = ({
             iconColor={item.iconColor}
             updatedAt={item.updatedAt}
             deviceCode={deviceCode}
+            deviceName={item.deviceName}
+            notificationType={item.notificationType}
+            threshold={item.threshold}
+            enabled={item.enabled}
           />
         </div>
       ))}

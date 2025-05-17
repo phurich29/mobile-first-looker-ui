@@ -10,4 +10,3 @@ export const calculateChange = (current: number | null, previous: number | null)
 export const isPositiveChange = (): boolean => {
   return true; // Always return true to make everything green
 };
-

@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { ArrowUp, ArrowDown, Wheat, Blend, Circle } from "lucide-react";
+import { ArrowUp, ArrowDown, Wheat, Blend, Circle, Bot } from "lucide-react";
 
 type MeasurementItemProps = {
   symbol: string;
@@ -135,14 +135,24 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
         <div className="absolute inset-0 w-full h-full bg-white opacity-80"></div>
         
         <div className="flex items-center relative z-10">
-          <div 
-            className="w-12 h-12 rounded-full flex items-center justify-center mr-3 shadow-md relative overflow-hidden"
-            style={{ background: `linear-gradient(135deg, ${iconColor}, ${iconColor}cc)` }}
-          >
-            <div className="absolute inset-0 bg-white/10"></div>
-            <div className="absolute top-0 left-0 w-3 h-3 bg-white/30 rounded-full blur-sm"></div>
-            {getIcon()}
+          <div className="relative">
+            <div 
+              className="w-12 h-12 rounded-full flex items-center justify-center mr-3 shadow-md relative overflow-hidden"
+              style={{ background: `linear-gradient(135deg, ${iconColor}, ${iconColor}cc)` }}
+            >
+              <div className="absolute inset-0 bg-white/10"></div>
+              <div className="absolute top-0 left-0 w-3 h-3 bg-white/30 rounded-full blur-sm"></div>
+              {getIcon()}
+            </div>
+            
+            {/* แสดงไอคอน Bot เมื่อมีการแจ้งเตือนถูกเปิดใช้งาน */}
+            {enabled && notificationType && (
+              <div className="absolute -top-1 -right-2 bg-white rounded-full p-0.5 shadow-md">
+                <Bot size={16} className="text-orange-500" />
+              </div>
+            )}
           </div>
+          
           <div className="px-3 py-2 flex-1">
             <div className="flex flex-col">
               <div className="flex flex-col">
