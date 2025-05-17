@@ -1,26 +1,40 @@
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { RouterProvider } from "react-router-dom";
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from "./components/ui/theme-provider";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/toaster"
-
-import { router } from "./router";
-import { ThemeProvider } from "./components/theme-provider"
-import { AuthProvider } from "./components/AuthProvider";
-import { DeviceProvider } from "./contexts/DeviceContext";
+import { AuthProvider } from './components/AuthProvider';
+import { router } from './routes';
+import './index.css';
+import { DeviceProvider } from './contexts/DeviceContext';
+import { CountdownProvider } from './contexts/CountdownContext';
 
 function App() {
-  const queryClient = new QueryClient();
+  const [queryClient] = React.useState(() => new QueryClient());
 
   return (
-    <ThemeProvider defaultTheme="system" storageKey="ui-theme">
-      <AuthProvider>
-        <DeviceProvider>
-          <QueryClientProvider client={queryClient}>
-            <Toaster />
-            <RouterProvider router={router} />
-          </QueryClientProvider>
-        </DeviceProvider>
-      </AuthProvider>
+    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+      <DeviceProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <CountdownProvider initialSeconds={60}>
+              <BrowserRouter>
+                <Routes>
+                  {router.map((route) => (
+                    <Route
+                      key={route.path}
+                      path={route.path}
+                      element={route.element}
+                    />
+                  ))}
+                </Routes>
+              </BrowserRouter>
+              <Toaster />
+            </CountdownProvider>
+          </AuthProvider>
+        </QueryClientProvider>
+      </DeviceProvider>
     </ThemeProvider>
   );
 }

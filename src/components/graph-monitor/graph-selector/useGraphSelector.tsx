@@ -1,8 +1,8 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { REQUIRED_DEVICE_CODES } from "@/features/equipment/services/deviceDataService";
-import { useDeviceContext } from "@/contexts/DeviceContext";
 
 interface DeviceInfo {
   device_code: string;
@@ -27,14 +27,13 @@ export const useGraphSelector = () => {
   const isAdmin = userRoles.includes('admin') || userRoles.includes('superadmin');
   const isSuperAdmin = userRoles.includes('superadmin');
 
-  const { selectedDeviceCode } = useDeviceContext();
-  
   useEffect(() => {
-    if (selectedDeviceCode && !selectedDevice) {
-      setSelectedDevice(selectedDeviceCode);
-      fetchMeasurements(selectedDeviceCode);
+    if (selectedDevice) {
+      fetchMeasurements(selectedDevice);
+    } else {
+      setMeasurements([]);
     }
-  }, [selectedDeviceCode]);
+  }, [selectedDevice]);
 
   const fetchDevices = async () => {
     setLoading(true);
