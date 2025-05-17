@@ -20,10 +20,10 @@ const NotificationValue: React.FC<NotificationValueProps> = ({
   isAlertActive
 }) => {
   return (
-    <div className={`px-3 py-1.5 rounded-lg flex flex-col items-end justify-center min-h-[54px] min-w-[100px] space-y-0.5 ${isAlertActive ? 'bg-red-50/90 animate-pulse' : 'bg-gray-50/80'}`}>
+    <div className={`px-3 py-1.5 rounded-lg flex flex-col items-end justify-center min-h-[54px] min-w-[100px] space-y-0.5 ${isAlertActive ? 'bg-red-50/90 animate-pulse' : 'bg-green-50/80'}`}>
       {/* Current value with timestamp */}
       {latestValue !== null && latestTimestamp && (
-        <p className={`font-medium text-xs ${isAlertActive ? 'text-red-600 font-bold' : 'text-gray-700'} leading-tight`}>
+        <p className={`font-medium text-xs ${isAlertActive ? 'text-red-600 font-bold' : 'text-green-600'} leading-tight`}>
           {formatTime(latestTimestamp)} {latestValue.toFixed(1)}%
         </p>
       )}

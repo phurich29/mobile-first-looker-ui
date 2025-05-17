@@ -13,6 +13,8 @@ import {
   Area
 } from 'recharts';
 import { SelectedMetric, GraphStyle } from './types';
+import { GraphTooltip } from './GraphTooltip';
+import { GraphLegend } from './GraphLegend';
 
 interface MainChartProps {
   graphData: any[];
@@ -87,13 +89,9 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
           />
           <YAxis tick={{ fontSize: 12 }} />
           <Tooltip 
-            labelFormatter={(time) => {
-              const date = new Date(time);
-              return `${date.toLocaleDateString()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
-            }}
-            formatter={(value: number) => [value?.toFixed(2) || '0', '']}
+            content={<GraphTooltip selectedMetrics={selectedMetrics} />}
           />
-          <Legend />
+          <Legend content={<GraphLegend selectedMetrics={selectedMetrics} />} />
           {selectedMetrics.map((metric) => (
             <Area
               key={`${metric.deviceCode}-${metric.symbol}`}
@@ -121,13 +119,9 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
           />
           <YAxis tick={{ fontSize: 12 }} />
           <Tooltip 
-            labelFormatter={(time) => {
-              const date = new Date(time);
-              return `${date.toLocaleDateString()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
-            }}
-            formatter={(value: number) => [value?.toFixed(2) || '0', '']}
+            content={<GraphTooltip selectedMetrics={selectedMetrics} />}
           />
-          <Legend />
+          <Legend content={<GraphLegend selectedMetrics={selectedMetrics} />} />
           {selectedMetrics.map((metric) => (
             <Line
               key={`${metric.deviceCode}-${metric.symbol}`}

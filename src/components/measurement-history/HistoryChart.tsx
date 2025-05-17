@@ -38,7 +38,7 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
 }) => {
   // สไตล์เริ่มต้น - ถ้าไม่ระบุให้ใช้แบบเส้นธรรมดา
   const graphStyle = styleOptions.graphStyle || 'line';
-  const barColor = styleOptions.barColor || '#9b87f5';
+  const barColor = styleOptions.barColor || '#22c55e'; // Changed to green
   const lineColor = styleOptions.lineColor || '#F97316';
   // Calculate average
   const average = useMemo(() => 
@@ -131,10 +131,13 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
               <Tooltip 
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
+                    const value = Number(payload[0].value);
+                    const isAlert = false; // This would need alert logic based on thresholds
+                    
                     return (
                       <div className="bg-white p-2 border border-gray-200 rounded-md shadow-lg">
                         <p className="text-xs font-medium">{`เวลา: ${payload[0].payload.time} น.`}</p>
-                        <p className="text-xs font-medium" style={{ color: barColor }}>{`ค่า: ${payload[0].value}%`}</p>
+                        <p className="text-xs font-medium">{`ค่า: ${value}%`}</p>
                         <p className="text-xs text-gray-500">{payload[0].payload.date}</p>
                       </div>
                     );
@@ -194,10 +197,13 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
               <Tooltip 
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
+                    const value = Number(payload[0].value);
+                    const isAlert = false; // This would need alert logic based on thresholds
+                    
                     return (
                       <div className="bg-white p-2 border border-gray-200 rounded-md shadow-lg">
                         <p className="text-xs font-medium">{`เวลา: ${payload[0].payload.time} น.`}</p>
-                        <p className="text-xs font-medium" style={{ color: barColor }}>{`ค่า: ${payload[0].value}%`}</p>
+                        <p className="text-xs font-medium">{`ค่า: ${value}%`}</p>
                         <p className="text-xs text-gray-500">{payload[0].payload.date}</p>
                       </div>
                     );
