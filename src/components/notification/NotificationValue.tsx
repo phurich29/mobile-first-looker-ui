@@ -1,6 +1,7 @@
 
 import React from "react";
 import { formatTime, getRuleName, getThresholdValue } from "./notification-utils";
+import { Bot } from "lucide-react";
 
 interface NotificationValueProps {
   latestValue: number | null;
@@ -23,9 +24,15 @@ const NotificationValue: React.FC<NotificationValueProps> = ({
     <div className={`px-3 py-1.5 rounded-lg flex flex-col items-end justify-center min-h-[54px] min-w-[100px] space-y-0.5 ${isAlertActive ? 'bg-red-50/90 animate-pulse' : 'bg-gray-50/80'}`}>
       {/* Current value with timestamp */}
       {latestValue !== null && latestTimestamp && (
-        <p className={`font-medium text-xs ${isAlertActive ? 'text-red-600 font-bold' : 'text-green-600'} leading-tight`}>
-          {formatTime(latestTimestamp)} {latestValue.toFixed(1)}%
-        </p>
+        <div className="flex items-center justify-end w-full">
+          {/* Bot icon added in front of the value */}
+          {enabled && (
+            <Bot size={14} className="text-orange-500 mr-1" />
+          )}
+          <p className={`font-medium text-xs ${isAlertActive ? 'text-red-600 font-bold' : 'text-green-600'} leading-tight`}>
+            {formatTime(latestTimestamp)} {latestValue.toFixed(1)}%
+          </p>
+        </div>
       )}
       
       {/* Rule name */}
@@ -42,4 +49,3 @@ const NotificationValue: React.FC<NotificationValueProps> = ({
 };
 
 export default NotificationValue;
-
