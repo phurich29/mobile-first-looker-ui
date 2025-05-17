@@ -8,6 +8,7 @@ import { AuthProvider } from './components/AuthProvider';
 import { router } from './routes';
 import './index.css';
 import { DeviceProvider } from './contexts/DeviceContext';
+import { CountdownProvider } from './contexts/CountdownContext';
 
 function App() {
   const [queryClient] = React.useState(() => new QueryClient());
@@ -17,18 +18,20 @@ function App() {
       <DeviceProvider>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            <BrowserRouter>
-              <Routes>
-                {router.map((route) => (
-                  <Route
-                    key={route.path}
-                    path={route.path}
-                    element={route.element}
-                  />
-                ))}
-              </Routes>
-            </BrowserRouter>
-            <Toaster />
+            <CountdownProvider initialSeconds={60}>
+              <BrowserRouter>
+                <Routes>
+                  {router.map((route) => (
+                    <Route
+                      key={route.path}
+                      path={route.path}
+                      element={route.element}
+                    />
+                  ))}
+                </Routes>
+              </BrowserRouter>
+              <Toaster />
+            </CountdownProvider>
           </AuthProvider>
         </QueryClientProvider>
       </DeviceProvider>
