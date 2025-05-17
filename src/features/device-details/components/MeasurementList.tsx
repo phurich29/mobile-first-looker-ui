@@ -1,6 +1,7 @@
 
 import React from "react";
 import { MeasurementItem } from "@/components/MeasurementItem";
+import { CountdownTimer } from "@/components/CountdownTimer";
 
 interface MeasurementListProps {
   items: any[];
@@ -20,7 +21,10 @@ export const MeasurementList: React.FC<MeasurementListProps> = ({
     return (
       <div className="p-6 text-center text-gray-500">
         {isLoading ? (
-          <span>กำลังโหลดข้อมูลการวัด...</span>
+          <div className="flex flex-col items-center">
+            <span>กำลังโหลดข้อมูลการวัด...</span>
+            <CountdownTimer className="mt-2" useGlobal={true} />
+          </div>
         ) : (
           `ไม่พบข้อมูลการวัดสำหรับอุปกรณ์ ${deviceCode}`
         )}

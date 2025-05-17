@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { ArrowUp, ArrowDown, Wheat, Blend, Circle, Bot, Bell } from "lucide-react";
 import { getLatestMeasurement } from "@/components/measurement-history/api";
@@ -195,20 +196,6 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
     );
   };
 
-  // คำนวณเวลาตั้งแต่อัพเดทล่าสุด
-  const getTimeSinceUpdate = () => {
-    if (!lastUpdated) return "";
-    
-    const now = new Date();
-    const seconds = Math.floor((now.getTime() - lastUpdated.getTime()) / 1000);
-    
-    if (seconds < 60) {
-      return `${seconds} วินาทีที่แล้ว`;
-    } else {
-      return `${Math.floor(seconds / 60)} นาทีที่แล้ว`;
-    }
-  };
-
   return (
     <>
       <div 
@@ -270,9 +257,6 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
               </>
             ) : (
               <div className="text-gray-500">"ไม่มีข้อมูล"</div>
-            )}
-            {latestTimestamp && (
-              <div className="text-xs text-blue-500 mt-1">อัพเดท {getTimeSinceUpdate()}</div>
             )}
           </div>
         </div>
