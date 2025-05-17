@@ -100,17 +100,17 @@ export const MeasurementCard: React.FC<MeasurementCardProps> = ({
       {/* Background layer */}
       <div className="absolute inset-0 w-full h-full bg-white opacity-80"></div>
       
-      <div className="flex items-center relative z-10">
+      <div className="flex items-start relative z-10">
         <div 
-          className="w-8 h-8 rounded-full flex items-center justify-center mr-2 shadow-md relative overflow-hidden"
+          className="w-8 h-8 rounded-full flex items-center justify-center mr-2 shadow-md relative overflow-hidden flex-shrink-0"
           style={{ background: `linear-gradient(135deg, ${iconColor}, ${iconColor}cc)` }}
         >
           <div className="absolute inset-0 bg-white/10"></div>
           <div className="absolute top-0 left-0 w-2 h-2 bg-white/30 rounded-full blur-sm"></div>
           <Wheat className="h-3 w-3 text-white" />
         </div>
-        <div className="px-1">
-          <h3 className="font-bold text-sm text-gray-800 truncate max-w-[80px]">{thaiName}</h3>
+        <div className="px-1 flex-1">
+          <h3 className="font-bold text-sm text-gray-800 leading-tight break-words">{thaiName}</h3>
           <span className="text-xs text-gray-500 hidden sm:block">{measurement.symbol}</span>
         </div>
       </div>
