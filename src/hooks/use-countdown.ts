@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useGlobalCountdown } from "@/contexts/CountdownContext";
 
@@ -15,33 +14,28 @@ export function useCountdown({
   autoStart = true,
   useGlobal = false,
 }: UseCountdownProps = {}) {
-  // If useGlobal is true, try to use the global countdown context
+  // If useGlobal is true, use the global countdown context
   if (useGlobal) {
-    try {
-      const globalCountdown = useGlobalCountdown();
-      
-      // Trigger onComplete when the global timer completes
-      useEffect(() => {
-        if (globalCountdown.lastCompleteTime && onComplete) {
-          onComplete();
-        }
-      }, [globalCountdown.lastCompleteTime, onComplete]);
+    const globalCountdown = useGlobalCountdown();
+    
+    // Trigger onComplete when the global timer completes
+    useEffect(() => {
+      if (globalCountdown.lastCompleteTime && onComplete) {
+        onComplete();
+      }
+    }, [globalCountdown.lastCompleteTime, onComplete]);
 
-      return {
-        seconds: globalCountdown.seconds,
-        isActive: globalCountdown.isActive,
-        start: globalCountdown.start,
-        pause: globalCountdown.pause,
-        toggle: globalCountdown.toggle,
-        reset: globalCountdown.reset,
-      };
-    } catch (error) {
-      console.warn('Could not use global countdown, falling back to local countdown:', error);
-      // Fall through to local countdown implementation if global context is not available
-    }
+    return {
+      seconds: globalCountdown.seconds,
+      isActive: globalCountdown.isActive,
+      start: globalCountdown.start,
+      pause: globalCountdown.pause,
+      toggle: globalCountdown.toggle,
+      reset: globalCountdown.reset,
+    };
   }
   
-  // Use local state (original implementation)
+  // Otherwise use local state (original implementation)
   const [seconds, setSeconds] = useState(initialSeconds);
   const [isActive, setIsActive] = useState(autoStart);
   const intervalRef = useRef<number | null>(null);

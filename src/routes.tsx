@@ -1,6 +1,6 @@
 
-import { lazy, Suspense, ReactNode } from "react";
-import { Navigate } from "react-router-dom";
+import { lazy, Suspense } from "react";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import Index from "./pages/Index";
@@ -23,12 +23,7 @@ import Equipment from "./pages/Equipment";
 import GraphMonitor from "./pages/GraphMonitor";
 import GraphSummary from "./pages/GraphSummary";
 
-interface RouteConfig {
-  path: string;
-  element: ReactNode;
-}
-
-export const router: RouteConfig[] = [
+export const router = createBrowserRouter([
   {
     path: "/",
     element: <Index />,
@@ -165,4 +160,4 @@ export const router: RouteConfig[] = [
     path: "/404",
     element: <NotFound />,
   },
-];
+]);

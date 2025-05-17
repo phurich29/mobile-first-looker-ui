@@ -1,13 +1,12 @@
 
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import MeasurementHistory from "@/components/MeasurementHistory";
 import "@/components/notification-item-animation.css";
 import { CountdownProvider } from "@/contexts/CountdownContext";
 import { CountdownTimer } from "@/components/CountdownTimer";
-import { useDeviceContext } from "@/contexts/DeviceContext";
 
 // Import custom hooks
 import { useDeviceData } from "@/features/device-details/hooks/useDeviceData";
@@ -20,20 +19,7 @@ import { MeasurementTabs } from "@/features/device-details/components/Measuremen
 import { LoadingScreen } from "@/features/device-details/components/LoadingScreen";
 
 export default function DeviceDetails() {
-  const { deviceCode: urlDeviceCode } = useParams();
-  const navigate = useNavigate();
-  const { selectedDevice } = useDeviceContext();
-  
-  // If we have a selected device and no URL device code or 'default', use the selected device
-  const deviceCode = (!urlDeviceCode || urlDeviceCode === 'default') && selectedDevice ? 
-    selectedDevice : urlDeviceCode;
-  
-  // Redirect to selected device if it exists and we're at /device/default
-  useEffect(() => {
-    if (urlDeviceCode === 'default' && selectedDevice) {
-      navigate(`/device/${selectedDevice}`, { replace: true });
-    }
-  }, [selectedDevice, urlDeviceCode, navigate]);
+  const { deviceCode } = useParams();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMeasurement, setSelectedMeasurement] = useState<{

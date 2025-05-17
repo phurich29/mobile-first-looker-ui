@@ -9,21 +9,18 @@ import { useAuth } from "@/components/AuthProvider";
 import { BackgroundImage } from "@/components/graph-monitor/BackgroundImage";
 import { GraphPresets } from "@/components/graph-monitor/GraphPresets";
 import { GraphHeader } from "@/components/graph-monitor/GraphHeader";
+// นำเข้าไฟล์ CSS สำหรับปรับแต่งกราฟให้ชัดเจนขึ้น
 import "@/components/graph-monitor/graph-card/graph-custom.css";
 import { EmptyGraphState } from "@/components/graph-monitor/EmptyGraphState";
 import { LoadingGraphState } from "@/components/graph-monitor/LoadingGraphState";
 import { useGraphMonitor } from "@/components/graph-monitor/hooks/useGraphMonitor";
 import { SelectedGraph } from "@/components/graph-monitor/types";
 import { cn } from "@/lib/utils";
-import { useDeviceContext } from "@/contexts/DeviceContext";
-import { Button } from "@/components/ui/button";
-import { Pin } from "lucide-react";
 
 const GraphMonitor = () => {
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { selectedDevice, isDeviceSelected } = useDeviceContext();
   
   const {
     selectedGraphs,
@@ -75,6 +72,11 @@ const GraphMonitor = () => {
     };
   }, [isCollapsed]);
   
+  // สำหรับ desktop เท่านั้น mobile จะไม่มีการปรับ margin
+
+  // Add logging to debug device name issues
+  console.log("Selected Graphs:", selectedGraphs);
+  
   // Modified handler to properly use the SelectedGraph object
   const handleAddGraphWithDeviceName = (deviceCode: string, symbol: string, name: string, deviceName?: string) => {
     console.log("Adding graph with device name:", deviceName);
@@ -111,17 +113,6 @@ const GraphMonitor = () => {
             onSaveGraphs={handleSaveGraphs}
             onAddGraph={() => setSelectorOpen(true)}
           />
-          
-          {user && isDeviceSelected && (
-            <div className="mb-4 bg-blue-50 dark:bg-blue-900/30 p-3 rounded-md flex items-center justify-between">
-              <div className="flex items-center">
-                <Pin className="h-4 w-4 text-blue-600 dark:text-blue-400 mr-2" />
-                <span className="text-sm text-blue-700 dark:text-blue-300">
-                  โหมดแสดงเฉพาะอุปกรณ์ {selectedDevice}
-                </span>
-              </div>
-            </div>
-          )}
 
           {user && (
             <GraphPresets 
@@ -159,6 +150,6 @@ const GraphMonitor = () => {
       <FooterNav />
     </div>
   );
-}
+};
 
 export default GraphMonitor;

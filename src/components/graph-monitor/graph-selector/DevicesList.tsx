@@ -2,7 +2,6 @@
 import React from "react";
 import { DeviceCard } from "./DeviceCard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useDeviceContext } from "@/contexts/DeviceContext";
 
 interface DeviceInfo {
   device_code: string;
@@ -23,8 +22,6 @@ export const DevicesList: React.FC<DevicesListProps> = ({
   loading, 
   onSelectDevice 
 }) => {
-  const { selectedDevice: focusedDevice } = useDeviceContext();
-  
   if (loading) {
     return (
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2">
@@ -49,21 +46,13 @@ export const DevicesList: React.FC<DevicesListProps> = ({
     );
   }
 
-  // If we have a focused device, put it at the top of the list
-  const sortedDevices = [...devices].sort((a, b) => {
-    if (a.device_code === focusedDevice) return -1;
-    if (b.device_code === focusedDevice) return 1;
-    return 0;
-  });
-
   return (
     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2">
-      {sortedDevices.map((device) => (
+      {devices.map((device) => (
         <DeviceCard
           key={device.device_code}
           device={device}
           isSelected={selectedDevice === device.device_code}
-          isFocused={focusedDevice === device.device_code}
           onClick={() => onSelectDevice(device.device_code)}
         />
       ))}

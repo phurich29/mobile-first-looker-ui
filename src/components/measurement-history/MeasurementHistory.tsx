@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import HistoryHeader from "./HistoryHeader";
 import HistoryChart from "./HistoryChart";
 import HistoryFooter from "./HistoryFooter";
@@ -11,9 +11,6 @@ import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import { getNotificationSettings } from "./api";
 import FilteredDatabaseTable from "./FilteredDatabaseTable";
-import { useDeviceContext } from "@/contexts/DeviceContext";
-import { Pin } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 
 export type TimeFrame = '1h' | '24h' | '7d' | '30d';
 
@@ -34,21 +31,9 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
 }) => {
   // Get parameters from URL if not provided as props
   const params = useParams<{ deviceCode: string; symbol: string }>();
-  const navigate = useNavigate();
-  const { selectedDevice } = useDeviceContext();
   
   // Use props if available, otherwise use URL parameters
-  // If no deviceCode and we have a selected device, use that
-  let deviceCode = propDeviceCode || params.deviceCode;
-  if ((!deviceCode || deviceCode === 'default') && selectedDevice) {
-    deviceCode = selectedDevice;
-    
-    // Redirect if we're on the URL route but have a selected device
-    if (params.deviceCode === 'default') {
-      navigate(`/history/${selectedDevice}/${params.symbol}`, { replace: true });
-    }
-  }
-  
+  const deviceCode = propDeviceCode || params.deviceCode;
   const symbol = propSymbol || params.symbol;
   const name = propName || symbol; // If name is not provided, use symbol as fallback
   
@@ -126,22 +111,11 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
     );
   }
 
-  const isSelectedDevice = selectedDevice === deviceCode;
-
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64 overflow-x-hidden">
       <Header />
       
       <main className="flex-1 p-4 pb-32 overflow-x-hidden">
-        {isSelectedDevice && (
-          <div className="mb-4">
-            <Badge variant="outline" className="flex items-center gap-1 text-blue-600 border-blue-200 bg-blue-50">
-              <Pin className="h-3 w-3" />
-              <span>อุปกรณ์ที่เลือก</span>
-            </Badge>
-          </div>
-        )}
-        
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
           <HistoryHeader 
             name={name}

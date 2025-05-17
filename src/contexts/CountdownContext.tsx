@@ -92,7 +92,7 @@ export const CountdownProvider: React.FC<CountdownProviderProps> = ({
   );
 };
 
-export const useGlobalCountdown = (): CountdownContextType => {
+export const useGlobalCountdown = () => {
   const context = useContext(CountdownContext);
   if (context === undefined) {
     throw new Error('useGlobalCountdown must be used within a CountdownProvider');
