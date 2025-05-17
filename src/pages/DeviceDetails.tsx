@@ -1,6 +1,6 @@
 
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import MeasurementHistory from "@/components/MeasurementHistory";
@@ -11,7 +11,6 @@ import { CountdownTimer } from "@/components/CountdownTimer";
 // Import custom hooks
 import { useDeviceData } from "@/features/device-details/hooks/useDeviceData";
 import { useDefaultDeviceRedirect } from "@/features/device-details/hooks/useDefaultDeviceRedirect";
-import { useDeviceContext } from "@/contexts/DeviceContext";
 
 // Import components
 import { DeviceHeader } from "@/features/device-details/components/DeviceHeader";
@@ -21,21 +20,12 @@ import { LoadingScreen } from "@/features/device-details/components/LoadingScree
 
 export default function DeviceDetails() {
   const { deviceCode } = useParams();
-  const navigate = useNavigate();
-  const { selectedDeviceCode } = useDeviceContext();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMeasurement, setSelectedMeasurement] = useState<{
     symbol: string;
     name: string;
   } | null>(null);
-
-  // If no device code in URL but we have a selected device, navigate to it
-  useEffect(() => {
-    if (deviceCode === 'default' && selectedDeviceCode) {
-      navigate(`/device/${selectedDeviceCode}`, { replace: true });
-    }
-  }, [deviceCode, selectedDeviceCode, navigate]);
 
   // Use custom hooks
   useDefaultDeviceRedirect(deviceCode);

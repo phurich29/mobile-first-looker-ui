@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,7 +9,6 @@ import { useAuth } from '@/components/AuthProvider';
 import { formatDistanceToNow } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useDeviceContext } from "@/contexts/DeviceContext";
 
 interface DeviceData {
   device_code: string;
@@ -21,7 +21,6 @@ export const DeviceList = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
-  const { selectedDeviceCode, selectDevice } = useDeviceContext();
   
   useEffect(() => {
     const fetchDevices = async () => {
@@ -98,13 +97,6 @@ export const DeviceList = () => {
   };
   
   const handleDeviceClick = (deviceCode: string) => {
-    // Find the device to get its name
-    const device = devices.find(d => d.device_code === deviceCode);
-    // Set as active device
-    if (device) {
-      selectDevice(deviceCode);
-    }
-    // Navigate to device page
     navigate(`/device/${deviceCode}`);
   };
   
@@ -140,42 +132,29 @@ export const DeviceList = () => {
           </CardContent>
         </Card>
       ) : (
-        devices.map((device) => {
-          const isSelected = selectedDeviceCode === device.device_code;
-          
-          return (
-            <Card 
-              key={device.device_code} 
-              className={`cursor-pointer shadow-sm hover:shadow-md transition-shadow 
-                border-l-4 
-                ${isSelected ? 'border-emerald-600 dark:border-emerald-500' : 'border-l-emerald-500'}`}
-              onClick={() => handleDeviceClick(device.device_code)}
-            >
-              <CardContent className="p-0">
-                <div className="p-4 flex justify-between items-center">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-medium text-gray-800">{device.device_code}</h3>
-                      {isSelected && (
-                        <span className="bg-emerald-100 text-emerald-700 text-xs px-1.5 py-0.5 rounded-full">
-                          อุปกรณ์เริ่มต้น
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-500">อุปกรณ์วัดคุณภาพข้าว</p>
-                  </div>
-                  <div className="bg-emerald-100 p-2 rounded-full">
-                    <ActivitySquare className="h-6 w-6 text-emerald-600" />
-                  </div>
+        devices.map((device) => (
+          <Card 
+            key={device.device_code} 
+            className="cursor-pointer shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-emerald-500" 
+            onClick={() => handleDeviceClick(device.device_code)}
+          >
+            <CardContent className="p-0">
+              <div className="p-4 flex justify-between items-center">
+                <div>
+                  <h3 className="font-medium text-gray-800">{device.device_code}</h3>
+                  <p className="text-sm text-gray-500">อุปกรณ์วัดคุณภาพข้าว</p>
                 </div>
-                <div className="px-4 pb-4 flex items-center gap-2 text-xs text-gray-500">
-                  <Clock className="h-3.5 w-3.5" />
-                  <span>อัพเดทล่าสุด: {formatUpdatedAt(device.updated_at)}</span>
+                <div className="bg-emerald-100 p-2 rounded-full">
+                  <ActivitySquare className="h-6 w-6 text-emerald-600" />
                 </div>
-              </CardContent>
-            </Card>
-          )
-        })
+              </div>
+              <div className="px-4 pb-4 flex items-center gap-2 text-xs text-gray-500">
+                <Clock className="h-3.5 w-3.5" />
+                <span>อัพเดทล่าสุด: {formatUpdatedAt(device.updated_at)}</span>
+              </div>
+            </CardContent>
+          </Card>
+        ))
       )}
     </div>
   );
