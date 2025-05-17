@@ -59,30 +59,6 @@ const GraphSummary = () => {
       setGlobalLineColor(preferences.globalLineColor || "#f97316");
     }
   }, [preferences, preferencesLoading]);
-  
-  // Calculate average data points
-  const dataWithAverage = React.useMemo(() => {
-    if (!graphData || graphData.length === 0 || selectedMetrics.length === 0) {
-      return [];
-    }
-    
-    return graphData.map(point => {
-      // Calculate average across all metrics for this time point
-      const values = selectedMetrics.map(metric => {
-        const key = `${metric.deviceCode}_${metric.symbol}`;
-        return point[key] || 0;
-      }).filter(val => val !== null && val !== undefined);
-      
-      const average = values.length > 0 
-        ? values.reduce((sum, val) => sum + val, 0) / values.length 
-        : 0;
-      
-      return {
-        ...point,
-        average
-      };
-    });
-  }, [graphData, selectedMetrics]);
 
   useEffect(() => {
     // Get sidebar collapsed state from localStorage and listen for custom events
@@ -199,7 +175,7 @@ const GraphSummary = () => {
           <GraphContent
             loading={preferencesLoading || dataLoading}
             selectedMetrics={selectedMetrics}
-            graphData={dataWithAverage}
+            graphData={graphData}
             graphStyle={graphStyle}
             globalLineColor={globalLineColor}
             timeFrame={timeFrame}

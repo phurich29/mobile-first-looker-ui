@@ -1,10 +1,10 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { TimeFrame } from "@/components/measurement-history/MeasurementHistory";
 import { GraphStyle } from "./types";
-import { HexColorPicker } from "react-colorful";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+
 interface GraphStyleControlsProps {
   timeFrame: TimeFrame;
   setTimeFrame: (value: TimeFrame) => void;
@@ -13,6 +13,7 @@ interface GraphStyleControlsProps {
   globalLineColor: string;
   setGlobalLineColor: (value: string) => void;
 }
+
 const getStyleName = (style: GraphStyle): string => {
   const styleNames: Record<GraphStyle, string> = {
     line: "เส้น",
@@ -26,6 +27,7 @@ const getStyleName = (style: GraphStyle): string => {
   };
   return styleNames[style] || "เส้น";
 };
+
 const getStyleSelectButtonClass = (graphStyle: GraphStyle): string => {
   const styleClasses: Record<GraphStyle, string> = {
     line: "border-gray-300",
@@ -39,6 +41,7 @@ const getStyleSelectButtonClass = (graphStyle: GraphStyle): string => {
   };
   return styleClasses[graphStyle] || "border-gray-300";
 };
+
 const getStyleMenuClass = (graphStyle: GraphStyle): string => {
   const menuClasses: Record<GraphStyle, string> = {
     line: "",
@@ -52,6 +55,7 @@ const getStyleMenuClass = (graphStyle: GraphStyle): string => {
   };
   return menuClasses[graphStyle] || "";
 };
+
 export const GraphStyleControls: React.FC<GraphStyleControlsProps> = ({
   timeFrame,
   setTimeFrame,
@@ -94,25 +98,10 @@ export const GraphStyleControls: React.FC<GraphStyleControlsProps> = ({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      {/* ตัวเลือกสีเส้นค่าเฉลี่ยสำหรับทุกกราฟ */}
-      <Popover>
-        <PopoverTrigger asChild>
-          
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-3">
-          <div className="space-y-2">
-            <p className="text-sm font-medium mb-2">เลือกสีเส้นเฉลี่ย</p>
-            <HexColorPicker color={globalLineColor} onChange={setGlobalLineColor} />
-            <div className="flex items-center justify-between mt-2">
-              <div className="text-xs font-mono">{globalLineColor}</div>
-            </div>
-          </div>
-        </PopoverContent>
-      </Popover>
       
       {/* เพิ่มที่ว่างเล็กน้อย */}
       <div className="w-2"></div>
     </div>;
 };
+
 export default GraphStyleControls;

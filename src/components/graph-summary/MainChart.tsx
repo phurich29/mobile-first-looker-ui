@@ -107,17 +107,6 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
               connectNulls={true}
             />
           ))}
-          {/* เส้นค่าเฉลี่ยโดยรวม */}
-          <Area
-            type="monotone"
-            dataKey="average"
-            name="ค่าเฉลี่ยรวม"
-            stroke={globalLineColor}
-            strokeWidth={2}
-            strokeDasharray="5 5"
-            fill="none"
-            activeDot={{ r: 4 }}
-          />
         </AreaChart>
       ) : (
         <LineChart data={formattedData}>
@@ -152,17 +141,6 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
               connectNulls={true}
             />
           ))}
-          {/* เส้นค่าเฉลี่ยโดยรวม */}
-          <Line
-            type="monotone"
-            dataKey="average"
-            name="ค่าเฉลี่ยรวม"
-            stroke={globalLineColor}
-            strokeWidth={2}
-            strokeDasharray="5 5"
-            dot={false}
-            activeDot={{ r: 4 }}
-          />
         </LineChart>
       )}
     </ResponsiveContainer>
