@@ -8,6 +8,7 @@ import { SelectedGraph } from "../types";
 import { TimeFrame } from "@/components/measurement-history/MeasurementHistory";
 import { getGraphStyles } from "./styles";
 import { GraphStyleControls } from "./GraphStyleControls";
+import { getMeasurementThaiName } from "@/utils/measurementFormatters";
 
 interface GraphHeaderProps {
   graph: SelectedGraph;
@@ -35,6 +36,7 @@ export const GraphHeader: React.FC<GraphHeaderProps> = ({
   setLineColor
 }) => {
   const styles = getGraphStyles(graphStyle, graph.symbol);
+  const thaiName = getMeasurementThaiName(graph.symbol) || graph.name;
 
   return (
     <CardHeader className={`${styles.headerBg} py-3`}>
@@ -50,7 +52,7 @@ export const GraphHeader: React.FC<GraphHeaderProps> = ({
             </div>
             <div>
               <CardTitle className={`text-lg font-medium ${styles.titleColor}`}>
-                {graph.name}
+                {thaiName}
               </CardTitle>
               <p className={`text-xs ${styles.subtitleColor}`}>
                 อุปกรณ์: {graph.deviceName}
