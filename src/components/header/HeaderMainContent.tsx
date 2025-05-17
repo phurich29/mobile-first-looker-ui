@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { HeaderClock } from "./HeaderClock";
 import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
-import { useEffect, useState } from "react"; // เพิ่ม import useState และ useEffect
+import { useState } from "react";
 
 interface HeaderMainContentProps {
   setSidebarOpen: (open: boolean) => void;
