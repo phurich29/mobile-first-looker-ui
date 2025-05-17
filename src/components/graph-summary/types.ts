@@ -1,12 +1,25 @@
 
-export type GraphStyle = 'line' | 'area' | 'classic' | 'natural' | 'gradient' | 'pastel' | 'neon' | 'monochrome';
-
 export interface SelectedMetric {
   deviceCode: string;
   deviceName: string;
   symbol: string;
   name: string;
   color: string;
-  minThreshold?: number | null;
-  maxThreshold?: number | null;
+  graphStyle?: string;
+  lineColor?: string;
+}
+
+export type GraphStyle = 
+  | "line" 
+  | "area" 
+  | "classic" 
+  | "natural" 
+  | "neon" 
+  | "pastel" 
+  | "monochrome" 
+  | "gradient";
+
+export interface GraphStyleOptions {
+  graphStyle?: string;
+  lineColor?: string;
 }

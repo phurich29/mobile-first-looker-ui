@@ -91,8 +91,8 @@ export const useGraphSummaryPreferences = () => {
         symbol: metric.symbol,
         name: metric.name,
         color: metric.color,
-        minThreshold: metric.minThreshold,
-        maxThreshold: metric.maxThreshold
+        graphStyle: metric.graphStyle,
+        lineColor: metric.lineColor
       }));
 
       // Create a JSON-compatible object to store

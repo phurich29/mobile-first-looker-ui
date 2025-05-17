@@ -1,5 +1,5 @@
 
-import React, { useMemo } from "react";
+import React from "react";
 import {
   LineChart,
   Line,
@@ -10,13 +10,9 @@ import {
   Legend,
   ResponsiveContainer,
   AreaChart,
-  Area,
-  ReferenceLine
+  Area
 } from 'recharts';
 import { SelectedMetric, GraphStyle } from './types';
-import { GraphTooltip } from './GraphTooltip';
-import { GraphLegend } from './GraphLegend';
-import { checkValueAlert } from '@/utils/measurements';
 
 interface MainChartProps {
   graphData: any[];
@@ -26,9 +22,6 @@ interface MainChartProps {
 }
 
 export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics, graphStyle, globalLineColor }) => {
-  // Fixed color for all states - using green only
-  const greenColor = "#22c55e"; // Green
-  
   // ฟังก์ชันเพื่อกำหนดสีพื้นหลังตามสไตล์
   const getGradientOffset = () => {
     if (graphStyle === 'classic') {
@@ -78,8 +71,8 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
                 x2="0"
                 y2="1"
               >
-                <stop offset={offset1} stopColor={greenColor} stopOpacity={0.5} />
-                <stop offset={offset2} stopColor={greenColor} stopOpacity={0} />
+                <stop offset={offset1} stopColor={metric.color} stopOpacity={0.5} />
+                <stop offset={offset2} stopColor={metric.color} stopOpacity={0} />
               </linearGradient>
             ))}
           </defs>
@@ -94,45 +87,23 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
           />
           <YAxis tick={{ fontSize: 12 }} />
           <Tooltip 
-            content={<GraphTooltip selectedMetrics={selectedMetrics} />}
+            labelFormatter={(time) => {
+              const date = new Date(time);
+              return `${date.toLocaleDateString()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+            }}
+            formatter={(value: number) => [value?.toFixed(2) || '0', '']}
           />
-          <Legend content={(props) => <GraphLegend payload={props.payload || []} selectedMetrics={selectedMetrics} />} />
-          
-          {/* Add reference lines for thresholds */}
-          {selectedMetrics.map((metric) => (
-            <React.Fragment key={`thresholds-${metric.deviceCode}-${metric.symbol}`}>
-              {metric.minThreshold !== undefined && metric.minThreshold !== null && (
-                <ReferenceLine 
-                  y={metric.minThreshold} 
-                  stroke={greenColor}
-                  strokeDasharray="3 3" 
-                  isFront={true}
-                  strokeOpacity={0.6}
-                />
-              )}
-              {metric.maxThreshold !== undefined && metric.maxThreshold !== null && (
-                <ReferenceLine 
-                  y={metric.maxThreshold} 
-                  stroke={greenColor}
-                  strokeDasharray="3 3" 
-                  isFront={true}
-                  strokeOpacity={0.6}
-                />
-              )}
-            </React.Fragment>
-          ))}
-          
+          <Legend />
           {selectedMetrics.map((metric) => (
             <Area
               key={`${metric.deviceCode}-${metric.symbol}`}
               type="monotone"
               dataKey={`${metric.deviceCode}-${metric.symbol}`}
               name={`${metric.name} (${metric.deviceName})`}
-              stroke={greenColor}
+              stroke={metric.color}
               strokeWidth={2}
               fill={`url(#color-${metric.deviceCode}-${metric.symbol})`}
-              activeDot={{ r: 6, fill: greenColor, stroke: 'white' }}
-              dot={false}
+              activeDot={{ r: 6 }}
               connectNulls={true}
             />
           ))}
@@ -150,44 +121,23 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
           />
           <YAxis tick={{ fontSize: 12 }} />
           <Tooltip 
-            content={<GraphTooltip selectedMetrics={selectedMetrics} />}
+            labelFormatter={(time) => {
+              const date = new Date(time);
+              return `${date.toLocaleDateString()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+            }}
+            formatter={(value: number) => [value?.toFixed(2) || '0', '']}
           />
-          <Legend content={(props) => <GraphLegend payload={props.payload || []} selectedMetrics={selectedMetrics} />} />
-          
-          {/* Add reference lines for thresholds */}
-          {selectedMetrics.map((metric) => (
-            <React.Fragment key={`thresholds-${metric.deviceCode}-${metric.symbol}`}>
-              {metric.minThreshold !== undefined && metric.minThreshold !== null && (
-                <ReferenceLine 
-                  y={metric.minThreshold} 
-                  stroke={greenColor}
-                  strokeDasharray="3 3" 
-                  isFront={true}
-                  strokeOpacity={0.6}
-                />
-              )}
-              {metric.maxThreshold !== undefined && metric.maxThreshold !== null && (
-                <ReferenceLine 
-                  y={metric.maxThreshold} 
-                  stroke={greenColor}
-                  strokeDasharray="3 3" 
-                  isFront={true}
-                  strokeOpacity={0.6}
-                />
-              )}
-            </React.Fragment>
-          ))}
-          
+          <Legend />
           {selectedMetrics.map((metric) => (
             <Line
               key={`${metric.deviceCode}-${metric.symbol}`}
               type="monotone"
               dataKey={`${metric.deviceCode}-${metric.symbol}`}
               name={`${metric.name} (${metric.deviceName})`}
-              stroke={greenColor}
+              stroke={metric.color}
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 6, fill: greenColor, stroke: 'white' }}
+              activeDot={{ r: 6 }}
               connectNulls={true}
             />
           ))}

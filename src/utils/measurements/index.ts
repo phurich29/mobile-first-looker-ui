@@ -1,6 +1,6 @@
 
 // Export all functionality from the individual files
-export { calculateChange, checkValueAlert } from './formatters';
+export { calculateChange } from './formatters';
 export { getMeasurementThaiName } from './thaiNames';
 export { formatWholeGrainItems } from './wholeGrainFormatter';
 export { formatIngredientsItems } from './ingredientsFormatter';

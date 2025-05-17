@@ -24,7 +24,6 @@ import {
   getErrorTextClass,
   getChartTextColor
 } from "./styles";
-import { calculateChange } from "@/utils/measurements";
 
 interface GraphChartContentProps {
   loading: boolean;
@@ -33,8 +32,8 @@ interface GraphChartContentProps {
   graphSymbol: string;
   graphName: string;
   graphStyle: GraphStyle;
-  barColor?: string;
-  lineColor?: string;
+  barColor?: string; // เพิ่มสีของกราฟแท่งที่ผู้ใช้เลือก
+  lineColor?: string; // เพิ่มสีของเส้นค่าเฉลี่ยที่ผู้ใช้เลือก
 }
 
 export const GraphChartContent: React.FC<GraphChartContentProps> = ({
@@ -55,16 +54,6 @@ export const GraphChartContent: React.FC<GraphChartContentProps> = ({
     const sum = data.reduce((acc, item) => acc + (parseFloat(item.value) || 0), 0);
     return sum / data.length;
   }, [data]);
-
-  // Check if values are outside normal range
-  const checkIsAlert = (value: number) => {
-    // Example alert condition - value outside 10% of average
-    return value < average * 0.9 || value > average * 1.1;
-  };
-
-  // Default colors
-  const defaultBarColor = '#22c55e'; // Green for normal values
-  const alertBarColor = '#ef4444'; // Red for alert values
 
   if (loading) {
     return (
@@ -89,12 +78,6 @@ export const GraphChartContent: React.FC<GraphChartContentProps> = ({
       </div>
     );
   }
-
-  // Check if any value is in alert state
-  const hasAlertValues = data.some(item => checkIsAlert(parseFloat(item.value)));
-
-  // Use user-selected color or default green for normal, red for alerts
-  const effectiveBarColor = barColor || (hasAlertValues ? alertBarColor : defaultBarColor);
 
   return (
     <ChartContainer
@@ -165,8 +148,8 @@ export const GraphChartContent: React.FC<GraphChartContentProps> = ({
           >
             <defs>
               <linearGradient id={`colorValue-${graphSymbol}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={effectiveBarColor} stopOpacity={0.8} />
-                <stop offset="95%" stopColor={effectiveBarColor} stopOpacity={0.1} />
+                <stop offset="5%" stopColor={barColor || styles.lineColor} stopOpacity={0.8} />
+                <stop offset="95%" stopColor={barColor || styles.lineColor} stopOpacity={0.1} />
               </linearGradient>
               <filter id="shadow" height="200%">
                 <feDropShadow dx="0" dy="3" stdDeviation="3" floodColor="rgba(0,0,0,0.1)" />
@@ -201,7 +184,7 @@ export const GraphChartContent: React.FC<GraphChartContentProps> = ({
             <Tooltip content={<CustomTooltip graphStyle={graphStyle} />} />
             <Area
               dataKey="value"
-              stroke={effectiveBarColor}
+              stroke={barColor || styles.lineColor}
               strokeWidth={2}
               fill={`url(#colorValue-${graphSymbol})`}
               fillOpacity={0.9}
