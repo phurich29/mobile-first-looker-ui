@@ -26,9 +26,8 @@ interface MainChartProps {
 }
 
 export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics, graphStyle, globalLineColor }) => {
-  // Colors for normal and alert states
-  const normalColor = "#22c55e"; // Green
-  const alertColor = "#ef4444"; // Red
+  // Fixed color for all states - using green only
+  const greenColor = "#22c55e"; // Green
   
   // ฟังก์ชันเพื่อกำหนดสีพื้นหลังตามสไตล์
   const getGradientOffset = () => {
@@ -88,7 +87,7 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
         cx={cx} 
         cy={cy} 
         r={4} 
-        fill={alertColor} 
+        fill={greenColor} // Changed to green for all dots
         stroke="white" 
         strokeWidth={1} 
       />
@@ -109,8 +108,8 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
                 x2="0"
                 y2="1"
               >
-                <stop offset={offset1} stopColor={normalColor} stopOpacity={0.5} />
-                <stop offset={offset2} stopColor={normalColor} stopOpacity={0} />
+                <stop offset={offset1} stopColor={greenColor} stopOpacity={0.5} />
+                <stop offset={offset2} stopColor={greenColor} stopOpacity={0} />
               </linearGradient>
             ))}
           </defs>
@@ -135,7 +134,7 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
               {metric.minThreshold !== undefined && metric.minThreshold !== null && (
                 <ReferenceLine 
                   y={metric.minThreshold} 
-                  stroke={alertColor} 
+                  stroke={greenColor} // Changed to green for reference lines
                   strokeDasharray="3 3" 
                   isFront={true}
                   strokeOpacity={0.6}
@@ -144,7 +143,7 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
               {metric.maxThreshold !== undefined && metric.maxThreshold !== null && (
                 <ReferenceLine 
                   y={metric.maxThreshold} 
-                  stroke={alertColor} 
+                  stroke={greenColor} // Changed to green for reference lines
                   strokeDasharray="3 3" 
                   isFront={true}
                   strokeOpacity={0.6}
@@ -159,7 +158,7 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
               type="monotone"
               dataKey={`${metric.deviceCode}-${metric.symbol}`}
               name={`${metric.name} (${metric.deviceName})`}
-              stroke={normalColor}
+              stroke={greenColor}
               strokeWidth={2}
               fill={`url(#color-${metric.deviceCode}-${metric.symbol})`}
               activeDot={false}
@@ -191,7 +190,7 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
               {metric.minThreshold !== undefined && metric.minThreshold !== null && (
                 <ReferenceLine 
                   y={metric.minThreshold} 
-                  stroke={alertColor} 
+                  stroke={greenColor} // Changed to green for reference lines
                   strokeDasharray="3 3" 
                   isFront={true}
                   strokeOpacity={0.6}
@@ -200,7 +199,7 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
               {metric.maxThreshold !== undefined && metric.maxThreshold !== null && (
                 <ReferenceLine 
                   y={metric.maxThreshold} 
-                  stroke={alertColor} 
+                  stroke={greenColor} // Changed to green for reference lines
                   strokeDasharray="3 3" 
                   isFront={true}
                   strokeOpacity={0.6}
@@ -215,7 +214,7 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
               type="monotone"
               dataKey={`${metric.deviceCode}-${metric.symbol}`}
               name={`${metric.name} (${metric.deviceName})`}
-              stroke={normalColor}
+              stroke={greenColor}
               strokeWidth={2}
               dot={false}
               activeDot={{ r: 6 }}

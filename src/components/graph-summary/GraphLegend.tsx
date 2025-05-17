@@ -12,9 +12,8 @@ export const GraphLegend: React.FC<GraphLegendProps> = ({
   payload,
   selectedMetrics 
 }) => {
-  // Fixed colors for normal and alert states
-  const normalColor = "#22c55e"; // Green
-  const alertColor = "#ef4444"; // Red
+  // Fixed color for all states - green only
+  const greenColor = "#22c55e"; // Green
 
   return (
     <div className="flex flex-wrap justify-center mt-2 gap-4">
@@ -35,7 +34,7 @@ export const GraphLegend: React.FC<GraphLegendProps> = ({
           <div key={index} className="flex items-center">
             <div 
               className="w-3 h-3 rounded-full mr-2"
-              style={{ backgroundColor: normalColor }}
+              style={{ backgroundColor: greenColor }}
             ></div>
             <span className="text-xs">
               {thaiName} ({metric.deviceName})
@@ -51,17 +50,6 @@ export const GraphLegend: React.FC<GraphLegendProps> = ({
           </div>
         );
       })}
-      
-      {/* Add legend entry for alert values */}
-      <div className="flex items-center ml-4 border-l pl-4 border-gray-300">
-        <div 
-          className="w-3 h-3 rounded-full mr-2"
-          style={{ backgroundColor: alertColor }}
-        ></div>
-        <span className="text-xs">
-          ค่าเกินเกณฑ์แจ้งเตือน
-        </span>
-      </div>
     </div>
   );
 };

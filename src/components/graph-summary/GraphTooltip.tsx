@@ -17,6 +17,9 @@ export const GraphTooltip: React.FC<GraphTooltipProps> = ({
   label,
   selectedMetrics
 }) => {
+  // Fixed color - green only
+  const greenColor = "#22c55e";
+  
   if (active && payload && payload.length) {
     return (
       <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg">
@@ -43,8 +46,6 @@ export const GraphTooltip: React.FC<GraphTooltipProps> = ({
               metric.maxThreshold
             );
             
-            const valueColor = isAlert ? "text-red-600 font-bold" : "text-emerald-600";
-            
             return (
               <div 
                 key={index} 
@@ -53,13 +54,13 @@ export const GraphTooltip: React.FC<GraphTooltipProps> = ({
                 <div className="flex items-center">
                   <div 
                     className="w-3 h-3 rounded-full mr-2"
-                    style={{ backgroundColor: isAlert ? "#ef4444" : "#22c55e" }}
+                    style={{ backgroundColor: greenColor }}
                   ></div>
                   <span className="text-xs font-medium">
                     {thaiName} ({metric.deviceName})
                   </span>
                 </div>
-                <span className={`text-xs font-mono ml-4 ${valueColor}`}>
+                <span className={`text-xs font-mono ml-4 text-emerald-600`}>
                   {Number(entry.value).toFixed(2)}
                 </span>
               </div>
