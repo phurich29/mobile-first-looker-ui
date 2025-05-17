@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
@@ -8,46 +9,8 @@ import { TimeFrame } from "@/components/measurement-history/MeasurementHistory";
 import { SelectedMetric, GraphStyle } from "@/components/graph-summary/types";
 import { GraphContent } from "@/components/graph-summary/GraphContent";
 import { GraphHeader } from "@/components/graph-summary/GraphHeader";
-// Mock API - ใช้ในตัวอย่างเท่านั้น
-const getGraphDataByTimeFrame = (metrics: SelectedMetric[], timeFrame: TimeFrame) => {
-  return new Promise<any[]>((resolve) => {
-    setTimeout(() => {
-      // สร้างข้อมูลจำลองสำหรับกราฟ
-      const now = new Date();
-      const data = [];
-      const points = timeFrame === '1h' ? 60 : 
-                   timeFrame === '3h' ? 180 : 
-                   timeFrame === '6h' ? 360 : 
-                   timeFrame === '12h' ? 720 : 
-                   timeFrame === '24h' ? 1440 : 
-                   timeFrame === '7d' ? 168 : 720;
-      
-      const interval = timeFrame === '1h' ? 60 : 
-                      timeFrame === '3h' ? 60 : 
-                      timeFrame === '6h' ? 60 : 
-                      timeFrame === '12h' ? 60 : 
-                      timeFrame === '24h' ? 60 : 
-                      timeFrame === '7d' ? 3600 : 3600;
-      
-      for (let i = 0; i < points; i += 10) {
-        const timestamp = new Date(now.getTime() - (i * interval * 1000));
-        const point: any = { timestamp: timestamp.getTime() };
-        
-        metrics.forEach(metric => {
-          // สร้างข้อมูลสุ่มสำหรับแต่ละตัวชี้วัด
-          const key = `${metric.deviceCode}-${metric.symbol}`;
-          const baseValue = Math.random() * 100;
-          const noise = Math.sin(i / 10) * 10;
-          point[key] = parseFloat((baseValue + noise).toFixed(2));
-        });
-        
-        data.push(point);
-      }
-      
-      resolve(data.reverse());
-    }, 500);
-  });
-};
+import { useGraphData } from "@/components/graph-summary/useGraphData";
+import { useGraphSummaryPreferences } from "@/components/graph-summary/hooks/useGraphSummaryPreferences";
 
 // Define colors for the chart lines
 const colors = [
@@ -69,71 +32,58 @@ const GraphSummary = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selectorOpen, setSelectorOpen] = useState(false);
   const [deviceNames, setDeviceNames] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(false);
-  const [graphData, setGraphData] = useState<any[]>([]);
   
-  // จะเก็บ metrics ที่เลือกไว้ใน localStorage
-  const [selectedMetrics, setSelectedMetrics] = useState<SelectedMetric[]>(
-    []
-  );
+  // Load preferences using our custom hook
+  const { 
+    preferences, 
+    loading: preferencesLoading, 
+    saving, 
+    savePreferences 
+  } = useGraphSummaryPreferences();
   
-  // เก็บช่วงเวลาใน localStorage
-  const [timeFrame, setTimeFrame] = useState<TimeFrame>(
-    "24h"
-  );
+  // Use preferences from the hook
+  const [selectedMetrics, setSelectedMetrics] = useState<SelectedMetric[]>([]);
+  const [timeFrame, setTimeFrame] = useState<TimeFrame>("24h");
+  const [graphStyle, setGraphStyle] = useState<GraphStyle>("line");
+  const [globalLineColor, setGlobalLineColor] = useState<string>("#f97316");
   
-  // เก็บค่าสไตล์กราฟใน localStorage
-  const [graphStyle, setGraphStyle] = useState<GraphStyle>(
-    "line"
-  );
+  // Load data using our custom hook
+  const { graphData, loading: dataLoading } = useGraphData(selectedMetrics, timeFrame);
   
-  // เก็บค่าสีเส้นเฉลี่ยใน localStorage
-  const [globalLineColor, setGlobalLineColor] = useState<string>(
-    "#f97316"
-  );
-  // โหลดข้อมูลกราฟเมื่อเปลี่ยน metrics หรือ timeFrame
+  // Apply preferences when they load
   useEffect(() => {
-    const fetchData = async () => {
-      if (selectedMetrics.length === 0) {
-        setGraphData([]);
-        return;
-      }
-      
-      setLoading(true);
-      try {
-        const data = await getGraphDataByTimeFrame(selectedMetrics, timeFrame);
-        
-        // คำนวณค่าเฉลี่ยรวมสำหรับแต่ละจุดเวลา
-        const dataWithAverage = data.map(point => {
-          // คำนวณค่าเฉลี่ยจากทุก metric ในจุดเวลานี้
-          const values = selectedMetrics.map(metric => {
-            const key = `${metric.deviceCode}-${metric.symbol}`;
-            return point[key] || 0;
-          });
-          
-          // คำนวณค่าเฉลี่ย
-          const validValues = values.filter(v => v !== null && v !== undefined);
-          const average = validValues.length > 0 
-            ? validValues.reduce((sum, val) => sum + val, 0) / validValues.length 
-            : 0;
-          
-          return {
-            ...point,
-            average
-          };
-        });
-        
-        setGraphData(dataWithAverage);
-      } catch (error) {
-        console.error("Error fetching graph data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchData();
-  }, [selectedMetrics, timeFrame]);
+    if (!preferencesLoading) {
+      setSelectedMetrics(preferences.selectedMetrics || []);
+      setTimeFrame(preferences.timeFrame || "24h");
+      setGraphStyle(preferences.graphStyle || "line");
+      setGlobalLineColor(preferences.globalLineColor || "#f97316");
+    }
+  }, [preferences, preferencesLoading]);
   
+  // Calculate average data points
+  const dataWithAverage = React.useMemo(() => {
+    if (!graphData || graphData.length === 0 || selectedMetrics.length === 0) {
+      return [];
+    }
+    
+    return graphData.map(point => {
+      // Calculate average across all metrics for this time point
+      const values = selectedMetrics.map(metric => {
+        const key = `${metric.deviceCode}_${metric.symbol}`;
+        return point[key] || 0;
+      }).filter(val => val !== null && val !== undefined);
+      
+      const average = values.length > 0 
+        ? values.reduce((sum, val) => sum + val, 0) / values.length 
+        : 0;
+      
+      return {
+        ...point,
+        average
+      };
+    });
+  }, [graphData, selectedMetrics]);
+
   useEffect(() => {
     // Get sidebar collapsed state from localStorage
     const savedCollapsedState = localStorage.getItem('sidebarCollapsed');
@@ -188,7 +138,7 @@ const GraphSummary = () => {
     // Assign a color from our color palette
     const colorIndex = selectedMetrics.length % colors.length;
     
-    setSelectedMetrics([
+    const newMetrics = [
       ...selectedMetrics,
       {
         deviceCode,
@@ -197,7 +147,9 @@ const GraphSummary = () => {
         name,
         color: colors[colorIndex],
       },
-    ]);
+    ];
+    
+    setSelectedMetrics(newMetrics);
     
     // Close selector after adding
     setSelectorOpen(false);
@@ -205,14 +157,15 @@ const GraphSummary = () => {
 
   // Function to remove a metric from the graph
   const removeMetric = (deviceCode: string, symbol: string) => {
-    setSelectedMetrics(selectedMetrics.filter(
+    const newMetrics = selectedMetrics.filter(
       m => !(m.deviceCode === deviceCode && m.symbol === symbol)
-    ));
+    );
+    setSelectedMetrics(newMetrics);
   };
   
   // Function to update the color of a metric's line on the graph
   const updateMetricColor = (deviceCode: string, symbol: string, color: string) => {
-    setSelectedMetrics(selectedMetrics.map(metric => {
+    const newMetrics = selectedMetrics.map(metric => {
       if (metric.deviceCode === deviceCode && metric.symbol === symbol) {
         return {
           ...metric,
@@ -220,17 +173,18 @@ const GraphSummary = () => {
         };
       }
       return metric;
-    }));
+    });
+    setSelectedMetrics(newMetrics);
   };
   
-  // Function to update the graph style
-  const updateGraphStyle = (style: GraphStyle) => {
-    setGraphStyle(style);
-  };
-  
-  // Function to update the global line color
-  const updateGlobalLineColor = (color: string) => {
-    setGlobalLineColor(color);
+  // Function to save all preferences
+  const handleSavePreferences = () => {
+    savePreferences({
+      selectedMetrics,
+      timeFrame,
+      graphStyle,
+      globalLineColor
+    });
   };
 
   // Calculate sidebar width for layout
@@ -249,9 +203,9 @@ const GraphSummary = () => {
           />
           
           <GraphContent
-            loading={loading}
+            loading={preferencesLoading || dataLoading}
             selectedMetrics={selectedMetrics}
-            graphData={graphData}
+            graphData={dataWithAverage}
             graphStyle={graphStyle}
             globalLineColor={globalLineColor}
             timeFrame={timeFrame}
@@ -259,8 +213,10 @@ const GraphSummary = () => {
             onRemoveMetric={removeMetric}
             onUpdateMetricColor={updateMetricColor}
             onTimeFrameChange={setTimeFrame}
-            onGraphStyleChange={updateGraphStyle}
-            onGlobalLineColorChange={updateGlobalLineColor}
+            onGraphStyleChange={setGraphStyle}
+            onGlobalLineColorChange={setGlobalLineColor}
+            onSavePreferences={handleSavePreferences}
+            saving={saving}
           />
         </div>
       </main>
@@ -268,10 +224,8 @@ const GraphSummary = () => {
       <GraphSelector 
         open={selectorOpen} 
         onOpenChange={setSelectorOpen} 
-        onSelectGraph={(deviceCode, symbol, name) => {
-          // Extract deviceName from useGraphSelector's getSelectedDeviceName function if possible
-          // This is a workaround since we don't have direct access to that function here
-          handleAddGraph(deviceCode, symbol, name);
+        onSelectGraph={(deviceCode, symbol, name, deviceName) => {
+          handleAddGraph(deviceCode, symbol, name, deviceName);
         }}
       />
       

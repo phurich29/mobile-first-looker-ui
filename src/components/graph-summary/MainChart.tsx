@@ -39,10 +39,28 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
   // เลือกใช้ LineChart หรือ AreaChart ตามสไตล์
   const isAreaChart = ['area', 'natural', 'gradient', 'pastel'].includes(graphStyle);
 
+  // Format the data to ensure it uses the correct keys based on the selected metrics
+  const formattedData = React.useMemo(() => {
+    if (!graphData || graphData.length === 0) return [];
+    
+    return graphData.map(point => {
+      const newPoint: any = { timestamp: point.timestamp };
+      
+      // Add each metric's value using the correct key format
+      selectedMetrics.forEach(metric => {
+        const key = `${metric.deviceCode}-${metric.symbol}`;
+        const dataKey = `${metric.deviceCode}_${metric.symbol}`;
+        newPoint[key] = point[dataKey]; // Map from stored format to display format
+      });
+      
+      return newPoint;
+    });
+  }, [graphData, selectedMetrics]);
+
   return (
     <ResponsiveContainer width="100%" height="100%">
       {isAreaChart ? (
-        <AreaChart data={graphData}>
+        <AreaChart data={formattedData}>
           <defs>
             {selectedMetrics.map((metric) => (
               <linearGradient
@@ -73,7 +91,7 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
               const date = new Date(time);
               return `${date.toLocaleDateString()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
             }}
-            formatter={(value: number) => [value.toFixed(2), '']}
+            formatter={(value: number) => [value?.toFixed(2) || '0', '']}
           />
           <Legend />
           {selectedMetrics.map((metric) => (
@@ -86,6 +104,7 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
               strokeWidth={2}
               fill={`url(#color-${metric.deviceCode}-${metric.symbol})`}
               activeDot={{ r: 6 }}
+              connectNulls={true}
             />
           ))}
           {/* เส้นค่าเฉลี่ยโดยรวม */}
@@ -101,7 +120,7 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
           />
         </AreaChart>
       ) : (
-        <LineChart data={graphData}>
+        <LineChart data={formattedData}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis 
             dataKey="timestamp" 
@@ -117,7 +136,7 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
               const date = new Date(time);
               return `${date.toLocaleDateString()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
             }}
-            formatter={(value: number) => [value.toFixed(2), '']}
+            formatter={(value: number) => [value?.toFixed(2) || '0', '']}
           />
           <Legend />
           {selectedMetrics.map((metric) => (
@@ -130,6 +149,7 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
               strokeWidth={2}
               dot={false}
               activeDot={{ r: 6 }}
+              connectNulls={true}
             />
           ))}
           {/* เส้นค่าเฉลี่ยโดยรวม */}

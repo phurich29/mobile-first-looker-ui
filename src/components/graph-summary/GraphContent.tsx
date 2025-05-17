@@ -23,6 +23,8 @@ interface GraphContentProps {
   onTimeFrameChange: (value: TimeFrame) => void;
   onGraphStyleChange: (value: GraphStyle) => void;
   onGlobalLineColorChange: (value: string) => void;
+  onSavePreferences?: () => void;
+  saving?: boolean;
 }
 
 export const GraphContent: React.FC<GraphContentProps> = ({
@@ -37,7 +39,9 @@ export const GraphContent: React.FC<GraphContentProps> = ({
   onUpdateMetricColor,
   onTimeFrameChange,
   onGraphStyleChange,
-  onGlobalLineColorChange
+  onGlobalLineColorChange,
+  onSavePreferences,
+  saving
 }) => {
   return (
     <Card className="flex flex-col bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 h-[600px]">
@@ -53,6 +57,8 @@ export const GraphContent: React.FC<GraphContentProps> = ({
             selectedMetrics={selectedMetrics} 
             onRemoveMetric={onRemoveMetric}
             onUpdateMetricColor={onUpdateMetricColor}
+            onSavePreferences={onSavePreferences}
+            saving={saving}
           />
           
           <GraphStyleControls 
