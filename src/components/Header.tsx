@@ -1,8 +1,9 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Bell, Menu, User, ChevronDown } from "lucide-react";
+import { Bell, Menu, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -39,7 +40,9 @@ export const Header = () => {
     localStorage.setItem('sidebarCollapsed', JSON.stringify(newState));
     
     // Dispatch a custom event for other components to listen to
-    window.dispatchEvent(new CustomEvent('sidebarStateChanged', { detail: { isCollapsed: newState } }));
+    window.dispatchEvent(new CustomEvent('sidebarStateChanged', { 
+      detail: { isCollapsed: newState } 
+    }));
   };
 
   const handleSignOut = async () => {
@@ -48,6 +51,11 @@ export const Header = () => {
       title: "ออกจากระบบสำเร็จ",
       description: "คุณได้ออกจากระบบเรียบร้อยแล้ว",
     });
+  };
+
+  const handleMobileMenuClick = () => {
+    // For mobile, we'll dispatch an event to open the sidebar
+    window.dispatchEvent(new CustomEvent('toggleMobileSidebar'));
   };
 
   const handleNotificationClick = () => {
@@ -65,8 +73,8 @@ export const Header = () => {
       <div className="flex h-16 justify-between items-center px-4 lg:px-6">
         <div className="flex items-center gap-3">
           <button
-            onClick={toggleSidebar}
-            className="lg:hidden p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+            onClick={isMobile ? handleMobileMenuClick : toggleSidebar}
+            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
           >
             <Menu className="h-5 w-5 text-gray-600 dark:text-gray-400" />
           </button>
