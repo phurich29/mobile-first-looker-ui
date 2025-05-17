@@ -29,8 +29,12 @@ export const HeaderMainContent = ({ setSidebarOpen, isCollapsed = false }: Heade
   
   // ดึงข้อมูลชื่ออุปกรณ์เมื่อมีการเลือกอุปกรณ์
   useEffect(() => {
+    console.log("DeviceContext selectedDevice changed:", selectedDevice);
+    
     if (selectedDevice) {
       const fetchDeviceName = async () => {
+        console.log("Fetching device name for:", selectedDevice);
+        
         const { data, error } = await supabase
           .from('device_settings')
           .select('display_name')
@@ -38,8 +42,10 @@ export const HeaderMainContent = ({ setSidebarOpen, isCollapsed = false }: Heade
           .maybeSingle();
         
         if (!error && data) {
+          console.log("Device data found:", data);
           setDeviceDisplayName(data.display_name || selectedDevice);
         } else {
+          console.log("Error or no data:", error);
           setDeviceDisplayName(selectedDevice);
         }
       };
@@ -71,6 +77,15 @@ export const HeaderMainContent = ({ setSidebarOpen, isCollapsed = false }: Heade
       setSidebarOpen(newState);
     }
   };
+
+  // แสดงสถานะเพื่อ debug
+  useEffect(() => {
+    console.log("Current device display state:", { 
+      selectedDevice, 
+      deviceDisplayName,
+      currentRoute: window.location.pathname
+    });
+  }, [selectedDevice, deviceDisplayName]);
   
   return (
     <header className={cn(
