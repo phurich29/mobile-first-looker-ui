@@ -1,6 +1,7 @@
 
 import React from "react";
 import { SelectedMetric } from "./types";
+import { getMeasurementThaiName } from "@/utils/measurementFormatters";
 
 interface GraphLegendProps {
   payload: any[];
@@ -23,6 +24,9 @@ export const GraphLegend: React.FC<GraphLegendProps> = ({
         
         if (!metric) return null;
         
+        // Get Thai name if available, otherwise use the original name
+        const thaiName = getMeasurementThaiName(metric.symbol) || metric.name;
+        
         return (
           <div key={index} className="flex items-center">
             <div 
@@ -30,7 +34,7 @@ export const GraphLegend: React.FC<GraphLegendProps> = ({
               style={{ backgroundColor: metric.color }}
             ></div>
             <span className="text-xs">
-              {metric.name} ({metric.deviceName})
+              {thaiName} ({metric.deviceName})
             </span>
           </div>
         );

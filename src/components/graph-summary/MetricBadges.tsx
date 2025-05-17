@@ -6,6 +6,7 @@ import { X, Cpu, Save } from "lucide-react";
 import { SelectedMetric } from "./types";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { HexColorPicker } from "react-colorful";
+import { getMeasurementThaiName } from "@/utils/measurementFormatters";
 
 interface MetricBadgesProps {
   selectedMetrics: SelectedMetric[];
@@ -24,48 +25,53 @@ export const MetricBadges: React.FC<MetricBadgesProps> = ({
 }) => {
   return (
     <div className="flex flex-wrap gap-2 mb-3">
-      {selectedMetrics.map((metric) => (
-        <div key={`${metric.deviceCode}-${metric.symbol}`} className="flex items-center">
-          <Badge
-            className="py-1.5 px-3 flex items-center gap-1.5 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700"
-          >
-            <Popover>
-              <PopoverTrigger asChild>
-                <div
-                  className="w-3 h-3 rounded-full cursor-pointer"
-                  style={{ backgroundColor: metric.color }}
-                />
-              </PopoverTrigger>
-              {onUpdateMetricColor && (
-                <PopoverContent className="w-auto p-3">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">เลือกสี</p>
-                    <HexColorPicker
-                      color={metric.color}
-                      onChange={(color) => onUpdateMetricColor(metric.deviceCode, metric.symbol, color)}
-                    />
-                    <div className="flex items-center justify-between mt-2">
-                      <div className="text-xs font-mono">{metric.color}</div>
-                    </div>
-                  </div>
-                </PopoverContent>
-              )}
-            </Popover>
-            <span className="mr-1">
-              <Cpu size={12} className="text-gray-500" />
-            </span>
-            <span>
-              {metric.name} ({metric.deviceName})
-            </span>
-            <button
-              onClick={() => onRemoveMetric(metric.deviceCode, metric.symbol)}
-              className="ml-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+      {selectedMetrics.map((metric) => {
+        // Get Thai name if available, otherwise use the original name
+        const thaiName = getMeasurementThaiName(metric.symbol) || metric.name;
+        
+        return (
+          <div key={`${metric.deviceCode}-${metric.symbol}`} className="flex items-center">
+            <Badge
+              className="py-1.5 px-3 flex items-center gap-1.5 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700"
             >
-              <X size={14} />
-            </button>
-          </Badge>
-        </div>
-      ))}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <div
+                    className="w-3 h-3 rounded-full cursor-pointer"
+                    style={{ backgroundColor: metric.color }}
+                  />
+                </PopoverTrigger>
+                {onUpdateMetricColor && (
+                  <PopoverContent className="w-auto p-3">
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">เลือกสี</p>
+                      <HexColorPicker
+                        color={metric.color}
+                        onChange={(color) => onUpdateMetricColor(metric.deviceCode, metric.symbol, color)}
+                      />
+                      <div className="flex items-center justify-between mt-2">
+                        <div className="text-xs font-mono">{metric.color}</div>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                )}
+              </Popover>
+              <span className="mr-1">
+                <Cpu size={12} className="text-gray-500" />
+              </span>
+              <span>
+                {thaiName} ({metric.deviceName})
+              </span>
+              <button
+                onClick={() => onRemoveMetric(metric.deviceCode, metric.symbol)}
+                className="ml-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              >
+                <X size={14} />
+              </button>
+            </Badge>
+          </div>
+        );
+      })}
       
       {selectedMetrics.length > 0 && onSavePreferences && (
         <Button 

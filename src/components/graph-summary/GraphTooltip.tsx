@@ -1,6 +1,7 @@
 
 import React from "react";
 import { SelectedMetric } from "./types";
+import { getMeasurementThaiName } from "@/utils/measurementFormatters";
 
 interface GraphTooltipProps {
   active?: boolean;
@@ -30,6 +31,9 @@ export const GraphTooltip: React.FC<GraphTooltipProps> = ({
             
             if (!metric) return null;
             
+            // Get Thai name if available, otherwise use the original name
+            const thaiName = getMeasurementThaiName(metric.symbol) || metric.name;
+            
             return (
               <div 
                 key={index} 
@@ -41,7 +45,7 @@ export const GraphTooltip: React.FC<GraphTooltipProps> = ({
                     style={{ backgroundColor: metric.color }}
                   ></div>
                   <span className="text-xs font-medium">
-                    {metric.name} ({metric.deviceName})
+                    {thaiName} ({metric.deviceName})
                   </span>
                 </div>
                 <span className="text-xs font-mono ml-4">
