@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect } from "react";
 import { ArrowUp, ArrowDown, Wheat, Blend, Circle, Bot, Bell } from "lucide-react";
 import { getLatestMeasurement } from "@/components/measurement-history/api";
+import { useGlobalCountdown } from "@/contexts/CountdownContext";
 import "./notification-item-animation.css";
 
 type MeasurementItemProps = {
@@ -43,6 +43,10 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
   const [latestValue, setLatestValue] = useState<number | null>(parseFloat(valueToShow) || null);
   const [latestTimestamp, setLatestTimestamp] = useState<string | null>(updatedAt ? updatedAt.toISOString() : null);
   const [isAlertActive, setIsAlertActive] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  
+  // Access the global countdown context
+  const { lastCompleteTime } = useGlobalCountdown();
   
   // Always set to true for green color
   const isPositive = true;
@@ -54,50 +58,50 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
                 symbol.includes('XRP') ? 'bg-indigo-50' :
                 symbol.includes('LTC') ? 'bg-gray-50' : 'bg-purple-50';
   
-  // Effect สำหรับดึงข้อมูลล่าสุดทุก 20 วินาที
-  useEffect(() => {
+  // ฟังก์ชันสำหรับดึงค่าล่าสุดและตรวจสอบการแจ้งเตือน
+  const fetchLatestValue = async () => {
     if (!deviceCode || !symbol || !enabled || !notificationType || !threshold) {
       return;
     }
 
-    // ฟังก์ชันสำหรับดึงค่าล่าสุดและตรวจสอบการแจ้งเตือน
-    const fetchLatestValue = async () => {
-      try {
-        const result = await getLatestMeasurement(deviceCode, symbol);
+    try {
+      const result = await getLatestMeasurement(deviceCode, symbol);
+      
+      if (result.value !== null) {
+        setLatestValue(result.value);
+        setLatestTimestamp(result.timestamp);
+        setLastUpdated(new Date());
         
-        if (result.value !== null) {
-          setLatestValue(result.value);
-          setLatestTimestamp(result.timestamp);
-          
-          // ตรวจสอบเงื่อนไขการแจ้งเตือน
-          const thresholdValue = parseFloat(threshold);
-          
-          if (notificationType === 'min') {
-            // แจ้งเตือนเมื่อค่าต่ำกว่า threshold
-            setIsAlertActive(result.value < thresholdValue);
-          } else if (notificationType === 'max') {
-            // แจ้งเตือนเมื่อค่าสูงกว่า threshold
-            setIsAlertActive(result.value > thresholdValue);
-          } else if (notificationType === 'both') {
-            // แจ้งเตือนเมื่อค่าอยู่นอกช่วงที่กำหนด (รูปแบบช่วงคือ "min-max")
-            const [minThreshold, maxThreshold] = threshold.split('-').map(parseFloat);
-            setIsAlertActive(result.value < minThreshold || result.value > maxThreshold);
-          }
+        // ต���วจสอบเงื่อนไขการแจ้งเตือน
+        const thresholdValue = parseFloat(threshold);
+        
+        if (notificationType === 'min') {
+          // แจ้งเตือนเมื่อค่าต่ำกว่า threshold
+          setIsAlertActive(result.value < thresholdValue);
+        } else if (notificationType === 'max') {
+          // แจ้งเตือนเมื่อค่าสูงกว่า threshold
+          setIsAlertActive(result.value > thresholdValue);
+        } else if (notificationType === 'both') {
+          // แจ้งเตือนเมื่อค่าอยู่นอกช่วงที่กำหนด (รูปแบบช่วงคือ "min-max")
+          const [minThreshold, maxThreshold] = threshold.split('-').map(parseFloat);
+          setIsAlertActive(result.value < minThreshold || result.value > maxThreshold);
         }
-      } catch (error) {
-        console.error("Error fetching latest measurement:", error);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching latest measurement:", error);
+    }
+  };
 
-    // เรียกฟังก์ชันเมื่อ component ถูกโหลด
+  // Effect to run when the component mounts and when the global countdown completes
+  useEffect(() => {
+    // Fetch latest value on initial load
     fetchLatestValue();
-
-    // ตั้ง interval เพื่ออัปเดตค่าทุก 20 วินาที
-    const intervalId = setInterval(fetchLatestValue, 20000);
-
-    // ยกเลิก interval เมื่อ component ถูกทำลาย
-    return () => clearInterval(intervalId);
-  }, [deviceCode, symbol, enabled, notificationType, threshold]);
+    
+    // Set up fetch when countdown completes
+    if (lastCompleteTime) {
+      fetchLatestValue();
+    }
+  }, [deviceCode, symbol, enabled, notificationType, threshold, lastCompleteTime]);
   
   // Get icon based on category
   const getIcon = () => {
@@ -191,6 +195,20 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
     );
   };
 
+  // คำนวณเวลาตั้งแต่อัพเดทล่าสุด
+  const getTimeSinceUpdate = () => {
+    if (!lastUpdated) return "";
+    
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - lastUpdated.getTime()) / 1000);
+    
+    if (seconds < 60) {
+      return `${seconds} วินาทีที่แล้ว`;
+    } else {
+      return `${Math.floor(seconds / 60)} นาทีที่แล้ว`;
+    }
+  };
+
   return (
     <>
       <div 
@@ -252,6 +270,9 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
               </>
             ) : (
               <div className="text-gray-500">"ไม่มีข้อมูล"</div>
+            )}
+            {latestTimestamp && (
+              <div className="text-xs text-blue-500 mt-1">อัพเดท {getTimeSinceUpdate()}</div>
             )}
           </div>
         </div>

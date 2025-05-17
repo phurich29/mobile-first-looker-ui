@@ -1,5 +1,5 @@
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { 
   fetchWholeGrainData, 
   fetchIngredientsData, 
@@ -7,13 +7,28 @@ import {
   fetchAllData
 } from "@/utils/deviceMeasurementUtils";
 import { supabase } from "@/integrations/supabase/client";
+import { useCallback } from "react";
 
 /**
  * Custom hook to fetch measurement data for a specific device
  */
 export const useDeviceData = (deviceCode: string | undefined) => {
+  // Get query client for invalidating queries
+  const queryClient = useQueryClient();
+  
   // Determine if queries should be enabled
   const isQueryEnabled = !!deviceCode && deviceCode !== 'default';
+
+  // Function to refresh all data
+  const refreshData = useCallback(() => {
+    if (isQueryEnabled) {
+      queryClient.invalidateQueries({ queryKey: ['wholeGrainData', deviceCode] });
+      queryClient.invalidateQueries({ queryKey: ['ingredientsData', deviceCode] });
+      queryClient.invalidateQueries({ queryKey: ['impuritiesData', deviceCode] });
+      queryClient.invalidateQueries({ queryKey: ['allData', deviceCode] });
+      queryClient.invalidateQueries({ queryKey: ['notificationSettings', deviceCode] });
+    }
+  }, [queryClient, deviceCode, isQueryEnabled]);
 
   // Fetch notification settings for this device
   const { data: notificationSettings } = useQuery({
@@ -70,6 +85,7 @@ export const useDeviceData = (deviceCode: string | undefined) => {
     isLoadingWholeGrain,
     isLoadingIngredients,
     isLoadingImpurities,
-    isLoadingAllData
+    isLoadingAllData,
+    refreshData
   };
 };
