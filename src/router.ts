@@ -1,6 +1,18 @@
 
 import { createBrowserRouter } from "react-router-dom";
-import { router as routes } from "./routes";
+import { routes } from "./routes";
+import { CountdownProvider } from "@/contexts/CountdownContext";
+import React from "react";
 
-// Create the router
-export const router = createBrowserRouter(routes);
+// Wrap the entire application with CountdownProvider
+const wrappedRoutes = routes.map(route => ({
+  ...route,
+  element: (
+    <CountdownProvider initialSeconds={60}>
+      {route.element}
+    </CountdownProvider>
+  )
+}));
+
+// Create the router with wrapped routes
+export const router = createBrowserRouter(wrappedRoutes);
