@@ -17,7 +17,7 @@ export const GraphLegend: React.FC<GraphLegendProps> = ({
       {(payload || []).map((entry, index) => {
         // Extract the original metric info from the dataKey
         const metricKey = entry.dataKey as string;
-        const [deviceCode, symbol] = metricKey.split('_');
+        const [deviceCode, symbol] = metricKey.split('-');
         const metric = selectedMetrics.find(
           m => m.deviceCode === deviceCode && m.symbol === symbol
         );

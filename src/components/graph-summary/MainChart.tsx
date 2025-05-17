@@ -15,6 +15,7 @@ import {
 import { SelectedMetric, GraphStyle } from './types';
 import { GraphTooltip } from './GraphTooltip';
 import { GraphLegend } from './GraphLegend';
+import { checkValueAlert } from '@/utils/measurements';
 
 interface MainChartProps {
   graphData: any[];
@@ -91,7 +92,7 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
           <Tooltip 
             content={<GraphTooltip selectedMetrics={selectedMetrics} />}
           />
-          <Legend content={<GraphLegend selectedMetrics={selectedMetrics} />} />
+          <Legend content={(props) => <GraphLegend payload={props.payload || []} selectedMetrics={selectedMetrics} />} />
           {selectedMetrics.map((metric) => (
             <Area
               key={`${metric.deviceCode}-${metric.symbol}`}
@@ -121,7 +122,7 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
           <Tooltip 
             content={<GraphTooltip selectedMetrics={selectedMetrics} />}
           />
-          <Legend content={<GraphLegend selectedMetrics={selectedMetrics} />} />
+          <Legend content={(props) => <GraphLegend payload={props.payload || []} selectedMetrics={selectedMetrics} />} />
           {selectedMetrics.map((metric) => (
             <Line
               key={`${metric.deviceCode}-${metric.symbol}`}
