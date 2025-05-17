@@ -38,14 +38,6 @@ export const GraphTooltip: React.FC<GraphTooltipProps> = ({
             // Get Thai name if available, otherwise use the original name
             const thaiName = getMeasurementThaiName(metric.symbol) || metric.name;
             
-            // Determine if this value is in alert state
-            const value = Number(entry.value);
-            const isAlert = checkValueAlert(
-              value, 
-              metric.minThreshold, 
-              metric.maxThreshold
-            );
-            
             return (
               <div 
                 key={index} 

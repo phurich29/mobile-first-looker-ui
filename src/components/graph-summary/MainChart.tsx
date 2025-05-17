@@ -58,41 +58,11 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
         const key = `${metric.deviceCode}-${metric.symbol}`;
         const dataKey = `${metric.deviceCode}_${metric.symbol}`;
         newPoint[key] = point[dataKey]; // Map from stored format to display format
-        
-        // Add alert status flag to be used for conditional coloring
-        const value = point[dataKey];
-        if (value !== undefined && value !== null) {
-          const minThreshold = metric.minThreshold;
-          const maxThreshold = metric.maxThreshold;
-          const isAlert = checkValueAlert(value, minThreshold, maxThreshold);
-          newPoint[`${key}-alert`] = isAlert;
-        }
       });
       
       return newPoint;
     });
   }, [graphData, selectedMetrics]);
-  
-  // Custom dot component for alert values
-  const CustomDot = (props: any) => {
-    const { cx, cy, value, dataKey } = props;
-    const alertKey = `${dataKey}-alert`;
-    const isAlert = props.payload[alertKey];
-    
-    // Only show dots for alert values
-    if (!isAlert) return null;
-    
-    return (
-      <circle 
-        cx={cx} 
-        cy={cy} 
-        r={4} 
-        fill={greenColor} // Changed to green for all dots
-        stroke="white" 
-        strokeWidth={1} 
-      />
-    );
-  };
 
   return (
     <ResponsiveContainer width="100%" height="100%">
@@ -134,7 +104,7 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
               {metric.minThreshold !== undefined && metric.minThreshold !== null && (
                 <ReferenceLine 
                   y={metric.minThreshold} 
-                  stroke={greenColor} // Changed to green for reference lines
+                  stroke={greenColor}
                   strokeDasharray="3 3" 
                   isFront={true}
                   strokeOpacity={0.6}
@@ -143,7 +113,7 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
               {metric.maxThreshold !== undefined && metric.maxThreshold !== null && (
                 <ReferenceLine 
                   y={metric.maxThreshold} 
-                  stroke={greenColor} // Changed to green for reference lines
+                  stroke={greenColor}
                   strokeDasharray="3 3" 
                   isFront={true}
                   strokeOpacity={0.6}
@@ -161,8 +131,8 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
               stroke={greenColor}
               strokeWidth={2}
               fill={`url(#color-${metric.deviceCode}-${metric.symbol})`}
-              activeDot={false}
-              dot={(props) => <CustomDot {...props} />}
+              activeDot={{ r: 6, fill: greenColor, stroke: 'white' }}
+              dot={false}
               connectNulls={true}
             />
           ))}
@@ -190,7 +160,7 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
               {metric.minThreshold !== undefined && metric.minThreshold !== null && (
                 <ReferenceLine 
                   y={metric.minThreshold} 
-                  stroke={greenColor} // Changed to green for reference lines
+                  stroke={greenColor}
                   strokeDasharray="3 3" 
                   isFront={true}
                   strokeOpacity={0.6}
@@ -199,7 +169,7 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
               {metric.maxThreshold !== undefined && metric.maxThreshold !== null && (
                 <ReferenceLine 
                   y={metric.maxThreshold} 
-                  stroke={greenColor} // Changed to green for reference lines
+                  stroke={greenColor}
                   strokeDasharray="3 3" 
                   isFront={true}
                   strokeOpacity={0.6}
@@ -217,7 +187,7 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
               stroke={greenColor}
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 6 }}
+              activeDot={{ r: 6, fill: greenColor, stroke: 'white' }}
               connectNulls={true}
             />
           ))}
