@@ -10,128 +10,139 @@ import {
   Legend,
   ResponsiveContainer,
   AreaChart,
-  Area,
-  ReferenceLine,
-} from "recharts";
-import { GraphTooltip } from "./GraphTooltip";
-import { GraphLegend } from "./GraphLegend";
-import { GraphStyleOptions, SelectedMetric } from "./types";
+  Area
+} from 'recharts';
+import { SelectedMetric, GraphStyle } from './types';
 
 interface MainChartProps {
   graphData: any[];
   selectedMetrics: SelectedMetric[];
-  styleOptions?: GraphStyleOptions;
+  graphStyle: GraphStyle;
+  globalLineColor: string;
 }
 
-export const MainChart: React.FC<MainChartProps> = ({
-  graphData,
-  selectedMetrics,
-  styleOptions = {}
-}) => {
-  // สไตล์เริ่มต้น - ถ้าไม่ระบุให้ใช้แบบเส้นธรรมดา
-  const graphStyle = styleOptions.graphStyle || 'line';
+export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics, graphStyle, globalLineColor }) => {
+  // ฟังก์ชันเพื่อกำหนดสีพื้นหลังตามสไตล์
+  const getGradientOffset = () => {
+    if (graphStyle === 'classic') {
+      return { offset1: '5%', offset2: '95%' };
+    } else if (graphStyle === 'natural') {
+      return { offset1: '10%', offset2: '90%' };
+    } else if (graphStyle === 'gradient') {
+      return { offset1: '30%', offset2: '70%' };
+    }
+    return { offset1: '5%', offset2: '95%' };
+  };
+  
+  const { offset1, offset2 } = getGradientOffset();
+  
+  // เลือกใช้ LineChart หรือ AreaChart ตามสไตล์
+  const isAreaChart = ['area', 'natural', 'gradient', 'pastel'].includes(graphStyle);
+
   return (
     <ResponsiveContainer width="100%" height="100%">
-      {graphStyle === 'area' ? (
-        <AreaChart
-          data={graphData}
-          margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
-        >
-          {selectedMetrics.map((metric, index) => (
-            <defs key={`defs-${metric.deviceCode}-${metric.symbol}`}>
-              <linearGradient id={`colorValue-${metric.deviceCode}-${metric.symbol}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={metric.color} stopOpacity={0.8} />
-                <stop offset="95%" stopColor={metric.color} stopOpacity={0.1} />
+      {isAreaChart ? (
+        <AreaChart data={graphData}>
+          <defs>
+            {selectedMetrics.map((metric) => (
+              <linearGradient
+                key={`gradient-${metric.deviceCode}-${metric.symbol}`}
+                id={`color-${metric.deviceCode}-${metric.symbol}`}
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
+                <stop offset={offset1} stopColor={metric.color} stopOpacity={0.5} />
+                <stop offset={offset2} stopColor={metric.color} stopOpacity={0} />
               </linearGradient>
-              <filter id={`shadow-${metric.deviceCode}-${metric.symbol}`} height="200%">
-                <feDropShadow dx="0" dy="3" stdDeviation="3" floodColor="rgba(0,0,0,0.1)" />
-              </filter>
-            </defs>
-          ))}
-
-          <CartesianGrid strokeDasharray="3 3" />
+            ))}
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis 
-            dataKey="time" 
-            tick={{ fontSize: 12, fill: '#64748b' }}
+            dataKey="timestamp" 
+            tickFormatter={(time) => {
+              const date = new Date(time);
+              return `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+            }}
+            tick={{ fontSize: 12 }}
           />
-          <YAxis 
-            tick={{ fontSize: 12, fill: '#64748b' }}
-          />
+          <YAxis tick={{ fontSize: 12 }} />
           <Tooltip 
-            content={(props) => <GraphTooltip {...props} selectedMetrics={selectedMetrics} />}
+            labelFormatter={(time) => {
+              const date = new Date(time);
+              return `${date.toLocaleDateString()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+            }}
+            formatter={(value: number) => [value.toFixed(2), '']}
           />
-          <Legend 
-            content={(props) => <GraphLegend payload={props.payload || []} selectedMetrics={selectedMetrics} />}
-          />
-          
+          <Legend />
           {selectedMetrics.map((metric) => (
             <Area
-              key={`${metric.deviceCode}_${metric.symbol}`}
+              key={`${metric.deviceCode}-${metric.symbol}`}
               type="monotone"
-              dataKey={`${metric.deviceCode}_${metric.symbol}`}
+              dataKey={`${metric.deviceCode}-${metric.symbol}`}
               name={`${metric.name} (${metric.deviceName})`}
               stroke={metric.color}
               strokeWidth={2}
-              fill={`url(#colorValue-${metric.deviceCode}-${metric.symbol})`}
-              fillOpacity={0.9}
-              dot={false}
-              style={{ filter: `url(#shadow-${metric.deviceCode}-${metric.symbol})` }}
-              activeDot={{ r: 6, stroke: metric.color, strokeWidth: 1, fill: 'white' }}
+              fill={`url(#color-${metric.deviceCode}-${metric.symbol})`}
+              activeDot={{ r: 6 }}
             />
           ))}
-          
-          {/* ถ้ามีเส้นค่าเฉลี่ยที่ต้องการแสดง สามารถเพิ่มได้ตรงนี้ */}
-          {styleOptions.lineColor && (
-            <ReferenceLine 
-              y={0} /* สามารถกำหนดค่าเฉลี่ยที่ต้องการแสดง */
-              stroke={styleOptions.lineColor}
-              strokeWidth={2}
-              strokeDasharray="3 3"
-            />
-          )}
+          {/* เส้นค่าเฉลี่ยโดยรวม */}
+          <Area
+            type="monotone"
+            dataKey="average"
+            name="ค่าเฉลี่ยรวม"
+            stroke={globalLineColor}
+            strokeWidth={2}
+            strokeDasharray="5 5"
+            fill="none"
+            activeDot={{ r: 4 }}
+          />
         </AreaChart>
       ) : (
-        <LineChart
-          data={graphData}
-          margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
+        <LineChart data={graphData}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis 
-            dataKey="time" 
-            tick={{ fontSize: 12, fill: '#64748b' }}
+            dataKey="timestamp" 
+            tickFormatter={(time) => {
+              const date = new Date(time);
+              return `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+            }}
+            tick={{ fontSize: 12 }}
           />
-          <YAxis 
-            tick={{ fontSize: 12, fill: '#64748b' }}
-          />
+          <YAxis tick={{ fontSize: 12 }} />
           <Tooltip 
-            content={(props) => <GraphTooltip {...props} selectedMetrics={selectedMetrics} />}
+            labelFormatter={(time) => {
+              const date = new Date(time);
+              return `${date.toLocaleDateString()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+            }}
+            formatter={(value: number) => [value.toFixed(2), '']}
           />
-          <Legend 
-            content={(props) => <GraphLegend payload={props.payload || []} selectedMetrics={selectedMetrics} />}
-          />
-          
+          <Legend />
           {selectedMetrics.map((metric) => (
             <Line
-              key={`${metric.deviceCode}_${metric.symbol}`}
+              key={`${metric.deviceCode}-${metric.symbol}`}
               type="monotone"
-              dataKey={`${metric.deviceCode}_${metric.symbol}`}
+              dataKey={`${metric.deviceCode}-${metric.symbol}`}
               name={`${metric.name} (${metric.deviceName})`}
               stroke={metric.color}
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 6, stroke: metric.color, strokeWidth: 1, fill: 'white' }}
+              activeDot={{ r: 6 }}
             />
           ))}
-          
-          {/* ถ้ามีเส้นค่าเฉลี่ยที่ต้องการแสดง สามารถเพิ่มได้ตรงนี้ */}
-          {styleOptions.lineColor && (
-            <ReferenceLine 
-              y={0} /* สามารถกำหนดค่าเฉลี่ยที่ต้องการแสดง */
-              stroke={styleOptions.lineColor}
-              strokeWidth={2}
-              strokeDasharray="3 3"
-            />
-          )}
+          {/* เส้นค่าเฉลี่ยโดยรวม */}
+          <Line
+            type="monotone"
+            dataKey="average"
+            name="ค่าเฉลี่ยรวม"
+            stroke={globalLineColor}
+            strokeWidth={2}
+            strokeDasharray="5 5"
+            dot={false}
+            activeDot={{ r: 4 }}
+          />
         </LineChart>
       )}
     </ResponsiveContainer>
