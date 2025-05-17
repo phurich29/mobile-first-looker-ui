@@ -23,7 +23,7 @@ import Equipment from "./pages/Equipment";
 import GraphMonitor from "./pages/GraphMonitor";
 import GraphSummary from "./pages/GraphSummary";
 
-export const router = [
+export const routes = [
   {
     path: "/",
     element: <Index />,

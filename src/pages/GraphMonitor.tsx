@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
@@ -81,11 +80,13 @@ const GraphMonitor = () => {
   const handleAddGraphWithDeviceName = (deviceCode: string, symbol: string, name: string, deviceName?: string) => {
     console.log("Adding graph with device name:", deviceName);
     
-    // Create a SelectedGraph object with the correct device name
+    // Create a SelectedGraph object with the correct properties
     const graph: SelectedGraph = {
       deviceCode: deviceCode,
-      symbol: symbol,
-      name: name,
+      measurementSymbol: symbol,
+      measurementName: name,
+      symbol: symbol,               // Ensure symbol is set
+      name: name,                   // Ensure name is set
       deviceName: deviceName || `อุปกรณ์วัด ${deviceCode}`
     };
     
