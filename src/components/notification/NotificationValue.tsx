@@ -25,10 +25,6 @@ const NotificationValue: React.FC<NotificationValueProps> = ({
       {/* Current value with timestamp */}
       {latestValue !== null && latestTimestamp && (
         <div className="flex items-center justify-end w-full">
-          {/* Bot icon added in front of the value */}
-          {enabled && (
-            <Bot size={14} className="text-orange-500 mr-1" />
-          )}
           <p className={`font-medium text-xs ${isAlertActive ? 'text-red-600 font-bold' : 'text-green-600'} leading-tight`}>
             {formatTime(latestTimestamp)} {latestValue.toFixed(1)}%
           </p>
@@ -42,7 +38,14 @@ const NotificationValue: React.FC<NotificationValueProps> = ({
       
       {/* Threshold value */}
       <p className={`font-medium text-xs ${enabled ? (isAlertActive ? 'text-red-600 font-bold' : 'text-green-600 font-bold') : 'text-gray-500'} leading-tight`}>
-        {getThresholdValue(enabled, threshold, type)}
+        {/* Bot icon added in front of the threshold value */}
+        {enabled && (
+          <span className="inline-flex items-center">
+            <Bot size={14} className="text-orange-500 mr-1 inline" />
+            {getThresholdValue(enabled, threshold, type)}
+          </span>
+        )}
+        {!enabled && getThresholdValue(enabled, threshold, type)}
       </p>
     </div>
   );
