@@ -7,10 +7,10 @@ type GraphStyleOption = {
 };
 
 export const graphStyleOptions: GraphStyleOption[] = [
-  { value: "classic", label: "Classic" },
-  { value: "natural", label: "Natural" },
-  { value: "neon", label: "Neon" },
-  { value: "pastel", label: "Pastel" },  
-  { value: "monochrome", label: "Monochrome" },
-  { value: "gradient", label: "Gradient" },
+  { value: "classic", label: "ดั้งเดิม" },
+  { value: "natural", label: "ธรรมชาติ" },
+  { value: "neon", label: "นีออน" },
+  { value: "pastel", label: "พาสเทล" },  
+  { value: "monochrome", label: "ขาวดำ" },
+  { value: "gradient", label: "ไล่ระดับ" },
 ];
