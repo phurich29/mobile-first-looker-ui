@@ -79,7 +79,7 @@ export const GraphHeader: React.FC<GraphHeaderProps> = ({
           className="bg-emerald-600 hover:bg-emerald-700"
         >
           <Plus className="h-4 w-4 mr-1" />
-          Add Graph
+          เพิ่มกราฟ
         </Button>
         
         {/* Time frame selector */}
