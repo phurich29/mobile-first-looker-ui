@@ -3,18 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { ActivitySquare, Calendar, Clock, Pin, PinOff } from 'lucide-react';
+import { ActivitySquare, Calendar, Clock } from 'lucide-react';
 import { useAuth } from '@/components/AuthProvider';
 import { formatDistanceToNow } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useDeviceContext } from '@/contexts/DeviceContext';
-import { Button } from '@/components/ui/button';
+import { useDeviceContext } from "@/contexts/DeviceContext";
 
 interface DeviceData {
   device_code: string;
   updated_at: string;
-  display_name?: string;
 }
 
 export const DeviceList = () => {
@@ -23,7 +21,7 @@ export const DeviceList = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
-  const { selectedDevice, setSelectedDevice } = useDeviceContext();
+  const { selectedDeviceCode, selectDevice } = useDeviceContext();
   
   useEffect(() => {
     const fetchDevices = async () => {
@@ -57,28 +55,7 @@ export const DeviceList = () => {
               accessibleDeviceCodes.includes(device.device_code)
             );
             
-            // Fetch device display names
-            const deviceCodes = filteredDevices?.map(device => device.device_code) || [];
-            
-            if (deviceCodes.length > 0) {
-              const { data: settingsData } = await supabase
-                .from('device_settings')
-                .select('device_code, display_name')
-                .in('device_code', deviceCodes);
-              
-              // Merge display names with device data
-              const devicesWithNames = filteredDevices?.map(device => {
-                const settings = settingsData?.find(s => s.device_code === device.device_code);
-                return {
-                  ...device,
-                  display_name: settings?.display_name
-                };
-              });
-              
-              setDevices(devicesWithNames || []);
-            } else {
-              setDevices(filteredDevices || []);
-            }
+            setDevices(filteredDevices || []);
             return;
           }
         }
@@ -91,28 +68,7 @@ export const DeviceList = () => {
           throw new Error(error.message);
         }
         
-        // Fetch device display names
-        const deviceCodes = data?.map(device => device.device_code) || [];
-        
-        if (deviceCodes.length > 0) {
-          const { data: settingsData } = await supabase
-            .from('device_settings')
-            .select('device_code, display_name')
-            .in('device_code', deviceCodes);
-          
-          // Merge display names with device data
-          const devicesWithNames = data?.map(device => {
-            const settings = settingsData?.find(s => s.device_code === device.device_code);
-            return {
-              ...device,
-              display_name: settings?.display_name
-            };
-          });
-          
-          setDevices(devicesWithNames || []);
-        } else {
-          setDevices(data || []);
-        }
+        setDevices(data || []);
       } catch (error) {
         console.error('Error fetching devices:', error);
         toast({
@@ -142,19 +98,14 @@ export const DeviceList = () => {
   };
   
   const handleDeviceClick = (deviceCode: string) => {
-    navigate(`/device/${deviceCode}`);
-  };
-
-  const handlePinDevice = async (e: React.MouseEvent, deviceCode: string) => {
-    e.stopPropagation(); // Prevent navigation to device details
-    
-    // If this device is already selected, unpin it
-    if (selectedDevice === deviceCode) {
-      await setSelectedDevice(null);
-    } else {
-      // Otherwise pin this device
-      await setSelectedDevice(deviceCode);
+    // Find the device to get its name
+    const device = devices.find(d => d.device_code === deviceCode);
+    // Set as active device
+    if (device) {
+      selectDevice(deviceCode);
     }
+    // Navigate to device page
+    navigate(`/device/${deviceCode}`);
   };
   
   if (loading) {
@@ -182,26 +133,6 @@ export const DeviceList = () => {
   
   return (
     <div className="space-y-4">
-      {user && selectedDevice && (
-        <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-md flex justify-between items-center mb-4">
-          <div className="flex items-center">
-            <Pin className="h-4 w-4 text-blue-600 dark:text-blue-400 mr-2" />
-            <span className="text-sm text-blue-700 dark:text-blue-300">
-              โหมดแสดงเฉพาะอุปกรณ์ที่เลือก
-            </span>
-          </div>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => setSelectedDevice(null)}
-            className="text-xs"
-          >
-            <PinOff className="h-3 w-3 mr-1" />
-            ยกเลิก
-          </Button>
-        </div>
-      )}
-
       {devices.length === 0 ? (
         <Card className="bg-gray-50 border-dashed">
           <CardContent className="p-6 text-center">
@@ -209,44 +140,32 @@ export const DeviceList = () => {
           </CardContent>
         </Card>
       ) : (
-        // Show only selected device when in device focus mode
-        (user && selectedDevice ? devices.filter(device => device.device_code === selectedDevice) : devices).map((device) => {
-          const isSelected = device.device_code === selectedDevice;
+        devices.map((device) => {
+          const isSelected = selectedDeviceCode === device.device_code;
           
           return (
             <Card 
               key={device.device_code} 
-              className={`cursor-pointer shadow-sm hover:shadow-md transition-shadow border-l-4 ${
-                isSelected ? 'border-l-blue-500' : 'border-l-emerald-500'
-              }`} 
+              className={`cursor-pointer shadow-sm hover:shadow-md transition-shadow 
+                border-l-4 
+                ${isSelected ? 'border-emerald-600 dark:border-emerald-500' : 'border-l-emerald-500'}`}
               onClick={() => handleDeviceClick(device.device_code)}
             >
               <CardContent className="p-0">
                 <div className="p-4 flex justify-between items-center">
                   <div>
-                    <h3 className="font-medium text-gray-800">
-                      {device.display_name || device.device_code}
-                    </h3>
-                    {device.display_name && (
-                      <p className="text-xs text-gray-500">รหัส: {device.device_code}</p>
-                    )}
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium text-gray-800">{device.device_code}</h3>
+                      {isSelected && (
+                        <span className="bg-emerald-100 text-emerald-700 text-xs px-1.5 py-0.5 rounded-full">
+                          อุปกรณ์เริ่มต้น
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm text-gray-500">อุปกรณ์วัดคุณภาพข้าว</p>
                   </div>
-                  <div className="flex items-center">
-                    {user && (
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className={`mr-2 ${isSelected ? 'text-blue-500' : 'text-gray-400'}`}
-                        onClick={(e) => handlePinDevice(e, device.device_code)}
-                        title={isSelected ? "ยกเลิกการปักหมุด" : "ปักหมุดเพื่อแสดงเฉพาะอุปกรณ์นี้"}
-                      >
-                        {isSelected ? <Pin className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
-                      </Button>
-                    )}
-                    <div className={`p-2 rounded-full ${isSelected ? 'bg-blue-100' : 'bg-emerald-100'}`}>
-                      <ActivitySquare className={`h-6 w-6 ${isSelected ? 'text-blue-600' : 'text-emerald-600'}`} />
-                    </div>
+                  <div className="bg-emerald-100 p-2 rounded-full">
+                    <ActivitySquare className="h-6 w-6 text-emerald-600" />
                   </div>
                 </div>
                 <div className="px-4 pb-4 flex items-center gap-2 text-xs text-gray-500">
@@ -255,7 +174,7 @@ export const DeviceList = () => {
                 </div>
               </CardContent>
             </Card>
-          );
+          )
         })
       )}
     </div>

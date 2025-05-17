@@ -7,11 +7,11 @@ import MeasurementHistory from "@/components/MeasurementHistory";
 import "@/components/notification-item-animation.css";
 import { CountdownProvider } from "@/contexts/CountdownContext";
 import { CountdownTimer } from "@/components/CountdownTimer";
-import { useDeviceContext } from "@/contexts/DeviceContext";
 
 // Import custom hooks
 import { useDeviceData } from "@/features/device-details/hooks/useDeviceData";
 import { useDefaultDeviceRedirect } from "@/features/device-details/hooks/useDefaultDeviceRedirect";
+import { useDeviceContext } from "@/contexts/DeviceContext";
 
 // Import components
 import { DeviceHeader } from "@/features/device-details/components/DeviceHeader";
@@ -20,26 +20,22 @@ import { MeasurementTabs } from "@/features/device-details/components/Measuremen
 import { LoadingScreen } from "@/features/device-details/components/LoadingScreen";
 
 export default function DeviceDetails() {
-  const { deviceCode: urlDeviceCode } = useParams();
+  const { deviceCode } = useParams();
   const navigate = useNavigate();
-  const { selectedDevice } = useDeviceContext();
-  
-  // If we have a selected device and no URL device code or 'default', use the selected device
-  const deviceCode = (!urlDeviceCode || urlDeviceCode === 'default') && selectedDevice ? 
-    selectedDevice : urlDeviceCode;
-  
-  // Redirect to selected device if it exists and we're at /device/default
-  useEffect(() => {
-    if (urlDeviceCode === 'default' && selectedDevice) {
-      navigate(`/device/${selectedDevice}`, { replace: true });
-    }
-  }, [selectedDevice, urlDeviceCode, navigate]);
+  const { selectedDeviceCode } = useDeviceContext();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMeasurement, setSelectedMeasurement] = useState<{
     symbol: string;
     name: string;
   } | null>(null);
+
+  // If no device code in URL but we have a selected device, navigate to it
+  useEffect(() => {
+    if (deviceCode === 'default' && selectedDeviceCode) {
+      navigate(`/device/${selectedDeviceCode}`, { replace: true });
+    }
+  }, [deviceCode, selectedDeviceCode, navigate]);
 
   // Use custom hooks
   useDefaultDeviceRedirect(deviceCode);

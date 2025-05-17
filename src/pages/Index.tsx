@@ -64,7 +64,7 @@ const Index = () => {
               </h2>
               <CountdownTimer 
                 useGlobal={true}
-                seconds={60}
+                initialSeconds={60}
               />
             </div>
             <NewsSlider />

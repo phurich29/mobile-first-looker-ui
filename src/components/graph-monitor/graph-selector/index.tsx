@@ -1,164 +1,122 @@
 
-import React, { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { DevicesList } from "./DevicesList";
-import { MeasurementsList } from "./MeasurementsList";
-import { useGraphSelector } from "./useGraphSelector";
-import { SelectedGraph } from "../types";
+import React, { useState, useEffect } from 'react';
+import { DevicesList } from './DevicesList';
+import { MeasurementsList } from './MeasurementsList';
+import { DeviceInfo } from '../DeviceInfo';
+import { MeasurementData } from '../types';
 
-interface GraphSelectorProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSelectGraph: ((deviceCode: string, symbol: string, name: string, deviceName?: string) => void) | ((graph: SelectedGraph) => void);
+export interface GraphSelectorProps {
+  onSelectGraph: (deviceCode: string, symbol: string, name: string, deviceName?: string) => void;
+  open?: boolean;
+  onOpenChange?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const GraphSelector: React.FC<GraphSelectorProps> = ({
-  open,
-  onOpenChange,
+export const GraphSelector: React.FC<GraphSelectorProps> = ({ 
   onSelectGraph,
+  open,
+  onOpenChange
 }) => {
-  const [activeTab, setActiveTab] = useState<"devices" | "measurements">("devices");
-  const {
-    loading,
-    devices,
-    measurements,
-    selectedDevice,
-    searchQuery,
-    setSearchQuery,
-    setSelectedDevice,
-    fetchDevices,
-    getSelectedDeviceName,
-  } = useGraphSelector();
+  // State for the selected device and search queries
+  const [selectedDevice, setSelectedDevice] = useState<string>('');
+  const [deviceSearchQuery, setDeviceSearchQuery] = useState<string>('');
+  const [measurementSearchQuery, setMeasurementSearchQuery] = useState<string>('');
+  
+  // State for devices and measurements data
+  const [devices, setDevices] = useState<DeviceInfo[]>([]);
+  const [measurements, setMeasurements] = useState<MeasurementData[]>([]);
+  
+  // Loading states
+  const [isLoadingDevices, setIsLoadingDevices] = useState<boolean>(false);
+  const [isLoadingMeasurements, setIsLoadingMeasurements] = useState<boolean>(false);
 
-  // Reset state when dialog opens
+  // Fetch devices on component mount
   useEffect(() => {
-    if (open) {
-      setActiveTab("devices");
-      fetchDevices();
-    }
-  }, [open]);
+    const fetchDevices = async () => {
+      setIsLoadingDevices(true);
+      try {
+        // Simulate API call
+        const response = await fetch('/api/devices');
+        const data = await response.json();
+        setDevices(data);
+      } catch (error) {
+        console.error('Error fetching devices:', error);
+      } finally {
+        setIsLoadingDevices(false);
+      }
+    };
 
-  // When a device is selected, switch to measurements tab
+    fetchDevices();
+  }, []);
+
+  // Fetch measurements when a device is selected
   useEffect(() => {
-    if (selectedDevice) {
-      setActiveTab("measurements");
-    }
+    if (!selectedDevice) return;
+
+    const fetchMeasurements = async () => {
+      setIsLoadingMeasurements(true);
+      try {
+        // Simulate API call
+        const response = await fetch(`/api/measurements/${selectedDevice}`);
+        const data = await response.json();
+        setMeasurements(data);
+      } catch (error) {
+        console.error('Error fetching measurements:', error);
+      } finally {
+        setIsLoadingMeasurements(false);
+      }
+    };
+
+    fetchMeasurements();
   }, [selectedDevice]);
 
-  // Handle back button to go back to devices
-  const handleBackToDevices = () => {
-    setActiveTab("devices");
+  // Handle device selection
+  const handleDeviceSelect = (deviceCode: string, deviceName?: string) => {
+    setSelectedDevice(deviceCode);
+    // Reset measurement search when changing devices
+    setMeasurementSearchQuery('');
   };
 
   // Handle measurement selection
-  const handleSelectMeasurement = (symbol: string, name: string) => {
-    if (selectedDevice) {
-      // Get the device name
-      const deviceName = getSelectedDeviceName();
-      
-      // Call onSelectGraph properly
-      if (typeof onSelectGraph === 'function') {
-        try {
-          // Pass device name as the fourth parameter
-          (onSelectGraph as (deviceCode: string, symbol: string, name: string, deviceName?: string) => void)(
-            selectedDevice, 
-            symbol, 
-            name,
-            deviceName
-          );
-        } catch (e) {
-          // Fallback to the old interface if error occurs
-          console.log("Falling back to old interface");
-          (onSelectGraph as any)(selectedDevice, symbol, name);
-        }
-      }
+  const handleMeasurementSelect = (symbol: string, name: string) => {
+    const selectedDeviceName = devices.find(d => d.device_code === selectedDevice)?.display_name;
+    onSelectGraph(selectedDevice, symbol, name, selectedDeviceName);
+    
+    // Close the selector if onOpenChange is provided
+    if (onOpenChange) {
+      onOpenChange(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[720px] max-h-[80vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">
-            {activeTab === "devices" ? "เลือกอุปกรณ์" : "เลือกค่าที่ต้องการดู"}
-          </DialogTitle>
-          <DialogDescription>
-            {activeTab === "devices"
-              ? "เลือกอุปกรณ์ที่ต้องการดูข้อมูล"
-              : `เลือกค่าที่ต้องการแสดงจากอุปกรณ์ ${getSelectedDeviceName()}`}
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="relative">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="ค้นหา..."
-            className="pl-9"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-
-        <Tabs
-          value={activeTab}
-          onValueChange={(v) => setActiveTab(v as "devices" | "measurements")}
-          className="flex-1 flex flex-col overflow-hidden"
-        >
-          <TabsList className="mb-2">
-            <TabsTrigger value="devices">อุปกรณ์</TabsTrigger>
-            <TabsTrigger value="measurements" disabled={!selectedDevice}>
-              ค่าที่ต้องการวัด
-            </TabsTrigger>
-          </TabsList>
-
-          <div className="overflow-y-auto flex-1 pr-2">
-            <TabsContent value="devices" className="mt-0">
-              <DevicesList
-                devices={devices}
-                selectedDevice={selectedDevice}
-                loading={loading}
-                onSelectDevice={setSelectedDevice}
-              />
-            </TabsContent>
-
-            <TabsContent value="measurements" className="mt-0">
-              {selectedDevice && (
-                <MeasurementsList
-                  measurements={measurements}
-                  loading={loading}
-                  deviceCode={selectedDevice}
-                  deviceName={getSelectedDeviceName()}
-                  onSelectMeasurement={handleSelectMeasurement}
-                />
-              )}
-            </TabsContent>
-          </div>
-        </Tabs>
-
-        {activeTab === "measurements" && (
-          <div className="flex justify-between mt-4">
-            <button
-              onClick={handleBackToDevices}
-              className="text-sm text-blue-600 hover:underline dark:text-blue-400"
-            >
-              ← กลับไปเลือกอุปกรณ์
-            </button>
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
+    <div className="flex flex-col md:flex-row gap-4 p-4 max-h-[80vh] overflow-hidden">
+      <div className="w-full md:w-1/2 overflow-y-auto">
+        <h3 className="text-lg font-medium mb-4">Select Device</h3>
+        <DevicesList
+          devices={devices}
+          isLoading={isLoadingDevices}
+          selectedDevice={selectedDevice}
+          onDeviceSelect={handleDeviceSelect}
+          searchQuery={deviceSearchQuery}
+          setSearchQuery={setDeviceSearchQuery}
+        />
+      </div>
+      
+      <div className="w-full md:w-1/2 overflow-y-auto">
+        <h3 className="text-lg font-medium mb-4">Select Measurement</h3>
+        <input
+          type="text"
+          placeholder="Search measurements..."
+          value={measurementSearchQuery}
+          onChange={(e) => setMeasurementSearchQuery(e.target.value)}
+          className="w-full p-2 mb-4 border rounded"
+        />
+        <MeasurementsList
+          measurements={measurements}
+          isLoading={isLoadingMeasurements}
+          onMeasurementSelect={handleMeasurementSelect}
+          searchQuery={measurementSearchQuery}
+        />
+      </div>
+    </div>
   );
 };
-
-export function GraphSelectorComponent() {
-  return <div>Graph Selector Component</div>;
-}

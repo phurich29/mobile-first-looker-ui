@@ -61,6 +61,7 @@ export const MeasurementTabs: React.FC<MeasurementTabsProps> = ({
         isLoading={isLoadingWholeGrain}
         deviceCode={deviceCode}
         onMeasurementClick={onMeasurementClick}
+        searchTerm={searchTerm}
       />
       
       <TabContent 
@@ -69,6 +70,7 @@ export const MeasurementTabs: React.FC<MeasurementTabsProps> = ({
         isLoading={isLoadingIngredients}
         deviceCode={deviceCode}
         onMeasurementClick={onMeasurementClick}
+        searchTerm={searchTerm}
       />
       
       <TabContent 
@@ -77,6 +79,7 @@ export const MeasurementTabs: React.FC<MeasurementTabsProps> = ({
         isLoading={isLoadingImpurities}
         deviceCode={deviceCode}
         onMeasurementClick={onMeasurementClick}
+        searchTerm={searchTerm}
       />
       
       <TabContent 
@@ -85,6 +88,7 @@ export const MeasurementTabs: React.FC<MeasurementTabsProps> = ({
         isLoading={isLoadingAllData}
         deviceCode={deviceCode}
         onMeasurementClick={onMeasurementClick}
+        searchTerm={searchTerm}
       />
     </Tabs>
   );

@@ -1,16 +1,26 @@
-export interface SelectedGraph {
-  deviceCode: string;
+
+export interface MeasurementData {
   symbol: string;
   name: string;
-  deviceName?: string;
-  barColor?: string; // เพิ่มตัวแปรเก็บสีกราฟแท่งที่ผู้ใช้เลือก
-  lineColor?: string; // เพิ่มตัวแปรเก็บสีเส้นค่าเฉลี่ยที่ผู้ใช้เลือก
+  value?: number;
+  unit?: string;
+  timestamp?: string;
 }
 
-export type GraphStyle = 
-  | "classic" 
-  | "natural" 
-  | "neon" 
-  | "pastel" 
-  | "monochrome" 
-  | "gradient";
+export type GraphStyle = 'classic' | 'gradient' | 'neon' | 'pastel' | 'monochrome' | 'natural';
+
+export interface SelectedGraph {
+  deviceCode: string;
+  measurementSymbol: string;
+  measurementName: string;
+  symbol: string;       // Added missing property
+  name: string;         // Added missing property
+  deviceName?: string;  // Added missing property
+  style?: GraphStyle;
+  color?: string;
+  chartType?: 'line' | 'area' | 'bar';
+  showGrid?: boolean;
+  showTooltip?: boolean;
+  barColor?: string;    // Added missing property
+  lineColor?: string;   // Added missing property
+}

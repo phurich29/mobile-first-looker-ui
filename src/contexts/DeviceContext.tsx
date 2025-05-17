@@ -1,149 +1,191 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/AuthProvider';
-import { useToast } from '@/hooks/use-toast';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/components/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
 
-interface DeviceContextType {
-  selectedDevice: string | null;
-  setSelectedDevice: (deviceCode: string | null) => Promise<void>;
-  isDeviceSelected: boolean;
-  isLoadingPreference: boolean;
-}
-
-const DeviceContext = createContext<DeviceContextType | undefined>(undefined);
-
-export const useDeviceContext = () => {
-  const context = useContext(DeviceContext);
-  if (context === undefined) {
-    throw new Error('useDeviceContext must be used within a DeviceProvider');
-  }
-  return context;
+type DeviceContextType = {
+  selectedDeviceCode: string | null;
+  selectedDeviceName: string | null;
+  isLoadingDevice: boolean;
+  selectDevice: (deviceCode: string, deviceName?: string) => Promise<void>;
+  clearSelectedDevice: () => Promise<void>;
 };
 
-export const DeviceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [selectedDevice, setSelectedDeviceState] = useState<string | null>(null);
-  const [isLoadingPreference, setIsLoadingPreference] = useState<boolean>(true);
-  const { user } = useAuth();
-  const { toast } = useToast();
+const DeviceContext = createContext<DeviceContextType>({
+  selectedDeviceCode: null,
+  selectedDeviceName: null,
+  isLoadingDevice: true,
+  selectDevice: async () => {},
+  clearSelectedDevice: async () => {},
+});
 
-  // Load user's device preference when component mounts or user changes
+export const useDeviceContext = () => useContext(DeviceContext);
+
+interface DeviceProviderProps {
+  children: React.ReactNode;
+}
+
+export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
+  const [selectedDeviceCode, setSelectedDeviceCode] = useState<string | null>(null);
+  const [selectedDeviceName, setSelectedDeviceName] = useState<string | null>(null);
+  const [isLoadingDevice, setIsLoadingDevice] = useState(true);
+  const { toast } = useToast();
+  const { user } = useAuth();
+
+  // Fetch device preference from the database on initial load
   useEffect(() => {
-    const loadDevicePreference = async () => {
+    const fetchDevicePreference = async () => {
       if (!user) {
-        setSelectedDeviceState(null);
-        setIsLoadingPreference(false);
+        setIsLoadingDevice(false);
         return;
       }
 
       try {
-        setIsLoadingPreference(true);
+        setIsLoadingDevice(true);
+        
+        // Fetch the user's device preference
         const { data, error } = await supabase
           .from('user_device_preferences')
           .select('device_code')
           .eq('user_id', user.id)
           .maybeSingle();
 
-        if (error) {
-          console.error('Error loading device preference:', error);
-          return;
-        }
+        if (error) throw error;
 
-        if (data) {
-          setSelectedDeviceState(data.device_code);
-        } else {
-          // No preference found, clear selection
-          setSelectedDeviceState(null);
+        if (data?.device_code) {
+          // If we have a device preference, fetch the display name
+          setSelectedDeviceCode(data.device_code);
+          
+          // Fetch device display name from device_settings if available
+          const { data: deviceData } = await supabase
+            .from('device_settings')
+            .select('display_name')
+            .eq('device_code', data.device_code)
+            .maybeSingle();
+          
+          setSelectedDeviceName(deviceData?.display_name || data.device_code);
         }
       } catch (error) {
-        console.error('Unexpected error loading device preference:', error);
+        console.error('Error fetching device preference:', error);
       } finally {
-        setIsLoadingPreference(false);
+        setIsLoadingDevice(false);
       }
     };
 
-    loadDevicePreference();
+    fetchDevicePreference();
   }, [user]);
 
-  // Function to update the selected device and save to database
-  const setSelectedDevice = async (deviceCode: string | null) => {
+  // Function to save the selected device to the database
+  const selectDevice = async (deviceCode: string, deviceName?: string) => {
     if (!user) {
-      toast({
-        title: "ต้องเข้าสู่ระบบก่อน",
-        description: "กรุณาเข้าสู่ระบบเพื่อบันทึกการเลือกอุปกรณ์",
-        variant: "destructive",
-      });
+      // For non-authenticated users, we just store in state but don't persist
+      setSelectedDeviceCode(deviceCode);
+      setSelectedDeviceName(deviceName || deviceCode);
       return;
     }
 
     try {
-      setSelectedDeviceState(deviceCode);
+      setIsLoadingDevice(true);
       
-      if (deviceCode === null) {
-        // Delete preference when clearing selection
-        const { error } = await supabase
-          .from('user_device_preferences')
-          .delete()
-          .eq('user_id', user.id);
-        
-        if (error) throw error;
-        
-        toast({
-          title: "ยกเลิกการเลือกอุปกรณ์",
-          description: "กลับสู่การแสดงอุปกรณ์ทั้งหมด"
-        });
-        return;
-      }
-
-      // Check if preference already exists
-      const { data, error: selectError } = await supabase
+      // Check if a preference already exists
+      const { data: existingPref } = await supabase
         .from('user_device_preferences')
         .select('id')
         .eq('user_id', user.id)
         .maybeSingle();
 
-      if (selectError) throw selectError;
-
-      if (data) {
+      let error;
+      
+      if (existingPref) {
         // Update existing preference
-        const { error } = await supabase
+        const { error: updateError } = await supabase
           .from('user_device_preferences')
           .update({ device_code: deviceCode })
           .eq('user_id', user.id);
-          
-        if (error) throw error;
+        
+        error = updateError;
       } else {
         // Insert new preference
-        const { error } = await supabase
+        const { error: insertError } = await supabase
           .from('user_device_preferences')
           .insert({ user_id: user.id, device_code: deviceCode });
-          
-        if (error) throw error;
+        
+        error = insertError;
       }
 
+      if (error) throw error;
+      
+      // Update local state
+      setSelectedDeviceCode(deviceCode);
+      setSelectedDeviceName(deviceName || deviceCode);
+      
       toast({
-        title: "เลือกอุปกรณ์สำเร็จ",
-        description: `เลือกอุปกรณ์ ${deviceCode} เป็นอุปกรณ์หลัก`
+        title: "อุปกรณ์เริ่มต้นถูกเปลี่ยนแปลง",
+        description: `อุปกรณ์ ${deviceName || deviceCode} ถูกตั้งเป็นอุปกรณ์เริ่มต้น`,
       });
     } catch (error) {
-      console.error('Error setting device preference:', error);
+      console.error('Error saving device preference:', error);
       toast({
         title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถบันทึกการเลือกอุปกรณ์ได้",
+        description: "ไม่สามารถบันทึกการตั้งค่าอุปกรณ์ได้",
         variant: "destructive",
       });
-      
-      // Revert local state if save failed
-      setSelectedDeviceState(null);
+    } finally {
+      setIsLoadingDevice(false);
     }
   };
 
-  const value = {
-    selectedDevice,
-    setSelectedDevice,
-    isDeviceSelected: !!selectedDevice,
-    isLoadingPreference
+  // Function to clear the selected device
+  const clearSelectedDevice = async () => {
+    if (!user || !selectedDeviceCode) {
+      setSelectedDeviceCode(null);
+      setSelectedDeviceName(null);
+      return;
+    }
+
+    try {
+      setIsLoadingDevice(true);
+      
+      // Delete the device preference
+      const { error } = await supabase
+        .from('user_device_preferences')
+        .delete()
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      
+      // Update local state
+      setSelectedDeviceCode(null);
+      setSelectedDeviceName(null);
+      
+      toast({
+        title: "อุปกรณ์เริ่มต้นถูกลบ",
+        description: "ไม่มีอุปกรณ์เริ่มต้นที่ถูกเลือกอีกต่อไป",
+      });
+    } catch (error) {
+      console.error('Error clearing device preference:', error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถลบการตั้งค่าอุปกรณ์ได้",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingDevice(false);
+    }
   };
 
-  return <DeviceContext.Provider value={value}>{children}</DeviceContext.Provider>;
+  return (
+    <DeviceContext.Provider
+      value={{
+        selectedDeviceCode,
+        selectedDeviceName,
+        isLoadingDevice,
+        selectDevice,
+        clearSelectedDevice,
+      }}
+    >
+      {children}
+    </DeviceContext.Provider>
+  );
 };

@@ -25,7 +25,23 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
   const isActive = (path: string) => location.pathname === path;
 
   // ตรวจสอบว่าผู้ใช้มีสิทธิ์ในการเข้าถึงหน้าจัดการผู้ใช้งานหรือไม่
-  const canAccessUserManagement = userRoles.includes('admin') || userRoles.includes('superadmin');
+  const canAccessUserManagement = userRoles?.includes('admin') || userRoles?.includes('superadmin');
+  
+  // Listen for mobile sidebar toggle events
+  useEffect(() => {
+    const handleToggleMobileSidebar = () => {
+      if (isMobile) {
+        // Fixed: Pass a boolean value directly instead of a function
+        setSidebarOpen(!sidebarOpen);
+      }
+    };
+    
+    window.addEventListener('toggleMobileSidebar', handleToggleMobileSidebar);
+    
+    return () => {
+      window.removeEventListener('toggleMobileSidebar', handleToggleMobileSidebar);
+    }
+  }, [isMobile, setSidebarOpen, sidebarOpen]); // Added sidebarOpen as a dependency
   
   const toggleCollapse = () => {
     // ไม่อนุญาตให้ทำงาน collapse บน mobile
@@ -76,7 +92,18 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
             </Button>
           )}
           
-          {/* ปุ่ม Collapse ถูกลบออกตามความต้องการ */}
+          {/* Add collapse toggle button */}
+          {!isMobile && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleCollapse}
+              className="absolute right-2 top-2 hidden md:flex"
+              aria-label={isCollapsed ? "Expand" : "Collapse"}
+            >
+              {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            </Button>
+          )}
           
           <div className={cn(
             "flex justify-between items-center mt-4",
@@ -174,7 +201,7 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
               
               {user && <Link to="/profile" className={cn(
                 "flex items-center rounded-lg transition-colors",
-                isCollapsed ? "gap-2 py-2 px-1" : "gap-3 py-2.5 px-3", // ปรับขนาดของเมนูตามขนาดของ sidebar
+                isCollapsed ? "gap-2 py-2 px-1" : "gap-3 py-2.5 px-3", // ปรับขนาดของเมนูตามขนาดข��ง sidebar
                 
                 isActive("/profile") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
                 isCollapsed && "justify-center"

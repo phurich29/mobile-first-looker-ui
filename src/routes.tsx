@@ -1,5 +1,5 @@
 
-import { lazy, Suspense, ReactNode } from "react";
+import { lazy, Suspense } from "react";
 import { Navigate } from "react-router-dom";
 
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -23,12 +23,7 @@ import Equipment from "./pages/Equipment";
 import GraphMonitor from "./pages/GraphMonitor";
 import GraphSummary from "./pages/GraphSummary";
 
-interface RouteConfig {
-  path: string;
-  element: ReactNode;
-}
-
-export const router: RouteConfig[] = [
+export const routes = [
   {
     path: "/",
     element: <Index />,
