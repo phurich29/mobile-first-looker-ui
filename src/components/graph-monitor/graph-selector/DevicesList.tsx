@@ -1,55 +1,57 @@
+import React from 'react';
+import { DeviceInfo } from '../DeviceInfo';
+import { DeviceCard } from './DeviceCard';
 
-import React from "react";
-import { DeviceCard } from "./DeviceCard";
-import { Loader2, SearchX } from "lucide-react";
-
-interface DevicesListProps {
-  devices: { device_code: string; display_name?: string; last_updated?: string }[];
-  selectedDevice: string | null;
-  loading: boolean;
-  onSelectDevice: (deviceCode: string) => void;
-  defaultDeviceCode?: string | null;
+export interface DevicesListProps {
+  devices: DeviceInfo[];
+  loading?: boolean; 
+  isLoading?: boolean; // Add this to support both prop names
+  selectedDevice: string;
+  onDeviceSelect: (deviceCode: string, deviceName?: string) => void;
+  searchQuery: string;
+  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export const DevicesList: React.FC<DevicesListProps> = ({ 
-  devices, 
-  selectedDevice, 
-  loading, 
-  onSelectDevice,
-  defaultDeviceCode
+export const DevicesList: React.FC<DevicesListProps> = ({
+  devices,
+  loading = false,
+  isLoading = false, // Support both prop names
+  selectedDevice,
+  onDeviceSelect,
+  searchQuery,
+  setSearchQuery,
 }) => {
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-8">
-        <Loader2 className="h-8 w-8 text-emerald-500 animate-spin mb-2" />
-        <p className="text-muted-foreground">กำลังโหลดรายการอุปกรณ์...</p>
-      </div>
-    );
-  }
+  // Use either loading or isLoading
+  const isLoadingState = loading || isLoading;
 
-  if (devices.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-8 text-center">
-        <SearchX className="h-12 w-12 text-muted-foreground mb-2 opacity-50" />
-        <h3 className="font-medium mb-1">ไม่พบอุปกรณ์</h3>
-        <p className="text-muted-foreground text-sm">ไม่พบอุปกรณ์ที่ตรงกับคำค้นหา</p>
-      </div>
-    );
-  }
+  const filteredDevices = devices.filter(device =>
+    device.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    device.device_code.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-      {devices.map((device) => (
-        <DeviceCard
-          key={device.device_code}
-          deviceCode={device.device_code}
-          displayName={device.display_name}
-          lastUpdated={device.last_updated}
-          isSelected={selectedDevice === device.device_code}
-          isDefaultDevice={defaultDeviceCode === device.device_code}
-          onClick={() => onSelectDevice(device.device_code)}
-        />
-      ))}
+    <div>
+      <input
+        type="text"
+        placeholder="Search devices..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="w-full p-2 mb-4 border rounded"
+      />
+      {isLoadingState ? (
+        <div>Loading devices...</div>
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          {filteredDevices.map((device) => (
+            <DeviceCard
+              key={device.device_code}
+              device={device}
+              selected={device.device_code === selectedDevice}
+              onSelect={() => onDeviceSelect(device.device_code, device.display_name)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

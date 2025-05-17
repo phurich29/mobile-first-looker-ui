@@ -1,158 +1,112 @@
+import React from 'react';
+import { DevicesList } from './DevicesList';
+import { MeasurementsList } from './MeasurementsList';
 
-import React, { useState, useEffect } from "react";
-import { DevicesList } from "./DevicesList";
-import { MeasurementsList } from "./MeasurementsList";
-import { useDeviceContext } from "@/contexts/DeviceContext";
-import { DeviceInfo } from "./DeviceInfo";
-
-export interface MeasurementData {
-  id: string;
-  symbol: string;
-  name: string;
-  device_code?: string;
+export interface GraphSelectorProps {
+  onSelectGraph: (deviceCode: string, symbol: string, name: string, deviceName?: string) => void;
+  open?: boolean; // Add this property
+  onOpenChange?: React.Dispatch<React.SetStateAction<boolean>>; // Add this property
 }
 
-interface GraphSelectorProps {
-  onDeviceSelect: (deviceCode: string) => void;
-  onMeasurementSelect: (deviceCode: string, symbol: string, name: string) => void;
-  className?: string;
-}
-
-export const GraphSelector: React.FC<GraphSelectorProps> = ({
-  onDeviceSelect,
-  onMeasurementSelect,
-  className = "",
+export const GraphSelector: React.FC<GraphSelectorProps> = ({ 
+  onSelectGraph,
+  open,
+  onOpenChange
 }) => {
-  const [loading, setLoading] = useState(true);
-  const [devices, setDevices] = useState<DeviceInfo[]>([]);
-  const [measurements, setMeasurements] = useState<MeasurementData[]>([]);
-  const [selectedDevice, setSelectedDevice] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const { selectedDeviceCode, selectDevice } = useDeviceContext();
+  // State for the selected device and search queries
+  const [selectedDevice, setSelectedDevice] = React.useState<string>('');
+  const [deviceSearchQuery, setDeviceSearchQuery] = React.useState<string>('');
+  const [measurementSearchQuery, setMeasurementSearchQuery] = React.useState<string>('');
   
+  // State for devices and measurements data
+  const [devices, setDevices] = React.useState<any[]>([]);
+  const [measurements, setMeasurements] = React.useState<any[]>([]);
+  
+  // Loading states
+  const [isLoadingDevices, setIsLoadingDevices] = React.useState<boolean>(false);
+  const [isLoadingMeasurements, setIsLoadingMeasurements] = React.useState<boolean>(false);
+
   // Fetch devices on component mount
-  useEffect(() => {
+  React.useEffect(() => {
+    const fetchDevices = async () => {
+      setIsLoadingDevices(true);
+      try {
+        // Simulate API call
+        const response = await fetch('/api/devices');
+        const data = await response.json();
+        setDevices(data);
+      } catch (error) {
+        console.error('Error fetching devices:', error);
+      } finally {
+        setIsLoadingDevices(false);
+      }
+    };
+
     fetchDevices();
-    if (selectedDeviceCode) {
-      setSelectedDevice(selectedDeviceCode);
-    }
-  }, [selectedDeviceCode]);
-  
-  // Fetch devices from the API
-  const fetchDevices = async () => {
-    setLoading(true);
-    try {
-      // API call would go here
-      const mockDevices: DeviceInfo[] = [
-        { device_code: "device1", display_name: "Device 1", last_updated: new Date().toISOString() },
-        { device_code: "device2", display_name: "Device 2", last_updated: new Date().toISOString() }
-      ];
-      setDevices(mockDevices);
-    } catch (error) {
-      console.error("Error fetching devices:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  // Get the name of the selected device
-  const getSelectedDeviceName = () => {
-    const device = devices.find(d => d.device_code === selectedDevice);
-    return device?.display_name || selectedDevice;
-  };
-  
+  }, []);
+
+  // Fetch measurements when a device is selected
+  React.useEffect(() => {
+    if (!selectedDevice) return;
+
+    const fetchMeasurements = async () => {
+      setIsLoadingMeasurements(true);
+      try {
+        // Simulate API call
+        const response = await fetch(`/api/measurements/${selectedDevice}`);
+        const data = await response.json();
+        setMeasurements(data);
+      } catch (error) {
+        console.error('Error fetching measurements:', error);
+      } finally {
+        setIsLoadingMeasurements(false);
+      }
+    };
+
+    fetchMeasurements();
+  }, [selectedDevice]);
+
   // Handle device selection
-  const handleDeviceSelect = async (deviceCode: string, deviceName?: string) => {
+  const handleDeviceSelect = (deviceCode: string, deviceName?: string) => {
     setSelectedDevice(deviceCode);
-    onDeviceSelect(deviceCode);
-    
-    // Set as default device in context
-    if (selectDevice) {
-      await selectDevice(deviceCode, deviceName);
-    }
-    
-    // Fetch measurements for the selected device
-    // This would typically be an API call
-    const mockMeasurements: MeasurementData[] = [
-      { id: "1", symbol: "temp", name: "Temperature", device_code: deviceCode },
-      { id: "2", symbol: "hum", name: "Humidity", device_code: deviceCode }
-    ];
-    setMeasurements(mockMeasurements);
+    // Reset measurement search when changing devices
+    setMeasurementSearchQuery('');
   };
-  
-  // Convert devices to the format expected by the DevicesList component
-  const formattedDevices = devices.map(device => ({
-    device_code: device.device_code,
-    display_name: device.display_name,
-    last_updated: device.last_updated
-  }));
-  
+
+  // Handle measurement selection
+  const handleMeasurementSelect = (symbol: string, name: string) => {
+    const selectedDeviceName = devices.find(d => d.device_code === selectedDevice)?.display_name;
+    onSelectGraph(selectedDevice, symbol, name, selectedDeviceName);
+    
+    // Close the selector if onOpenChange is provided
+    if (onOpenChange) {
+      onOpenChange(false);
+    }
+  };
+
   return (
-    <div className={`flex flex-col ${className}`}>
-      <DevicesList
-        devices={formattedDevices}
-        isLoading={loading}
-        selectedDevice={selectedDevice}
-        onDeviceSelect={handleDeviceSelect}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-      />
+    <div className="flex flex-col md:flex-row gap-4 p-4 max-h-[80vh] overflow-hidden">
+      <div className="w-full md:w-1/2 overflow-y-auto">
+        <h3 className="text-lg font-medium mb-4">Select Device</h3>
+        <DevicesList
+          devices={devices}
+          isLoading={isLoadingDevices}
+          selectedDevice={selectedDevice}
+          onDeviceSelect={handleDeviceSelect}
+          searchQuery={deviceSearchQuery}
+          setSearchQuery={setDeviceSearchQuery}
+        />
+      </div>
       
-      <MeasurementsList
-        measurements={measurements}
-        isLoading={loading && !!selectedDevice}
-        onMeasurementSelect={(symbol, name) => 
-          onMeasurementSelect(selectedDevice, symbol, name)}
-        searchQuery={searchQuery}
-      />
+      <div className="w-full md:w-1/2 overflow-y-auto">
+        <h3 className="text-lg font-medium mb-4">Select Measurement</h3>
+        <MeasurementsList
+          measurements={measurements}
+          isLoading={isLoadingMeasurements}
+          onMeasurementSelect={handleMeasurementSelect}
+          searchQuery={measurementSearchQuery}
+        />
+      </div>
     </div>
   );
 };
-
-export function useGraphSelector() {
-  const [loading, setLoading] = useState(true);
-  const [devices, setDevices] = useState<DeviceInfo[]>([]);
-  const [measurements, setMeasurements] = useState<MeasurementData[]>([]);
-  const [selectedDevice, setSelectedDevice] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  
-  // Fetch devices on component mount
-  useEffect(() => {
-    fetchDevices();
-  }, []);
-  
-  // Fetch devices from the API
-  const fetchDevices = async () => {
-    setLoading(true);
-    try {
-      // API call would go here
-      const mockDevices: DeviceInfo[] = [
-        { device_code: "device1", display_name: "Device 1", last_updated: new Date().toISOString() },
-        { device_code: "device2", display_name: "Device 2", last_updated: new Date().toISOString() }
-      ];
-      setDevices(mockDevices);
-    } catch (error) {
-      console.error("Error fetching devices:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  // Get the name of the selected device
-  const getSelectedDeviceName = () => {
-    const device = devices.find(d => d.device_code === selectedDevice);
-    return device?.display_name || selectedDevice;
-  };
-  
-  return {
-    loading,
-    devices,
-    measurements,
-    selectedDevice,
-    searchQuery,
-    setSearchQuery,
-    setSelectedDevice,
-    fetchDevices,
-    getSelectedDeviceName
-  };
-}
