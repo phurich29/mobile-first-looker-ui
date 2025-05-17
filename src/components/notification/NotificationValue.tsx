@@ -25,14 +25,14 @@ const NotificationValue: React.FC<NotificationValueProps> = ({
       {/* Current value with timestamp */}
       <div className="relative">
         {latestValue !== null && latestTimestamp && (
-          <p className={`font-medium text-xs ${isAlertActive ? 'text-red-600 font-bold' : 'text-green-600'} leading-tight`}>
-            {formatTime(latestTimestamp)} {latestValue.toFixed(1)}%
-            {/* Bot icon positioned near the timestamp */}
+          <p className={`font-medium text-xs ${isAlertActive ? 'text-red-600 font-bold' : 'text-green-600'} leading-tight flex items-center`}>
+            {/* Bot icon now positioned before the timestamp */}
             {enabled && (
-              <span className="absolute -top-2 -left-4">
+              <span className="inline-flex mr-1">
                 <Bot size={14} className="text-orange-500" />
               </span>
             )}
+            {formatTime(latestTimestamp)} {latestValue.toFixed(1)}%
           </p>
         )}
       </div>
