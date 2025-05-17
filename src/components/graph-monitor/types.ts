@@ -1,16 +1,8 @@
-export interface SelectedGraph {
-  deviceCode: string;
+
+export interface MeasurementData {
   symbol: string;
   name: string;
-  deviceName?: string;
-  barColor?: string; // เพิ่มตัวแปรเก็บสีกราฟแท่งที่ผู้ใช้เลือก
-  lineColor?: string; // เพิ่มตัวแปรเก็บสีเส้นค่าเฉลี่ยที่ผู้ใช้เลือก
+  value?: number;
+  unit?: string;
+  timestamp?: string;
 }
-
-export type GraphStyle = 
-  | "classic" 
-  | "natural" 
-  | "neon" 
-  | "pastel" 
-  | "monochrome" 
-  | "gradient";

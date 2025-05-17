@@ -1,11 +1,14 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { DevicesList } from './DevicesList';
 import { MeasurementsList } from './MeasurementsList';
+import { DeviceInfo } from '../DeviceInfo';
+import { MeasurementData } from '../types';
 
 export interface GraphSelectorProps {
   onSelectGraph: (deviceCode: string, symbol: string, name: string, deviceName?: string) => void;
-  open?: boolean; // Add this property
-  onOpenChange?: React.Dispatch<React.SetStateAction<boolean>>; // Add this property
+  open?: boolean;
+  onOpenChange?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const GraphSelector: React.FC<GraphSelectorProps> = ({ 
@@ -14,20 +17,20 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
   onOpenChange
 }) => {
   // State for the selected device and search queries
-  const [selectedDevice, setSelectedDevice] = React.useState<string>('');
-  const [deviceSearchQuery, setDeviceSearchQuery] = React.useState<string>('');
-  const [measurementSearchQuery, setMeasurementSearchQuery] = React.useState<string>('');
+  const [selectedDevice, setSelectedDevice] = useState<string>('');
+  const [deviceSearchQuery, setDeviceSearchQuery] = useState<string>('');
+  const [measurementSearchQuery, setMeasurementSearchQuery] = useState<string>('');
   
   // State for devices and measurements data
-  const [devices, setDevices] = React.useState<any[]>([]);
-  const [measurements, setMeasurements] = React.useState<any[]>([]);
+  const [devices, setDevices] = useState<DeviceInfo[]>([]);
+  const [measurements, setMeasurements] = useState<MeasurementData[]>([]);
   
   // Loading states
-  const [isLoadingDevices, setIsLoadingDevices] = React.useState<boolean>(false);
-  const [isLoadingMeasurements, setIsLoadingMeasurements] = React.useState<boolean>(false);
+  const [isLoadingDevices, setIsLoadingDevices] = useState<boolean>(false);
+  const [isLoadingMeasurements, setIsLoadingMeasurements] = useState<boolean>(false);
 
   // Fetch devices on component mount
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchDevices = async () => {
       setIsLoadingDevices(true);
       try {
@@ -46,7 +49,7 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
   }, []);
 
   // Fetch measurements when a device is selected
-  React.useEffect(() => {
+  useEffect(() => {
     if (!selectedDevice) return;
 
     const fetchMeasurements = async () => {
@@ -100,6 +103,13 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
       
       <div className="w-full md:w-1/2 overflow-y-auto">
         <h3 className="text-lg font-medium mb-4">Select Measurement</h3>
+        <input
+          type="text"
+          placeholder="Search measurements..."
+          value={measurementSearchQuery}
+          onChange={(e) => setMeasurementSearchQuery(e.target.value)}
+          className="w-full p-2 mb-4 border rounded"
+        />
         <MeasurementsList
           measurements={measurements}
           isLoading={isLoadingMeasurements}

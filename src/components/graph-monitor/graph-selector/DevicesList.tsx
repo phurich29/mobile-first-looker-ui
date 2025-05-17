@@ -1,6 +1,14 @@
+
 import React from 'react';
 import { DeviceInfo } from '../DeviceInfo';
 import { DeviceCard } from './DeviceCard';
+
+export interface DeviceCardProps {
+  deviceCode: string;
+  deviceName?: string;
+  selected: boolean;
+  onSelect: () => void;
+}
 
 export interface DevicesListProps {
   devices: DeviceInfo[];
@@ -45,7 +53,8 @@ export const DevicesList: React.FC<DevicesListProps> = ({
           {filteredDevices.map((device) => (
             <DeviceCard
               key={device.device_code}
-              device={device}
+              deviceCode={device.device_code}
+              deviceName={device.display_name}
               selected={device.device_code === selectedDevice}
               onSelect={() => onDeviceSelect(device.device_code, device.display_name)}
             />

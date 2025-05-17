@@ -1,6 +1,13 @@
+
 import React from 'react';
 import { MeasurementData } from '../types';
 import { MeasurementCard } from './MeasurementCard';
+
+export interface MeasurementCardProps {
+  measurementSymbol: string;
+  measurementName: string;
+  onClick: () => void;
+}
 
 export interface MeasurementsListProps {
   measurements: MeasurementData[];
@@ -37,8 +44,8 @@ export const MeasurementsList: React.FC<MeasurementsListProps> = ({
         filteredMeasurements.map(measurement => (
           <MeasurementCard
             key={measurement.symbol}
-            symbol={measurement.symbol}
-            name={measurement.name}
+            measurementSymbol={measurement.symbol}
+            measurementName={measurement.name}
             onClick={() => onMeasurementSelect(measurement.symbol, measurement.name)}
           />
         ))
