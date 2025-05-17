@@ -1,5 +1,5 @@
 
-export type GraphStyle = 'line' | 'area' | 'classic' | 'natural' | 'gradient' | 'pastel';
+export type GraphStyle = 'line' | 'area' | 'classic' | 'natural' | 'gradient' | 'pastel' | 'neon' | 'monochrome';
 
 export interface SelectedMetric {
   deviceCode: string;
