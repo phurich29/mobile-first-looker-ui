@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import MeasurementHistory from "@/components/MeasurementHistory";
+import "@/components/notification-item-animation.css";
 
 // Import custom hooks
 import { useDeviceData } from "@/features/device-details/hooks/useDeviceData";

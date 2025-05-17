@@ -1,6 +1,8 @@
 
-import React, { useState } from "react";
-import { ArrowUp, ArrowDown, Wheat, Blend, Circle, Bot } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { ArrowUp, ArrowDown, Wheat, Blend, Circle, Bot, Bell } from "lucide-react";
+import { getLatestMeasurement } from "@/components/measurement-history/api";
+import "./notification-item-animation.css";
 
 type MeasurementItemProps = {
   symbol: string;
@@ -33,8 +35,14 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
 }) => {
   // ใช้ currentValue ถ้ามี มิฉะนั้นใช้ price (สำหรับความเข้ากันได้กับโค้ดเก่า)
   const valueToShow = currentValue || price || "0";
+  
   // State สำหรับการแสดงประวัติการวัด
   const [showHistory, setShowHistory] = useState(false);
+  
+  // State สำหรับการแจ้งเตือน
+  const [latestValue, setLatestValue] = useState<number | null>(parseFloat(valueToShow) || null);
+  const [latestTimestamp, setLatestTimestamp] = useState<string | null>(updatedAt ? updatedAt.toISOString() : null);
+  const [isAlertActive, setIsAlertActive] = useState(false);
   
   // Always set to true for green color
   const isPositive = true;
@@ -45,6 +53,51 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
                 symbol.includes('BNB') ? 'bg-yellow-50' :
                 symbol.includes('XRP') ? 'bg-indigo-50' :
                 symbol.includes('LTC') ? 'bg-gray-50' : 'bg-purple-50';
+  
+  // Effect สำหรับดึงข้อมูลล่าสุดทุก 20 วินาที
+  useEffect(() => {
+    if (!deviceCode || !symbol || !enabled || !notificationType || !threshold) {
+      return;
+    }
+
+    // ฟังก์ชันสำหรับดึงค่าล่าสุดและตรวจสอบการแจ้งเตือน
+    const fetchLatestValue = async () => {
+      try {
+        const result = await getLatestMeasurement(deviceCode, symbol);
+        
+        if (result.value !== null) {
+          setLatestValue(result.value);
+          setLatestTimestamp(result.timestamp);
+          
+          // ตรวจสอบเงื่อนไขการแจ้งเตือน
+          const thresholdValue = parseFloat(threshold);
+          
+          if (notificationType === 'min') {
+            // แจ้งเตือนเมื่อค่าต่ำกว่า threshold
+            setIsAlertActive(result.value < thresholdValue);
+          } else if (notificationType === 'max') {
+            // แจ้งเตือนเมื่อค่าสูงกว่า threshold
+            setIsAlertActive(result.value > thresholdValue);
+          } else if (notificationType === 'both') {
+            // แจ้งเตือนเมื่อค่าอยู่นอกช่วงที่กำหนด (รูปแบบช่วงคือ "min-max")
+            const [minThreshold, maxThreshold] = threshold.split('-').map(parseFloat);
+            setIsAlertActive(result.value < minThreshold || result.value > maxThreshold);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching latest measurement:", error);
+      }
+    };
+
+    // เรียกฟังก์ชันเมื่อ component ถูกโหลด
+    fetchLatestValue();
+
+    // ตั้ง interval เพื่ออัปเดตค่าทุก 20 วินาที
+    const intervalId = setInterval(fetchLatestValue, 20000);
+
+    // ยกเลิก interval เมื่อ component ถูกทำลาย
+    return () => clearInterval(intervalId);
+  }, [deviceCode, symbol, enabled, notificationType, threshold]);
   
   // Get icon based on category
   const getIcon = () => {
@@ -142,7 +195,7 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
     <>
       <div 
         onClick={handleClick}
-        className={`flex items-center justify-between p-4 border-b border-gray-100 ${bgColor} hover:brightness-95 transition-all duration-300 relative overflow-hidden ${deviceCode ? 'cursor-pointer active:bg-gray-100' : ''}`}
+        className={`flex items-center justify-between p-4 border-b border-gray-100 ${bgColor} hover:brightness-95 transition-all duration-300 relative overflow-hidden ${deviceCode ? 'cursor-pointer active:bg-gray-100' : ''} ${isAlertActive ? 'bg-red-50/90' : ''}`}
       >
         {/* เพิ่มองค์ประกอบด้านหลังเพื่อความมีมิติ */}
         <div className="absolute inset-0 w-full h-full bg-white opacity-80"></div>
@@ -158,10 +211,14 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
               {getIcon()}
             </div>
             
-            {/* แสดงไอคอน Bot เมื่อมีการแจ้งเตือนถูกเปิดใช้งาน */}
+            {/* แสดงไอคอน Bell เมื่อมีการแจ้งเตือนถูกเปิดใช้งานและกำลังเกิดการแจ้งเตือน */}
             {enabled && notificationType && (
               <div className="absolute -top-1 -right-1 bg-white rounded-full p-0.5 shadow-md">
-                <Bot size={16} className="text-orange-500" />
+                {isAlertActive ? (
+                  <Bell size={16} className="text-red-500 bell-animation" />
+                ) : (
+                  <Bot size={16} className="text-orange-500" />
+                )}
               </div>
             )}
           </div>
@@ -183,7 +240,7 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
           </div>
         </div>
         <div className="text-right flex flex-col items-end relative z-10">
-          <p className="font-bold text-base text-green-600">
+          <p className={`font-bold text-base ${isAlertActive ? 'text-red-600 value-blink' : 'text-green-600'}`}>
             {valueToShow}%
           </p>
           
@@ -198,8 +255,14 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
             )}
           </div>
         </div>
+        
+        {/* Notification alert bell for active alerts (position adjusted for better visibility) */}
+        {isAlertActive && enabled && notificationType && (
+          <div className="absolute top-1/2 right-1/4 transform -translate-y-1/2 z-20 bell-animation">
+            <Bell size={18} className="text-yellow-400 fill-yellow-400" />
+          </div>
+        )}
       </div>
     </>
   );
 };
-
