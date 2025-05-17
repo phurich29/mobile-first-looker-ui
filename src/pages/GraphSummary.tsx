@@ -85,37 +85,31 @@ const GraphSummary = () => {
   }, [graphData, selectedMetrics]);
 
   useEffect(() => {
-    // Get sidebar collapsed state from localStorage
-    const savedCollapsedState = localStorage.getItem('sidebarCollapsed');
-    if (savedCollapsedState) {
-      setIsCollapsed(savedCollapsedState === 'true');
-    }
+    // Get sidebar collapsed state from localStorage and listen for custom events
+    const updateSidebarState = (event?: Event) => {
+      const customEvent = event as CustomEvent;
+      if (customEvent?.detail) {
+        setIsCollapsed(customEvent.detail.isCollapsed);
+      } else {
+        const savedCollapsedState = localStorage.getItem('sidebarCollapsed');
+        setIsCollapsed(savedCollapsedState === 'true');
+      }
+    };
+    
+    // Initial state
+    updateSidebarState();
     
     // Listen for changes in localStorage
-    const handleStorageChange = () => {
-      const currentState = localStorage.getItem('sidebarCollapsed');
-      setIsCollapsed(currentState === 'true');
-    };
+    window.addEventListener('storage', () => updateSidebarState());
     
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Use requestAnimationFrame for smoother checks
-    let rafId: number;
-    const checkState = () => {
-      const currentState = localStorage.getItem('sidebarCollapsed');
-      if (currentState === 'true' !== isCollapsed) {
-        setIsCollapsed(currentState === 'true');
-      }
-      rafId = requestAnimationFrame(checkState);
-    };
-    
-    rafId = requestAnimationFrame(checkState);
+    // Listen for custom event from Header component
+    window.addEventListener('sidebarStateChanged', updateSidebarState);
     
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      cancelAnimationFrame(rafId);
+      window.removeEventListener('storage', () => updateSidebarState());
+      window.removeEventListener('sidebarStateChanged', updateSidebarState);
     };
-  }, [isCollapsed]);
+  }, []);
   
   // Function to add a new metric to the graph
   const handleAddGraph = (deviceCode: string, symbol: string, name: string, deviceName?: string) => {
@@ -194,7 +188,7 @@ const GraphSummary = () => {
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-950">
       <Header />
       
-      <main className={`flex-1 ${isMobile ? 'pb-20' : `pb-8 ${sidebarWidth}`} p-4`}>
+      <main className={`flex-1 ${isMobile ? 'pb-20' : `pb-8 ${sidebarWidth}`} p-4 transition-all duration-300`}>
         <div className="max-w-7xl mx-auto">
           <GraphHeader 
             onOpenSelector={() => setSelectorOpen(true)}

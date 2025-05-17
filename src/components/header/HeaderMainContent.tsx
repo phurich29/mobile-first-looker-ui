@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { HeaderClock } from "./HeaderClock";
 import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
+import { useEffect, useState } from "react"; // เพิ่ม import useState และ useEffect
 
 interface HeaderMainContentProps {
   setSidebarOpen: (open: boolean) => void;
@@ -12,6 +13,16 @@ interface HeaderMainContentProps {
 
 export const HeaderMainContent = ({ setSidebarOpen }: HeaderMainContentProps) => {
   const isMobile = useIsMobile();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  // สำหรับ mobile ให้ใช้สถานะแยกต่างหาก
+  const handleMobileMenuClick = () => {
+    if (isMobile) {
+      const newState = !mobileMenuOpen;
+      setMobileMenuOpen(newState);
+      setSidebarOpen(newState);
+    }
+  };
   
   return (
     <header className="sticky top-0 z-20 flex items-center justify-between bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-lg dark:from-slate-800 dark:to-slate-900 py-5 px-4 md:px-8 md:py-6 w-full">
@@ -21,7 +32,7 @@ export const HeaderMainContent = ({ setSidebarOpen }: HeaderMainContentProps) =>
           variant="ghost" 
           size="icon" 
           className="text-white p-1 hover:bg-emerald-600/70 dark:hover:bg-slate-700/70 md:hidden" 
-          onClick={() => setSidebarOpen(true)}
+          onClick={handleMobileMenuClick}
         >
           <Menu className="h-5 w-5 text-white" />
         </Button>
