@@ -23,12 +23,30 @@ export const Header = () => {
         setSidebarOpen(false);
       }
     };
+    
+    // Dispatch custom event when sidebar state changes
+    const dispatchSidebarEvent = () => {
+      window.dispatchEvent(new CustomEvent('sidebarStateChanged', { 
+        detail: { isCollapsed: savedCollapsedState === 'true' } 
+      }));
+    };
 
     // เปิด sidebar ทันทีเมื่อหน้าจอมีขนาดใหญ่กว่า md
     handleResize();
     window.addEventListener('resize', handleResize);
+    
+    // Call once on mount to ensure all components are updated
+    dispatchSidebarEvent();
+    
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+  
+  // Effect to dispatch event when isCollapsed changes
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('sidebarStateChanged', { 
+      detail: { isCollapsed } 
+    }));
+  }, [isCollapsed]);
 
   return (
     <>

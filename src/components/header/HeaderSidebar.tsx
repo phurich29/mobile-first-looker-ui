@@ -26,9 +26,16 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
   const canAccessUserManagement = userRoles.includes('admin') || userRoles.includes('superadmin');
   
   const toggleCollapse = () => {
-    setIsCollapsed(!isCollapsed);
+    const newCollapsedState = !isCollapsed;
+    setIsCollapsed(newCollapsedState);
+    
     // Save preference to localStorage
-    localStorage.setItem('sidebarCollapsed', (!isCollapsed).toString());
+    localStorage.setItem('sidebarCollapsed', newCollapsedState.toString());
+    
+    // Dispatch custom event for other components
+    window.dispatchEvent(new CustomEvent('sidebarStateChanged', { 
+      detail: { isCollapsed: newCollapsedState } 
+    }));
   };
   
   return (
