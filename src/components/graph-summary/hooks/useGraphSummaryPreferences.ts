@@ -84,9 +84,20 @@ export const useGraphSummaryPreferences = () => {
 
     setSaving(true);
     try {
+      // Convert SelectedMetric objects to plain objects that are JSON-compatible
+      const plainSelectedMetrics = newPreferences.selectedMetrics.map(metric => ({
+        deviceCode: metric.deviceCode,
+        deviceName: metric.deviceName,
+        symbol: metric.symbol,
+        name: metric.name,
+        color: metric.color,
+        graphStyle: metric.graphStyle,
+        lineColor: metric.lineColor
+      }));
+
       // Create a JSON-compatible object to store
-      const preferencesToSave: Json = {
-        selectedMetrics: newPreferences.selectedMetrics,
+      const preferencesToSave = {
+        selectedMetrics: plainSelectedMetrics,
         timeFrame: newPreferences.timeFrame,
         graphStyle: newPreferences.graphStyle,
         globalLineColor: newPreferences.globalLineColor
