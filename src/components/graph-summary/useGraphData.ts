@@ -9,19 +9,74 @@ export const useGraphData = (selectedMetrics: SelectedMetric[], timeFrame: TimeF
   const [graphData, setGraphData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   
-  // When selectedMetrics changes, fetch the data for all metrics
+  // When selectedMetrics changes, fetch notification settings and then the data
   useEffect(() => {
     if (selectedMetrics.length > 0) {
-      fetchGraphData();
+      fetchNotificationSettings();
     } else {
       setGraphData([]);
     }
   }, [selectedMetrics, timeFrame]);
   
+  // Function to fetch notification settings for the selected metrics
+  const fetchNotificationSettings = async () => {
+    setLoading(true);
+    try {
+      // Create a copy of selected metrics to update with threshold values
+      const updatedMetrics: SelectedMetric[] = [...selectedMetrics];
+      
+      // Fetch notification settings for each metric
+      const settingsPromises = selectedMetrics.map(async (metric) => {
+        const { data, error } = await supabase
+          .from("notification_settings")
+          .select("min_threshold, max_threshold, min_enabled, max_enabled")
+          .eq("device_code", metric.deviceCode)
+          .eq("rice_type_id", metric.symbol)
+          .eq("enabled", true)
+          .single();
+        
+        if (!error && data) {
+          // Find the metric in our copy and update its thresholds
+          const metricIndex = updatedMetrics.findIndex(
+            m => m.deviceCode === metric.deviceCode && m.symbol === metric.symbol
+          );
+          
+          if (metricIndex !== -1) {
+            updatedMetrics[metricIndex] = {
+              ...updatedMetrics[metricIndex],
+              minThreshold: data.min_enabled ? data.min_threshold : null,
+              maxThreshold: data.max_enabled ? data.max_threshold : null,
+            };
+          }
+        }
+        
+        return data;
+      });
+      
+      // Wait for all settings to be fetched
+      await Promise.all(settingsPromises);
+      
+      // Update the metrics with thresholds
+      selectedMetrics.forEach((metric, index) => {
+        if (updatedMetrics[index].minThreshold !== undefined) {
+          metric.minThreshold = updatedMetrics[index].minThreshold;
+        }
+        if (updatedMetrics[index].maxThreshold !== undefined) {
+          metric.maxThreshold = updatedMetrics[index].maxThreshold;
+        }
+      });
+      
+      // Now fetch the actual graph data
+      fetchGraphData();
+    } catch (err) {
+      console.error("Error fetching notification settings:", err);
+      // Still fetch graph data even if settings fetch fails
+      fetchGraphData();
+    }
+  };
+  
   // Function to fetch data for all selected metrics
   const fetchGraphData = async () => {
-    setLoading(true);
-
     try {
       // Calculate cutoff date based on timeframe
       const hours = getTimeFrameHours(timeFrame);
@@ -84,5 +139,5 @@ export const useGraphData = (selectedMetrics: SelectedMetric[], timeFrame: TimeF
     }
   };
   
-  return { graphData, loading, fetchGraphData };
+  return { graphData, loading, fetchGraphData, fetchNotificationSettings };
 };

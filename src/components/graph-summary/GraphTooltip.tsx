@@ -2,6 +2,7 @@
 import React from "react";
 import { SelectedMetric } from "./types";
 import { getMeasurementThaiName } from "@/utils/measurements";
+import { checkValueAlert } from '@/utils/measurements';
 
 interface GraphTooltipProps {
   active?: boolean;
@@ -24,7 +25,7 @@ export const GraphTooltip: React.FC<GraphTooltipProps> = ({
           {payload.map((entry, index) => {
             // Find original metric for this entry
             const metricKey = entry.dataKey as string;
-            const [deviceCode, symbol] = metricKey.split('_');
+            const [deviceCode, symbol] = metricKey.split('-');
             const metric = selectedMetrics.find(
               m => m.deviceCode === deviceCode && m.symbol === symbol
             );
@@ -34,6 +35,16 @@ export const GraphTooltip: React.FC<GraphTooltipProps> = ({
             // Get Thai name if available, otherwise use the original name
             const thaiName = getMeasurementThaiName(metric.symbol) || metric.name;
             
+            // Determine if this value is in alert state
+            const value = Number(entry.value);
+            const isAlert = checkValueAlert(
+              value, 
+              metric.minThreshold, 
+              metric.maxThreshold
+            );
+            
+            const valueColor = isAlert ? "text-red-600 font-bold" : "text-emerald-600";
+            
             return (
               <div 
                 key={index} 
@@ -42,13 +53,13 @@ export const GraphTooltip: React.FC<GraphTooltipProps> = ({
                 <div className="flex items-center">
                   <div 
                     className="w-3 h-3 rounded-full mr-2"
-                    style={{ backgroundColor: metric.color }}
+                    style={{ backgroundColor: isAlert ? "#ef4444" : "#22c55e" }}
                   ></div>
                   <span className="text-xs font-medium">
                     {thaiName} ({metric.deviceName})
                   </span>
                 </div>
-                <span className="text-xs font-mono ml-4">
+                <span className={`text-xs font-mono ml-4 ${valueColor}`}>
                   {Number(entry.value).toFixed(2)}
                 </span>
               </div>

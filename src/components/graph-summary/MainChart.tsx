@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -10,7 +10,8 @@ import {
   Legend,
   ResponsiveContainer,
   AreaChart,
-  Area
+  Area,
+  ReferenceLine
 } from 'recharts';
 import { SelectedMetric, GraphStyle } from './types';
 import { GraphTooltip } from './GraphTooltip';
@@ -25,6 +26,10 @@ interface MainChartProps {
 }
 
 export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics, graphStyle, globalLineColor }) => {
+  // Colors for normal and alert states
+  const normalColor = "#22c55e"; // Green
+  const alertColor = "#ef4444"; // Red
+  
   // ฟังก์ชันเพื่อกำหนดสีพื้นหลังตามสไตล์
   const getGradientOffset = () => {
     if (graphStyle === 'classic') {
@@ -54,11 +59,41 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
         const key = `${metric.deviceCode}-${metric.symbol}`;
         const dataKey = `${metric.deviceCode}_${metric.symbol}`;
         newPoint[key] = point[dataKey]; // Map from stored format to display format
+        
+        // Add alert status flag to be used for conditional coloring
+        const value = point[dataKey];
+        if (value !== undefined && value !== null) {
+          const minThreshold = metric.minThreshold;
+          const maxThreshold = metric.maxThreshold;
+          const isAlert = checkValueAlert(value, minThreshold, maxThreshold);
+          newPoint[`${key}-alert`] = isAlert;
+        }
       });
       
       return newPoint;
     });
   }, [graphData, selectedMetrics]);
+  
+  // Custom dot component for alert values
+  const CustomDot = (props: any) => {
+    const { cx, cy, value, dataKey } = props;
+    const alertKey = `${dataKey}-alert`;
+    const isAlert = props.payload[alertKey];
+    
+    // Only show dots for alert values
+    if (!isAlert) return null;
+    
+    return (
+      <circle 
+        cx={cx} 
+        cy={cy} 
+        r={4} 
+        fill={alertColor} 
+        stroke="white" 
+        strokeWidth={1} 
+      />
+    );
+  };
 
   return (
     <ResponsiveContainer width="100%" height="100%">
@@ -74,8 +109,8 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
                 x2="0"
                 y2="1"
               >
-                <stop offset={offset1} stopColor={metric.color} stopOpacity={0.5} />
-                <stop offset={offset2} stopColor={metric.color} stopOpacity={0} />
+                <stop offset={offset1} stopColor={normalColor} stopOpacity={0.5} />
+                <stop offset={offset2} stopColor={normalColor} stopOpacity={0} />
               </linearGradient>
             ))}
           </defs>
@@ -93,16 +128,42 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
             content={<GraphTooltip selectedMetrics={selectedMetrics} />}
           />
           <Legend content={(props) => <GraphLegend payload={props.payload || []} selectedMetrics={selectedMetrics} />} />
+          
+          {/* Add reference lines for thresholds */}
+          {selectedMetrics.map((metric) => (
+            <React.Fragment key={`thresholds-${metric.deviceCode}-${metric.symbol}`}>
+              {metric.minThreshold !== undefined && metric.minThreshold !== null && (
+                <ReferenceLine 
+                  y={metric.minThreshold} 
+                  stroke={alertColor} 
+                  strokeDasharray="3 3" 
+                  isFront={true}
+                  strokeOpacity={0.6}
+                />
+              )}
+              {metric.maxThreshold !== undefined && metric.maxThreshold !== null && (
+                <ReferenceLine 
+                  y={metric.maxThreshold} 
+                  stroke={alertColor} 
+                  strokeDasharray="3 3" 
+                  isFront={true}
+                  strokeOpacity={0.6}
+                />
+              )}
+            </React.Fragment>
+          ))}
+          
           {selectedMetrics.map((metric) => (
             <Area
               key={`${metric.deviceCode}-${metric.symbol}`}
               type="monotone"
               dataKey={`${metric.deviceCode}-${metric.symbol}`}
               name={`${metric.name} (${metric.deviceName})`}
-              stroke={metric.color}
+              stroke={normalColor}
               strokeWidth={2}
               fill={`url(#color-${metric.deviceCode}-${metric.symbol})`}
-              activeDot={{ r: 6 }}
+              activeDot={false}
+              dot={(props) => <CustomDot {...props} />}
               connectNulls={true}
             />
           ))}
@@ -123,13 +184,38 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
             content={<GraphTooltip selectedMetrics={selectedMetrics} />}
           />
           <Legend content={(props) => <GraphLegend payload={props.payload || []} selectedMetrics={selectedMetrics} />} />
+          
+          {/* Add reference lines for thresholds */}
+          {selectedMetrics.map((metric) => (
+            <React.Fragment key={`thresholds-${metric.deviceCode}-${metric.symbol}`}>
+              {metric.minThreshold !== undefined && metric.minThreshold !== null && (
+                <ReferenceLine 
+                  y={metric.minThreshold} 
+                  stroke={alertColor} 
+                  strokeDasharray="3 3" 
+                  isFront={true}
+                  strokeOpacity={0.6}
+                />
+              )}
+              {metric.maxThreshold !== undefined && metric.maxThreshold !== null && (
+                <ReferenceLine 
+                  y={metric.maxThreshold} 
+                  stroke={alertColor} 
+                  strokeDasharray="3 3" 
+                  isFront={true}
+                  strokeOpacity={0.6}
+                />
+              )}
+            </React.Fragment>
+          ))}
+          
           {selectedMetrics.map((metric) => (
             <Line
               key={`${metric.deviceCode}-${metric.symbol}`}
               type="monotone"
               dataKey={`${metric.deviceCode}-${metric.symbol}`}
               name={`${metric.name} (${metric.deviceName})`}
-              stroke={metric.color}
+              stroke={normalColor}
               strokeWidth={2}
               dot={false}
               activeDot={{ r: 6 }}
