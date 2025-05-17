@@ -3,6 +3,7 @@
 // for backward compatibility
 export {
   calculateChange,
+  isPositiveChange,
   getMeasurementThaiName,
   formatWholeGrainItems,
   formatIngredientsItems,

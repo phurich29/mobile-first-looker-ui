@@ -35,7 +35,9 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
   const valueToShow = currentValue || price || "0";
   // State สำหรับการแสดงประวัติการวัด
   const [showHistory, setShowHistory] = useState(false);
-  const isPositive = percentageChange >= 0;
+  
+  // Always set to true for green color
+  const isPositive = true;
   
   // กำหนดสีพื้นหลังตามประเภทของการวัด
   const bgColor = symbol.includes('BTC') ? 'bg-amber-50' : 
@@ -156,7 +158,7 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
           </div>
         </div>
         <div className="text-right flex flex-col items-end relative z-10">
-          <p className={`font-bold text-base ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+          <p className="font-bold text-base text-green-600">
             {valueToShow}%
           </p>
           

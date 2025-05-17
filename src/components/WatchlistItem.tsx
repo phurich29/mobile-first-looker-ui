@@ -17,7 +17,8 @@ export const WatchlistItem: React.FC<WatchlistItemProps> = ({
   percentageChange,
   iconColor,
 }) => {
-  const isPositive = percentageChange >= 0;
+  // Always set to positive (green)
+  const isPositive = true;
   
   // ตั้งค่าสีพื้นหลังตามชั้นคุณภาพของข้าว
   let bgColor = "bg-white";
@@ -57,11 +58,8 @@ export const WatchlistItem: React.FC<WatchlistItemProps> = ({
       </div>
       <div className="text-right flex flex-col items-end relative z-10">
         <p className="font-bold text-base">{price}</p>
-        <div className={`flex items-center px-2 py-0.5 rounded-full ${isPositive ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-          {isPositive ? 
-            <ArrowUp className="w-3 h-3 mr-1" /> : 
-            <ArrowDown className="w-3 h-3 mr-1" />
-          }
+        <div className="flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-600">
+          <ArrowUp className="w-3 h-3 mr-1" />
           <span className="text-xs font-medium">{Math.abs(percentageChange)}%</span>
         </div>
       </div>
