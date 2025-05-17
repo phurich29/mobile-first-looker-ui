@@ -36,57 +36,57 @@ export const FooterNav = () => {
   
   return <div className="fixed bottom-0 left-0 right-0 z-50">
       {/* Modern glass-morphism footer */}
-      <div className="bg-gradient-to-r from-emerald-500 to-teal-600 h-14 rounded-t-2xl shadow-lg backdrop-blur-sm bg-opacity-90">
-        <nav className="flex justify-around items-center h-full py-2">
+      <div className="bg-gradient-to-r from-emerald-500 to-teal-600 h-16 rounded-t-2xl shadow-lg backdrop-blur-sm bg-opacity-90">
+        <nav className="flex justify-around items-center h-full">
           <NavLink to="/" className={({
           isActive
         }) => cn("flex flex-col items-center justify-center w-1/5 h-full", isActive && "font-bold")}>
-            <Home className="h-4 w-4 text-white" />
-            <span className="text-[10px] mt-0.5 text-white font-medium">หน้าแรก</span>
+            <Home className="h-5 w-5 text-white mb-1" />
+            <span className="text-xs text-white font-medium">หน้าแรก</span>
           </NavLink>
           
           {isAuthenticated && isAuthorized ? <>
               <NavLink to="/equipment" className={({
             isActive
           }) => cn("flex flex-col items-center justify-center w-1/5 h-full", isActive && "font-bold")}>
-                <PackageOpen className="h-4 w-4 text-white" />
-                <span className="text-[10px] mt-0.5 text-white font-medium">อุปกรณ์</span>
+                <PackageOpen className="h-5 w-5 text-white mb-1" />
+                <span className="text-xs text-white font-medium">อุปกรณ์</span>
               </NavLink>
               
               <NavLink to="/graph-summary" className={({
             isActive
           }) => cn("flex flex-col items-center justify-center w-1/5 h-full", isActive && "font-bold")}>
-                <BarChart2 className="h-4 w-4 text-white" />
-                <span className="text-[10px] mt-0.5 text-white font-medium">กราฟ</span>
+                <BarChart2 className="h-5 w-5 text-white mb-1" />
+                <span className="text-xs text-white font-medium">กราฟ</span>
               </NavLink>
               
               <NavLink to="/notifications" className={({
             isActive
           }) => cn("flex flex-col items-center justify-center w-1/5 h-full", isActive && "font-bold")}>
-                <Bell className="h-4 w-4 text-white" />
-                <span className="text-[10px] mt-0.5 text-white font-medium">แจ้งเตือน</span>
+                <Bell className="h-5 w-5 text-white mb-1" />
+                <span className="text-xs text-white font-medium">แจ้งเตือน</span>
               </NavLink>
             </> : <>
               <NavLink to="/rice-prices" className={({
             isActive
           }) => cn("flex flex-col items-center justify-center w-1/5 h-full", isActive && "font-bold")}>
-                <Info className="h-4 w-4 text-white" />
-                <span className="text-[10px] mt-0.5 text-white font-medium">ราคาข้าว</span>
+                <Info className="h-5 w-5 text-white mb-1" />
+                <span className="text-xs text-white font-medium">ราคาข้าว</span>
               </NavLink>
               
               <NavLink to="/news" className={({
             isActive
           }) => cn("flex flex-col items-center justify-center w-1/5 h-full", isActive && "font-bold")}>
-                <Info className="h-4 w-4 text-white" />
-                <span className="text-[10px] mt-0.5 text-white font-medium">ข่าวสาร</span>
+                <Info className="h-5 w-5 text-white mb-1" />
+                <span className="text-xs text-white font-medium">ข่าวสาร</span>
               </NavLink>
             </>}
           
           <NavLink to={isAuthenticated ? "/profile" : "/login"} className={({
           isActive
         }) => cn("flex flex-col items-center justify-center w-1/5 h-full", isActive && "font-bold")}>
-            <User className="h-4 w-4 text-white" />
-            <span className="text-[10px] mt-0.5 text-white font-medium">{isAuthenticated ? "โปรไฟล์" : "เข้าสู่ระบบ"}</span>
+            <User className="h-5 w-5 text-white mb-1" />
+            <span className="text-xs text-white font-medium">{isAuthenticated ? "โปรไฟล์" : "เข้าสู่ระบบ"}</span>
           </NavLink>
         </nav>
       </div>
