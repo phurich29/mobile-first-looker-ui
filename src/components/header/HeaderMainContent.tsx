@@ -1,5 +1,5 @@
 
-import { Bell, Menu } from "lucide-react";
+import { Bell, Menu, Pin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -7,6 +7,8 @@ import { HeaderClock } from "./HeaderClock";
 import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { useDeviceContext } from "@/contexts/DeviceContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface HeaderMainContentProps {
   setSidebarOpen: (open: boolean) => void;
@@ -17,11 +19,36 @@ export const HeaderMainContent = ({ setSidebarOpen, isCollapsed = false }: Heade
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(isCollapsed);
+  const { selectedDevice } = useDeviceContext();
+  const [deviceDisplayName, setDeviceDisplayName] = useState<string | null>(null);
   
   // ติดตามการเปลี่ยนแปลงสถานะ isCollapsed จาก prop
   useEffect(() => {
     setSidebarCollapsed(isCollapsed);
   }, [isCollapsed]);
+  
+  // ดึงข้อมูลชื่ออุปกรณ์เมื่อมีการเลือกอุปกรณ์
+  useEffect(() => {
+    if (selectedDevice) {
+      const fetchDeviceName = async () => {
+        const { data, error } = await supabase
+          .from('device_settings')
+          .select('display_name')
+          .eq('device_code', selectedDevice)
+          .maybeSingle();
+        
+        if (!error && data) {
+          setDeviceDisplayName(data.display_name || selectedDevice);
+        } else {
+          setDeviceDisplayName(selectedDevice);
+        }
+      };
+      
+      fetchDeviceName();
+    } else {
+      setDeviceDisplayName(null);
+    }
+  }, [selectedDevice]);
   
   // ติดตาม event sidebarStateChanged จาก HeaderSidebar
   useEffect(() => {
@@ -79,6 +106,20 @@ export const HeaderMainContent = ({ setSidebarOpen, isCollapsed = false }: Heade
       <HeaderClock />
     
       <div className="flex items-center gap-2">
+        {/* Device Name Indicator - show only when a device is selected */}
+        {selectedDevice && (
+          <Link 
+            to={`/device/${selectedDevice}`} 
+            className="flex items-center gap-1 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1.5 hover:bg-white/30 transition-colors shadow-inner dark:bg-slate-700/50 dark:hover:bg-slate-700/70"
+            title="ดูรายละเอียดอุปกรณ์"
+          >
+            <Pin className="h-3.5 w-3.5 text-white" />
+            <span className={`text-xs font-medium text-white ${isMobile ? 'max-w-[80px] truncate' : ''}`}>
+              {deviceDisplayName || selectedDevice}
+            </span>
+          </Link>
+        )}
+        
         {/* Theme switcher - only visible on desktop */}
         {!isMobile && (
           <ThemeSwitcher />
