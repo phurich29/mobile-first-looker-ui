@@ -14,31 +14,33 @@ const Index = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   
   useEffect(() => {
-    // Listen for sidebar state changes using custom event
-    const updateSidebarState = (event?: Event) => {
-      const customEvent = event as CustomEvent;
-      if (customEvent?.detail) {
-        setIsCollapsed(customEvent.detail.isCollapsed);
-      } else {
-        const savedCollapsedState = localStorage.getItem('sidebarCollapsed');
-        setIsCollapsed(savedCollapsedState === 'true');
-      }
-    };
-    
-    // Initial state
-    updateSidebarState();
+    // Get sidebar collapsed state from localStorage
+    const savedCollapsedState = localStorage.getItem('sidebarCollapsed');
+    if (savedCollapsedState) {
+      setIsCollapsed(savedCollapsedState === 'true');
+    }
     
     // Listen for changes in localStorage
-    window.addEventListener('storage', () => updateSidebarState());
+    const handleStorageChange = () => {
+      const currentState = localStorage.getItem('sidebarCollapsed');
+      setIsCollapsed(currentState === 'true');
+    };
     
-    // Listen for custom event from Header component
-    window.addEventListener('sidebarStateChanged', updateSidebarState);
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also check periodically for changes within the same window
+    const interval = setInterval(() => {
+      const currentState = localStorage.getItem('sidebarCollapsed');
+      if (currentState === 'true' !== isCollapsed) {
+        setIsCollapsed(currentState === 'true');
+      }
+    }, 1000);
     
     return () => {
-      window.removeEventListener('storage', () => updateSidebarState());
-      window.removeEventListener('sidebarStateChanged', updateSidebarState);
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
     };
-  }, []);
+  }, [isCollapsed]);
   
   // Calculate sidebar width for layout
   const sidebarWidth = !isMobile ? (isCollapsed ? 'ml-20' : 'ml-64') : '';
@@ -47,7 +49,7 @@ const Index = () => {
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-950 overflow-y-auto overflow-x-hidden">
       <Header />
       
-      <main className={`flex-1 ${isMobile ? 'pb-20' : `pb-16 ${sidebarWidth}`} transition-all duration-300`}>
+      <main className={`flex-1 ${isMobile ? 'pb-20' : `pb-16 ${sidebarWidth}`}`}>
         <div className={`mx-auto max-w-7xl px-4 ${!isMobile ? 'py-8' : 'pt-1'}`}>
           {/* News slider section with countdown timer */}
           <div className={`${!isMobile ? 'mb-8 mt-3' : 'mb-6 mt-3'}`}>
