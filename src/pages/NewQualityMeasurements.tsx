@@ -38,6 +38,7 @@ const categoryColors = {
   impurities: "from-purple-500 to-purple-600"
 };
 
+// Colors for each measurement type icon
 const iconColors = {
   class1: "#F7931A",
   class2: "#627EEA",

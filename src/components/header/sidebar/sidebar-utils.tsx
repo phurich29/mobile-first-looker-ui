@@ -24,10 +24,16 @@ export const getMenuItemClasses = (
   basePath: string,
   pathStartsWith?: string
 ) => {
+  // Get the current location
+  const location = window.location.pathname;
+  
+  // Check if current path starts with the pathStartsWith value
+  const matchesStartsWith = pathStartsWith && location.startsWith(pathStartsWith);
+  
   return cn(
     "flex items-center rounded-lg transition-colors", 
     isCollapsed ? "gap-2 py-2 px-1" : "gap-3 py-2.5 px-3",
-    (isActive || (pathStartsWith && basePath.startsWith(pathStartsWith))) 
+    (isActive || matchesStartsWith) 
       ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" 
       : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
     isCollapsed && "justify-center"
@@ -45,4 +51,3 @@ export const saveSidebarState = (isCollapsed: boolean) => {
     detail: { isCollapsed } 
   }));
 };
-

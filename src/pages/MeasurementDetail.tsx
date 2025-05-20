@@ -1,15 +1,40 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getMeasurementThaiName } from "@/utils/measurements";
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Mock data for development - will be replaced with real API call
+const mockDevices = [
+  { deviceCode: "DEVICE001", deviceName: "อุปกรณ์ 1", value: 42.5, timestamp: "2023-06-15T08:30:00" },
+  { deviceCode: "DEVICE002", deviceName: "อุปกรณ์ 2", value: 38.2, timestamp: "2023-06-15T08:15:00" },
+  { deviceCode: "DEVICE003", deviceName: "อุปกรณ์ 3", value: 45.1, timestamp: "2023-06-15T07:45:00" },
+  { deviceCode: "DEVICE004", deviceName: "อุปกรณ์ 4", value: 40.8, timestamp: "2023-06-15T08:05:00" },
+];
 
 export default function MeasurementDetail() {
   const { measurementSymbol } = useParams<{ measurementSymbol: string }>();
+  const [isLoading, setIsLoading] = useState(true);
+  const [devices, setDevices] = useState<any[]>([]);
+  
   const measurementName = getMeasurementThaiName(measurementSymbol || "");
+
+  // Simulate API call to fetch device data
+  useEffect(() => {
+    const fetchData = async () => {
+      // In a real app, this would be an API call
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
+      setDevices(mockDevices);
+      setIsLoading(false);
+    };
+    
+    fetchData();
+  }, [measurementSymbol]);
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
@@ -31,10 +56,57 @@ export default function MeasurementDetail() {
         </div>
 
         <div className="bg-white rounded-lg shadow-sm p-6 mb-4">
-          <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-100">
-            <p className="text-center text-gray-500">หน้านี้อยู่ระหว่างการพัฒนา</p>
-            <p className="text-center text-gray-500 mt-2">จะแสดงค่า {measurementName || measurementSymbol} ในทุกอุปกรณ์</p>
-          </div>
+          <h2 className="text-lg font-semibold mb-4">ค่า {measurementName} จากทุกอุปกรณ์</h2>
+          
+          {isLoading ? (
+            // Loading state
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <Card key={i} className="p-4">
+                  <div className="flex items-center">
+                    <Skeleton className="h-12 w-12 rounded-full mr-3" />
+                    <div className="flex-1">
+                      <Skeleton className="h-4 w-32 mb-2" />
+                      <Skeleton className="h-3 w-24" />
+                    </div>
+                    <Skeleton className="h-8 w-16" />
+                  </div>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            // Devices list
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {devices.map((device) => (
+                <Link 
+                  key={device.deviceCode} 
+                  to={`/measurement-history/${device.deviceCode}/${measurementSymbol}`}
+                  className="block"
+                >
+                  <Card className="p-4 border hover:border-emerald-300 hover:shadow-md transition-all">
+                    <div className="flex items-center">
+                      <div className="h-12 w-12 bg-emerald-100 rounded-full flex items-center justify-center mr-3">
+                        <span className="text-emerald-600 font-bold">{device.deviceName.substring(0, 1)}</span>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-medium">{device.deviceName}</h3>
+                        <p className="text-xs text-gray-500">{device.deviceCode}</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-emerald-600">{device.value}%</div>
+                        <div className="text-xs text-gray-500">
+                          {new Date(device.timestamp).toLocaleTimeString('th-TH', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </main>
 
