@@ -10,10 +10,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/components/database-table/utils";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 
 interface MeasurementDetail {
   id: number;
@@ -146,14 +146,10 @@ export function MeasurementDetailDialog({
         {!data ? (
           <div className="text-center py-8 text-muted-foreground">ไม่พบข้อมูล</div>
         ) : (
-          <Tabs defaultValue="card" className="flex-1 flex flex-col overflow-hidden">
-            <TabsList className="mx-auto mb-2">
-              <TabsTrigger value="card">การ์ด</TabsTrigger>
-              <TabsTrigger value="table">ตาราง</TabsTrigger>
-            </TabsList>
-            
+          <div className="flex-1 flex flex-col overflow-hidden">
             <ScrollArea className="flex-1">
-              <TabsContent value="card" className="mt-0 space-y-4 p-1">
+              {/* Card View Section */}
+              <div className="space-y-4 p-1 mb-4">
                 {Object.entries(groupedData).map(([groupName, fields]) => (
                   <Card key={groupName} className="overflow-hidden">
                     <div className="bg-muted px-4 py-2 font-medium text-sm">
@@ -175,32 +171,36 @@ export function MeasurementDetailDialog({
                     </CardContent>
                   </Card>
                 ))}
-              </TabsContent>
+              </div>
               
-              <TabsContent value="table" className="mt-0 p-1">
+              {/* Separator between Card and Table views */}
+              <Separator className="my-4" />
+              
+              {/* Table View Section */}
+              <div className="p-1">
                 <div className="border rounded-md">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="bg-muted border-b">
-                        <th className="text-left py-2 px-3 font-medium">ฟิลด์</th>
-                        <th className="text-left py-2 px-3 font-medium">ค่า</th>
-                      </tr>
-                    </thead>
-                    <tbody>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="font-medium">ฟิลด์</TableHead>
+                        <TableHead className="font-medium">ค่า</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
                       {Object.values(groupedData).flat().map(({ key, value }, index) => (
-                        <tr key={key} className={index % 2 === 0 ? 'bg-background' : 'bg-muted/20'}>
-                          <td className="py-1.5 px-3 border-b text-muted-foreground">
+                        <TableRow key={key}>
+                          <TableCell className="py-1.5 text-muted-foreground">
                             {getFieldLabel(key)}
-                          </td>
-                          <td className="py-1.5 px-3 border-b">
+                          </TableCell>
+                          <TableCell className="py-1.5">
                             {renderValueWithHighlight(key, value, symbol)}
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       ))}
-                    </tbody>
-                  </table>
+                    </TableBody>
+                  </Table>
                 </div>
-              </TabsContent>
+              </div>
             </ScrollArea>
             
             <div className="mt-4 px-1">
@@ -218,10 +218,10 @@ export function MeasurementDetailDialog({
                 </div>
               </div>
             </div>
-          </Tabs>
+          </div>
         )}
         
-        <DialogFooter className="sm:justify-between">
+        <DialogFooter className="sm:justify-between mt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             ปิด
           </Button>
