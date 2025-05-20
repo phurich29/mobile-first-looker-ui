@@ -18,14 +18,6 @@ const badgeVariants = cva(
         outline: "text-foreground",
         success:
           "border-transparent bg-emerald-100 text-emerald-800 hover:bg-emerald-200/80",
-        info:
-          "border-transparent bg-blue-100 text-blue-800 hover:bg-blue-100/80",
-        warning:
-          "border-transparent bg-amber-100 text-amber-800 hover:bg-amber-200/80",
-        rice:
-          "border-transparent bg-gradient-to-r from-emerald-50 to-emerald-200 text-emerald-800 hover:from-emerald-100 hover:to-emerald-300 shadow-sm",
-        highlight:
-          "border-2 border-emerald-400 bg-white text-emerald-700 shadow-sm hover:bg-emerald-50",
       },
     },
     defaultVariants: {
