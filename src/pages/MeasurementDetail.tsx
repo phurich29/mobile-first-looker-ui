@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Server } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getMeasurementThaiName } from "@/utils/measurements";
 import { Card } from "@/components/ui/card";
@@ -11,7 +11,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { REQUIRED_DEVICE_CODES } from "@/features/equipment/services/deviceDataService";
 import { formatBangkokTime } from "@/components/measurement-history/api";
-import { ReactComponent as EquipmentIcon } from "@/assets/equipment-icon.svg";
+// Import regular SVG file instead of using ReactComponent
+import equipmentIcon from "@/assets/equipment-icon.svg";
 
 interface DeviceData {
   deviceCode: string;
@@ -67,20 +68,43 @@ export default function MeasurementDetail() {
             
           if (error) {
             console.error(`Error fetching data for device ${deviceCode}:`, error);
+            // Return default object with null values to maintain the correct type
+            return {
+              deviceCode,
+              deviceName: displayNameMap[deviceCode] || `อุปกรณ์วัด ${deviceCode}`,
+              value: null,
+              timestamp: null
+            };
           }
           
           // Create device name - either from settings or default format
           const deviceName = displayNameMap[deviceCode] || `อุปกรณ์วัด ${deviceCode}`;
           
+          // Handle the case where data might be null or undefined
+          if (!data) {
+            return {
+              deviceCode,
+              deviceName,
+              value: null,
+              timestamp: null
+            };
+          }
+          
+          // Ensure value is cast to number or null to match DeviceData type
+          const measurementValue = data[measurementSymbol as keyof typeof data];
+          const parsedValue = typeof measurementValue === 'number' ? measurementValue : 
+                             (measurementValue ? Number(measurementValue) : null);
+          
           return {
             deviceCode,
             deviceName,
-            value: data ? data[measurementSymbol as keyof typeof data] : null,
-            timestamp: data ? data.created_at : null
+            value: parsedValue,
+            timestamp: data.created_at ? String(data.created_at) : null
           };
         });
         
         const devicesData = await Promise.all(devicePromises);
+        // Cast to ensure type safety
         setDevices(devicesData);
       } catch (error) {
         console.error("Error fetching device data:", error);
@@ -142,7 +166,10 @@ export default function MeasurementDetail() {
                   <Card className="p-4 border hover:border-emerald-300 hover:shadow-md transition-all">
                     <div className="flex items-center">
                       <div className="h-12 w-12 bg-emerald-100 rounded-full flex items-center justify-center mr-3">
-                        <EquipmentIcon className="h-6 w-6 text-emerald-600" />
+                        {/* Use regular img tag instead of ReactComponent */}
+                        <div className="h-6 w-6 text-emerald-600">
+                          <Server className="h-6 w-6" />
+                        </div>
                       </div>
                       <div className="flex-1">
                         <h3 className="font-medium">{device.deviceName}</h3>
