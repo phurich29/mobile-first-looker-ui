@@ -12,7 +12,7 @@ import { AuthProvider, useAuth } from "@/components/AuthProvider";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import Login from "@/pages/Login";
-import Logout from "@/pages/Logout";
+// Import missing pages properly (removed Logout import)
 // We'll use the built-in routes.tsx for routing instead of importing non-existent pages
 import { router } from "./routes";
 
