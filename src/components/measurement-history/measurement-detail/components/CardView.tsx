@@ -3,6 +3,7 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { GroupedData } from "../types";
 import { getFieldLabel, formatValue } from "../utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface CardViewProps {
   groupedData: GroupedData;
@@ -27,19 +28,23 @@ export const CardView: React.FC<CardViewProps> = ({ groupedData, highlightKey })
           <div className="bg-emerald-100 px-4 py-2 font-medium text-sm text-emerald-800">
             {groupName}
           </div>
-          <CardContent className="p-4 pt-3 bg-white/60">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {fields.map(({ key, value }) => (
-                <div key={key} className="flex flex-col">
-                  <span className="text-xs text-muted-foreground">
-                    {getFieldLabel(key)}
-                  </span>
-                  <span className="text-sm">
-                    {renderValueWithHighlight(key, value)}
-                  </span>
+          <CardContent className="p-0">
+            <ScrollArea className="h-[200px]">
+              <div className="p-4 pt-3 bg-white/60">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {fields.map(({ key, value }) => (
+                    <div key={key} className="flex flex-col">
+                      <span className="text-xs text-muted-foreground">
+                        {getFieldLabel(key)}
+                      </span>
+                      <span className="text-sm">
+                        {renderValueWithHighlight(key, value)}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            </ScrollArea>
           </CardContent>
         </Card>
       ))}
