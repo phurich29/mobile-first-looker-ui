@@ -23,6 +23,7 @@ import Equipment from "./pages/Equipment";
 import GraphMonitor from "./pages/GraphMonitor";
 import GraphSummary from "./pages/GraphSummary";
 import NewQualityMeasurements from "./pages/NewQualityMeasurements";
+import MeasurementDetail from "./pages/MeasurementDetail";
 
 export const router = createBrowserRouter([
   {
@@ -158,6 +159,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute requiredRoles={["user"]}>
         <NewQualityMeasurements />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/measurement-detail/:measurementSymbol",
+    element: (
+      <ProtectedRoute requiredRoles={["user"]}>
+        <MeasurementDetail />
       </ProtectedRoute>
     ),
   },
