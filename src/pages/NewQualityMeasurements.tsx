@@ -1,12 +1,12 @@
+
 import React, { useState } from "react";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
-import { Search, Server } from "lucide-react";
+import { Search } from "lucide-react";
 import { getMeasurementThaiName } from "@/utils/measurements";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import equipmentIcon from "@/assets/equipment-icon.svg";
 
 // All measurement types organized by category
 const measurementTypes = {
@@ -133,15 +133,22 @@ export default function NewQualityMeasurements() {
                       >
                         <Card className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow hover:border-emerald-300">
                           <div className="flex items-center">
-                            <div className="h-10 w-10 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
-                              <img src={equipmentIcon} alt="อุปกรณ์" className="w-10 h-10" />
+                            <div 
+                              className="h-10 w-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0"
+                              style={{ backgroundColor: `${iconColor}25` }} // 25 is hex for 15% opacity
+                            >
+                              <div 
+                                className="h-5 w-5 rounded-full"
+                                style={{ backgroundColor: iconColor }}
+                              ></div>
                             </div>
                             <div className="flex-1">
                               <h3 className="font-medium text-gray-800">{thaiName}</h3>
                               <p className="text-xs text-gray-500">{symbol}</p>
                             </div>
-                            <div className="text-emerald-600 flex items-center">
-                              <Server className="h-5 w-5" />
+                            <div className="text-emerald-600 text-xs flex flex-col items-end">
+                              <span className="font-semibold">ดูข้อมูล</span>
+                              <span>ทุกอุปกรณ์</span>
                             </div>
                           </div>
                         </Card>
