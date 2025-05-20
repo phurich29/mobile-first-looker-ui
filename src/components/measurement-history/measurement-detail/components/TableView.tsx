@@ -22,17 +22,20 @@ export const TableView: React.FC<TableViewProps> = ({ groupedData, highlightKey 
 
   return (
     <div className="p-1">
-      <div className="border rounded-md">
+      <div className="border border-emerald-100 rounded-md overflow-hidden">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-emerald-50">
             <TableRow>
-              <TableHead className="font-medium">ฟิลด์</TableHead>
-              <TableHead className="font-medium">ค่า</TableHead>
+              <TableHead className="font-medium text-emerald-800">ฟิลด์</TableHead>
+              <TableHead className="font-medium text-emerald-800">ค่า</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {Object.values(groupedData).flat().map(({ key, value }, index) => (
-              <TableRow key={key}>
+              <TableRow 
+                key={key} 
+                className={index % 2 === 0 ? 'bg-white' : 'bg-emerald-50/30'} 
+              >
                 <TableCell className="py-1.5 text-muted-foreground">
                   {getFieldLabel(key)}
                 </TableCell>

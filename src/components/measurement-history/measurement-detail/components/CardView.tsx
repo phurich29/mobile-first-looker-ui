@@ -23,11 +23,11 @@ export const CardView: React.FC<CardViewProps> = ({ groupedData, highlightKey })
   return (
     <div className="space-y-4 p-1 mb-4">
       {Object.entries(groupedData).map(([groupName, fields]) => (
-        <Card key={groupName} className="overflow-hidden">
-          <div className="bg-muted px-4 py-2 font-medium text-sm">
+        <Card key={groupName} className="overflow-hidden border-emerald-100 shadow-sm">
+          <div className="bg-emerald-100 px-4 py-2 font-medium text-sm text-emerald-800">
             {groupName}
           </div>
-          <CardContent className="p-4 pt-3">
+          <CardContent className="p-4 pt-3 bg-white/60">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {fields.map(({ key, value }) => (
                 <div key={key} className="flex flex-col">

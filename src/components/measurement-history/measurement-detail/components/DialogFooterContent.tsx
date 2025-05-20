@@ -2,6 +2,7 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { MeasurementDetail } from "../types";
+import { Wheat } from "lucide-react";
 
 interface DialogFooterContentProps {
   data: MeasurementDetail;
@@ -16,15 +17,18 @@ export const DialogFooterContent: React.FC<DialogFooterContentProps> = ({
 }) => {
   return (
     <div className="px-1">
-      <div className="bg-muted-foreground/10 p-3 rounded-md">
+      <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 p-3 rounded-md border border-emerald-200">
         <div className="flex justify-between items-center">
           <div>
-            <span className="text-sm font-medium">{name}</span>
+            <span className="text-sm font-medium flex items-center text-emerald-800">
+              <Wheat className="h-4 w-4 mr-1.5 text-emerald-600" />
+              {name}
+            </span>
             <div className="text-lg font-bold text-emerald-600">
               {data[symbol] ? Number(data[symbol]).toFixed(2) : '-'}
             </div>
           </div>
-          <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-200">
+          <Badge className="bg-emerald-600 text-white hover:bg-emerald-700">
             ค่าที่ติดตาม
           </Badge>
         </div>
