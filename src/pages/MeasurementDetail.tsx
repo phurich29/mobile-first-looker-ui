@@ -8,32 +8,88 @@ import { Button } from "@/components/ui/button";
 import { getMeasurementThaiName } from "@/utils/measurements";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { supabase } from "@/integrations/supabase/client";
+import { REQUIRED_DEVICE_CODES } from "@/features/equipment/services/deviceDataService";
+import { formatBangkokTime } from "@/components/measurement-history/api";
+import { ReactComponent as EquipmentIcon } from "@/assets/equipment-icon.svg";
 
-// Mock data for development - will be replaced with real API call
-const mockDevices = [
-  { deviceCode: "DEVICE001", deviceName: "อุปกรณ์ 1", value: 42.5, timestamp: "2023-06-15T08:30:00" },
-  { deviceCode: "DEVICE002", deviceName: "อุปกรณ์ 2", value: 38.2, timestamp: "2023-06-15T08:15:00" },
-  { deviceCode: "DEVICE003", deviceName: "อุปกรณ์ 3", value: 45.1, timestamp: "2023-06-15T07:45:00" },
-  { deviceCode: "DEVICE004", deviceName: "อุปกรณ์ 4", value: 40.8, timestamp: "2023-06-15T08:05:00" },
-];
+interface DeviceData {
+  deviceCode: string;
+  deviceName: string;
+  value: number | null;
+  timestamp: string | null;
+}
 
 export default function MeasurementDetail() {
   const { measurementSymbol } = useParams<{ measurementSymbol: string }>();
   const [isLoading, setIsLoading] = useState(true);
-  const [devices, setDevices] = useState<any[]>([]);
+  const [devices, setDevices] = useState<DeviceData[]>([]);
   
   const measurementName = getMeasurementThaiName(measurementSymbol || "");
 
-  // Simulate API call to fetch device data
+  // Fetch device data and latest measurement values
   useEffect(() => {
-    const fetchData = async () => {
-      // In a real app, this would be an API call
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
-      setDevices(mockDevices);
-      setIsLoading(false);
+    const fetchDeviceData = async () => {
+      setIsLoading(true);
+      try {
+        // Get custom display names from device_settings
+        const { data: deviceSettings, error: settingsError } = await supabase
+          .from('device_settings')
+          .select('device_code, display_name')
+          .in('device_code', REQUIRED_DEVICE_CODES);
+          
+        if (settingsError) {
+          console.error("Error fetching device settings:", settingsError);
+        }
+        
+        // Create a map of device_code to display_name
+        const displayNameMap: Record<string, string> = {};
+        if (deviceSettings) {
+          deviceSettings.forEach(setting => {
+            if (setting.display_name) {
+              displayNameMap[setting.device_code] = setting.display_name;
+            }
+          });
+        }
+        
+        // For each required device, fetch the latest measurement
+        const devicePromises = REQUIRED_DEVICE_CODES.map(async (deviceCode) => {
+          // Select dynamically based on the measurement symbol
+          const selectQuery = `device_code, ${measurementSymbol}, created_at`;
+          
+          const { data, error } = await supabase
+            .from('rice_quality_analysis')
+            .select(selectQuery)
+            .eq('device_code', deviceCode)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+            
+          if (error) {
+            console.error(`Error fetching data for device ${deviceCode}:`, error);
+          }
+          
+          // Create device name - either from settings or default format
+          const deviceName = displayNameMap[deviceCode] || `อุปกรณ์วัด ${deviceCode}`;
+          
+          return {
+            deviceCode,
+            deviceName,
+            value: data ? data[measurementSymbol as keyof typeof data] : null,
+            timestamp: data ? data.created_at : null
+          };
+        });
+        
+        const devicesData = await Promise.all(devicePromises);
+        setDevices(devicesData);
+      } catch (error) {
+        console.error("Error fetching device data:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
     
-    fetchData();
+    fetchDeviceData();
   }, [measurementSymbol]);
 
   return (
@@ -61,7 +117,7 @@ export default function MeasurementDetail() {
           {isLoading ? (
             // Loading state
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[1, 2, 3, 4].map((i) => (
+              {[1, 2, 3, 4, 5, 6, 7].map((i) => (
                 <Card key={i} className="p-4">
                   <div className="flex items-center">
                     <Skeleton className="h-12 w-12 rounded-full mr-3" />
@@ -86,20 +142,25 @@ export default function MeasurementDetail() {
                   <Card className="p-4 border hover:border-emerald-300 hover:shadow-md transition-all">
                     <div className="flex items-center">
                       <div className="h-12 w-12 bg-emerald-100 rounded-full flex items-center justify-center mr-3">
-                        <span className="text-emerald-600 font-bold">{device.deviceName.substring(0, 1)}</span>
+                        <EquipmentIcon className="h-6 w-6 text-emerald-600" />
                       </div>
                       <div className="flex-1">
                         <h3 className="font-medium">{device.deviceName}</h3>
                         <p className="text-xs text-gray-500">{device.deviceCode}</p>
                       </div>
                       <div className="text-right">
-                        <div className="text-lg font-bold text-emerald-600">{device.value}%</div>
-                        <div className="text-xs text-gray-500">
-                          {new Date(device.timestamp).toLocaleTimeString('th-TH', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </div>
+                        {device.value !== null ? (
+                          <>
+                            <div className="text-lg font-bold text-emerald-600">{device.value}%</div>
+                            {device.timestamp && (
+                              <div className="text-xs text-gray-500">
+                                {formatBangkokTime(device.timestamp).thaiTime}
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div className="text-sm text-gray-500">ไม่มีข้อมูล</div>
+                        )}
                       </div>
                     </div>
                   </Card>
