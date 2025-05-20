@@ -26,11 +26,11 @@ const ScrollArea = React.forwardRef<
     
     {/* Add custom styles if fadeEdges is true */}
     {fadeEdges && (
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .mask-fade-edges {
           mask-image: linear-gradient(to bottom, transparent 0%, black 5%, black 95%, transparent 100%);
         }
-      `}</style>
+      `}} />
     )}
   </ScrollAreaPrimitive.Root>
 ))
