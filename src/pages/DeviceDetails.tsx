@@ -5,7 +5,6 @@ import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import MeasurementHistory from "@/components/MeasurementHistory";
 import "@/components/notification-item-animation.css";
-import { CountdownProvider } from "@/contexts/CountdownContext";
 import { CountdownTimer } from "@/components/CountdownTimer";
 
 // Import custom hooks
@@ -76,42 +75,40 @@ export default function DeviceDetails() {
   }
 
   return (
-    <CountdownProvider initialSeconds={60} onComplete={handleCountdownComplete}>
-      <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
-        <Header />
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
+      <Header />
 
-        <main className="flex-1 p-4 pb-32">
-          <DeviceHeader deviceCode={deviceCode} />
-          
-          <div className="flex justify-between items-center mb-4">
-            <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-            <CountdownTimer useGlobal={true} iconSize={18} className="mr-2" />
-          </div>
+      <main className="flex-1 p-4 pb-32">
+        <DeviceHeader deviceCode={deviceCode} />
+        
+        <div className="flex justify-between items-center mb-4">
+          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+          <CountdownTimer useGlobal={true} iconSize={18} className="mr-2" />
+        </div>
 
-          <div className="mb-4">
-            <MeasurementTabs
-              deviceCode={deviceCode}
-              searchTerm={searchTerm}
-              wholeGrainData={wholeGrainData}
-              ingredientsData={ingredientsData}
-              impuritiesData={impuritiesData}
-              allData={allData}
-              notificationSettings={notificationSettings || []}
-              isLoadingWholeGrain={isLoadingWholeGrain}
-              isLoadingIngredients={isLoadingIngredients}
-              isLoadingImpurities={isLoadingImpurities}
-              isLoadingAllData={isLoadingAllData}
-              onMeasurementClick={handleMeasurementClick}
-            />
-          </div>
-        </main>
+        <div className="mb-4">
+          <MeasurementTabs
+            deviceCode={deviceCode}
+            searchTerm={searchTerm}
+            wholeGrainData={wholeGrainData}
+            ingredientsData={ingredientsData}
+            impuritiesData={impuritiesData}
+            allData={allData}
+            notificationSettings={notificationSettings || []}
+            isLoadingWholeGrain={isLoadingWholeGrain}
+            isLoadingIngredients={isLoadingIngredients}
+            isLoadingImpurities={isLoadingImpurities}
+            isLoadingAllData={isLoadingAllData}
+            onMeasurementClick={handleMeasurementClick}
+          />
+        </div>
+      </main>
 
-        {/* Add space to prevent content from being hidden behind footer */}
-        <div className="pb-32"></div>
+      {/* Add space to prevent content from being hidden behind footer */}
+      <div className="pb-32"></div>
 
-        {/* Footer navigation */}
-        <FooterNav />
-      </div>
-    </CountdownProvider>
+      {/* Footer navigation */}
+      <FooterNav />
+    </div>
   );
 }

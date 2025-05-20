@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   BrowserRouter,
   Routes,
@@ -11,8 +11,7 @@ import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { AuthProvider, useAuth } from "@/components/AuthProvider";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
-import Login from "@/pages/Login";
-// Import missing pages properly (removed Logout import)
+import { CountdownProvider } from "@/contexts/CountdownContext";
 import { routes } from "./routes";
 
 interface ProtectedRouteProps {
@@ -51,22 +50,24 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <ThemeProvider defaultTheme="light" storageKey="ui-theme">
-          <div className="flex">
-            <Header />
-            <div id="page-content" className="w-full transition-all duration-300 ease-in-out pt-[76px] md:pt-[82px]">
-              {/* Fix: Use individual route components from routes.tsx */}
-              <Routes>
-                {routes.map((route) => (
-                  <Route 
-                    key={route.path} 
-                    path={route.path} 
-                    element={route.element} 
-                  />
-                ))}
-              </Routes>
-              <FooterNav />
+          <CountdownProvider initialSeconds={60}>
+            <div className="flex">
+              <Header />
+              <div id="page-content" className="w-full transition-all duration-300 ease-in-out pt-[76px] md:pt-[82px]">
+                {/* Routes mapped from routes.tsx */}
+                <Routes>
+                  {routes.map((route) => (
+                    <Route 
+                      key={route.path} 
+                      path={route.path} 
+                      element={route.element} 
+                    />
+                  ))}
+                </Routes>
+                <FooterNav />
+              </div>
             </div>
-          </div>
+          </CountdownProvider>
         </ThemeProvider>
       </AuthProvider>
     </BrowserRouter>
