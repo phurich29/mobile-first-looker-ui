@@ -5,9 +5,13 @@ import { TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/compon
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Info } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatDate } from "@/components/database-table/utils";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { MeasurementDetailDialog } from "./MeasurementDetailDialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface RiceQualityAnalysisRow {
   id: number;
@@ -31,8 +35,11 @@ export function FilteredDatabaseTable({ deviceCode, symbol, name }: FilteredData
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [goToPage, setGoToPage] = useState<string>("");
+  const [selectedRow, setSelectedRow] = useState<RiceQualityAnalysisRow | null>(null);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const fetchTotalCount = async () => {
     try {
@@ -140,6 +147,12 @@ export function FilteredDatabaseTable({ deviceCode, symbol, name }: FilteredData
         variant: "destructive",
       });
     }
+  };
+
+  // Handle row click to show details
+  const handleRowClick = (row: RiceQualityAnalysisRow) => {
+    setSelectedRow(row);
+    setDetailDialogOpen(true);
   };
 
   // Drag scrolling with touch support
@@ -275,6 +288,15 @@ export function FilteredDatabaseTable({ deviceCode, symbol, name }: FilteredData
 
   const columnKeys = getColumnKeys();
 
+  // Limit mobile column display
+  const getMobileColumnKeys = () => {
+    const keys = getColumnKeys();
+    const essentialKeys = ['thai_datetime', symbol];
+    return keys.filter(key => essentialKeys.includes(key));
+  };
+
+  const mobileColumnKeys = getMobileColumnKeys();
+
   return (
     <div className="mt-8">
       <div className="flex justify-between items-center mb-2">
@@ -310,154 +332,228 @@ export function FilteredDatabaseTable({ deviceCode, symbol, name }: FilteredData
       </div>
       
       <div className="bg-white rounded-lg shadow">
-        <div 
-          ref={tableContainerRef}
-          className="overflow-x-auto" 
-          style={{ 
-            WebkitOverflowScrolling: 'touch',
-            position: 'relative'
-          }}
-        >
-          <ResponsiveTable>
-            <TableHeader>
-              <TableRow>
-                {columnKeys.map((key) => (
-                  <TableHead key={key} className="whitespace-nowrap">
-                    {key === symbol ? name : key}
-                  </TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.length === 0 ? (
+        {isMobile ? (
+          // Mobile card view
+          <div className="p-2 space-y-2">
+            {data.length === 0 ? (
+              <div className="text-center py-4 text-gray-500">ไม่พบข้อมูล</div>
+            ) : (
+              data.map((row) => (
+                <Card 
+                  key={row.id} 
+                  className="overflow-hidden border-gray-200"
+                  onClick={() => handleRowClick(row)}
+                >
+                  <CardContent className="p-3">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="text-xs text-gray-500">
+                        {formatDate(row.thai_datetime || '', 'thai_datetime')}
+                      </div>
+                      <Badge variant="outline" className="text-xs">
+                        {row.device_code}
+                      </Badge>
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <div className="text-lg font-semibold text-emerald-600">
+                        {row[symbol] !== null ? Number(row[symbol]).toFixed(2) : '-'}
+                      </div>
+                      <div className="text-xs text-gray-500">{name}</div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full mt-2 h-7 text-xs flex justify-center items-center gap-1 text-emerald-600"
+                    >
+                      <Info size={12} />
+                      <span>ดูรายละเอียด</span>
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        ) : (
+          // Desktop table view
+          <div 
+            ref={tableContainerRef}
+            className="overflow-x-auto" 
+            style={{ 
+              WebkitOverflowScrolling: 'touch',
+              position: 'relative'
+            }}
+          >
+            <ResponsiveTable>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={columnKeys.length} className="text-center py-4">
-                    ไม่พบข้อมูล
-                  </TableCell>
+                  {columnKeys.map((key) => (
+                    <TableHead key={key} className="whitespace-nowrap">
+                      {key === symbol ? name : key}
+                    </TableHead>
+                  ))}
+                  <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
-              ) : (
-                data.map((row) => (
-                  <TableRow key={row.id}>
-                    {columnKeys.map((key) => (
-                      <TableCell key={`${row.id}-${key}`} className="whitespace-nowrap">
-                        {key.includes('date') || key.includes('_at') 
-                          ? formatDate(row[key], key) 
-                          : row[key]?.toString() || "-"}
-                      </TableCell>
-                    ))}
+              </TableHeader>
+              <TableBody>
+                {data.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={columnKeys.length + 1} className="text-center py-4">
+                      ไม่พบข้อมูล
+                    </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </ResponsiveTable>
-        </div>
+                ) : (
+                  data.map((row) => (
+                    <TableRow 
+                      key={row.id}
+                      className="cursor-pointer hover:bg-muted/30"
+                      onClick={() => handleRowClick(row)}
+                    >
+                      {columnKeys.map((key) => (
+                        <TableCell 
+                          key={`${row.id}-${key}`} 
+                          className={`whitespace-nowrap ${key === symbol ? 'font-semibold text-emerald-600' : ''}`}
+                        >
+                          {key.includes('date') || key.includes('_at') 
+                            ? formatDate(row[key], key) 
+                            : row[key]?.toString() || "-"}
+                        </TableCell>
+                      ))}
+                      <TableCell>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRowClick(row);
+                          }}
+                        >
+                          <Info size={16} className="text-muted-foreground" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </ResponsiveTable>
+          </div>
+        )}
         
         {/* Pagination Controls */}
         <div className="flex items-center justify-between border-t border-gray-200 bg-white px-2 py-2 sm:px-6 mt-2">
-            <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-              <div>
-                <p className="text-xs text-gray-700">
-                  แสดง <span className="font-medium">{Math.min((currentPage - 1) * rowLimit + 1, totalCount)}</span> ถึง <span className="font-medium">{Math.min(currentPage * rowLimit, totalCount)}</span> จากทั้งหมด{' '}
-                  <span className="font-medium">{totalCount}</span> รายการ
-                </p>
-              </div>
-              <div>
-                <nav className="flex items-center space-x-1" aria-label="Pagination">
-                  <Button
-                    onClick={goToFirstPage}
-                    disabled={currentPage === 1}
-                    variant="outline"
-                    size="icon"
-                    className="h-7 w-7 p-0"
-                  >
-                    <span className="sr-only">First page</span>
-                    <ChevronsLeft className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    onClick={goToPreviousPage}
-                    disabled={currentPage === 1}
-                    variant="outline"
-                    size="icon"
-                    className="h-7 w-7 p-0"
-                  >
-                    <span className="sr-only">Previous page</span>
-                    <ChevronLeft className="h-3.5 w-3.5" />
-                  </Button>
-                  
-                  <form 
-                    onSubmit={handleGoToPageSubmit} 
-                    className="flex items-center space-x-1"
-                  >
-                    <span className="text-xs">หน้า</span>
-                    <Input
-                      type="text"
-                      value={goToPage}
-                      onChange={(e) => setGoToPage(e.target.value)}
-                      className="w-12 h-7 text-xs p-1 text-center"
-                      placeholder={currentPage.toString()}
-                    />
-                    <span className="text-xs">จาก {Math.ceil(totalCount / rowLimit)}</span>
-                    <Button 
-                      type="submit" 
-                      size="sm" 
-                      className="h-7 px-2 py-0 text-xs"
-                    >
-                      ไป
-                    </Button>
-                  </form>
-                  
-                  <Button
-                    onClick={goToNextPage}
-                    disabled={currentPage >= Math.ceil(totalCount / rowLimit)}
-                    variant="outline"
-                    size="icon"
-                    className="h-7 w-7 p-0"
-                  >
-                    <span className="sr-only">Next page</span>
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    onClick={goToLastPage}
-                    disabled={currentPage >= Math.ceil(totalCount / rowLimit)}
-                    variant="outline"
-                    size="icon"
-                    className="h-7 w-7 p-0"
-                  >
-                    <span className="sr-only">Last page</span>
-                    <ChevronsRight className="h-3.5 w-3.5" />
-                  </Button>
-                </nav>
-              </div>
+          <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs text-gray-700">
+                แสดง <span className="font-medium">{Math.min((currentPage - 1) * rowLimit + 1, totalCount)}</span> ถึง <span className="font-medium">{Math.min(currentPage * rowLimit, totalCount)}</span> จากทั้งหมด{' '}
+                <span className="font-medium">{totalCount}</span> รายการ
+              </p>
             </div>
-            
-            {/* Mobile pagination */}
-            <div className="flex flex-1 items-center justify-between sm:hidden">
-              <Button
-                onClick={goToPreviousPage}
-                disabled={currentPage === 1}
-                variant="outline"
-                size="icon"
-                className="h-7 w-7 p-0"
-              >
-                <ChevronLeft className="h-3.5 w-3.5" />
-              </Button>
-              
-              <div className="text-xs text-gray-700">
-                หน้า {currentPage} จาก {Math.ceil(totalCount / rowLimit)}
-              </div>
-              
-              <Button
-                onClick={goToNextPage}
-                disabled={currentPage >= Math.ceil(totalCount / rowLimit)}
-                variant="outline"
-                size="icon"
-                className="h-7 w-7 p-0"
-              >
-                <ChevronRight className="h-3.5 w-3.5" />
-              </Button>
+            <div>
+              <nav className="flex items-center space-x-1" aria-label="Pagination">
+                <Button
+                  onClick={goToFirstPage}
+                  disabled={currentPage === 1}
+                  variant="outline"
+                  size="icon"
+                  className="h-7 w-7 p-0"
+                >
+                  <span className="sr-only">First page</span>
+                  <ChevronsLeft className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  onClick={goToPreviousPage}
+                  disabled={currentPage === 1}
+                  variant="outline"
+                  size="icon"
+                  className="h-7 w-7 p-0"
+                >
+                  <span className="sr-only">Previous page</span>
+                  <ChevronLeft className="h-3.5 w-3.5" />
+                </Button>
+                
+                <form 
+                  onSubmit={handleGoToPageSubmit} 
+                  className="flex items-center space-x-1"
+                >
+                  <span className="text-xs">หน้า</span>
+                  <Input
+                    type="text"
+                    value={goToPage}
+                    onChange={(e) => setGoToPage(e.target.value)}
+                    className="w-12 h-7 text-xs p-1 text-center"
+                    placeholder={currentPage.toString()}
+                  />
+                  <span className="text-xs">จาก {Math.ceil(totalCount / rowLimit)}</span>
+                  <Button 
+                    type="submit" 
+                    size="sm" 
+                    className="h-7 px-2 py-0 text-xs"
+                  >
+                    ไป
+                  </Button>
+                </form>
+                
+                <Button
+                  onClick={goToNextPage}
+                  disabled={currentPage >= Math.ceil(totalCount / rowLimit)}
+                  variant="outline"
+                  size="icon"
+                  className="h-7 w-7 p-0"
+                >
+                  <span className="sr-only">Next page</span>
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  onClick={goToLastPage}
+                  disabled={currentPage >= Math.ceil(totalCount / rowLimit)}
+                  variant="outline"
+                  size="icon"
+                  className="h-7 w-7 p-0"
+                >
+                  <span className="sr-only">Last page</span>
+                  <ChevronsRight className="h-3.5 w-3.5" />
+                </Button>
+              </nav>
             </div>
           </div>
+          
+          {/* Mobile pagination */}
+          <div className="flex flex-1 items-center justify-between sm:hidden">
+            <Button
+              onClick={goToPreviousPage}
+              disabled={currentPage === 1}
+              variant="outline"
+              size="icon"
+              className="h-7 w-7 p-0"
+            >
+              <ChevronLeft className="h-3.5 w-3.5" />
+            </Button>
+            
+            <div className="text-xs text-gray-700">
+              หน้า {currentPage} จาก {Math.ceil(totalCount / rowLimit)}
+            </div>
+            
+            <Button
+              onClick={goToNextPage}
+              disabled={currentPage >= Math.ceil(totalCount / rowLimit)}
+              variant="outline"
+              size="icon"
+              className="h-7 w-7 p-0"
+            >
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </div>
       </div>
+      
+      {/* Measurement Detail Dialog */}
+      <MeasurementDetailDialog
+        open={detailDialogOpen}
+        onOpenChange={setDetailDialogOpen}
+        data={selectedRow}
+        symbol={symbol}
+        name={name}
+      />
     </div>
   );
 }
