@@ -10,7 +10,7 @@ export const Header = () => {
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    // Only use localStorage for desktop
+    // สำหรับ desktop เท่านั้นที่จะใช้ localStorage และการ collapse
     if (!isMobile) {
       // Initialize sidebar collapsed state from localStorage
       const savedCollapsedState = localStorage.getItem('sidebarCollapsed');
@@ -18,7 +18,7 @@ export const Header = () => {
         setIsCollapsed(savedCollapsedState === 'true');
       }
       
-      // Dispatch custom event for other components
+      // Dispatch custom event when sidebar state changes
       window.dispatchEvent(new CustomEvent('sidebarStateChanged', { 
         detail: { isCollapsed: savedCollapsedState === 'true' } 
       }));
@@ -27,40 +27,27 @@ export const Header = () => {
     // Handle responsive sidebar behavior
     const handleResize = () => {
       if (window.innerWidth >= 768) {
-        // md breakpoint - always open sidebar on desktop
+        // md breakpoint - เปิด sidebar เสมอบน desktop
         setSidebarOpen(true);
       } else {
-        // always close sidebar initially on mobile
+        // ปิด sidebar เสมอเมื่อเริ่มต้นบน mobile
         setSidebarOpen(false);
       }
     };
 
-    // Open sidebar immediately when screen is larger than md
+    // เปิด sidebar ทันทีเมื่อหน้าจอมีขนาดใหญ่กว่า md
     handleResize();
     window.addEventListener('resize', handleResize);
     
-    // Update document body class for main content adjustment
-    document.body.classList.add('has-sidebar');
-    
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      document.body.classList.remove('has-sidebar');
-    }
+    return () => window.removeEventListener('resize', handleResize);
   }, [isMobile]);
   
-  // Effect to dispatch event when isCollapsed changes - desktop only
+  // Effect to dispatch event when isCollapsed changes - เฉพาะ desktop
   useEffect(() => {
     if (!isMobile) {
       window.dispatchEvent(new CustomEvent('sidebarStateChanged', { 
         detail: { isCollapsed } 
       }));
-      
-      // Update body class for content adjustment
-      if (isCollapsed) {
-        document.body.classList.add('sidebar-collapsed');
-      } else {
-        document.body.classList.remove('sidebar-collapsed');
-      }
     }
   }, [isCollapsed, isMobile]);
 
@@ -72,10 +59,7 @@ export const Header = () => {
         isCollapsed={isCollapsed}
         setIsCollapsed={setIsCollapsed}
       />
-      <HeaderMainContent 
-        setSidebarOpen={setSidebarOpen}
-        isCollapsed={isCollapsed}
-      />
+      <HeaderMainContent setSidebarOpen={setSidebarOpen} />
     </>
   );
 };
