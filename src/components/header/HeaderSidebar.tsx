@@ -76,7 +76,19 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
             </Button>
           )}
           
-          {/* ปุ่ม Collapse ถูกลบออกตามความต้องการ */}
+          {/* เพิ่มปุ่ม Collapse สำหรับ Desktop เท่านั้น ที่มุมขวาบนของ sidebar */}
+          {!isMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleCollapse}
+              className="absolute right-2 top-2 hidden md:flex bg-emerald-50 hover:bg-emerald-100 dark:bg-gray-800 dark:hover:bg-gray-700"
+              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            </Button>
+          )}
           
           <div className={cn(
             "flex justify-between items-center mt-4",
