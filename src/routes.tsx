@@ -1,6 +1,5 @@
-
 import { lazy, Suspense } from "react";
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import Index from "./pages/Index";
@@ -23,7 +22,8 @@ import Equipment from "./pages/Equipment";
 import GraphMonitor from "./pages/GraphMonitor";
 import GraphSummary from "./pages/GraphSummary";
 
-export const router = createBrowserRouter([
+// Fix: Export individual route objects with element properties for direct use in App.tsx
+export const routes = [
   {
     path: "/",
     element: <Index />,
@@ -160,4 +160,9 @@ export const router = createBrowserRouter([
     path: "/404",
     element: <NotFound />,
   },
-]);
+];
+
+// Keep router for compatibility with any code that might be using it
+export const router = {
+  routes: routes
+};

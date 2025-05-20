@@ -13,8 +13,7 @@ import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import Login from "@/pages/Login";
 // Import missing pages properly (removed Logout import)
-// We'll use the built-in routes.tsx for routing instead of importing non-existent pages
-import { router } from "./routes";
+import { routes } from "./routes";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -55,9 +54,9 @@ function App() {
           <div className="flex">
             <Header />
             <div id="page-content" className="w-full transition-all duration-300 ease-in-out pt-[76px] md:pt-[82px]">
-              {/* Use the router configuration from routes.tsx */}
+              {/* Fix: Use individual route components from routes.tsx */}
               <Routes>
-                {router.routes.map((route) => (
+                {routes.map((route) => (
                   <Route 
                     key={route.path} 
                     path={route.path} 
