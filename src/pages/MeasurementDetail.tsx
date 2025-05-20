@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { getMeasurementThaiName } from "@/utils/measurements";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import equipmentIcon from "@/assets/equipment-icon.svg";
 
 // Mock data for development - will be replaced with real API call
 const mockDevices = [
@@ -85,8 +86,8 @@ export default function MeasurementDetail() {
                 >
                   <Card className="p-4 border hover:border-emerald-300 hover:shadow-md transition-all">
                     <div className="flex items-center">
-                      <div className="h-12 w-12 bg-emerald-100 rounded-full flex items-center justify-center mr-3">
-                        <span className="text-emerald-600 font-bold">{device.deviceName.substring(0, 1)}</span>
+                      <div className="h-12 w-12 rounded-lg flex items-center justify-center mr-3">
+                        <img src={equipmentIcon} alt="อุปกรณ์" className="w-10 h-10" />
                       </div>
                       <div className="flex-1">
                         <h3 className="font-medium">{device.deviceName}</h3>
