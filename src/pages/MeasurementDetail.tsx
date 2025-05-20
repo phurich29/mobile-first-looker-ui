@@ -90,6 +90,10 @@ export default function MeasurementDetail() {
             };
           }
           
+          // Check if data has the necessary properties before accessing them
+          // This is the key fix for the TypeScript error
+          const timestamp = 'created_at' in data && data.created_at ? String(data.created_at) : null;
+          
           // Ensure value is cast to number or null to match DeviceData type
           const measurementValue = data[measurementSymbol as keyof typeof data];
           const parsedValue = typeof measurementValue === 'number' ? measurementValue : 
@@ -99,7 +103,7 @@ export default function MeasurementDetail() {
             deviceCode,
             deviceName,
             value: parsedValue,
-            timestamp: data.created_at ? String(data.created_at) : null
+            timestamp
           };
         });
         
