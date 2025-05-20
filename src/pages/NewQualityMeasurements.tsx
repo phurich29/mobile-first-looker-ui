@@ -147,7 +147,7 @@ export default function NewQualityMeasurements() {
                               <p className="text-xs text-gray-500">{symbol}</p>
                             </div>
                             <div className="text-emerald-600 text-xs flex items-center">
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" className="h-8 w-8 fill-emerald-600">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" className="h-6 w-6 fill-emerald-600">
                                 <g>
                                   <rect x="0" y="700" width="800" height="100" />
                                   <rect x="100" y="600" width="80" height="100" />

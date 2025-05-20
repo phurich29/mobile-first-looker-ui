@@ -86,7 +86,7 @@ export default function MeasurementDetail() {
                   <Card className="p-4 border hover:border-emerald-300 hover:shadow-md transition-all">
                     <div className="flex items-center">
                       <div className="h-12 w-12 flex items-center justify-center mr-3 flex-shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" className="h-10 w-10 fill-emerald-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" className="h-6 w-6 fill-emerald-600">
                           <g>
                             <rect x="0" y="700" width="800" height="100" />
                             <rect x="100" y="600" width="80" height="100" />
