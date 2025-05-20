@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { getMeasurementThaiName } from "@/utils/measurements";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import equipmentIcon from "@/assets/equipment-icon.svg";
 
 // Mock data for development - will be replaced with real API call
 const mockDevices = [
@@ -85,32 +86,8 @@ export default function MeasurementDetail() {
                 >
                   <Card className="p-4 border hover:border-emerald-300 hover:shadow-md transition-all">
                     <div className="flex items-center">
-                      <div className="h-12 w-12 flex items-center justify-center mr-3 flex-shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" className="h-6 w-6 fill-emerald-600">
-                          <g>
-                            <rect x="0" y="700" width="800" height="100" />
-                            <rect x="100" y="600" width="80" height="100" />
-                            <rect x="620" y="600" width="80" height="100" />
-                            <rect x="13" y="13" width="774" height="587" />
-                            <rect x="93" y="93" width="521" height="427" />
-                            <polygon points="213,180 520,180 400,300 307,300" />
-                            <rect x="260" y="300" width="120" height="60" />
-                            <rect x="573" y="66" width="160" height="107" />
-                            <circle cx="573" cy="234" r="30" />
-                            <circle cx="640" cy="234" r="30" />
-                            <circle cx="707" cy="234" r="30" />
-                            <circle cx="774" cy="234" r="30" />
-                            <rect x="600" y="334" width="60" height="60" />
-                            <rect x="700" y="334" width="60" height="60" />
-                            <circle cx="133" cy="520" r="33" />
-                            <circle cx="216" cy="520" r="33" />
-                            <circle cx="299" cy="520" r="33" />
-                            <circle cx="382" cy="520" r="33" />
-                            <circle cx="465" cy="520" r="33" />
-                            <circle cx="548" cy="520" r="33" />
-                            <circle cx="631" cy="520" r="33" />
-                          </g>
-                        </svg>
+                      <div className="h-12 w-12 rounded-lg flex items-center justify-center mr-3">
+                        <img src={equipmentIcon} alt="อุปกรณ์" className="w-10 h-10" />
                       </div>
                       <div className="flex-1">
                         <h3 className="font-medium">{device.deviceName}</h3>
