@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ResponsiveTable } from "@/components/ui/responsive-table";
@@ -10,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { formatDate } from "@/components/database-table/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MeasurementDetailDialog } from "./MeasurementDetailDialog";
+import { MeasurementDetailDialog } from "./measurement-detail"; // Updated import path
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface RiceQualityAnalysisRow {
