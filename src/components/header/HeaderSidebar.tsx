@@ -1,4 +1,3 @@
-
 import { Menu, Home, Wheat, BarChart2, User, X, Settings, LogOut, Users, FileText, AlertCircle, History, Monitor, ChevronLeft, ChevronRight, Layout, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -117,15 +116,15 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
                 {!isCollapsed && <span className="text-sm">อุปกรณ์</span>}
               </Link>
               
-              <Link to="/device/default" className={cn(
+              <Link to="/new-quality-measurements" className={cn(
                 "flex items-center rounded-lg transition-colors",
                 isCollapsed ? "gap-2 py-2 px-1" : "gap-3 py-2.5 px-3", // ปรับขนาดของเมนูตามขนาดของ sidebar
                 
-                isActive("/device/default") || location.pathname.startsWith("/device") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
+                isActive("/new-quality-measurements") || location.pathname.startsWith("/new-quality") ? "bg-emerald-50 text-emerald-600 font-medium border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : "hover:bg-gray-50 text-gray-700 dark:hover:bg-gray-800 dark:text-gray-300",
                 isCollapsed && "justify-center"
               )}>
                 <BarChart2 className="h-5 w-5" />
-                {!isCollapsed && <span className="text-sm">ค่าวัดคุณภาพ</span>}
+                {!isCollapsed && <span className="text-sm">ค่าวัดคุณภาพ (ใหม่)</span>}
               </Link>
               
               {user && <Link to="/notifications" className={cn(

@@ -22,6 +22,7 @@ import NotificationHistory from "./pages/NotificationHistory";
 import Equipment from "./pages/Equipment";
 import GraphMonitor from "./pages/GraphMonitor";
 import GraphSummary from "./pages/GraphSummary";
+import NewQualityMeasurements from "./pages/NewQualityMeasurements";
 
 export const router = createBrowserRouter([
   {
@@ -149,6 +150,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute requiredRoles={["user"]}>
         <Equipment />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/new-quality-measurements",
+    element: (
+      <ProtectedRoute requiredRoles={["user"]}>
+        <NewQualityMeasurements />
       </ProtectedRoute>
     ),
   },
