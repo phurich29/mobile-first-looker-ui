@@ -85,7 +85,7 @@ export default function NewQualityMeasurements() {
 
       <main className="flex-1 p-4 pb-32">
         <div className="bg-white rounded-lg shadow-sm p-6 mb-4">
-          <h1 className="text-2xl font-bold text-emerald-800 mb-4">ค่าวัดคุณภาพรูปแบบใหม่</h1>
+          <h1 className="text-2xl font-bold text-emerald-800 mb-4">ค่าวัดคุณภาพ</h1>
           <p className="text-gray-600 mb-6">เลือกค่าวัดคุณภาพที่ต้องการดูข้อมูลจากทุกอุปกรณ์</p>
           
           {/* Search Bar */}

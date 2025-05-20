@@ -43,10 +43,10 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
         <SidebarMenuItem 
           path="/new-quality-measurements" 
           icon={BarChart2}
-          label="ค่าวัดคุณภาพ (ใหม่)"
+          label="ค่าวัดคุณภาพ"
           isActive={isActive("/new-quality-measurements")}
           isCollapsed={isCollapsed}
-          pathStartsWith="/new-quality"
+          pathStartsWith="/measurement-detail"
         />
         
         {user && (
