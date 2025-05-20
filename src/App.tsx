@@ -27,6 +27,9 @@ import { CountdownProvider } from "./contexts/CountdownContext";
 import { toast } from "@/components/ui/use-toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./components/theme/ThemeProvider";
+import NewQualityMeasurements from "./pages/NewQualityMeasurements";
+import MeasurementDetail from "./pages/MeasurementDetail";
+import MeasurementHistory from "./components/measurement-history/MeasurementHistory";
 
 function App() {
   // Create a client
@@ -75,6 +78,11 @@ function App() {
                 <Route path="/graph-monitor" element={<ProtectedRoute><GraphMonitor /></ProtectedRoute>} />
                 <Route path="/graph-summary" element={<ProtectedRoute><GraphSummary /></ProtectedRoute>} />
                 <Route path="/graph-summary-detail" element={<ProtectedRoute><GraphSummaryDetail /></ProtectedRoute>} />
+                
+                {/* Add missing routes for quality measurements */}
+                <Route path="/new-quality-measurements" element={<ProtectedRoute><NewQualityMeasurements /></ProtectedRoute>} />
+                <Route path="/measurement-detail/:measurementSymbol" element={<ProtectedRoute><MeasurementDetail /></ProtectedRoute>} />
+                <Route path="/measurement-history/:deviceCode/:symbol" element={<ProtectedRoute><MeasurementHistory /></ProtectedRoute>} />
                 
                 {/* Admin routes */}
                 <Route path="/admin" element={<ProtectedRoute requiredRoles={["admin"]}><Admin /></ProtectedRoute>} />
