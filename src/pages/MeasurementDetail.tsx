@@ -105,7 +105,7 @@ export default function MeasurementDetail() {
         
         const devicesData = await Promise.all(devicePromises);
         // Cast to ensure type safety
-        setDevices(devicesData);
+        setDevices(devicesData as DeviceData[]);
       } catch (error) {
         console.error("Error fetching device data:", error);
       } finally {
