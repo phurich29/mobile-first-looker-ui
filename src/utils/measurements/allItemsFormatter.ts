@@ -130,7 +130,7 @@ export const formatAllItems = (allData: any[] | null): MeasurementItem[] => {
     },
     {
       symbol: "yellow_rice_rate",
-      name: "เมล็ดเหลือง",
+      name: "เมล็ดข้าวสีเหลือง",
       price: latestData.yellow_rice_rate?.toString() || "0",
       percentageChange: calculateChange(latestData.yellow_rice_rate, previousData?.yellow_rice_rate),
       iconColor: "#F3BA2F",
