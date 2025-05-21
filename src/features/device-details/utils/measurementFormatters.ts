@@ -1,4 +1,3 @@
-
 import { getNotificationSetting } from '../types';
 
 export const formatWholeGrainItems = (
@@ -158,7 +157,7 @@ export const formatImpuritiesItems = (
     },
     { 
       symbol: 'yellow_rice_rate', 
-      name: 'เมล็ดข้าวสีเหลือง', 
+      name: 'เมล็ดเหลือง', 
       price: latestData.yellow_rice_rate?.toFixed(1), 
       iconColor: '#D6BCFA', 
       updatedAt: new Date(latestData.created_at) 

@@ -74,7 +74,7 @@ export const MeasurementCard: React.FC<MeasurementCardProps> = ({
     if (symbol === "parboiled_red_line") return "เมล็ดแดง";
     if (symbol === "parboiled_white_rice") return "ข้าวดิบ";
     if (symbol === "honey_rice") return "เมล็ดม่วง";
-    if (symbol === "yellow_rice_rate") return "เมล็ดข้าวสีเหลือง";
+    if (symbol === "yellow_rice_rate") return "เมล็ดเหลือง";
     if (symbol === "black_kernel") return "เมล็ดดำ";
     if (symbol === "partly_black_peck") return "ดำบางส่วน & จุดดำ";
     if (symbol === "partly_black") return "ดำบางส่วน";

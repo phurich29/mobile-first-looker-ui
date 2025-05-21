@@ -21,7 +21,7 @@ export const getMeasurementThaiName = (symbol: string): string | undefined => {
     "parboiled_red_line": "เมล็ดแดง",
     "parboiled_white_rice": "ข้าวดิบ",
     "honey_rice": "เมล็ดม่วง",
-    "yellow_rice_rate": "เมล็ดข้าวสีเหลือง",  // Updated from "เมล็ดเหลือง" to "เมล็ดข้าวสีเหลือง"
+    "yellow_rice_rate": "เมล็ดเหลือง",
     "black_kernel": "เมล็ดดำ",
     "partly_black_peck": "ดำบางส่วน & จุดดำ",
     "partly_black": "ดำบางส่วน",

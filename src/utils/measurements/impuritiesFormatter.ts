@@ -44,7 +44,7 @@ export const formatImpuritiesItems = (impuritiesData: any[] | null): Measurement
     },
     {
       symbol: "yellow_rice_rate",
-      name: "เมล็ดข้าวสีเหลือง",
+      name: "เมล็ดเหลือง",
       price: latestData.yellow_rice_rate?.toString() || "0",
       percentageChange: calculateChange(latestData.yellow_rice_rate, previousData?.yellow_rice_rate),
       iconColor: "#F3BA2F",
