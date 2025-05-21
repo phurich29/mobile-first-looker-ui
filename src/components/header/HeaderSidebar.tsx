@@ -55,6 +55,7 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
             isCollapsed={isCollapsed}
             isMobile={isMobile}
             setSidebarOpen={setSidebarOpen}
+            toggleCollapse={toggleCollapse}
           />
           
           {/* Main navigation menu */}

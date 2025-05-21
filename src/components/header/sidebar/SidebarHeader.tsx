@@ -1,5 +1,5 @@
 
-import { X } from "lucide-react";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -7,12 +7,14 @@ interface SidebarHeaderProps {
   isCollapsed: boolean;
   isMobile: boolean;
   setSidebarOpen: (open: boolean) => void;
+  toggleCollapse?: () => void;
 }
 
 export const SidebarHeader = ({ 
   isCollapsed, 
   isMobile, 
-  setSidebarOpen 
+  setSidebarOpen,
+  toggleCollapse 
 }: SidebarHeaderProps) => {
   return (
     <>
@@ -40,6 +42,23 @@ export const SidebarHeader = ({
           )} />
           {(isMobile || !isCollapsed) && <h2 className="text-xl font-semibold text-emerald-700 dark:text-emerald-400">RiceFlow</h2>}
         </div>
+        
+        {/* Collapse Button - แสดงเฉพาะบน desktop */}
+        {!isMobile && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleCollapse}
+            className="h-8 w-8 p-0 hover:bg-emerald-100 dark:hover:bg-emerald-900"
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {isCollapsed ? (
+              <ChevronRight className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            ) : (
+              <ChevronLeft className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            )}
+          </Button>
+        )}
       </div>
     </>
   );
