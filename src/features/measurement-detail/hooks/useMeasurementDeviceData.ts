@@ -88,12 +88,17 @@ export const useMeasurementDeviceData = (measurementSymbol: string | undefined) 
           }
           
           // Check if data has the necessary properties before accessing them
-          const timestamp = typeof data === 'object' && data !== null && 'created_at' in data 
+          // Fix for TS18047 error - Ensure data is not null before accessing properties
+          const timestamp = data && 'created_at' in data 
             ? String(data.created_at) 
             : null;
           
           // Ensure value is cast to number or null to match DeviceData type
-          const measurementValue = data[measurementSymbol as keyof typeof data];
+          // Fix for TS18047 error - Ensure data is not null before accessing properties
+          const measurementValue = data && measurementSymbol in data
+            ? data[measurementSymbol as keyof typeof data]
+            : null;
+            
           const parsedValue = typeof measurementValue === 'number' ? measurementValue : 
                              (measurementValue ? Number(measurementValue) : null);
           
