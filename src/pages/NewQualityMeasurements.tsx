@@ -1,7 +1,8 @@
+
 import React, { useState } from "react";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
-import { Search, Server } from "lucide-react";
+import { Search, Wheat } from "lucide-react";
 import { getMeasurementThaiName } from "@/utils/measurements";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
@@ -146,7 +147,7 @@ export default function NewQualityMeasurements() {
                               <p className="text-xs text-gray-500">{symbol}</p>
                             </div>
                             <div className="text-emerald-600 flex items-center">
-                              <Server className="h-5 w-5" />
+                              <Wheat className="h-5 w-5" />
                             </div>
                           </div>
                         </Card>
