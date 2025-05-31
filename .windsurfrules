@@ -1,0 +1,10 @@
+1. My UI library is shadcn (not shadcn-ui which is deprecated)
+2. My framework is Next.js 15 with app router
+3. My language is TypeScript for all new code
+4. Development server is already running, never start another instance
+5. Always use "await" with dynamic Next.js APIs (params, searchParams, cookies(), headers()) in Server Components
+6. Don't create duplicate files, modify existing ones when same base name exists
+7. Follow kebab-case naming for files and folders
+8. Place components in appropriate directories (components/, lib/, app/)
+9. Implement proper loading and error states for all UI components
+10. Use proper error handling with try-catch blocks
