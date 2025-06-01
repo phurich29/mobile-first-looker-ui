@@ -62,7 +62,6 @@ export default function UserManagement() {
       <div className="flex-1 w-full">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            <Shield className="h-6 w-6 text-emerald-600 dark:text-emerald-500" />
             <h1 className="text-2xl font-bold dark:text-gray-100">จัดการผู้ใช้งาน</h1>
           </div>
           

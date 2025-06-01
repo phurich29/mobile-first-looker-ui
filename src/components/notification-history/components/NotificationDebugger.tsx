@@ -52,7 +52,7 @@ export function NotificationDebugger() {
   };
 
   return (
-    <Card className="w-full shadow-md dark:bg-slate-800 dark:border-slate-700">
+    <Card className="w-full dark:bg-slate-800 dark:border-slate-700">
       <CardHeader className="bg-slate-50 dark:bg-slate-800 dark:border-b dark:border-slate-700">
         <CardTitle className="text-lg flex items-center justify-between text-gray-900 dark:text-slate-100">
           <span>ข้อมูลการแจ้งเตือนในระบบ</span>

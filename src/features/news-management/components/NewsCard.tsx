@@ -29,18 +29,10 @@ export function NewsCard({ news, onEdit, onPreview, onDelete, onPublishToggle, v
       className={cn(
         "bg-white dark:bg-gray-700 rounded-xl overflow-hidden relative cursor-pointer",
         "before:content-[''] before:absolute before:inset-0 before:rounded-xl before:border before:border-gray-900/20 dark:before:border-gray-400/50 before:z-10",
-        "after:content-[''] after:absolute after:inset-0 after:rounded-xl after:shadow-[3px_3px_0px_#00000010] after:z-0",
-        "transition-transform duration-200 hover:scale-[1.02] hover:shadow-md",
-        "[filter:url(#pencil-border-card)]"
+        "transition-transform duration-200 hover:scale-[1.02]"
       )}
     >
-      {/* SVG filter for pencil border effect */}
-      <svg width="0" height="0" className="absolute">
-        <filter id="pencil-border-card">
-          <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="1" result="noise" />
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="1" />
-        </filter>
-      </svg>
+
       <div className={viewType === 'list' ? "flex flex-col md:flex-row" : ""}>
         {news.image_url && (
           <div className={viewType === 'list' ? "md:w-1/4 p-2" : ""}>

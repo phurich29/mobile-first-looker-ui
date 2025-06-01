@@ -28,7 +28,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
 
   return (
     <Card 
-      className={`shadow-md overflow-hidden ${styles.cardBg} group transition-all duration-300 hover:shadow-lg rounded-xl border border-gray-200 dark:border-gray-700`}
+      className={`overflow-hidden ${styles.cardBg} group transition-all duration-300 rounded-xl border border-gray-200 dark:border-gray-700`}
       data-graph-id={`graph-${graph.deviceCode}-${graph.symbol}`}
       style={{ transform: 'translateZ(0)' }} // Force GPU rendering for stability
     >

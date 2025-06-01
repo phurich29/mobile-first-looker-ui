@@ -97,7 +97,7 @@ export function UserRow({
             <DropdownMenuContent align="end" className="w-40 dark:bg-slate-800 dark:border-slate-700">
               {!user.roles.includes('user') ? (
                 <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'user', true)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
-                  เพิ่มสิทธิ์ User
+                  เปลี่ยนสิทธิ User
                 </DropdownMenuItem>
               ) : (
                 <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'user', false)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
@@ -107,7 +107,7 @@ export function UserRow({
               
               {!user.roles.includes('admin') ? (
                 <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'admin', true)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
-                  เพิ่มสิทธิ์ Admin
+                  เปลี่ยนสิทธิ Admin
                 </DropdownMenuItem>
               ) : (
                 <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'admin', false)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
@@ -118,7 +118,7 @@ export function UserRow({
               {/* ถ้าเป็น superadmin จึงจะสามารถจัดการสิทธิ์ superadmin ได้ */}
               {isSuperAdmin && !user.roles.includes('superadmin') ? (
                 <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'superadmin', true)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
-                  เพิ่มสิทธิ์ Superadmin
+                  เปลี่ยนสิทธิ Superadmin
                 </DropdownMenuItem>
               ) : isSuperAdmin && user.roles.includes('superadmin') ? (
                 <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'superadmin', false)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
@@ -128,7 +128,7 @@ export function UserRow({
               
               {!user.roles.includes('waiting_list') ? (
                 <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'waiting_list', true)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
-                  เพิ่มสถานะ Waiting List
+                  เปลี่ยนสถานะ Waiting List
                 </DropdownMenuItem>
               ) : (
                 <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'waiting_list', false)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
