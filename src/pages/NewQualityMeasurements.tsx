@@ -129,7 +129,7 @@ export default function NewQualityMeasurements() {
                       to={`/measurement-detail/${symbol}`}
                       className="block"
                     >
-                      <Card className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-lg dark:hover:shadow-emerald-700/20 transition-shadow hover:border-emerald-300 dark:hover:border-emerald-600">
+                      <Card className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-4 transition-shadow hover:border-emerald-300 dark:hover:border-emerald-600">
                         <div className="flex items-center">
                           <div 
                             className="h-10 w-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0 dark:border dark:border-slate-600"
@@ -141,11 +141,8 @@ export default function NewQualityMeasurements() {
                             ></div>
                           </div>
                           <div className="flex-1">
-                            <h3 className="font-medium text-gray-800 dark:text-gray-100">{thaiName}</h3>
+                            <h3 className="text-xs font-semibold text-gray-800 dark:text-gray-100 truncate">{thaiName}</h3>
                             <p className="text-xs text-gray-500 dark:text-gray-400">{symbol}</p>
-                          </div>
-                          <div className="text-emerald-600 dark:text-emerald-400 flex items-center">
-                            <Wheat className="h-5 w-5" />
                           </div>
                         </div>
                       </Card>

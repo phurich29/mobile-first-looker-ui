@@ -119,7 +119,7 @@ export function EquipmentCard({
   
   return (
     <>
-      <Card className="hover:shadow-lg transition-shadow duration-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+      <Card className="transition-shadow duration-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
         <CardHeader className="pb-1 p-4">
           <div className="flex items-start justify-between">
             <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-2">

@@ -24,7 +24,7 @@ const Index = () => {
               initialSeconds={60}
             />
           </div>
-          <NewsSlider />
+          <NewsSlider flatStyle={true} />
         </div>
         
         {/* Menu icons */}

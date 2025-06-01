@@ -80,14 +80,14 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
       </div>
 
       {/* Right Section */}
-      <div className="flex items-center gap-2 md:gap-3">
+      <div className="flex flex-col items-end md:flex-row md:items-center gap-1 md:gap-3">
         <Button 
           variant="ghost" 
-          className="text-white hover:bg-emerald-700/50 dark:hover:bg-slate-700/50 px-2 flex items-center h-10"
+          className="text-white hover:bg-emerald-700/50 dark:hover:bg-slate-700/50 px-1 md:px-2 flex items-center h-auto md:h-10"
           // No onClick action needed for time display
         >
-          <Clock className="h-5 w-5 mr-1.5" /> 
-          <span className="text-sm">{formattedTime}</span>
+          <Clock className="h-3 w-3 md:h-5 md:w-5 mr-1 md:mr-1.5" /> 
+          <span className="text-xs md:text-sm">{formattedTime}</span>
         </Button>
         <Button variant="ghost" size="icon" className="text-white hover:bg-emerald-700/50 dark:hover:bg-slate-700/50">
           <Bell className="h-5 w-5" />

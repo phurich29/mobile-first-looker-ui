@@ -16,7 +16,12 @@ interface NewsItemType {
   image_url?: string;
   publish_date: string;
 }
-export const NewsSlider = () => {
+
+interface NewsSliderProps {
+  flatStyle?: boolean;
+}
+
+export const NewsSlider = ({ flatStyle = false }: NewsSliderProps) => {
   const [news, setNews] = useState<NewsItemType[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedNews, setSelectedNews] = useState<NewsItemType | null>(null);
@@ -62,20 +67,33 @@ export const NewsSlider = () => {
         <h2 className="font-semibold text-lg text-gray-800 dark:text-gray-100 mb-3">ข่าวสารและประกาศ</h2>
         <div className={cn(
           "bg-white dark:bg-gray-700 rounded-xl p-6 animate-pulse flex flex-col space-y-3 relative",
-          "before:content-[''] before:absolute before:inset-0 before:rounded-xl before:border before:border-gray-900/20 dark:before:border-gray-400/50 before:z-10",
-          "after:content-[''] after:absolute after:inset-0 after:rounded-xl after:shadow-[3px_3px_0px_#00000010] after:z-0",
-          "[filter:url(#pencil-border-loading)]"
+          flatStyle ? "border border-gray-200 dark:border-gray-600" :
+            [
+              "before:content-[''] before:absolute before:inset-0 before:rounded-xl before:border before:border-gray-900/20 dark:before:border-gray-400/50 before:z-10",
+              "after:content-[''] after:absolute after:inset-0 after:rounded-xl after:shadow-[3px_3px_0px_#00000010] after:z-0",
+              "[filter:url(#pencil-border-loading)]"
+            ]
         )}>
           {/* SVG filter สำหรับเอฟเฟกต์เส้นดินสอ */}
-          <svg width="0" height="0" className="absolute">
-            <filter id="pencil-border-loading">
-              <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="1" result="noise" />
-              <feDisplacementMap in="SourceGraphic" in2="noise" scale="1" />
-            </filter>
-          </svg>
-          <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-3/4"></div>
-          <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-1/2"></div>
-          <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-5/6"></div>
+          {!flatStyle ? (
+            <>
+              <svg width="0" height="0" className="absolute">
+                <filter id="pencil-border-loading">
+                  <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="1" result="noise" />
+                  <feDisplacementMap in="SourceGraphic" in2="noise" scale="1" />
+                </filter>
+              </svg>
+              <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-1/2"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-5/6"></div>
+            </>
+          ) : (
+            <>
+              <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-1/2"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-5/6"></div>
+            </>
+          )}
         </div>
       </div>;
   }
@@ -84,18 +102,27 @@ export const NewsSlider = () => {
         <h2 className="font-semibold text-lg text-gray-800 dark:text-gray-100 mb-3">ข่าวสารและประกาศ</h2>
         <div className={cn(
           "bg-white dark:bg-gray-700 rounded-xl p-6 text-center relative",
-          "before:content-[''] before:absolute before:inset-0 before:rounded-xl before:border before:border-gray-900/20 dark:before:border-gray-400/50 before:z-10",
-          "after:content-[''] after:absolute after:inset-0 after:rounded-xl after:shadow-[3px_3px_0px_#00000010] after:z-0",
-          "[filter:url(#pencil-border-empty)]"
+          flatStyle ? "border border-gray-200 dark:border-gray-600" :
+            [
+              "before:content-[''] before:absolute before:inset-0 before:rounded-xl before:border before:border-gray-900/20 dark:before:border-gray-400/50 before:z-10",
+              "after:content-[''] after:absolute after:inset-0 after:rounded-xl after:shadow-[3px_3px_0px_#00000010] after:z-0",
+              "[filter:url(#pencil-border-empty)]"
+            ]
         )}>
           {/* SVG filter สำหรับเอฟเฟกต์เส้นดินสอ */}
-          <svg width="0" height="0" className="absolute">
-            <filter id="pencil-border-empty">
-              <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="1" result="noise" />
-              <feDisplacementMap in="SourceGraphic" in2="noise" scale="1" />
-            </filter>
-          </svg>
-          <p className="text-gray-500 dark:text-gray-400">ไม่มีข่าวสารในขณะนี้</p>
+          {!flatStyle ? (
+            <>
+              <svg width="0" height="0" className="absolute">
+                <filter id="pencil-border-empty">
+                  <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="1" result="noise" />
+                  <feDisplacementMap in="SourceGraphic" in2="noise" scale="1" />
+                </filter>
+              </svg>
+              <p className="text-gray-500 dark:text-gray-400">ไม่มีข่าวสารในขณะนี้</p>
+            </>
+          ) : (
+            <p className="text-gray-500 dark:text-gray-400">ไม่มีข่าวสารในขณะนี้</p>
+          )}
         </div>
       </div>;
   }
@@ -110,20 +137,26 @@ export const NewsSlider = () => {
               <div 
                 onClick={() => handleReadMore(item)}
                 className={cn(
-                "bg-white dark:bg-gray-700 rounded-xl overflow-hidden h-full relative cursor-pointer",
-                "before:content-[''] before:absolute before:inset-0 before:rounded-xl before:border before:border-gray-900/20 dark:before:border-gray-400/50 before:z-10",
-                "after:content-[''] after:absolute before:inset-0 before:rounded-xl after:shadow-[3px_3px_0px_#00000010] after:z-0",
-                "transition-transform hover:scale-[1.02] hover:shadow-md",
-                /* เพิ่มเสน้แบบดินสอด้วย SVG filter */
-                "[filter:url(#pencil-border)]"
+                  "bg-white dark:bg-gray-700 rounded-xl overflow-hidden h-full relative cursor-pointer",
+                  flatStyle ? 
+                    "border border-gray-200 dark:border-gray-600 transition-colors hover:bg-gray-50 dark:hover:bg-gray-600" :
+                    [
+                      "before:content-[''] before:absolute before:inset-0 before:rounded-xl before:border before:border-gray-900/20 dark:before:border-gray-400/50 before:z-10",
+                      "after:content-[''] after:absolute before:inset-0 before:rounded-xl after:shadow-[3px_3px_0px_#00000010] after:z-0",
+                      "transition-transform hover:scale-[1.02] hover:shadow-md",
+                      /* เพิ่มเสน้แบบดินสอด้วย SVG filter */
+                      "[filter:url(#pencil-border)]"
+                    ]
               )}>
                 {/* SVG filter สำหรับเอฟเฟกต์เส้นดินสอ */}
-                <svg width="0" height="0" className="absolute">
-                  <filter id="pencil-border">
+                {!flatStyle && (
+                  <svg width="0" height="0" className="absolute">
+                    <filter id="pencil-border">
                     <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="1" result="noise" />
-                    <feDisplacementMap in="SourceGraphic" in2="noise" scale="1" />
-                  </filter>
-                </svg>
+                      <feDisplacementMap in="SourceGraphic" in2="noise" scale="1" />
+                    </filter>
+                  </svg>
+                )}
                 {item.image_url ? <div className="h-32 overflow-hidden">
                     <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" onError={e => {
                 (e.target as HTMLImageElement).style.display = 'none';

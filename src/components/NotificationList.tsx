@@ -110,7 +110,7 @@ export const NotificationList = () => {
       </div>
 
       <div 
-        className={`bg-white dark:bg-gray-800 ${!isMobile && 'rounded-xl shadow-sm'} cursor-pointer`} 
+        className={`bg-white dark:bg-gray-800 ${!isMobile && 'rounded-xl border border-gray-200 dark:border-gray-600'} cursor-pointer`} 
         onClick={handleNavigateToSettings}
       >
         {loading ? (

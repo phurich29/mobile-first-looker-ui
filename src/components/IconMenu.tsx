@@ -15,7 +15,7 @@ const MenuItem = ({
   iconColor
 }: MenuItemProps) => {
   const isMobile = useIsMobile();
-  return <Link to={to} className="flex flex-col items-center justify-center p-2 hover:opacity-80 transition-all duration-300 bg-white dark:bg-gray-700 rounded-xl shadow-sm border border-gray-100 dark:border-gray-600 px-4">
+  return <Link to={to} className="flex flex-col items-center justify-center p-3 bg-white dark:bg-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors aspect-square border border-gray-200 dark:border-gray-600">
       <div className={`w-12 h-12 flex items-center justify-center ${!isMobile && 'mr-2'}`}>
         {React.cloneElement(icon as React.ReactElement, {
         size: isMobile ? 28 : 24,
