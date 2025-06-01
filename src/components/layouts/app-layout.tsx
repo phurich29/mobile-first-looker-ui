@@ -1,3 +1,4 @@
+
 import React, { ReactNode, useEffect, useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { LAYOUT_STYLES, cn } from '@/lib/layout-styles';
@@ -58,41 +59,30 @@ export function AppLayout({
 
   return (
     <>
-      {/* Render TopHeader if not on mobile OR if on mobile and sidebar is closed (to show mobile header) */}
-      {/* This logic might need refinement based on exact UX desired for mobile header vs sidebar */}
+      {/* Render TopHeader */}
       <TopHeader 
         isMobile={isMobile} 
         isCollapsed={isCollapsed} 
         setSidebarOpen={setSidebarOpen} 
         // pageTitle={...} // We can make pageTitle dynamic later
       />
-      {/* Outermost div removed, LAYOUT_STYLES.content.container.base and its className are no longer applied here */}
-      {/* Sidebar */}
-      {!isMobile && (
-        <HeaderSidebar 
-          sidebarOpen={sidebarOpen} 
-          setSidebarOpen={setSidebarOpen} 
-          isCollapsed={isCollapsed} 
-          setIsCollapsed={setIsCollapsed} 
-        />
-      )}
+      
+      {/* Sidebar - now renders for both mobile and desktop */}
+      <HeaderSidebar 
+        sidebarOpen={sidebarOpen} 
+        setSidebarOpen={setSidebarOpen} 
+        isCollapsed={isCollapsed} 
+        setIsCollapsed={setIsCollapsed} 
+      />
       
       {/* Main Content */}
       <main className={cn(
         "flex-1 transition-all duration-300 ease-in-out",
         isMobile ? "ml-0" : (isCollapsed ? "md:ml-20" : "md:ml-64"),
-        "p-[20px]", // Apply 20px padding to all sides
-        // Specific bottom padding (pb-6, pb-24, or contentPaddingBottom) is now governed by p-[20px]'s bottom value.
-        // If a different bottom padding is needed, it can be applied via the 'className' prop to AppLayout.
+        "p-5", // Apply 20px padding to all sides
         className
       )}>
-        {/* Add an inner div for page-specific top padding if needed, or adjust pt-16 above */}
-        {/* For example, if some pages need less/more space below TopHeader */}
-        {/* <div className="pt-4 md:pt-6"> */}
-        {/* {children} */}
-        {/* </div> */} 
-          {/* Content wrapper div removed, children are now direct descendants of main */}
-          {children}
+        {children}
       </main>
       
       {/* Footer Navigation - Mobile only */}
