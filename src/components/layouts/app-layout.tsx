@@ -79,7 +79,7 @@ export function AppLayout({
       
       {/* Main Content */}
       <main className={cn(
-        "flex-1 transition-all duration-300 ease-in-out",
+        "flex-1 transition-all duration-300 ease-in-out p-5",
         isMobile ? "ml-0" : (isCollapsed ? "md:ml-20" : "md:ml-64"),
         // "pt-16", // Removed top padding, will be handled by page content itself or specific AppLayout props if needed
         showFooterNav && isMobile ? (contentPaddingBottom || "pb-24") : "pb-6",
