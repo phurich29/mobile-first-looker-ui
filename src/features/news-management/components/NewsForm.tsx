@@ -51,20 +51,20 @@ export function NewsForm({
       <div className={`${!isMobile ? 'md:w-2/3' : 'w-full'}`}>
         <div className="grid gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="title" className="text-base">หัวข้อข่าวสาร</Label>
+            <Label htmlFor="title" className="text-base dark:text-gray-200">หัวข้อข่าวสาร</Label>
             <Input
               id="title"
               placeholder="ใส่หัวข้อข่าวสาร"
               value={currentNews.title || ""}
               onChange={(e) => setCurrentNews({ ...currentNews, title: e.target.value })}
-              className="text-base"
+              className="text-base dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200 dark:placeholder-gray-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500"
             />
           </div>
           
           <div className="grid gap-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="content" className="text-base">เนื้อหาข่าวสาร</Label>
-              <div className={`text-xs ${isOverLimit ? 'text-red-500 font-medium' : 'text-gray-500'}`}>
+              <Label htmlFor="content" className="text-base dark:text-gray-200">เนื้อหาข่าวสาร</Label>
+              <div className={`text-xs ${isOverLimit ? 'text-red-500 dark:text-red-400 font-medium' : 'text-gray-500 dark:text-gray-400'}`}>
                 {currentLength}/{MAX_CHARS}
               </div>
             </div>
@@ -77,16 +77,16 @@ export function NewsForm({
                 const newContent = e.target.value;
                 setCurrentNews({ ...currentNews, content: newContent });
               }}
-              className={`text-base resize-y min-h-[150px] ${isOverLimit ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+              className={`text-base resize-y min-h-[150px] dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200 dark:placeholder-gray-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500 ${isOverLimit ? 'border-red-500 focus-visible:ring-red-500 dark:border-red-400 dark:focus-visible:ring-red-400' : ''}`}
               maxLength={MAX_CHARS}
             />
             {isOverLimit && (
-              <p className="text-xs text-red-500">เกินจำนวนตัวอักษรที่กำหนด ({MAX_CHARS})</p>
+              <p className="text-xs text-red-500 dark:text-red-400">เกินจำนวนตัวอักษรที่กำหนด ({MAX_CHARS})</p>
             )}
           </div>
           
           <div className="grid gap-2">
-            <Label htmlFor="image_url" className="text-base">URL รูปภาพ (ไม่บังคับ)</Label>
+            <Label htmlFor="image_url" className="text-base dark:text-gray-200">URL รูปภาพ (ไม่บังคับ)</Label>
             <Input
               id="image_url"
               placeholder="https://example.com/image.jpg"
@@ -95,24 +95,24 @@ export function NewsForm({
                 setCurrentNews({ ...currentNews, image_url: e.target.value });
                 setPreviewImage(e.target.value);
               }}
-              className="text-base"
+              className="text-base dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200 dark:placeholder-gray-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500"
             />
           </div>
           
           <div className="grid gap-2">
-            <Label className="text-base">วันที่เผยแพร่</Label>
+            <Label className="text-base dark:text-gray-200">วันที่เผยแพร่</Label>
             <div className="relative">
               <Popover open={showCalendar} onOpenChange={setShowCalendar}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="w-full justify-start text-left font-normal text-gray-700"
+                    className="w-full justify-start text-left font-normal text-gray-700 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-300 dark:hover:bg-slate-600"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {date ? format(date, "PPP", { locale: th }) : "เลือกวันที่"}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0 dark:bg-slate-800 dark:border-slate-700" align="start">
                   <Calendar
                     mode="single"
                     selected={date}
@@ -135,9 +135,9 @@ export function NewsForm({
               id="published"
               checked={currentNews.published || false}
               onChange={(e) => setCurrentNews({ ...currentNews, published: e.target.checked })}
-              className="rounded text-emerald-600 focus:ring-emerald-600 w-4 h-4"
+              className="rounded text-emerald-600 focus:ring-emerald-600 w-4 h-4 dark:bg-slate-600 dark:border-slate-500 dark:checked:bg-emerald-500 dark:focus:ring-emerald-500 dark:focus:ring-offset-slate-800"
             />
-            <Label htmlFor="published" className="cursor-pointer">เผยแพร่ทันที</Label>
+            <Label htmlFor="published" className="cursor-pointer dark:text-gray-300">เผยแพร่ทันที</Label>
           </div>
         </div>
         
@@ -146,13 +146,14 @@ export function NewsForm({
             type="button" 
             variant="outline" 
             onClick={onCancel}
+            className="dark:text-gray-300 dark:border-slate-600 dark:hover:bg-slate-700 dark:hover:text-gray-100"
           >
             ยกเลิก
           </Button>
           <Button 
             onClick={onSave} 
             disabled={isSubmitting || isOverLimit}
-            className="bg-emerald-600 hover:bg-emerald-700 min-w-[120px]"
+            className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-800 dark:text-white min-w-[120px]"
           >
             {isSubmitting ? (
               <>
@@ -166,15 +167,15 @@ export function NewsForm({
       
       {/* Preview panel for desktop */}
       {!isMobile && (
-        <div className="md:w-1/3 bg-gray-50 rounded-lg p-4 border border-gray-100">
-          <h3 className="text-sm font-medium text-gray-600 mb-3">ตัวอย่าง</h3>
-          <div className="bg-white rounded-md p-4 shadow-sm">
-            <h4 className="font-medium mb-2">
+        <div className="md:w-1/3 bg-gray-50 dark:bg-slate-800/70 dark:border-slate-700 rounded-lg p-4 border border-gray-100">
+          <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">ตัวอย่าง</h3>
+          <div className="bg-white dark:bg-slate-700/50 rounded-md p-4 shadow-sm">
+            <h4 className="font-medium mb-2 dark:text-gray-100">
               {currentNews.title || "หัวข้อข่าวสาร"}
             </h4>
             
             {previewImage && (
-              <div className="mb-3 border rounded-md overflow-hidden">
+              <div className="mb-3 border dark:border-slate-600 rounded-md overflow-hidden">
                 <img 
                   src={previewImage} 
                   alt="Preview" 
@@ -187,16 +188,16 @@ export function NewsForm({
               </div>
             )}
             
-            <div className="text-xs text-gray-500 mb-2">
+            <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
               {date ? format(date, "PPP", { locale: th }) : "วันที่จะแสดง"}
             </div>
             
-            <p className="text-sm text-gray-700 whitespace-pre-wrap line-clamp-5">
+            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap line-clamp-5">
               {currentNews.content || "เนื้อหาข่าวสารจะแสดงที่นี่"}
             </p>
             
             <div className="flex justify-end mt-3">
-              <Badge variant={currentNews.published ? "default" : "outline"} className={`${currentNews.published ? 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200 border-0' : 'text-gray-500'}`}>
+              <Badge variant={currentNews.published ? "default" : "outline"} className={`${currentNews.published ? 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200 border-0 dark:bg-emerald-700/30 dark:text-emerald-300' : 'text-gray-500 dark:bg-slate-600/50 dark:text-slate-300 dark:border-slate-500/70'}`}>
                 {currentNews.published ? "เผยแพร่แล้ว" : "ฉบับร่าง"}
               </Badge>
             </div>

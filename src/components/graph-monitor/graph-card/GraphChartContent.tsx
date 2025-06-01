@@ -1,5 +1,6 @@
 
 import React, { useMemo } from "react";
+import { useTheme } from 'next-themes';
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   LineChart,
@@ -46,6 +47,7 @@ export const GraphChartContent: React.FC<GraphChartContentProps> = ({
   barColor,
   lineColor
 }) => {
+  const { theme } = useTheme();
   const styles = getGraphStyles(graphStyle, graphSymbol);
   
   // คำนวณค่าเฉลี่ยของข้อมูล
@@ -202,10 +204,9 @@ export const GraphChartContent: React.FC<GraphChartContentProps> = ({
               strokeDasharray="3 3"
               label={{
                 value: `ค่าเฉลี่ย: ${average.toFixed(2)}`,
-                fill: graphStyle === "monochrome" || graphStyle === "neon" || graphStyle === "gradient"
-                  ? "rgba(255,255,255,0.9)"
-                  : "#333",
+                fill: theme === 'dark' ? '#22c55e' : '#111827',
                 fontSize: 11,
+                fontWeight: 'bold',
                 position: "insideTopRight"
               }}
             />

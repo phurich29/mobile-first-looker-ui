@@ -1,5 +1,6 @@
 
 import { Navigate } from "react-router-dom";
+import { BackgroundImage } from "@/components/graph-monitor/BackgroundImage"; // Added for dark mode background
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { FooterNav } from "@/components/FooterNav";
@@ -53,35 +54,36 @@ export default function UserManagement() {
   // to handle all role-based access control
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
+    <div className="flex flex-col min-h-screen relative md:ml-64 dark:bg-slate-900"> {/* Updated for dark mode background container */}
+      <BackgroundImage /> {/* Added for dark mode background styling */}
       <Header />
 
       <main className="flex-1 p-4 pb-28 md:pb-16 md:mx-auto md:max-w-6xl md:px-8 w-full">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            <Shield className="h-6 w-6 text-emerald-600" />
-            <h1 className="text-2xl font-bold">จัดการผู้ใช้งาน</h1>
+            <Shield className="h-6 w-6 text-emerald-600 dark:text-emerald-500" />
+            <h1 className="text-2xl font-bold dark:text-gray-100">จัดการผู้ใช้งาน</h1>
           </div>
           
           <Button 
             onClick={() => setShowAddUserDialog(true)}
             variant="default"
-            className="bg-emerald-600 hover:bg-emerald-700"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-700 dark:hover:bg-emerald-800"
           >
             <UserPlus className="h-4 w-4 mr-2" />
             เพิ่มผู้ใช้ใหม่
           </Button>
         </div>
 
-        <Card className="overflow-hidden">
-          <CardHeader className="py-3">
-            <CardTitle className="text-xl">รายชื่อผู้ใช้ทั้งหมด</CardTitle>
+        <Card className="overflow-hidden dark:bg-slate-800 dark:border-slate-700">
+          <CardHeader className="py-3 dark:border-slate-700">
+            <CardTitle className="text-xl dark:text-gray-100">รายชื่อผู้ใช้ทั้งหมด</CardTitle>
           </CardHeader>
           <CardContent className="p-0 overflow-x-auto">
             {isLoadingUsers ? (
               <div className="p-6 text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
-                <p className="text-gray-500 mt-4">กำลังโหลดข้อมูลผู้ใช้...</p>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 dark:border-emerald-500 mx-auto"></div>
+                <p className="text-gray-500 mt-4 dark:text-gray-400">กำลังโหลดข้อมูลผู้ใช้...</p>
               </div>
             ) : users.length > 0 ? (
               <UserTable
@@ -95,7 +97,7 @@ export default function UserManagement() {
               />
             ) : (
               <div className="p-8 text-center">
-                <p className="text-gray-500">ไม่พบข้อมูลผู้ใช้</p>
+                <p className="text-gray-500 dark:text-gray-400">ไม่พบข้อมูลผู้ใช้</p>
               </div>
             )}
           </CardContent>

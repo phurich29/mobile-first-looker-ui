@@ -1,5 +1,6 @@
 
 import { Header } from "@/components/Header";
+import { BackgroundImage } from "@/components/graph-monitor/BackgroundImage"; // Added for dark mode background
 import { FooterNav } from "@/components/FooterNav";
 import { NewsManagementView } from "@/features/news-management/components/NewsManagementView";
 import { useAuth } from "@/components/AuthProvider";
@@ -11,7 +12,8 @@ export default function NewsManagement() {
   const isAuthorized = true;
 
   return (
-    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 overflow-x-hidden relative"> {/* Added relative for BackgroundImage positioning */}
+      <BackgroundImage /> {/* Added for dark mode background styling */}
       <Header />
       
       {(
@@ -20,20 +22,20 @@ export default function NewsManagement() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="/" className="flex items-center">
-                    <HomeIcon className="h-3.5 w-3.5 mr-1" />
+                  <BreadcrumbLink href="/" className="flex items-center dark:text-gray-400 dark:hover:text-gray-200">
+                    <HomeIcon className="h-3.5 w-3.5 mr-1 dark:text-gray-400" />
                     หน้าหลัก
                   </BreadcrumbLink>
                 </BreadcrumbItem>
-                <BreadcrumbSeparator />
+                <BreadcrumbSeparator className="dark:text-gray-500" />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>จัดการข่าวสาร</BreadcrumbPage>
+                  <BreadcrumbPage className="dark:text-gray-200">จัดการข่าวสาร</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
           
-          <div className="bg-white rounded-xl shadow-sm p-6 w-full">
+          <div className="bg-white dark:bg-slate-800 dark:border dark:border-slate-700 rounded-xl shadow-sm p-6 w-full">
             <NewsManagementView />
           </div>
         </main>

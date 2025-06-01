@@ -54,7 +54,7 @@ export const GraphHeader: React.FC<GraphHeaderProps> = ({
 
         <Button 
           onClick={onAddGraph} 
-          className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-800 dark:hover:bg-blue-900 text-white dark:text-white"
+          className="bg-blue-600 hover:bg-blue-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white dark:text-white"
         >
           <Plus className="h-4 w-4 mr-2" />
           เพิ่มกราฟ

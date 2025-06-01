@@ -27,11 +27,11 @@ export function UserTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-2/3 py-1 text-xs">ข้อมูลผู้ใช้</TableHead>
-            <TableHead className="w-1/3 text-right py-1 text-xs">จัดการ</TableHead>
+            <TableHead className="w-2/3 py-1 text-xs text-muted-foreground dark:text-slate-400">ข้อมูลผู้ใช้</TableHead>
+            <TableHead className="w-1/3 text-right py-1 text-xs text-muted-foreground dark:text-slate-400">จัดการ</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody className="dark:border-slate-700">
           {users.map((user) => (
             <UserRow
               key={user.id}

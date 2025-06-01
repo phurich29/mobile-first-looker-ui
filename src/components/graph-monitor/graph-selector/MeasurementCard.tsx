@@ -95,10 +95,10 @@ export const MeasurementCard: React.FC<MeasurementCardProps> = ({
   return (
     <div
       onClick={onClick}
-      className="flex flex-col p-3 border border-gray-100 bg-gray-50 hover:brightness-95 transition-all duration-300 relative overflow-hidden cursor-pointer rounded-lg"
+      className="flex flex-col p-3 border border-gray-200 bg-white hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 transition-all duration-300 relative overflow-hidden cursor-pointer rounded-lg"
     >
       {/* Background layer */}
-      <div className="absolute inset-0 w-full h-full bg-white opacity-80"></div>
+      <div className="absolute inset-0 w-full h-full bg-white opacity-80 dark:bg-gray-900 dark:opacity-50"></div>
       
       <div className="flex items-start relative z-10">
         <div 
@@ -110,12 +110,12 @@ export const MeasurementCard: React.FC<MeasurementCardProps> = ({
           <Wheat className="h-3 w-3 text-white" />
         </div>
         <div className="px-1 flex-1">
-          <h3 className="font-bold text-sm text-gray-800 leading-tight break-words">{thaiName}</h3>
-          <span className="text-xs text-gray-500 hidden sm:block">{measurement.symbol}</span>
+          <h3 className="font-bold text-sm text-gray-800 dark:text-white leading-tight break-words">{thaiName}</h3>
+          <span className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">{measurement.symbol}</span>
         </div>
       </div>
       <div className="text-right relative z-10 text-sm mt-2">
-        <p className="font-bold text-gray-600">
+        <p className="font-bold text-gray-600 dark:text-gray-200">
           {typeof measurement.value === 'number' ? 
             `${measurement.value.toFixed(1)}%` : 
             measurement.value || '0%'}

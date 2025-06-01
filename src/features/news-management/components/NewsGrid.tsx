@@ -45,10 +45,10 @@ export function NewsGrid({
 
   if (isLoading) {
     return (
-      <div className="bg-white/50 rounded-lg border border-gray-100 flex justify-center items-center h-64 shadow-sm">
+      <div className="bg-white/50 dark:bg-slate-800/70 rounded-lg border border-gray-100 dark:border-slate-700 flex justify-center items-center h-64 shadow-sm">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-emerald-600 mx-auto mb-2" />
-          <p className="text-sm text-gray-500">กำลังโหลดข้อมูล...</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">กำลังโหลดข้อมูล...</p>
         </div>
       </div>
     );
