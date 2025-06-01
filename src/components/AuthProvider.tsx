@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { handleSupabaseError } from "@/utils/errorHandler";
 
 type AuthContextType = {
   user: User | null;
@@ -41,6 +42,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       if (error) {
         console.error('Error fetching user roles:', error);
+        handleSupabaseError(error, "ไม่สามารถดึงข้อมูลสิทธิ์ผู้ใช้ได้");
         return [];
       }
       
@@ -48,6 +50,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return data || [];
     } catch (error) {
       console.error('Error in fetchUserRoles:', error);
+      handleSupabaseError(error, "ไม่สามารถดึงข้อมูลสิทธิ์ผู้ใช้ได้");
       return [];
     }
   };
@@ -61,26 +64,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
       async (_event, currentSession) => {
         console.log("Auth state changed, event:", _event);
         
-        // Update session and user state
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
-        
-        // If user is logged in, fetch roles from database
-        if (currentSession?.user) {
-          try {
+        try {
+          // Update session and user state
+          setSession(currentSession);
+          setUser(currentSession?.user ?? null);
+          
+          // If user is logged in, fetch roles from database
+          if (currentSession?.user) {
             // Using setTimeout to avoid deadlocks with Supabase client
             setTimeout(async () => {
-              const roles = await fetchUserRoles(currentSession.user.id);
-              console.log("Setting user roles after auth change:", roles);
-              setUserRoles(roles);
-              setIsLoading(false);
+              try {
+                const roles = await fetchUserRoles(currentSession.user.id);
+                console.log("Setting user roles after auth change:", roles);
+                setUserRoles(roles);
+              } catch (error) {
+                console.error("Error fetching roles during auth change:", error);
+                setUserRoles([]);
+              } finally {
+                setIsLoading(false);
+              }
             }, 0);
-          } catch (error) {
-            console.error("Error fetching roles during auth change:", error);
+          } else {
             setUserRoles([]);
             setIsLoading(false);
           }
-        } else {
+        } catch (error) {
+          console.error("Error in auth state change handler:", error);
+          handleSupabaseError(error, "เกิดข้อผิดพลาดในการจัดการสถานะผู้ใช้");
           setUserRoles([]);
           setIsLoading(false);
         }
@@ -93,11 +103,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       try {
         const { data: { session: initialSession }, error } = await supabase.auth.getSession();
         
-        // ตรวจสอบข้อผิดพลาด refresh_token_not_found
+        // Handle refresh token errors
         if (error) {
           console.error('Error fetching session:', error);
           
-          // ตรวจสอบว่าเป็นข้อผิดพลาด refresh_token_not_found หรือไม่
           if (error.message?.includes('refresh_token_not_found') ||
               (error as any)?.code === 'refresh_token_not_found' ||
               (error as any)?.__isAuthError) {
@@ -108,6 +117,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
             setUserRoles([]);
             setIsLoading(false);
             return;
+          } else {
+            handleSupabaseError(error, "ไม่สามารถตรวจสอบสถานะการเข้าสู่ระบบได้");
           }
         }
         
@@ -127,7 +138,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       } catch (error) {
         console.error('Error checking session:', error);
         
-        // กรณีเกิดข้อผิดพลาดใดๆ ให้ทำการ sign out เพื่อความปลอดภัย
+        // Sign out on any error for security
         try {
           console.log('Signing out due to auth error...');
           await supabase.auth.signOut();
@@ -136,6 +147,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setUserRoles([]);
         } catch (signOutError) {
           console.error('Error signing out:', signOutError);
+          handleSupabaseError(signOutError, "ไม่สามารถออกจากระบบได้");
         }
       } finally {
         setIsLoading(false);
@@ -158,6 +170,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUserRoles([]);
     } catch (error) {
       console.error('Error signing out:', error);
+      handleSupabaseError(error, "ไม่สามารถออกจากระบบได้");
     }
   };
 
