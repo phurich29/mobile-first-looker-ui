@@ -79,10 +79,11 @@ export function AppLayout({
       
       {/* Main Content */}
       <main className={cn(
-        "flex-1 transition-all duration-300 ease-in-out p-5",
+        "flex-1 transition-all duration-300 ease-in-out",
         isMobile ? "ml-0" : (isCollapsed ? "md:ml-20" : "md:ml-64"),
-        // "pt-16", // Removed top padding, will be handled by page content itself or specific AppLayout props if needed
-        showFooterNav && isMobile ? (contentPaddingBottom || "pb-24") : "pb-6",
+        "p-[20px]", // Apply 20px padding to all sides
+        // Specific bottom padding (pb-6, pb-24, or contentPaddingBottom) is now governed by p-[20px]'s bottom value.
+        // If a different bottom padding is needed, it can be applied via the 'className' prop to AppLayout.
         className
       )}>
         {/* Add an inner div for page-specific top padding if needed, or adjust pt-16 above */}

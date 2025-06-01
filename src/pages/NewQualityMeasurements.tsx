@@ -83,7 +83,7 @@ export default function NewQualityMeasurements() {
   return (
     <AppLayout wideContent={true} showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-16' : 'pb-6'}>
       <BackgroundImage />
-      <div className="bg-white dark:bg-slate-800/90 dark:backdrop-blur-sm rounded-lg shadow-md dark:shadow-slate-700/50 p-6">
+      <div className="">
         <h1 className="text-2xl font-bold text-emerald-700 dark:text-emerald-300 mb-4">ค่าวัดคุณภาพ</h1>
         <p className="text-gray-600 dark:text-gray-300 mb-6">เลือกค่าวัดคุณภาพที่ต้องการดูข้อมูลจากทุกอุปกรณ์</p>
         

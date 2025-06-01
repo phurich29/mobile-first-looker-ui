@@ -44,7 +44,7 @@ export const IconMenu = () => {
     to: "#",
     iconColor: "#f97316"
   }];
-  return <div className="px-4 mb-6">
+  return <div className="mb-6">
       <div className="px-[5%] mb-3 flex justify-between items-center md:px-0">
         <h2 className="font-semibold text-gray-700 dark:text-white border-b-2 border-[#f7cd56] inline-block pb-1">รายการแนะนำ</h2>
         <div className="flex items-center relative">
