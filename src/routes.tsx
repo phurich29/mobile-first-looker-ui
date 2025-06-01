@@ -1,9 +1,11 @@
-
 import { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
 
 // Import pages directly (non-lazy for better performance on core pages)
 import Index from "./pages/Index";
@@ -36,18 +38,56 @@ const LoadingSpinner = () => (
   </div>
 );
 
-// Main layout component
-const MainLayout = () => (
-  <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-950">
-    <Header />
-    <main className="flex-1">
-      <Suspense fallback={<LoadingSpinner />}>
-        <Outlet />
-      </Suspense>
-    </main>
-    <FooterNav />
-  </div>
-);
+// Main layout component with sidebar margin logic
+const MainLayout = () => {
+  const isMobile = useIsMobile();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  
+  useEffect(() => {
+    // Listen for sidebar state changes using custom event
+    const updateSidebarState = (event?: Event) => {
+      const customEvent = event as CustomEvent;
+      if (customEvent?.detail) {
+        setIsCollapsed(customEvent.detail.isCollapsed);
+      } else {
+        const savedCollapsedState = localStorage.getItem('sidebarCollapsed');
+        setIsCollapsed(savedCollapsedState === 'true');
+      }
+    };
+    
+    // Initial state
+    updateSidebarState();
+    
+    // Listen for changes in localStorage
+    window.addEventListener('storage', () => updateSidebarState());
+    
+    // Listen for custom event from Header component
+    window.addEventListener('sidebarStateChanged', updateSidebarState);
+    
+    return () => {
+      window.removeEventListener('storage', () => updateSidebarState());
+      window.removeEventListener('sidebarStateChanged', updateSidebarState);
+    };
+  }, []);
+
+  return (
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-950">
+      <Header />
+      <main className={cn(
+        "flex-1 transition-all duration-300",
+        isMobile ? "pb-20" : "pb-16",
+        // สำหรับหน้าจอ desktop ให้มี margin-left ที่เปลี่ยนตาม sidebar
+        !isMobile && "ml-0 md:ml-[5rem]", // สำหรับ default ให้ margin เท่ากับความกว้างของ sidebar ที่หดตัว (w-20 = 5rem)
+        !isMobile && !isCollapsed && "md:ml-64" // เมื่อ sidebar ขยาย ให้เพิ่ม margin เป็น 64 (เท่ากับความกว้างของ sidebar ที่ขยาย w-64)
+      )}>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Outlet />
+        </Suspense>
+      </main>
+      <FooterNav />
+    </div>
+  );
+};
 
 // Auth layout for login/register pages
 const AuthLayout = () => (
