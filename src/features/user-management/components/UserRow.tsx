@@ -1,5 +1,7 @@
 
+import { useState } from 'react';
 import { Badge } from "@/components/ui/badge";
+import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible"; // Added for inline editing
 import { Button } from "@/components/ui/button";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -18,6 +20,8 @@ interface UserRowProps {
 }
 
 export function UserRow({
+  // Note: onOpenResetDialog might become unused by this component after this change.
+  // We'll address prop cleanup in a later step if needed.
   user,
   isSuperAdmin,
   isProcessing,
@@ -26,10 +30,12 @@ export function UserRow({
   onOpenDeleteDialog,
   onChangeUserRole
 }: UserRowProps) {
+  const [isEditing, setIsEditing] = useState(false);
   return (
-    <TableRow className={`${user.roles.includes('waiting_list') ? 'bg-amber-50 dark:bg-amber-900/30' : ''} dark:border-slate-700`}>
+    <>
+      <TableRow className={`${user.roles.includes('waiting_list') ? 'bg-amber-50 dark:bg-amber-900/30' : ''} dark:border-slate-700 ${isEditing ? 'border-b-0 dark:border-b-0' : ''}`}>
       <TableCell className="py-1">
-        <div className="space-y-1">
+        <div className="space-y-1 py-3">
           <div className="flex flex-col">
             <span className="font-medium text-xs dark:text-gray-100">{user.email}</span>
             <span className="text-[10px] text-gray-500 dark:text-gray-400">
@@ -73,72 +79,104 @@ export function UserRow({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onOpenResetDialog(user.id, user.email)}
-            className="h-6 w-6 p-0 dark:text-gray-400 dark:hover:text-gray-200 dark:border-slate-600 dark:hover:border-slate-500"
-          >
-            <Edit className="h-3 w-3" />
-          </Button>
-          
-          <Button
-            variant="outline"
-            size="sm"
             onClick={() => onOpenDeleteDialog(user.id, user.email)}
             className="text-red-500 hover:text-red-600 h-6 w-6 p-0 dark:text-red-500 dark:hover:text-red-400 dark:border-slate-600 dark:hover:border-slate-500"
           >
             <Trash2 className="h-3 w-3" />
           </Button>
           
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" disabled={isProcessing} className="h-6 w-6 p-0 dark:text-gray-400 dark:hover:text-gray-200 dark:border-slate-600 dark:hover:border-slate-500">
+              <Button variant="outline" size="sm" disabled={isProcessing} onClick={() => setIsEditing((prev) => !prev)} className="h-6 w-6 p-0 dark:text-gray-400 dark:hover:text-gray-200 dark:border-slate-600 dark:hover:border-slate-500">
                 <ChevronDown className="h-3 w-3" />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40 dark:bg-slate-800 dark:border-slate-700">
-              {!user.roles.includes('user') ? (
-                <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'user', true)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
-                  เปลี่ยนสิทธิ User
-                </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'user', false)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
-                  ลบสิทธิ์ User
-                </DropdownMenuItem>
-              )}
-              
-              {!user.roles.includes('admin') ? (
-                <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'admin', true)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
-                  เปลี่ยนสิทธิ Admin
-                </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'admin', false)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
-                  ลบสิทธิ์ Admin
-                </DropdownMenuItem>
-              )}
-              
-              {/* ถ้าเป็น superadmin จึงจะสามารถจัดการสิทธิ์ superadmin ได้ */}
-              {isSuperAdmin && !user.roles.includes('superadmin') ? (
-                <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'superadmin', true)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
-                  เปลี่ยนสิทธิ Superadmin
-                </DropdownMenuItem>
-              ) : isSuperAdmin && user.roles.includes('superadmin') ? (
-                <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'superadmin', false)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
-                  ลบสิทธิ์ Superadmin
-                </DropdownMenuItem>
-              ) : null}
-              
-              {!user.roles.includes('waiting_list') ? (
-                <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'waiting_list', true)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
-                  เปลี่ยนสถานะ Waiting List
-                </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'waiting_list', false)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
-                  ลบสถานะ Waiting List
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </TableCell>
     </TableRow>
+    {/* Collapsible Row for Editing Form */}
+    <TableRow className={`${!isEditing ? 'hidden' : ''} ${user.roles.includes('waiting_list') ? 'bg-amber-50 dark:bg-amber-900/30' : ''} dark:border-slate-700`}>
+      <TableCell colSpan={2} className="p-0">
+        <Collapsible
+          open={isEditing}
+          onOpenChange={setIsEditing}
+          className="w-full"
+        >
+          <CollapsibleContent className="p-4 border-t dark:border-slate-700 space-y-2">
+            <h4 className="text-sm font-medium dark:text-gray-200">แก้ไขข้อมูล: {user.email}</h4>
+            <div>
+              <label htmlFor={`displayName-${user.id}`} className="text-xs text-gray-600 dark:text-gray-400">ชื่อที่แสดง:</label>
+              <input 
+                id={`displayName-${user.id}`}
+                type="text" 
+                placeholder="Display Name" 
+                defaultValue={user.email} /* Placeholder, replace with actual display name if available */
+                className="mt-1 w-full border rounded-md p-2 text-xs dark:bg-slate-700 dark:text-white dark:border-slate-600 focus:ring-emerald-500 focus:border-emerald-500" 
+              />
+            </div>
+            {/* Role Management Dropdown Moved Here */}
+            <div className="mt-4 pt-4 border-t dark:border-slate-600">
+              <h5 className="text-xs font-semibold mb-2 dark:text-gray-300">จัดการสิทธิ์ผู้ใช้:</h5>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" disabled={isProcessing} className="h-7 px-2 text-xs dark:text-gray-300 dark:border-slate-600 dark:hover:bg-slate-700">
+                    <span>เปลี่ยนสิทธิ์</span>
+                    <ChevronDown className="h-3 w-3 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 dark:bg-slate-800 dark:border-slate-700">
+                  {!user.roles.includes('user') ? (
+                    <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'user', true)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
+                      เพิ่มสิทธิ์ User
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'user', false)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
+                      ลบสิทธิ์ User
+                    </DropdownMenuItem>
+                  )}
+                  
+                  {!user.roles.includes('admin') ? (
+                    <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'admin', true)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
+                      เพิ่มสิทธิ์ Admin
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'admin', false)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
+                      ลบสิทธิ์ Admin
+                    </DropdownMenuItem>
+                  )}
+                  
+                  {isSuperAdmin && !user.roles.includes('superadmin') ? (
+                    <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'superadmin', true)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
+                      เพิ่มสิทธิ์ Superadmin
+                    </DropdownMenuItem>
+                  ) : isSuperAdmin && user.roles.includes('superadmin') ? (
+                    <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'superadmin', false)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
+                      ลบสิทธิ์ Superadmin
+                    </DropdownMenuItem>
+                  ) : null}
+                  
+                  {!user.roles.includes('waiting_list') ? (
+                    <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'waiting_list', true)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
+                      เพิ่มสถานะ Waiting List
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'waiting_list', false)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
+                      ลบสถานะ Waiting List
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            <div className="flex justify-end space-x-2 mt-4 pt-4 border-t dark:border-slate-600">
+              <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)} className="text-xs h-7 dark:text-gray-300 dark:hover:bg-slate-700">
+                ยกเลิก
+              </Button>
+              <Button size="sm" onClick={() => { /* Handle save logic here */ setIsEditing(false); }} className="text-xs h-7 bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-700 dark:hover:bg-emerald-800">
+                บันทึก
+              </Button>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </TableCell>
+    </TableRow>
+    </>
   );
 }

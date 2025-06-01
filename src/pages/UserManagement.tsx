@@ -59,7 +59,7 @@ export default function UserManagement() {
       <BackgroundImage /> {/* Moved inside AppLayout */}
       {/* The main tag and its specific classes are now handled by AppLayout's main tag. */}
       {/* Retaining inner content padding & max-width for now */}
-      <div className="flex-1 w-full">
+      <div className="flex-1 w-full pb-24">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold dark:text-gray-100">จัดการผู้ใช้งาน</h1>
@@ -75,10 +75,7 @@ export default function UserManagement() {
           </Button>
         </div>
 
-        <Card className="overflow-hidden dark:bg-slate-800 dark:border-slate-700">
-          <CardHeader className="py-3 dark:border-slate-700">
-            <CardTitle className="text-xl dark:text-gray-100">รายชื่อผู้ใช้ทั้งหมด</CardTitle>
-          </CardHeader>
+        <Card className="overflow-hidden dark:bg-slate-800 dark:border-slate-700 px-3">
           <CardContent className="p-0 overflow-x-auto">
             {isLoadingUsers ? (
               <div className="p-6 text-center">
