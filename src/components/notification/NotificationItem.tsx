@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getLatestMeasurement } from "../measurement-history/api";
@@ -138,21 +137,13 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
               <h3 className="font-medium text-sm text-gray-800 dark:text-gray-100 truncate">{name}</h3>
               <div className="flex items-center">
                 <span className="text-xs text-gray-500 dark:text-gray-400 truncate">{deviceName}</span>
-                {/* Add notification type text here with consistent styling */}
-                {enabled && (
-                  <div className="text-[10px] text-orange-600 dark:text-orange-400 font-medium ml-1">
-                    {type === 'min' ? `เตือนเมื่อต่ำกว่า ${threshold}%` : 
-                     type === 'max' ? `เตือนเมื่อสูงกว่า ${threshold}%` : 
-                     `เตือนเมื่อนอกช่วง ${threshold}%`}
-                  </div>
-                )}
               </div>
             </div>
           </div>
         </div>
 
         {/* Notification values */}
-        <div className="text-right flex items-center justify-end relative z-10 w-[38%] h-[60px] py-2">
+        <div className="text-right flex flex-col items-end relative z-10 w-[38%] h-[60px] py-2">
           <NotificationValue 
             latestValue={latestValue}
             latestTimestamp={latestTimestamp}
@@ -161,6 +152,14 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
             type={type}
             isAlertActive={isAlertActive}
           />
+          {/* Move notification type text here to the right side */}
+          {enabled && (
+            <div className="text-[10px] text-orange-600 dark:text-orange-400 font-medium mt-1">
+              {type === 'min' ? `เตือนเมื่อต่ำกว่า ${threshold}%` : 
+               type === 'max' ? `เตือนเมื่อสูงกว่า ${threshold}%` : 
+               `เตือนเมื่อนอกช่วง ${threshold}%`}
+            </div>
+          )}
         </div>
       </div>
 
@@ -177,4 +176,3 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
 };
 
 export default NotificationItem;
-
