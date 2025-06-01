@@ -1,13 +1,12 @@
 
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { CalendarDays } from "lucide-react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
 interface NewsItemType {
@@ -21,7 +20,7 @@ export const NewsSlider = () => {
   const [news, setNews] = useState<NewsItemType[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedNews, setSelectedNews] = useState<NewsItemType | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const isMobile = useIsMobile();
   const [api, setApi] = useState<any>(null);
 
@@ -56,7 +55,7 @@ export const NewsSlider = () => {
   }, []);
   const handleReadMore = (item: NewsItemType) => {
     setSelectedNews(item);
-    setDialogOpen(true);
+    setSheetOpen(true);
   };
   if (loading) {
     return <div className="mb-6 w-full">
@@ -108,10 +107,13 @@ export const NewsSlider = () => {
     }} setApi={setApi} className="w-full">
         <CarouselContent>
           {news.map(item => <CarouselItem key={item.id} className={isMobile ? "w-full" : "basis-1/2"}>
-              <div className={cn(
-                "bg-white dark:bg-gray-700 rounded-xl overflow-hidden h-full relative",
+              <div 
+                onClick={() => handleReadMore(item)}
+                className={cn(
+                "bg-white dark:bg-gray-700 rounded-xl overflow-hidden h-full relative cursor-pointer",
                 "before:content-[''] before:absolute before:inset-0 before:rounded-xl before:border before:border-gray-900/20 dark:before:border-gray-400/50 before:z-10",
                 "after:content-[''] after:absolute before:inset-0 before:rounded-xl after:shadow-[3px_3px_0px_#00000010] after:z-0",
+                "transition-transform hover:scale-[1.02] hover:shadow-md",
                 /* เพิ่มเสน้แบบดินสอด้วย SVG filter */
                 "[filter:url(#pencil-border)]"
               )}>
@@ -137,9 +139,9 @@ export const NewsSlider = () => {
                       locale: th
                     })}</span>
                     </div>
-                    <button onClick={() => handleReadMore(item)} className="text-xs text-emerald-600 hover:text-emerald-700 dark:text-emerald-500 dark:hover:text-emerald-400">
+                    <span className="text-xs text-emerald-600 hover:text-emerald-700 dark:text-emerald-500 dark:hover:text-emerald-400">
                       อ่านเพิ่มเติม
-                    </button>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -149,39 +151,32 @@ export const NewsSlider = () => {
         <CarouselNext className="hidden md:flex" />
       </Carousel>
 
-      {/* Dialog for displaying full news content */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg rounded-xl overflow-hidden">
+      {/* Sheet for displaying full news content */}
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent className="overflow-y-auto">
           {selectedNews && <>
-              <DialogHeader>
-                <DialogTitle className="text-xl">{selectedNews.title}</DialogTitle>
-              </DialogHeader>
-              <div className="mt-2 overflow-y-auto max-h-[70vh]">
-                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
+              <SheetHeader className="mb-6">
+                <SheetTitle className="text-xl">{selectedNews.title}</SheetTitle>
+                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-2">
                   <CalendarDays className="h-4 w-4 mr-2" />
                   <span>{format(new Date(selectedNews.publish_date), "d MMMM yyyy", {
                   locale: th
                 })}</span>
                 </div>
-                
-                {selectedNews.image_url && <div className="mb-4">
+              </SheetHeader>
+              <div className="mt-2 overflow-y-auto pr-2">
+                {selectedNews.image_url && <div className="mb-6">
                     <img src={selectedNews.image_url} alt={selectedNews.title} className="w-full h-auto rounded-lg" onError={e => {
                 (e.target as HTMLImageElement).style.display = 'none';
               }} />
                   </div>}
                 
-                <div className="prose max-w-none mt-2">
+                <div className="prose max-w-none mt-2 pb-6">
                   <p className="whitespace-pre-wrap text-gray-700 dark:text-gray-300 break-words">{selectedNews.content}</p>
-                </div>
-                
-                <div className="mt-6 text-right">
-                  <Link to={`/news/${selectedNews.id}`} className="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-500 dark:hover:text-emerald-400">
-                    ดูรายละเอียดเพิ่มเติม
-                  </Link>
                 </div>
               </div>
             </>}
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </div>;
 };

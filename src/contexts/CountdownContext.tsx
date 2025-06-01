@@ -25,7 +25,7 @@ export const CountdownProvider: React.FC<CountdownProviderProps> = ({
   children
 }) => {
   const [seconds, setSeconds] = useState(initialSeconds);
-  const [isActive, setIsActive] = useState(true);
+  const [isActive, setIsActive] = useState(true); // กลับไปเริ่มด้วย true
   const [lastCompleteTime, setLastCompleteTime] = useState<number | null>(null);
   const intervalRef = useRef<number | null>(null);
   const onCompleteRef = useRef(onComplete);

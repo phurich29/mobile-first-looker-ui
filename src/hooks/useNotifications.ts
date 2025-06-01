@@ -8,7 +8,7 @@ import { useQueryClient, useQuery } from "@tanstack/react-query";
 export const useNotifications = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [lastRefreshTime, setLastRefreshTime] = useState<Date>(new Date());
+  // Removed lastRefreshTime state
   const [isCheckingNotifications, setIsCheckingNotifications] = useState(false);
 
   // Function to fetch notification data from the database
@@ -41,7 +41,7 @@ export const useNotifications = () => {
 
       // Transform the data
       const transformedData = transformNotificationData(data);
-      setLastRefreshTime(new Date());
+      // setLastRefreshTime removed, will use dataUpdatedAt from useQuery
       return transformedData;
     } catch (error) {
       console.error("Error in fetchNotifications:", error);
@@ -55,7 +55,7 @@ export const useNotifications = () => {
   }, [toast]);
 
   // Use React Query to handle data fetching with caching
-  const { data: notifications = [], isLoading: loading, isFetching } = useQuery({
+  const { data: notifications = [], isLoading: loading, isFetching, dataUpdatedAt } = useQuery({
     queryKey: ['notifications'],
     queryFn: fetchNotifications,
     staleTime: 30000, // Consider data fresh for 30 seconds
@@ -150,7 +150,7 @@ export const useNotifications = () => {
     loading,
     isFetching,
     isCheckingNotifications,
-    lastRefreshTime,
+    lastRefreshTime: dataUpdatedAt, // Use dataUpdatedAt from useQuery
     fetchNotifications: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
     checkNotifications
   };
