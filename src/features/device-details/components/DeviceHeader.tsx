@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { BackButton, DeviceHeaderDisplay } from "./header";
+import { DeviceHeaderDisplay } from "./header";
 
 interface DeviceHeaderProps {
   deviceCode: string | undefined;
@@ -31,8 +31,6 @@ export const DeviceHeader: React.FC<DeviceHeaderProps> = ({ deviceCode }) => {
 
   return (
     <>
-      <BackButton />
-
       <div className="flex justify-between items-center mb-4">
         <DeviceHeaderDisplay displayName={displayName} deviceCode={deviceCode} />
       </div>

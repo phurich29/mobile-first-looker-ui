@@ -137,7 +137,7 @@ const GraphSummary = () => {
   return (
     <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-20' : 'pb-8'}>
       {/* Main content container with original padding. Dynamic margins are handled by AppLayout. */}
-      <div className={`flex-1 p-4 transition-all duration-300`}> {/* Removed dynamic pb and sidebarWidth classes */}
+      <div className={`flex-1 transition-all duration-300`}> {/* Removed dynamic pb and sidebarWidth classes */}
         <div className="max-w-7xl mx-auto">
           <GraphHeader 
             onOpenSelector={() => setSelectorOpen(true)}

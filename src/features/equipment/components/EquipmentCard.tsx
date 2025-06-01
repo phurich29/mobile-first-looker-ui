@@ -45,6 +45,28 @@ export function EquipmentCard({
       })()
     : "ไม่มีข้อมูล";
 
+  const isRecentUpdate = (() => {
+    if (!lastUpdated) return false;
+    try {
+      const lastUpdateDate = new Date(lastUpdated);
+      if (isNaN(lastUpdateDate.getTime())) {
+        console.warn("Invalid lastUpdated date string:", lastUpdated);
+        return false;
+      }
+      const now = new Date();
+      const twentyFourHoursInMs = 24 * 60 * 60 * 1000;
+      const diffMs = now.getTime() - lastUpdateDate.getTime();
+      return diffMs >= 0 && diffMs < twentyFourHoursInMs;
+    } catch (error) {
+      console.error("Error processing lastUpdated date:", lastUpdated, error);
+      return false;
+    }
+  })();
+
+  const timeClasses = isRecentUpdate
+    ? "font-bold text-green-700 bg-yellow-200 dark:text-green-300 dark:bg-yellow-600/40 px-1.5 py-0.5 rounded-md"
+    : "font-medium text-gray-800 dark:text-teal-200";
+
   const handleSaveDisplayName = async () => {
     try {
       // Check if there is already a record for this device
@@ -127,7 +149,12 @@ export function EquipmentCard({
         <CardContent className="p-4 pt-0">
           <div className="text-xs text-gray-600 dark:text-slate-400">
             <p className="mb-0.5">อัพเดทล่าสุด:</p>
-            <p className="font-medium text-gray-800 dark:text-teal-200">{formattedTime}</p>
+            <p className={timeClasses}>{formattedTime}</p>
+            {isRecentUpdate && (
+              <p className="text-xs text-red-600 dark:text-red-400 mt-0.5">
+                อัปเดตล่าสุดใน 24 ชม.
+              </p>
+            )}
           </div>
           
           <div className="flex flex-col gap-2 mt-3">

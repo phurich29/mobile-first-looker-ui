@@ -84,7 +84,7 @@ export default function DeviceDetails() {
         {/* Header and FooterNav are handled by AppLayout */}
         {/* The md:ml-64 for sidebar is handled by AppLayout */}
         {/* Background and min-height are handled by AppLayout or its children */}
-        <div className="flex-1 p-4">
+        <div className="flex-1">
           <DeviceHeader deviceCode={deviceCode} />
           
           <div className="flex justify-between items-center mb-4">

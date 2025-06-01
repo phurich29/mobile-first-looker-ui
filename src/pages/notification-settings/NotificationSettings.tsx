@@ -23,8 +23,8 @@ const NotificationSettings = () => {
         isMobile ? "pb-24" : "pb-10" // Retain original dynamic padding bottom
         // Margin-left is handled by AppLayout
       )}>
-        <div className="mx-auto max-w-4xl p-4 md:p-6 lg:p-8 my-6">
-          <PageHeader title="การตั้งค่าการแจ้งเตือน" />
+        <div className="mx-auto max-w-4xl mb-6">
+          <PageHeader title="การตั้งค่าการแจ้งเตือน" showBackButton={false} />
           <NotificationSettingsList 
             settings={settings} 
             loading={loading} 

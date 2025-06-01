@@ -74,7 +74,7 @@ const GraphMonitor = () => {
         // Margin left based on sidebar state is handled by AppLayout
         "transition-all duration-300"
       )}>
-        <div className="max-w-7xl mx-auto p-4">
+        <div className="max-w-7xl mx-auto">
           <GraphHeader
             showSaveIndicator={showSaveIndicator}
             saving={saving}

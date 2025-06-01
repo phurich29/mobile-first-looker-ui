@@ -59,7 +59,7 @@ export default function UserManagement() {
       <BackgroundImage /> {/* Moved inside AppLayout */}
       {/* The main tag and its specific classes are now handled by AppLayout's main tag. */}
       {/* Retaining inner content padding & max-width for now */}
-      <div className="flex-1 p-4 md:mx-auto md:max-w-6xl md:px-8 w-full">
+      <div className="flex-1 w-full">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <Shield className="h-6 w-6 text-emerald-600 dark:text-emerald-500" />

@@ -70,7 +70,7 @@ export function NewsManagementView() {
       
       {/* Toolbar section */}
       <div className="bg-gray-50 dark:bg-slate-800/60 rounded-lg p-3 mb-6 border border-gray-100 dark:border-slate-700">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex flex-col justify-between items-start gap-4">
           <div className="w-full md:w-auto flex items-center gap-3">
             <SearchBar 
               searchTerm={searchTerm} 
