@@ -1,8 +1,8 @@
 
 import React, { useEffect, useState } from "react";
-import { Header } from "@/components/Header";
-import { FooterNav } from "@/components/FooterNav";
+import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
 import { useIsMobile } from "@/hooks/use-mobile";
+// Header and FooterNav are handled by AppLayout
 import { GraphSelector } from "@/components/graph-monitor/GraphSelector";
 import { GraphDisplay } from "@/components/graph-monitor/GraphDisplay";
 import { useAuth } from "@/components/AuthProvider";
@@ -18,9 +18,9 @@ import { SelectedGraph } from "@/components/graph-monitor/types";
 import { cn } from "@/lib/utils";
 
 const GraphMonitor = () => {
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(); // Retain for other logic if needed
   const { user } = useAuth();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  // const [isCollapsed, setIsCollapsed] = useState(false); // Removed, AppLayout handles this
   
   const {
     selectedGraphs,
@@ -39,38 +39,7 @@ const GraphMonitor = () => {
     handleResetGraphs,
   } = useGraphMonitor();
   
-  useEffect(() => {
-    // Get sidebar collapsed state from localStorage
-    const savedCollapsedState = localStorage.getItem('sidebarCollapsed');
-    if (savedCollapsedState) {
-      setIsCollapsed(savedCollapsedState === 'true');
-    }
-    
-    // Listen for changes in localStorage
-    const handleStorageChange = () => {
-      const currentState = localStorage.getItem('sidebarCollapsed');
-      setIsCollapsed(currentState === 'true');
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Use requestAnimationFrame for smoother checks
-    let rafId: number;
-    const checkState = () => {
-      const currentState = localStorage.getItem('sidebarCollapsed');
-      if (currentState === 'true' !== isCollapsed) {
-        setIsCollapsed(currentState === 'true');
-      }
-      rafId = requestAnimationFrame(checkState);
-    };
-    
-    rafId = requestAnimationFrame(checkState);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      cancelAnimationFrame(rafId);
-    };
-  }, [isCollapsed]);
+  // Removed useEffect for isCollapsed as AppLayout handles sidebar state
   
   // สำหรับ desktop เท่านั้น mobile จะไม่มีการปรับ margin
 
@@ -94,16 +63,15 @@ const GraphMonitor = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen relative overflow-x-hidden">
+    <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-24' : 'pb-10'}>
       <BackgroundImage />
-      <Header />
+      {/* Header is handled by AppLayout */}
 
-      <main className={cn(
+      {/* Main content container with original padding. Dynamic margins and padding are handled by AppLayout. */}
+      <div className={cn(
         "flex-1 relative",
-        isMobile ? "pb-24" : "pb-10",
-        // สำหรับหน้าจอ desktop ให้มี margin-left ที่เปลี่ยนตาม sidebar
-        !isMobile && "ml-0 md:ml-[5rem]", // สำหรับ default ให้ margin เท่ากับความกว้างของ sidebar ที่หดตัว (w-20 = 5rem)
-        !isMobile && !isCollapsed && "md:ml-64", // เมื่อ sidebar ขยาย ให้เพิ่ม margin เป็น 64 (เท่ากับความกว้างของ sidebar ที่ขยาย w-64)
+        // Padding bottom is handled by AppLayout's contentPaddingBottom prop
+        // Margin left based on sidebar state is handled by AppLayout
         "transition-all duration-300"
       )}>
         <div className="max-w-7xl mx-auto p-4">
@@ -139,7 +107,7 @@ const GraphMonitor = () => {
             </div>
           )}
         </div>
-      </main>
+      </div> {/* End of main content div */}
 
       <GraphSelector 
         open={selectorOpen} 
@@ -147,8 +115,8 @@ const GraphMonitor = () => {
         onSelectGraph={handleAddGraphWithDeviceName}
       />
 
-      <FooterNav />
-    </div>
+      {/* FooterNav is handled by AppLayout */}
+    </AppLayout>
   );
 };
 

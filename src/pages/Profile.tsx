@@ -1,8 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from "@/components/AuthProvider";
-import { Header } from "@/components/Header";
-import { FooterNav } from "@/components/FooterNav";
+import { AppLayout } from "@/components/layouts/app-layout";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { UserInfoCard } from "@/components/profile/UserInfoCard";
 import { AccountStatusCard } from "@/components/profile/AccountStatusCard";
@@ -17,34 +15,7 @@ const Profile = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const isMobile = useIsMobile();
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  
-  useEffect(() => {
-    // Listen for sidebar state changes using custom event
-    const updateSidebarState = (event?: Event) => {
-      const customEvent = event as CustomEvent;
-      if (customEvent?.detail) {
-        setIsCollapsed(customEvent.detail.isCollapsed);
-      } else {
-        const savedCollapsedState = localStorage.getItem('sidebarCollapsed');
-        setIsCollapsed(savedCollapsedState === 'true');
-      }
-    };
-    
-    // Initial state
-    updateSidebarState();
-    
-    // Listen for changes in localStorage
-    window.addEventListener('storage', () => updateSidebarState());
-    
-    // Listen for custom event from Header component
-    window.addEventListener('sidebarStateChanged', updateSidebarState);
-    
-    return () => {
-      window.removeEventListener('storage', () => updateSidebarState());
-      window.removeEventListener('sidebarStateChanged', updateSidebarState);
-    };
-  }, []);
+  // isCollapsed state and its useEffect have been removed as AppLayout now handles sidebar state and content margins.
 
   // Format user data
   const userEmail = user?.email || "ไม่พบข้อมูลอีเมล";
@@ -76,15 +47,13 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-950 overflow-x-hidden">
-      <Header />
-      
-      {/* Main content with proper padding to avoid menu overlap */}
-      <main className={cn(
-        "container px-4 py-6 md:py-10 pb-32 mx-auto max-w-6xl transition-all duration-300",
-        // สำหรับหน้าจอ desktop ให้มี margin-left ที่เปลี่ยนตาม sidebar
-        !isMobile && "ml-0 md:ml-[5rem]", // สำหรับ default ให้ margin เท่ากับความกว้างของ sidebar ที่หดตัว (w-20 = 5rem)
-        !isMobile && !isCollapsed && "md:ml-64" // เมื่อ sidebar ขยาย ให้เพิ่ม margin เป็น 64 (เท่ากับความกว้างของ sidebar ที่ขยาย w-64)
+    <AppLayout showFooterNav={true}>
+      {/* Main content container with original padding and max-width. Dynamic margins are now handled by AppLayout. */}
+      <div className={cn(
+        "container px-4 py-6 md:py-10 pb-32 mx-auto max-w-6xl"
+        // Removed dynamic margin logic: !isMobile && "ml-0 md:ml-[5rem]", 
+        // Removed dynamic margin logic: !isMobile && !isCollapsed && "md:ml-64"
+        // The 'transition-all duration-300' was for the margin, AppLayout's main has its own.
       )}>
         <div className="flex items-center mb-8">
           <div className="relative">
@@ -129,10 +98,8 @@ const Profile = () => {
           setShowErrorDialog={setShowErrorDialog}
           errorMessage={errorMessage}
         />
-      </main>
-      
-      <FooterNav />
-    </div>
+      </div>
+    </AppLayout>
   );
 };
 

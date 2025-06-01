@@ -1,8 +1,8 @@
 
-import { Header } from "@/components/Header";
+import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
 import { RicePriceTable } from "@/components/RicePriceTable";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { FooterNav } from "@/components/FooterNav";
+// FooterNav will be handled by AppLayout
 import { Card } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
@@ -72,9 +72,10 @@ export default function RicePrices() {
   }, [isLoading, ricePrices, ricePriceDocuments, error]);
   
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-950 overflow-x-hidden md:ml-64">
-      <Header />
-      <main className="flex-1 p-4 pb-32 md:pb-16 md:mx-auto md:max-w-5xl md:px-8 w-full">
+    <AppLayout showFooterNav={true}>
+      {/* The main tag and its specific classes (p-4, pb-32, md:mx-auto, etc.) are now handled by AppLayout's main tag. */}
+      {/* We can add a wrapper div here if specific padding beyond AppLayout's default is needed for this page's content */}
+      <div className="p-4 md:mx-auto md:max-w-5xl md:px-8 w-full"> {/* Retaining inner content padding & max-width for now */}
         <div className="flex flex-col mb-8">
           <div className="relative">
             <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold mb-2 text-emerald-800 dark:text-emerald-400`}>
@@ -118,9 +119,7 @@ export default function RicePrices() {
             </Card>
           </div>
         )}
-      </main>
-
-      <FooterNav />
-    </div>
+      </div>
+    </AppLayout>
   );
 }

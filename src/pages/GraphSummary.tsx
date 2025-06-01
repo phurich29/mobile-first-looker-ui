@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from "react";
-import { Header } from "@/components/Header";
-import { FooterNav } from "@/components/FooterNav";
+import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
 import { useIsMobile } from "@/hooks/use-mobile";
+// Header and FooterNav are handled by AppLayout
 import { useAuth } from "@/components/AuthProvider";
 import { GraphSelector } from "@/components/graph-monitor/GraphSelector";
 import { TimeFrame } from "@/components/measurement-history/MeasurementHistory";
@@ -27,9 +27,9 @@ const colors = [
 ];
 
 const GraphSummary = () => {
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(); // Retain for other logic if needed, AppLayout handles sidebar collapse
   const { user } = useAuth();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  // const [isCollapsed, setIsCollapsed] = useState(false); // Removed, AppLayout handles this
   const [selectorOpen, setSelectorOpen] = useState(false);
   const [deviceNames, setDeviceNames] = useState<Record<string, string>>({});
   
@@ -60,32 +60,7 @@ const GraphSummary = () => {
     }
   }, [preferences, preferencesLoading]);
 
-  useEffect(() => {
-    // Get sidebar collapsed state from localStorage and listen for custom events
-    const updateSidebarState = (event?: Event) => {
-      const customEvent = event as CustomEvent;
-      if (customEvent?.detail) {
-        setIsCollapsed(customEvent.detail.isCollapsed);
-      } else {
-        const savedCollapsedState = localStorage.getItem('sidebarCollapsed');
-        setIsCollapsed(savedCollapsedState === 'true');
-      }
-    };
-    
-    // Initial state
-    updateSidebarState();
-    
-    // Listen for changes in localStorage
-    window.addEventListener('storage', () => updateSidebarState());
-    
-    // Listen for custom event from Header component
-    window.addEventListener('sidebarStateChanged', updateSidebarState);
-    
-    return () => {
-      window.removeEventListener('storage', () => updateSidebarState());
-      window.removeEventListener('sidebarStateChanged', updateSidebarState);
-    };
-  }, []);
+  // Removed useEffect for isCollapsed as AppLayout handles sidebar state
   
   // Function to add a new metric to the graph
   const handleAddGraph = (deviceCode: string, symbol: string, name: string, deviceName?: string) => {
@@ -157,14 +132,12 @@ const GraphSummary = () => {
     });
   };
 
-  // Calculate sidebar width for layout
-  const sidebarWidth = !isMobile ? (isCollapsed ? 'ml-20' : 'ml-64') : '';
+  // const sidebarWidth = !isMobile ? (isCollapsed ? 'ml-20' : 'ml-64') : ''; // Removed, AppLayout handles this
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-950">
-      <Header />
-      
-      <main className={`flex-1 ${isMobile ? 'pb-20' : `pb-8 ${sidebarWidth}`} p-4 transition-all duration-300`}>
+    <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-20' : 'pb-8'}>
+      {/* Main content container with original padding. Dynamic margins are handled by AppLayout. */}
+      <div className={`flex-1 p-4 transition-all duration-300`}> {/* Removed dynamic pb and sidebarWidth classes */}
         <div className="max-w-7xl mx-auto">
           <GraphHeader 
             onOpenSelector={() => setSelectorOpen(true)}
@@ -189,7 +162,7 @@ const GraphSummary = () => {
             saving={saving}
           />
         </div>
-      </main>
+      </div>
       
       <GraphSelector 
         open={selectorOpen} 
@@ -198,9 +171,8 @@ const GraphSummary = () => {
           handleAddGraph(deviceCode, symbol, name, deviceName);
         }}
       />
-      
-      <FooterNav />
-    </div>
+      {/* FooterNav is handled by AppLayout */}
+    </AppLayout>
   );
 };
 

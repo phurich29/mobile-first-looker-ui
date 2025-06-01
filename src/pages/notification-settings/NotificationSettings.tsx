@@ -1,12 +1,12 @@
 
-import { Header } from "@/components/Header";
+import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
 import { BackgroundImage } from "@/components/graph-monitor/BackgroundImage";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "./components/PageHeader";
 import { NotificationSettingsList } from "./components/NotificationSettingsList";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNotificationSettings } from "./hooks/useNotificationSettings";
-import { FooterNav } from "@/components/FooterNav";
+// Header and FooterNav are handled by AppLayout
 
 const NotificationSettings = () => {
   // const { user } = useAuth(); // If auth-specific elements are added
@@ -15,15 +15,13 @@ const NotificationSettings = () => {
   const { settings, loading, error, fetchSettings } = useNotificationSettings();
   
   return (
-    <div className="flex flex-col min-h-screen relative overflow-x-hidden dark:bg-zinc-900">
+    <AppLayout showFooterNav={isMobile}>
       <BackgroundImage />
-      <Header />
-      
-      <main className={cn(
-        "flex-1 relative z-10",
-        isMobile ? "pb-24" : "pb-10",
-        !isMobile && "md:ml-64" // Default desktop margin
-        // !isMobile && !isCollapsed && "md:ml-64" // Add if sidebar collapse logic is used
+      {/* Main content container with original padding and max-width. Dynamic margins/paddings are now handled by AppLayout. */}
+      <div className={cn(
+        "flex-1 relative z-10", // Retain flex-1, relative, z-10 for content behavior
+        isMobile ? "pb-24" : "pb-10" // Retain original dynamic padding bottom
+        // Margin-left is handled by AppLayout
       )}>
         <div className="mx-auto max-w-4xl p-4 md:p-6 lg:p-8 my-6">
           <PageHeader title="การตั้งค่าการแจ้งเตือน" />
@@ -37,9 +35,8 @@ const NotificationSettings = () => {
             }}
           />
         </div>
-      </main>
-      {isMobile && <FooterNav />}
-    </div>
+      </div>
+    </AppLayout>
   );
 };
 

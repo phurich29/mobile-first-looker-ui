@@ -1,9 +1,10 @@
 
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { Header } from "@/components/Header";
-import { FooterNav } from "@/components/FooterNav";
-import MeasurementHistory from "@/components/MeasurementHistory";
+import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
+import { useIsMobile } from "@/hooks/use-mobile"; // Import useIsMobile
+// Header and FooterNav are handled by AppLayout for the main view
+import MeasurementHistory from "@/components/MeasurementHistory"; // Keep for its own view
 import "@/components/notification-item-animation.css";
 import { CountdownProvider } from "@/contexts/CountdownContext";
 import { CountdownTimer } from "@/components/CountdownTimer";
@@ -20,6 +21,7 @@ import { LoadingScreen } from "@/features/device-details/components/LoadingScree
 
 export default function DeviceDetails() {
   const { deviceCode } = useParams();
+  const isMobile = useIsMobile(); // Add useIsMobile
   
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMeasurement, setSelectedMeasurement] = useState<{
@@ -75,12 +77,14 @@ export default function DeviceDetails() {
     );
   }
 
+  // Main device details view with AppLayout
   return (
     <CountdownProvider initialSeconds={60} onComplete={handleCountdownComplete}>
-      <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
-        <Header />
-
-        <main className="flex-1 p-4 pb-32">
+      <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-4'}>
+        {/* Header and FooterNav are handled by AppLayout */}
+        {/* The md:ml-64 for sidebar is handled by AppLayout */}
+        {/* Background and min-height are handled by AppLayout or its children */}
+        <div className="flex-1 p-4">
           <DeviceHeader deviceCode={deviceCode} />
           
           <div className="flex justify-between items-center mb-4">
@@ -104,14 +108,9 @@ export default function DeviceDetails() {
               onMeasurementClick={handleMeasurementClick}
             />
           </div>
-        </main>
-
-        {/* Add space to prevent content from being hidden behind footer */}
-        <div className="pb-32"></div>
-
-        {/* Footer navigation */}
-        <FooterNav />
-      </div>
+        </div>
+        {/* Removed redundant spacer div and FooterNav direct usage */}
+      </AppLayout>
     </CountdownProvider>
   );
 }

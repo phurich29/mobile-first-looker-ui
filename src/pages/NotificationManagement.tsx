@@ -1,7 +1,7 @@
 
 import { useState } from "react";
-import { Header } from "@/components/Header";
-import { FooterNav } from "@/components/FooterNav";
+import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
+// Header and FooterNav are handled by AppLayout
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -58,10 +58,9 @@ const NotificationManagement = () => {
   };
   
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50">
-      <Header />
-      
-      <main className={`flex-1 ${isMobile ? 'pb-32' : 'pb-16 ml-64'}`}>
+    <AppLayout showFooterNav={true}>
+      {/* Main content container with original padding and max-width. Dynamic margins/paddings are now handled by AppLayout. */}
+      <div className={`flex-1 ${isMobile ? 'pb-32' : 'pb-16'}`}> {/* Retain flex-1 and conditional padding-bottom */}
         <div className={`mx-auto max-w-7xl px-4 ${!isMobile ? 'py-8' : 'pt-6'}`}>
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">
@@ -193,10 +192,8 @@ const NotificationManagement = () => {
             </TabsContent>
           </Tabs>
         </div>
-      </main>
-
-      <FooterNav />
-    </div>
+      </div>
+    </AppLayout>
   );
 };
 

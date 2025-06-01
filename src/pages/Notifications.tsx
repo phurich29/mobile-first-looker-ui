@@ -1,7 +1,7 @@
 
-import React, { useEffect, useState } from "react";
-import { Header } from "@/components/Header";
-import { FooterNav } from "@/components/FooterNav";
+import React from "react"; // Removed useEffect, useState as they are not used
+import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
+// Header and FooterNav are handled by AppLayout
 import { NotificationList } from "@/components/NotificationList";
 import { useAuth } from "@/components/AuthProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -15,10 +15,9 @@ const Notifications = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      
-      <main className={`flex-1 p-4 ${isMobile ? 'pb-32' : 'ml-64'}`}>
+    <AppLayout showFooterNav={true}>
+      {/* Main content container with original padding and max-width. Dynamic margins/paddings are now handled by AppLayout. */}
+      <div className="p-4">
         <div className="mx-auto max-w-6xl">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <div>
@@ -53,10 +52,8 @@ const Notifications = () => {
             <NotificationList />
           </div>
         </div>
-      </main>
-      
-      <FooterNav />
-    </div>
+      </div>
+    </AppLayout>
   );
 };
 

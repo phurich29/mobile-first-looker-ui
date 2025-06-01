@@ -7,8 +7,8 @@ import HistoryFooter from "./HistoryFooter";
 import { NotificationSettingsDialog } from "./notification-settings";
 import { useToast } from "@/hooks/use-toast";
 import { useMeasurementData } from "./hooks/useMeasurementData";
-import { Header } from "@/components/Header";
-import { FooterNav } from "@/components/FooterNav";
+import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
+import { useIsMobile } from "@/hooks/use-mobile"; // Import useIsMobile
 import { getNotificationSettings } from "./api";
 import FilteredDatabaseTable from "./FilteredDatabaseTable";
 
@@ -29,6 +29,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
   unit,
   onClose
 }) => {
+  const isMobile = useIsMobile(); // Initialize useIsMobile
   // Get parameters from URL if not provided as props
   const params = useParams<{ deviceCode: string; symbol: string }>();
   
@@ -98,79 +99,78 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
   // If we don't have required parameters, show error message
   if (!deviceCode || !symbol) {
     return (
-      <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64 overflow-x-hidden">
-        <Header />
-        <main className="flex-1 p-4 overflow-x-hidden">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 text-center">
-            <h3 className="text-lg font-medium text-red-600 mb-2">ข้อมูลไม่ครบถ้วน</h3>
-            <p className="text-gray-600">ไม่พบข้อมูลอุปกรณ์หรือค่าที่ต้องการแสดง กรุณาลองใหม่อีกครั้ง</p>
-          </div>
-        </main>
-        <FooterNav />
-      </div>
+      <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-8'}>
+        <div className="flex flex-col flex-1 min-h-full bg-gradient-to-b from-emerald-50 to-gray-50 overflow-x-hidden">
+          {/* Header and FooterNav are handled by AppLayout */}
+          <main className="flex-1 p-4 overflow-x-hidden">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 text-center">
+              <h3 className="text-lg font-medium text-red-600 mb-2">ข้อมูลไม่ครบถ้วน</h3>
+              <p className="text-gray-600">ไม่พบข้อมูลอุปกรณ์หรือค่าที่ต้องการแสดง กรุณาลองใหม่อีกครั้ง</p>
+            </div>
+          </main>
+          {/* FooterNav is handled by AppLayout */}
+        </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64 overflow-x-hidden">
-      <Header />
-      
-      <main className="flex-1 p-4 pb-32 overflow-x-hidden">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-          <HistoryHeader 
-            name={name}
-            unit={unit}
-            average={averageValue}
-            onOpenSettings={() => setSettingsOpen(true)}
-            notificationEnabled={notificationEnabled}
-            deviceCode={deviceCode}
-          />
+    <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-8'}>
+      <div className="flex flex-col flex-1 min-h-full bg-gradient-to-b from-emerald-50 to-gray-50 overflow-x-hidden">
+        {/* Header and FooterNav are handled by AppLayout */}
+        <main className="flex-1 p-4 overflow-x-hidden"> {/* Removed pb-32 */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+            <HistoryHeader 
+              name={name}
+              unit={unit}
+              average={averageValue}
+              onOpenSettings={() => setSettingsOpen(true)}
+              notificationEnabled={notificationEnabled}
+              deviceCode={deviceCode}
+            />
+            
+            <HistoryFooter 
+              timeFrame={timeFrame}
+              onTimeFrameChange={setTimeFrame} 
+            />
+            
+            <HistoryChart 
+              historyData={historyData} 
+              dataKey={symbol}
+              isLoading={isLoading}
+              error={isError ? "ไม่สามารถโหลดข้อมูลประวัติได้" : null}
+              unit={unit}
+            />
+
+            <NotificationSettingsDialog
+              open={settingsOpen}
+              onOpenChange={handleOpenChange}
+              deviceCode={deviceCode}
+              symbol={symbol}
+              name={name}
+            />
+          </div>
           
-          <HistoryFooter 
-            timeFrame={timeFrame}
-            onTimeFrameChange={setTimeFrame} 
-          />
+          {/* Back button */}
+          {onClose && (
+            <button 
+              onClick={onClose}
+              className="mt-4 px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+            >
+              ย้อนกลับ
+            </button>
+          )}
           
-          <HistoryChart 
-            historyData={historyData} 
-            dataKey={symbol}
-            isLoading={isLoading}
-            error={isError ? "ไม่สามารถโหลดข้อมูลประวัติได้" : null}
-            unit={unit}
+          {/* Filtered Database Table */}
+          <FilteredDatabaseTable 
+            deviceCode={deviceCode} 
+            symbol={symbol} 
+            name={name} 
           />
-
-          <NotificationSettingsDialog
-            open={settingsOpen}
-            onOpenChange={handleOpenChange}
-            deviceCode={deviceCode}
-            symbol={symbol}
-            name={name}
-          />
-        </div>
-        
-        {/* Back button */}
-        {onClose && (
-          <button 
-            onClick={onClose}
-            className="mt-4 px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
-          >
-            ย้อนกลับ
-          </button>
-        )}
-        
-        {/* Filtered Database Table */}
-        <FilteredDatabaseTable 
-          deviceCode={deviceCode} 
-          symbol={symbol} 
-          name={name} 
-        />
-      </main>
-
-      {/* Add space to prevent content from being hidden behind footer */}
-      <div className="pb-32"></div>
-
-      <FooterNav />
-    </div>
+        </main>
+        {/* Spacer div and FooterNav are handled by AppLayout */}
+      </div>
+    </AppLayout>
   );
 };
 

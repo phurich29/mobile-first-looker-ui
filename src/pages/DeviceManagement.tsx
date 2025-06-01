@@ -1,8 +1,9 @@
 
 import { useState, useEffect, useCallback } from "react";
-import { Header } from "@/components/Header";
-import { FooterNav } from "@/components/FooterNav";
+import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
+import { useIsMobile } from "@/hooks/use-mobile"; // Import useIsMobile
 import { useAuth } from "@/components/AuthProvider";
+// Header and FooterNav are handled by AppLayout
 import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -11,6 +12,7 @@ import { DeviceManagementView } from "@/components/DeviceManagementView";
 export default function DeviceManagement() {
   const { user, userRoles, isLoading: isAuthLoading } = useAuth();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [devices, setDevices] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
@@ -172,9 +174,11 @@ export default function DeviceManagement() {
   }
   
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
-      <Header />
-      <main className="flex-1 p-4 pb-28">
+    <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-28' : 'pb-4'}>
+      {/* Header and FooterNav are handled by AppLayout */}
+      {/* The main content area. Background and min-height are handled by AppLayout or its children. */}
+      {/* The md:ml-64 for sidebar is handled by AppLayout */}
+      <div className="flex-1 p-4">
         <h1 className="text-2xl font-bold mb-6">จัดการอุปกรณ์และสิทธิ์การเข้าถึง</h1>
         
         <DeviceManagementView 
@@ -184,8 +188,7 @@ export default function DeviceManagement() {
           isLoading={isLoadingData}
           onRefresh={fetchAllData}
         />
-      </main>
-      <FooterNav />
-    </div>
+      </div>
+    </AppLayout>
   );
 }

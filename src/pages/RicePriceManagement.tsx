@@ -1,6 +1,6 @@
 
-import { Header } from "@/components/Header";
-import { FooterNav } from "@/components/FooterNav";
+import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
+// Header and FooterNav will be handled by AppLayout
 import { useAuth } from "@/components/AuthProvider";
 import { usePriceManagement } from "@/features/rice-price/hooks/usePriceManagement";
 import { ManagementTabs } from "@/features/rice-price/components/ManagementTabs";
@@ -64,33 +64,28 @@ export default function RicePriceManagement() {
   // Check if user is not a superadmin
   if (!userRoles.includes('superadmin')) {
     return (
-      <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
-        <Header />
-        <main className="flex-1 p-4">
+      <AppLayout showFooterNav={true}>
+        <div className="flex-1 p-4"> {/* Retain inner content padding */} 
           <AccessDeniedView />
-        </main>
-        <FooterNav />
-      </div>
+        </div>
+      </AppLayout>
     );
   }
 
   if (isPricesLoading || isDocsLoading) {
     return (
-      <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
-        <Header />
-        <main className="flex-1 p-4 flex items-center justify-center">
+      <AppLayout showFooterNav={true}>
+        <div className="flex-1 p-4 flex items-center justify-center"> {/* Retain inner content padding and flex properties */} 
           <LoadingView />
-        </main>
-        <FooterNav />
-      </div>
+        </div>
+      </AppLayout>
     );
   }
 
   if (pricesError || docsError) {
     return (
-      <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
-        <Header />
-        <main className="flex-1 p-4">
+      <AppLayout showFooterNav={true}>
+        <div className="flex-1 p-4"> {/* Retain inner content padding */} 
           <ErrorView 
             error={(pricesError || docsError) as Error} 
             onRetry={() => {
@@ -98,16 +93,15 @@ export default function RicePriceManagement() {
               refetchDocs();
             }}
           />
-        </main>
-        <FooterNav />
-      </div>
+        </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
-      <Header />
-      <main className="flex-1 p-4 pb-20">
+    <AppLayout showFooterNav={true}>
+      {/* Retain inner content padding, pb-20 might need adjustment based on AppLayout's footer handling */}
+      <div className="flex-1 p-4 pb-20">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-emerald-800">จัดการราคาข้าว</h1>
         </div>
@@ -166,9 +160,7 @@ export default function RicePriceManagement() {
           document={selectedDocument}
           onConfirm={handleDeleteDocument}
         />
-      </main>
-
-      <FooterNav />
-    </div>
+      </div>
+    </AppLayout>
   );
 }

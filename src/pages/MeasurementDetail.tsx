@@ -1,9 +1,9 @@
 
 import React from "react";
 import { useParams } from "react-router-dom";
-import { Header } from "@/components/Header";
-import { FooterNav } from "@/components/FooterNav";
+import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
 import { getMeasurementThaiName } from "@/utils/measurements";
+// Header and FooterNav are handled by AppLayout
 
 // Import refactored components and hooks
 import {
@@ -20,10 +20,9 @@ export default function MeasurementDetail() {
   const { isLoading, devices } = useMeasurementDeviceData(measurementSymbol);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
-      <Header />
-
-      <main className="flex-1 p-4 pb-32">
+    <AppLayout showFooterNav={true} contentPaddingBottom="pb-32">
+      {/* Main content container with original padding. Dynamic margins and specific footer padding are handled by AppLayout. */}
+      <div className="flex-1 p-4"> {/* Removed pb-32 as it's handled by AppLayout prop */}
         <MeasurementHeader 
           measurementName={measurementName} 
           measurementSymbol={measurementSymbol} 
@@ -40,13 +39,7 @@ export default function MeasurementDetail() {
             measurementSymbol={measurementSymbol}
           />
         </div>
-      </main>
-
-      {/* Add space to prevent content from being hidden behind footer */}
-      <div className="pb-32"></div>
-
-      {/* Footer navigation */}
-      <FooterNav />
-    </div>
+      </div>
+    </AppLayout>
   );
 }

@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from "react";
-import { Header } from "@/components/Header";
-import { FooterNav } from "@/components/FooterNav";
+import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
 import { useIsMobile } from "@/hooks/use-mobile";
+// Header and FooterNav are handled by AppLayout
 import { 
   LineChart, 
   Area,
@@ -54,9 +54,9 @@ const colors = [
 ];
 
 const GraphSummaryDetail = () => {
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(); // Retain for other logic if needed, AppLayout handles sidebar collapse
   const { user } = useAuth();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  // const [isCollapsed, setIsCollapsed] = useState(false); // Removed, AppLayout handles this
   const [timeFrame, setTimeFrame] = useState<TimeFrame>("24h");
   const [selectedMetrics, setSelectedMetrics] = useState<SelectedMetric[]>([]);
   const [graphData, setGraphData] = useState<any[]>([]);
@@ -78,40 +78,8 @@ const GraphSummaryDetail = () => {
     fetchDevices();
   }, []);
 
-  // Get sidebar collapsed state from localStorage
-  useEffect(() => {
-    const savedCollapsedState = localStorage.getItem('sidebarCollapsed');
-    if (savedCollapsedState) {
-      setIsCollapsed(savedCollapsedState === 'true');
-    }
-    
-    // Listen for changes in localStorage
-    const handleStorageChange = () => {
-      const currentState = localStorage.getItem('sidebarCollapsed');
-      setIsCollapsed(currentState === 'true');
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Use requestAnimationFrame for smoother checks
-    let rafId: number;
-    const checkState = () => {
-      const currentState = localStorage.getItem('sidebarCollapsed');
-      if (currentState === 'true' !== isCollapsed) {
-        setIsCollapsed(currentState === 'true');
-      }
-      rafId = requestAnimationFrame(checkState);
-    };
-    
-    rafId = requestAnimationFrame(checkState);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      cancelAnimationFrame(rafId);
-    };
-  }, [isCollapsed]);
-
   // When selectedMetrics changes, fetch the data for all metrics
+  // Removed useEffect for isCollapsed as AppLayout handles sidebar state
   useEffect(() => {
     if (selectedMetrics.length > 0) {
       fetchGraphData();
@@ -215,14 +183,9 @@ const GraphSummaryDetail = () => {
     }
   };
 
-  // Calculate sidebar width for layout
-  const sidebarWidth = !isMobile ? (isCollapsed ? 'ml-20' : 'ml-64') : '';
-
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-950">
-      <Header />
-      
-      <main className={`flex-1 ${isMobile ? 'pb-20' : `pb-8 ${sidebarWidth}`} p-4`}>
+    <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-16' : 'pb-6'}>
+      <div className="p-4 md:p-6">
         <div className="max-w-7xl mx-auto">
           {/* Header with back button */}
           <div className="flex flex-col md:flex-row items-center justify-between mb-6">
@@ -399,7 +362,7 @@ const GraphSummaryDetail = () => {
                           style={{ borderColor: metric.color, color: metric.color }}
                         >
                           <div 
-                            className="w-3 h-3 rounded-full"
+                            className="w-3 h-3 rounded-full mr-2"
                             style={{ backgroundColor: metric.color }}
                           ></div>
                           {metric.name} ({metric.deviceName})
@@ -513,10 +476,8 @@ const GraphSummaryDetail = () => {
             </Card>
           </div>
         </div>
-      </main>
-      
-      <FooterNav />
-    </div>
+      </div>
+    </AppLayout>
   );
 };
 

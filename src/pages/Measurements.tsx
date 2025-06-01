@@ -1,7 +1,7 @@
 
-import { Header } from "@/components/Header";
-import { FooterNav } from "@/components/FooterNav";
+import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
 import { DeviceList } from "@/components/device-list/DeviceList";
+// Header and FooterNav are handled by AppLayout
 import { Search } from "lucide-react";
 import { useState } from "react";
 
@@ -9,10 +9,9 @@ export default function Measurements() {
   const [searchTerm, setSearchTerm] = useState("");
   
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
-      <Header />
-
-      <main className="flex-1 p-4 pb-20">
+    <AppLayout showFooterNav={true} contentPaddingBottom="pb-20">
+      {/* Main content container with original padding. Dynamic margins and specific footer padding are handled by AppLayout. */}
+      <div className="flex-1 p-4"> {/* Removed pb-20 as it's handled by AppLayout prop */}
         <div className="mb-6">
           <h1 className="text-xl font-semibold text-gray-800 mb-2">อุปกรณ์ที่มีการอัพเดทล่าสุด</h1>
           <p className="text-sm text-gray-500">แตะที่อุปกรณ์เพื่อดูข้อมูลค่าวัดคุณภาพโดยละเอียด</p>
@@ -34,9 +33,7 @@ export default function Measurements() {
         </div>
         
         <DeviceList />
-      </main>
-
-      <FooterNav />
-    </div>
+      </div>
+    </AppLayout>
   );
 }

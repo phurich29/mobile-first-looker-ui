@@ -1,9 +1,10 @@
 
 import { Navigate } from "react-router-dom";
-import { BackgroundImage } from "@/components/graph-monitor/BackgroundImage"; // Added for dark mode background
-import { Header } from "@/components/Header";
+import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
+import { BackgroundImage } from "@/components/graph-monitor/BackgroundImage";
+// Header will be handled by AppLayout
 import { Button } from "@/components/ui/button";
-import { FooterNav } from "@/components/FooterNav";
+// FooterNav will be handled by AppLayout
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, UserPlus } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
@@ -54,11 +55,11 @@ export default function UserManagement() {
   // to handle all role-based access control
 
   return (
-    <div className="flex flex-col min-h-screen relative md:ml-64 dark:bg-slate-900"> {/* Updated for dark mode background container */}
-      <BackgroundImage /> {/* Added for dark mode background styling */}
-      <Header />
-
-      <main className="flex-1 p-4 pb-28 md:pb-16 md:mx-auto md:max-w-6xl md:px-8 w-full">
+    <AppLayout showFooterNav={true}>
+      <BackgroundImage /> {/* Moved inside AppLayout */}
+      {/* The main tag and its specific classes are now handled by AppLayout's main tag. */}
+      {/* Retaining inner content padding & max-width for now */}
+      <div className="flex-1 p-4 md:mx-auto md:max-w-6xl md:px-8 w-full">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <Shield className="h-6 w-6 text-emerald-600 dark:text-emerald-500" />
@@ -102,7 +103,7 @@ export default function UserManagement() {
             )}
           </CardContent>
         </Card>
-      </main>
+      </div>
 
       {/* Dialog for adding a new user */}
       <AddUserDialog
@@ -130,8 +131,7 @@ export default function UserManagement() {
         userEmail={selectedUserEmail}
       />
 
-      {/* Footer Navigation */}
-      <FooterNav />
-    </div>
+      {/* FooterNav is handled by AppLayout */}
+    </AppLayout>
   );
 }

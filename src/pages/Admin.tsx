@@ -1,8 +1,8 @@
-
 import { useEffect, useState } from "react";
 import { Navigate, Link } from "react-router-dom";
-import { Header } from "@/components/Header";
-import { Button } from "@/components/ui/button";
+import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
+import { useIsMobile } from "@/hooks/use-mobile"; // Import useIsMobile
+import { Button } from "@/components/ui/button"; // Add Button import
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,7 +11,6 @@ import { EquipmentCard } from "@/components/EquipmentCard";
 import { Settings, Users, Shield } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { Database } from "@/integrations/supabase/types";
-import { FooterNav } from "@/components/FooterNav";
 
 // Define types for our user data
 interface User {
@@ -23,6 +22,7 @@ interface User {
 export default function Admin() {
   const { toast } = useToast();
   const { user, userRoles, isLoading } = useAuth();
+  const isMobile = useIsMobile(); // Add useIsMobile
   const [users, setUsers] = useState<User[]>([]);
   const [devices, setDevices] = useState<any[]>([]);
   const [isFetchingUsers, setIsFetchingUsers] = useState<boolean>(false);
@@ -210,167 +210,160 @@ export default function Admin() {
   if (!user || (!userRoles.includes('admin') && !userRoles.includes('superadmin'))) {
     return <Navigate to="/login" />;
   }
-  
+
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
-      <Header />
-      
-      <main className="flex-1 p-4 pb-28">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">หน้าจัดการระบบ</h1>
-          
-          {userRoles.includes('superadmin') && (
-            <Link to="/user-management">
-              <Button variant="outline" className="flex items-center gap-2">
-                <Shield className="h-4 w-4" />
-                จัดการสิทธิ์ผู้ใช้
-              </Button>
-            </Link>
-          )}
-        </div>
-        
-        <Tabs defaultValue="users" className="w-full">
-          <TabsList className="mb-4">
-            <TabsTrigger value="users" className="flex items-center gap-1">
-              <Users className="h-4 w-4" />
-              <span>ผู้ใช้งาน</span>
-            </TabsTrigger>
-            <TabsTrigger value="devices" className="flex items-center gap-1">
-              <Settings className="h-4 w-4" />
-              <span>อุปกรณ์</span>
-            </TabsTrigger>
+    <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-28' : 'pb-4'}>
+      <div className="flex flex-col flex-1 bg-gradient-to-b from-emerald-50 to-gray-50">
+        {/* Header and FooterNav are handled by AppLayout */}
+        {/* The md:ml-64 for sidebar and pb-28 for footer are handled by AppLayout */}
+        <div className="flex-1 p-4">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold">หน้าจัดการระบบ</h1>
+            
             {userRoles.includes('superadmin') && (
-              <TabsTrigger value="roles" className="flex items-center gap-1">
-                <Shield className="h-4 w-4" />
-                <span>การจัดการสิทธิ์</span>
-              </TabsTrigger>
+              <Link to="/user-management">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <Shield className="h-4 w-4" />
+                  จัดการสิทธิ์ผู้ใช้
+                </Button>
+              </Link>
             )}
-          </TabsList>
+          </div>
           
-          <TabsContent value="users">
-            <Card>
-              <CardHeader>
-                <CardTitle>รายชื่อผู้ใช้งาน</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {isFetchingUsers ? (
-                  <div className="flex justify-center p-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {users.length > 0 ? users.map((user) => (
-                      <div key={user.id} className="border rounded-md p-4 flex justify-between items-center">
-                        <div>
-                          <p className="font-medium">{user.email}</p>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {user.roles.map((role) => (
-                              <span 
-                                key={role} 
-                                className={`text-xs px-2 py-0.5 rounded-full ${
-                                  role === 'superadmin' ? 'bg-red-100 text-red-800' : 
-                                  role === 'admin' ? 'bg-blue-100 text-blue-800' : 
-                                  'bg-green-100 text-green-800'
-                                }`}
-                              >
-                                {role}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        {userRoles.includes('superadmin') && (
-                          <div className="flex gap-2">
-                            <Link to="/user-management">
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                              >
-                                จัดการสิทธิ์
-                              </Button>
-                            </Link>
-                          </div>
-                        )}
-                      </div>
-                    )) : (
-                      <p className="text-center text-gray-500">ไม่พบข้อมูลผู้ใช้</p>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="devices">
-            <Card>
-              <CardHeader>
-                <CardTitle>อุปกรณ์ทั้งหมด</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {isFetchingDevices ? (
-                  <div className="flex justify-center p-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {devices.length > 0 ? devices.map((device) => (
-                      <EquipmentCard 
-                        key={device.id}
-                        deviceCode={device.device_code}
-                        lastUpdated={device.updated_at}
-                      />
-                    )) : (
-                      <p className="text-center text-gray-500 col-span-3">ไม่พบข้อมูลอุปกรณ์</p>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          {userRoles.includes('superadmin') && (
-            <TabsContent value="roles">
+          <Tabs defaultValue="users" className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="users" className="flex items-center gap-1">
+                <Users className="h-4 w-4" />
+                <span>ผู้ใช้งาน</span>
+              </TabsTrigger>
+              <TabsTrigger value="devices" className="flex items-center gap-1">
+                <Settings className="h-4 w-4" />
+                <span>อุปกรณ์</span>
+              </TabsTrigger>
+              {userRoles.includes('superadmin') && (
+                <TabsTrigger value="roles" className="flex items-center gap-1">
+                  <Shield className="h-4 w-4" />
+                  <span>การจัดการสิทธิ์</span>
+                </TabsTrigger>
+              )}
+            </TabsList>
+            
+            <TabsContent value="users" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>การจัดการสิทธิ์</CardTitle>
+                  <CardTitle>รายชื่อผู้ใช้งาน</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="border rounded-md p-4">
-                      <h3 className="font-bold text-lg">ระดับสิทธิ์ในระบบ</h3>
-                      <div className="mt-4 space-y-2">
-                        <div className="bg-green-50 p-3 rounded-md border border-green-100">
-                          <h4 className="font-medium">User</h4>
-                          <p className="text-sm text-gray-600">สิทธิ์พื้นฐาน - สามารถดูข้อมูลได้เท่านั้น</p>
-                        </div>
-                        <div className="bg-blue-50 p-3 rounded-md border border-blue-100">
-                          <h4 className="font-medium">Admin</h4>
-                          <p className="text-sm text-gray-600">สิทธิ์ผู้ดูแลระบบ - สามารถจัดการข้อมูลและอุปกรณ์ได้</p>
-                        </div>
-                        <div className="bg-red-50 p-3 rounded-md border border-red-100">
-                          <h4 className="font-medium">Superadmin</h4>
-                          <p className="text-sm text-gray-600">สิทธิ์สูงสุด - สามารถจัดการทุกอย่างรวมถึงสิทธิ์ของผู้ใช้อื่น</p>
-                        </div>
-                      </div>
+                  {isFetchingUsers ? (
+                    <div className="flex justify-center p-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
                     </div>
-                    
-                    <div className="flex justify-end">
-                      <Link to="/user-management">
-                        <Button variant="default">
-                          ไปหน้าจัดการสิทธิ์
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
+                  ) : users.length > 0 ? (
+                    <ul className="space-y-2">
+                      {users.map((u) => (
+                        <li key={u.id} className="border rounded-md p-4 flex justify-between items-center">
+                          <div>
+                            <p className="font-medium">{u.email}</p>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {u.roles.map((role) => (
+                                <span 
+                                  key={role} 
+                                  className={`text-xs px-2 py-0.5 rounded-full ${role === 'superadmin' ? 'bg-red-100 text-red-800' : role === 'admin' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}
+                                >
+                                  {role}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          {isSuperAdmin && (
+                            <div className="space-x-2">
+                              <Button 
+                                size="sm"
+                                onClick={() => changeUserRole(u.id, 'admin', !u.roles.includes('admin'))}
+                              >
+                                {u.roles.includes('admin') ? 'Revoke Admin' : 'Make Admin'}
+                              </Button>
+                            </div>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-center text-gray-500">ไม่พบข้อมูลผู้ใช้</p>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
-          )}
-        </Tabs>
-      </main>
-      
-      {/* แถบนำทางด้านล่าง */}
-      <FooterNav />
-    </div>
+
+            <TabsContent value="devices" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>อุปกรณ์ทั้งหมด</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {isFetchingDevices ? (
+                    <div className="flex justify-center p-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+                    </div>
+                  ) : devices.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {devices.map((device) => (
+                        <EquipmentCard 
+                          key={device.device_code}
+                          deviceCode={device.device_code}
+                          lastUpdated={device.updated_at}
+                          isAdmin={userRoles.includes('admin') || userRoles.includes('superadmin')}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-center text-gray-500 col-span-3">ไม่พบข้อมูลอุปกรณ์</p>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            {userRoles.includes('superadmin') && (
+              <TabsContent value="roles" className="space-y-4"> {/* Corrected value to 'roles' */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>การจัดการสิทธิ์</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="border rounded-md p-4">
+                        <h3 className="font-bold text-lg">ระดับสิทธิ์ในระบบ</h3>
+                        <div className="mt-4 space-y-2">
+                          <div className="bg-green-50 p-3 rounded-md border border-green-100">
+                            <h4 className="font-medium">User</h4>
+                            <p className="text-sm text-gray-600">สิทธิ์พื้นฐาน - สามารถดูข้อมูลได้เท่านั้น</p>
+                          </div>
+                          <div className="bg-blue-50 p-3 rounded-md border border-blue-100">
+                            <h4 className="font-medium">Admin</h4>
+                            <p className="text-sm text-gray-600">สิทธิ์ผู้ดูแลระบบ - สามารถจัดการข้อมูลและอุปกรณ์ได้</p>
+                          </div>
+                          <div className="bg-red-50 p-3 rounded-md border border-red-100">
+                            <h4 className="font-medium">Superadmin</h4>
+                            <p className="text-sm text-gray-600">สิทธิ์สูงสุด - สามารถจัดการทุกอย่างรวมถึงสิทธิ์ของผู้ใช้อื่น</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-end">
+                        <Link to="/user-management">
+                          <Button variant="default">
+                            ไปหน้าจัดการสิทธิ์
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            )}
+          </Tabs>
+        </div>
+      </div>
+    </AppLayout>
   );
 }

@@ -1,8 +1,8 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Header } from "@/components/Header";
-import { FooterNav } from "@/components/FooterNav";
+import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
+// Header and FooterNav are handled by AppLayout
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { Loader2, CalendarDays } from "lucide-react";
@@ -61,23 +61,19 @@ export default function News() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <main className="container mx-auto px-4 pt-8 pb-32">
+      <AppLayout showFooterNav={true} contentPaddingBottom="pb-32">
+        <div className="container mx-auto px-4 pt-8">
           <div className="flex justify-center items-center h-64">
             <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
           </div>
-        </main>
-        <FooterNav />
-      </div>
+        </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      
-      <main className="container mx-auto px-4 pt-8 pb-32">
+    <AppLayout showFooterNav={true} contentPaddingBottom="pb-32">
+      <div className="container mx-auto px-4 pt-8">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-800">ข่าวสารและประกาศ</h1>
           <p className="text-gray-600 mt-1">ข่าวสารและประกาศล่าสุดจากระบบ</p>
@@ -151,9 +147,7 @@ export default function News() {
             )}
           </div>
         </div>
-      </main>
-      
-      <FooterNav />
-    </div>
+      </div>
+    </AppLayout>
   );
 }

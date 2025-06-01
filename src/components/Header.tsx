@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from "react";
 import { HeaderSidebar } from "./header/HeaderSidebar";
-import { HeaderMainContent } from "./header/HeaderMainContent";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export const Header = () => {
@@ -59,7 +58,6 @@ export const Header = () => {
         isCollapsed={isCollapsed}
         setIsCollapsed={setIsCollapsed}
       />
-      <HeaderMainContent setSidebarOpen={setSidebarOpen} />
     </>
   );
 };

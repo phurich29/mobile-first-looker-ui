@@ -1,13 +1,13 @@
 
 import React, { useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { BackgroundImage } from "@/components/graph-monitor/BackgroundImage";
-import { Header } from "@/components/Header";
-import { FooterNav } from "@/components/FooterNav";
 import { Search, Wheat } from "lucide-react";
 import { getMeasurementThaiName } from "@/utils/measurements";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AppLayout } from "@/components/layouts"; // Import AppLayout
 
 // All measurement types organized by category
 const measurementTypes = {
@@ -68,14 +68,12 @@ const iconColors = {
 };
 
 export default function NewQualityMeasurements() {
-  // const isMobile = useIsMobile(); // Potentially needed if sidebar collapse logic is fully replicated
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(false);
+  const isMobile = useIsMobile();
+  // const [loading, setLoading] = useState(false); // loading state not used currently
 
-  // Filter measurements based on search term
   const filterMeasurements = (measurements: string[]) => {
     if (!searchTerm) return measurements;
-    
     return measurements.filter(symbol => {
       const thaiName = getMeasurementThaiName(symbol);
       return thaiName?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -83,98 +81,91 @@ export default function NewQualityMeasurements() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen relative overflow-x-hidden md:ml-64 dark:bg-slate-950">
+    <AppLayout wideContent={true} showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-16' : 'pb-6'}>
       <BackgroundImage />
-      <Header />
-
-      <main className="flex-1 p-4 pb-24 relative z-10">
-        <div className="bg-white dark:bg-slate-800/90 dark:backdrop-blur-sm rounded-lg shadow-md dark:shadow-slate-700/50 p-6 mb-4">
-          <h1 className="text-2xl font-bold text-emerald-700 dark:text-emerald-300 mb-4">ค่าวัดคุณภาพ</h1>
-          <p className="text-gray-600 dark:text-gray-300 mb-6">เลือกค่าวัดคุณภาพที่ต้องการดูข้อมูลจากทุกอุปกรณ์</p>
-          
-          {/* Search Bar */}
-          <div className="relative w-full mb-6">
-            <input
-              type="text"
-              placeholder="ค้นหาค่าวัดคุณภาพ..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full h-11 pl-10 pr-4 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-slate-400"
-            />
-            <Search
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-500"
-              width="16"
-              height="16"
-            />
-          </div>
-
-          {/* Measurement Categories */}
-          {Object.entries(measurementTypes).map(([category, measurements]) => {
-            const filteredMeasurements = filterMeasurements(measurements);
-            if (filteredMeasurements.length === 0) return null;
-            
-            const categoryName = categoryNames[category as keyof typeof categoryNames];
-            const gradientColor = categoryColors[category as keyof typeof categoryColors];
-            
-            return (
-              <div key={category} className="mb-8">
-                <div className="flex items-center mb-4">
-                  <div className={`h-6 w-1.5 rounded-full bg-gradient-to-b ${gradientColor} mr-2`}></div>
-                  <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">{categoryName}</h2>
-                </div>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                  {filteredMeasurements.map(symbol => {
-                    const thaiName = getMeasurementThaiName(symbol);
-                    const iconColor = iconColors[symbol as keyof typeof iconColors] || "#333333";
-                    
-                    return (
-                      <Link
-                        key={symbol}
-                        to={`/measurement-detail/${symbol}`}
-                        className="block"
-                      >
-                        <Card className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-lg dark:hover:shadow-emerald-700/20 transition-shadow hover:border-emerald-300 dark:hover:border-emerald-600">
-                          <div className="flex items-center">
-                            <div 
-                              className="h-10 w-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0 dark:border dark:border-slate-600"
-                              style={{ backgroundColor: `${iconColor}25` }} // 25 is hex for 15% opacity
-                            >
-                              <div 
-                                className="h-5 w-5 rounded-full"
-                                style={{ backgroundColor: iconColor }}
-                              ></div>
-                            </div>
-                            <div className="flex-1">
-                              <h3 className="font-medium text-gray-800 dark:text-gray-100">{thaiName}</h3>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">{symbol}</p>
-                            </div>
-                            <div className="text-emerald-600 dark:text-emerald-400 flex items-center">
-                              <Wheat className="h-5 w-5" />
-                            </div>
-                          </div>
-                        </Card>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-          
-          {/* Empty State */}
-          {Object.values(measurementTypes).every(measurements => 
-            filterMeasurements(measurements).length === 0
-          ) && (
-            <div className="py-10 text-center">
-              <p className="text-gray-500 dark:text-gray-400">ไม่พบค่าวัดคุณภาพที่ตรงกับการค้นหา</p>
-            </div>
-          )}
+      <div className="bg-white dark:bg-slate-800/90 dark:backdrop-blur-sm rounded-lg shadow-md dark:shadow-slate-700/50 p-6">
+        <h1 className="text-2xl font-bold text-emerald-700 dark:text-emerald-300 mb-4">ค่าวัดคุณภาพ</h1>
+        <p className="text-gray-600 dark:text-gray-300 mb-6">เลือกค่าวัดคุณภาพที่ต้องการดูข้อมูลจากทุกอุปกรณ์</p>
+        
+        {/* Search Bar */}
+        <div className="relative w-full mb-6">
+          <input
+            type="text"
+            placeholder="ค้นหาค่าวัดคุณภาพ..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full h-11 pl-10 pr-4 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-slate-400"
+          />
+          <Search
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-500"
+            width="16"
+            height="16"
+          />
         </div>
-      </main>
 
-      {/* Footer navigation */}
-      <FooterNav />
-    </div>
+        {/* Measurement Categories */}
+        {Object.entries(measurementTypes).map(([category, measurements]) => {
+          const filteredMeasurements = filterMeasurements(measurements);
+          if (filteredMeasurements.length === 0) return null;
+          
+          const categoryName = categoryNames[category as keyof typeof categoryNames];
+          const gradientColor = categoryColors[category as keyof typeof categoryColors];
+          
+          return (
+            <div key={category} className="mb-8">
+              <div className="flex items-center mb-4">
+                <div className={`h-6 w-1.5 rounded-full bg-gradient-to-b ${gradientColor} mr-2`}></div>
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">{categoryName}</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                {filteredMeasurements.map(symbol => {
+                  const thaiName = getMeasurementThaiName(symbol);
+                  const iconColor = iconColors[symbol as keyof typeof iconColors] || "#333333";
+                  
+                  return (
+                    <Link
+                      key={symbol}
+                      to={`/measurement-detail/${symbol}`}
+                      className="block"
+                    >
+                      <Card className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-lg dark:hover:shadow-emerald-700/20 transition-shadow hover:border-emerald-300 dark:hover:border-emerald-600">
+                        <div className="flex items-center">
+                          <div 
+                            className="h-10 w-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0 dark:border dark:border-slate-600"
+                            style={{ backgroundColor: `${iconColor}25` }} // 15% opacity
+                          >
+                            <div 
+                              className="h-5 w-5 rounded-full"
+                              style={{ backgroundColor: iconColor }}
+                            ></div>
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-medium text-gray-800 dark:text-gray-100">{thaiName}</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{symbol}</p>
+                          </div>
+                          <div className="text-emerald-600 dark:text-emerald-400 flex items-center">
+                            <Wheat className="h-5 w-5" />
+                          </div>
+                        </div>
+                      </Card>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+        
+        {/* Empty State */}
+        {Object.values(measurementTypes).every(measurements => 
+          filterMeasurements(measurements).length === 0
+        ) && (
+          <div className="py-10 text-center">
+            <p className="text-gray-500 dark:text-gray-400">ไม่พบค่าวัดคุณภาพที่ตรงกับการค้นหา</p>
+          </div>
+        )}
+      </div> {/* Closing the content wrapper div */}
+    </AppLayout>
   );
 }
