@@ -107,7 +107,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   // Open the notification settings dialog for this specific item
   const handleBackgroundClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the parent onClick
-    navigate('/settings/notifications'); // Navigate to the custom notifications page
+    setIsDialogOpen(true); // Open the dialog for this specific notification
   };
 
   return (

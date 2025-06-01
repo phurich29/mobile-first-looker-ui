@@ -1,76 +1,109 @@
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/components/AuthProvider";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { Sidebar } from "@/components/Sidebar";
-import Index from "./pages/Index";
-import DeviceDetails from "./pages/DeviceDetails";
-import MeasurementHistoryPage from "./pages/MeasurementHistoryPage";
-import UserManagementPage from "./pages/UserManagementPage";
-import NewsManagementPage from "./pages/NewsManagementPage";
-import DeviceManagementPage from "./pages/DeviceManagementPage";
-import NotificationHistoryPage from "./pages/NotificationHistoryPage";
-import SettingsPage from "./pages/SettingsPage";
-import GraphMonitorPage from "./pages/GraphMonitorPage";
-import MeasurementDetailPage from "./pages/MeasurementDetailPage";
-import PublicDashboardPage from "./pages/PublicDashboardPage";
-import PublicDeviceDetails from "./pages/PublicDeviceDetails";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: (failureCount, error: any) => {
-        // Don't retry on auth errors
-        if (error?.message?.includes('JWT') || 
-            error?.message?.includes('refresh_token') ||
-            error?.message?.includes('unauthorized')) {
-          return false;
-        }
-        // Retry up to 2 times for other errors
-        return failureCount < 2;
-      },
-      staleTime: 30000, // 30 seconds
-    },
-    mutations: {
-      retry: false, // Don't retry mutations
-    }
-  }
-});
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Index from "./pages/Index";
+import Login from "./pages/Login";
+import Equipment from "./pages/Equipment";
+import NotFound from "./pages/NotFound";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import DeviceDetails from "./pages/DeviceDetails";
+import Measurements from "./pages/Measurements";
+import { AuthProvider } from "./components/AuthProvider";
+import Profile from "./pages/Profile";
+import Waiting from "./pages/Waiting";
+import Admin from "./pages/Admin";
+import { Toaster } from "@/components/ui/toaster";
+import UserManagement from "./pages/UserManagement";
+import DeviceManagement from "./pages/DeviceManagement";
+import RicePrices from "./pages/RicePrices";
+import RicePriceManagement from "./pages/RicePriceManagement";
+import NewsManagement from "./pages/NewsManagement";
+import News from "./pages/News";
+import NotificationSettings from "./pages/notification-settings";
+import NotificationHistory from "./pages/NotificationHistory";
+import GraphMonitor from "./pages/GraphMonitor";
+import GraphSummary from "./pages/GraphSummary";
+import GraphSummaryDetail from "./pages/GraphSummaryDetail";
+import { CountdownProvider } from "./contexts/CountdownContext";
+import { toast } from "@/components/ui/use-toast";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ThemeProvider } from "./components/theme/ThemeProvider";
+import NewQualityMeasurements from "./pages/NewQualityMeasurements";
+import MeasurementDetail from "./pages/MeasurementDetail";
+import MeasurementHistory from "./components/measurement-history/MeasurementHistory";
 
 function App() {
+  // Create a client
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: 1,
+        refetchOnWindowFocus: false,
+      },
+    },
+  });
+
+  const handleGlobalCountdownComplete = () => {
+    console.log("Global countdown complete - triggering refresh or other actions");
+    // This function will be called every minute (60 seconds) globally
+    toast({
+      title: "ระบบกำลังอัปเดตข้อมูล",
+      description: "ระบบได้ทำการอัปเดตข้อมูลล่าสุดจากเซิร์ฟเวอร์",
+      duration: 3000,
+    });
+    
+    // Invalidate queries that should refresh on the global timer
+    queryClient.invalidateQueries({ queryKey: ['notifications'] });
+  };
+
   return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <BrowserRouter>
-              <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50">
-                <Sidebar />
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/device/:deviceCode" element={<DeviceDetails />} />
-                  <Route path="/measurement-history/:deviceCode/:symbol" element={<MeasurementHistoryPage />} />
-                  <Route path="/user-management" element={<UserManagementPage />} />
-                  <Route path="/news-management" element={<NewsManagementPage />} />
-                  <Route path="/device-management" element={<DeviceManagementPage />} />
-                  <Route path="/notification-history" element={<NotificationHistoryPage />} />
-                  <Route path="/settings/*" element={<SettingsPage />} />
-                  <Route path="/graph-monitor" element={<GraphMonitorPage />} />
-                  <Route path="/measurement-detail/:measurementSymbol" element={<MeasurementDetailPage />} />
-                  
-                  {/* Public Dashboard Routes */}
-                  <Route path="/public-dashboard" element={<PublicDashboardPage />} />
-                  <Route path="/public-device/:deviceCode" element={<PublicDeviceDetails />} />
-                </Routes>
-              </div>
-            </BrowserRouter>
-          </TooltipProvider>
-        </AuthProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="light">
+        <Router>
+          <CountdownProvider initialSeconds={60} onComplete={handleGlobalCountdownComplete}>
+            <AuthProvider>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/waiting" element={<ProtectedRoute><Waiting /></ProtectedRoute>} />
+                
+                {/* Public routes */}
+                <Route path="/" element={<Index />} />
+                <Route path="/news" element={<News />} />
+                <Route path="/rice-prices" element={<RicePrices />} />
+                
+                {/* Protected routes */}
+                <Route path="/equipment" element={<ProtectedRoute><Equipment /></ProtectedRoute>} />
+                <Route path="/measurements" element={<ProtectedRoute><Measurements /></ProtectedRoute>} />
+                <Route path="/device/:deviceCode" element={<ProtectedRoute><DeviceDetails /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                <Route path="/graph-monitor" element={<ProtectedRoute><GraphMonitor /></ProtectedRoute>} />
+                <Route path="/graph-summary" element={<ProtectedRoute><GraphSummary /></ProtectedRoute>} />
+                <Route path="/graph-summary-detail" element={<ProtectedRoute><GraphSummaryDetail /></ProtectedRoute>} />
+                
+                {/* Add missing routes for quality measurements */}
+                <Route path="/new-quality-measurements" element={<ProtectedRoute><NewQualityMeasurements /></ProtectedRoute>} />
+                <Route path="/measurement-detail/:measurementSymbol" element={<ProtectedRoute><MeasurementDetail /></ProtectedRoute>} />
+                <Route path="/measurement-history/:deviceCode/:symbol" element={<ProtectedRoute><MeasurementHistory /></ProtectedRoute>} />
+                
+                {/* Admin routes */}
+                <Route path="/admin" element={<ProtectedRoute requiredRoles={["admin"]}><Admin /></ProtectedRoute>} />
+                <Route path="/user-management" element={<ProtectedRoute requiredRoles={["admin"]}><UserManagement /></ProtectedRoute>} />
+                <Route path="/device-management" element={<ProtectedRoute requiredRoles={["admin"]}><DeviceManagement /></ProtectedRoute>} />
+                <Route path="/rice-price-management" element={<ProtectedRoute requiredRoles={["admin"]}><RicePriceManagement /></ProtectedRoute>} />
+                <Route path="/news-management" element={<ProtectedRoute requiredRoles={["admin"]}><NewsManagement /></ProtectedRoute>} />
+                
+                {/* Notification routes */}
+                <Route path="/notifications" element={<ProtectedRoute><NotificationSettings /></ProtectedRoute>} />
+                <Route path="/notification-history" element={<ProtectedRoute><NotificationHistory /></ProtectedRoute>} />
+                
+                {/* 404 route */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <Toaster />
+            </AuthProvider>
+          </CountdownProvider>
+        </Router>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 
