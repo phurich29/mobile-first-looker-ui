@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import { BackgroundImage } from "@/components/graph-monitor/BackgroundImage";
 import { Header } from "@/components/Header";
 import { FooterNav } from "@/components/FooterNav";
 import { Search, Wheat } from "lucide-react";
@@ -67,6 +68,7 @@ const iconColors = {
 };
 
 export default function NewQualityMeasurements() {
+  // const isMobile = useIsMobile(); // Potentially needed if sidebar collapse logic is fully replicated
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -81,13 +83,14 @@ export default function NewQualityMeasurements() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 md:ml-64">
+    <div className="flex flex-col min-h-screen relative overflow-x-hidden md:ml-64 dark:bg-slate-950">
+      <BackgroundImage />
       <Header />
 
-      <main className="flex-1 p-4 pb-32">
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-4">
-          <h1 className="text-2xl font-bold text-emerald-800 mb-4">ค่าวัดคุณภาพ</h1>
-          <p className="text-gray-600 mb-6">เลือกค่าวัดคุณภาพที่ต้องการดูข้อมูลจากทุกอุปกรณ์</p>
+      <main className="flex-1 p-4 pb-24 relative z-10">
+        <div className="bg-white dark:bg-slate-800/90 dark:backdrop-blur-sm rounded-lg shadow-md dark:shadow-slate-700/50 p-6 mb-4">
+          <h1 className="text-2xl font-bold text-emerald-700 dark:text-emerald-300 mb-4">ค่าวัดคุณภาพ</h1>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">เลือกค่าวัดคุณภาพที่ต้องการดูข้อมูลจากทุกอุปกรณ์</p>
           
           {/* Search Bar */}
           <div className="relative w-full mb-6">
@@ -96,10 +99,10 @@ export default function NewQualityMeasurements() {
               placeholder="ค้นหาค่าวัดคุณภาพ..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full h-11 pl-10 pr-4 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+              className="w-full h-11 pl-10 pr-4 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-slate-400"
             />
             <Search
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-500"
               width="16"
               height="16"
             />
@@ -117,7 +120,7 @@ export default function NewQualityMeasurements() {
               <div key={category} className="mb-8">
                 <div className="flex items-center mb-4">
                   <div className={`h-6 w-1.5 rounded-full bg-gradient-to-b ${gradientColor} mr-2`}></div>
-                  <h2 className="text-lg font-semibold text-gray-800">{categoryName}</h2>
+                  <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">{categoryName}</h2>
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
@@ -131,10 +134,10 @@ export default function NewQualityMeasurements() {
                         to={`/measurement-detail/${symbol}`}
                         className="block"
                       >
-                        <Card className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow hover:border-emerald-300">
+                        <Card className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-lg dark:hover:shadow-emerald-700/20 transition-shadow hover:border-emerald-300 dark:hover:border-emerald-600">
                           <div className="flex items-center">
                             <div 
-                              className="h-10 w-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0"
+                              className="h-10 w-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0 dark:border dark:border-slate-600"
                               style={{ backgroundColor: `${iconColor}25` }} // 25 is hex for 15% opacity
                             >
                               <div 
@@ -143,10 +146,10 @@ export default function NewQualityMeasurements() {
                               ></div>
                             </div>
                             <div className="flex-1">
-                              <h3 className="font-medium text-gray-800">{thaiName}</h3>
-                              <p className="text-xs text-gray-500">{symbol}</p>
+                              <h3 className="font-medium text-gray-800 dark:text-gray-100">{thaiName}</h3>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{symbol}</p>
                             </div>
-                            <div className="text-emerald-600 flex items-center">
+                            <div className="text-emerald-600 dark:text-emerald-400 flex items-center">
                               <Wheat className="h-5 w-5" />
                             </div>
                           </div>
@@ -164,14 +167,11 @@ export default function NewQualityMeasurements() {
             filterMeasurements(measurements).length === 0
           ) && (
             <div className="py-10 text-center">
-              <p className="text-gray-500">ไม่พบค่าวัดคุณภาพที่ตรงกับการค้นหา</p>
+              <p className="text-gray-500 dark:text-gray-400">ไม่พบค่าวัดคุณภาพที่ตรงกับการค้นหา</p>
             </div>
           )}
         </div>
       </main>
-
-      {/* Add space to prevent content from being hidden behind footer */}
-      <div className="pb-32"></div>
 
       {/* Footer navigation */}
       <FooterNav />

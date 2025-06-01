@@ -125,9 +125,9 @@ export function EquipmentCard({
           </div>
         </CardHeader>
         <CardContent className="p-4 pt-0">
-          <div className="text-xs text-gray-600 dark:text-gray-300">
+          <div className="text-xs text-gray-600 dark:text-slate-400">
             <p className="mb-0.5">อัพเดทล่าสุด:</p>
-            <p className="font-medium text-gray-800 dark:text-gray-100">{formattedTime}</p>
+            <p className="font-medium text-gray-800 dark:text-teal-200">{formattedTime}</p>
           </div>
           
           <div className="flex flex-col gap-2 mt-3">

@@ -65,21 +65,21 @@ export const NotificationSettingCard = ({
   
   return (
     <>
-      <div className="bg-white rounded-lg shadow-sm border-2 border-black p-4 flex justify-between w-full">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 p-4 flex justify-between w-full dark:bg-slate-800 dark:shadow-lg">
         {/* ส่วนด้านซ้าย */}
         <div className="flex-1 mr-6">
           <div className="flex items-center gap-2 mb-2">
             <div className="overflow-hidden">
-              <h3 className="font-medium text-black text-sm truncate">
+              <h3 className="font-medium text-black dark:text-slate-100 text-sm truncate">
                 {setting.device_name || setting.device_code}
               </h3>
-              <p className="text-sm text-black truncate mt-1">{setting.rice_type_name}</p>
+              <p className="text-sm text-black dark:text-slate-300 truncate mt-1">{setting.rice_type_name}</p>
             </div>
             <Button 
               variant="ghost" 
               size="sm"
               onClick={handleEdit}
-              className="text-emerald-600 hover:text-emerald-700 p-1 h-auto min-w-[40px] text-xs ml-1"
+              className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 p-1 h-auto min-w-[40px] text-xs ml-1"
             >
               แก้ไข
             </Button>
@@ -88,18 +88,18 @@ export const NotificationSettingCard = ({
           <div className="border-t border-gray-100 pt-2 mt-2 text-sm space-y-2">
             {setting.max_enabled && (
               <p className="flex items-center gap-2">
-                <span className="text-black font-medium">เตือนเมื่อสูงกว่า:</span>
-                <span className="font-bold text-red-600 text-base">{setting.max_threshold}</span>
+                <span className="text-black dark:text-slate-300 font-medium">เตือนเมื่อสูงกว่า:</span>
+                <span className="font-bold text-red-600 dark:text-red-400 text-base">{setting.max_threshold}</span>
               </p>
             )}
             {setting.min_enabled && (
               <p className="flex items-center gap-2">
-                <span className="text-black font-medium">เตือนเมื่อต่ำกว่า:</span>
-                <span className="font-bold text-amber-600 text-base">{setting.min_threshold}</span>
+                <span className="text-black dark:text-slate-300 font-medium">เตือนเมื่อต่ำกว่า:</span>
+                <span className="font-bold text-amber-600 dark:text-amber-400 text-base">{setting.min_threshold}</span>
               </p>
             )}
             {!setting.max_enabled && !setting.min_enabled && (
-              <p className="text-black italic text-sm">ไม่มีเกณฑ์การแจ้งเตือน</p>
+              <p className="text-black dark:text-slate-400 italic text-sm">ไม่มีเกณฑ์การแจ้งเตือน</p>
             )}
           </div>
         </div>
@@ -118,7 +118,7 @@ export const NotificationSettingCard = ({
             )}
           </div>
           {/* เพิ่มข้อความ ON/OFF ด้านล่าง */}
-          <span className={`mt-2 text-xs font-bold ${isEnabled ? 'text-emerald-600' : 'text-gray-900'}`}>
+          <span className={`mt-2 text-xs font-bold ${isEnabled ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-900 dark:text-slate-400'}`}>
             {isEnabled ? 'ON' : 'OFF'}
           </span>
         </div>
