@@ -28,9 +28,19 @@ const NotificationValue: React.FC<NotificationValueProps> = ({
           <p className="font-medium text-xs text-gray-500 dark:text-gray-400 leading-tight">
             {formatTime(latestTimestamp)}
           </p>
-          <p className={`font-medium text-sm ${isAlertActive ? 'text-red-600 dark:text-red-400 font-bold value-blink' : 'text-green-600 dark:text-green-400'} leading-tight`}>
-            {latestValue.toFixed(1)}%
-          </p>
+          <div className="flex items-center space-x-1">
+            {/* Notification type text on the left of percentage */}
+            {enabled && (
+              <div className="text-[10px] text-orange-600 dark:text-orange-400 font-medium">
+                {type === 'min' ? `เตือนเมื่อต่ำกว่า ${threshold}` : 
+                 type === 'max' ? `เตือนเมื่อสูงกว่า ${threshold}` : 
+                 `เตือนเมื่อนอกช่วง ${threshold}`}
+              </div>
+            )}
+            <p className={`font-medium text-sm ${isAlertActive ? 'text-red-600 dark:text-red-400 font-bold value-blink' : 'text-green-600 dark:text-green-400'} leading-tight`}>
+              {latestValue.toFixed(1)}%
+            </p>
+          </div>
         </>
       )}
       

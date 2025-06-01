@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getLatestMeasurement } from "../measurement-history/api";
@@ -153,14 +152,6 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
             type={type}
             isAlertActive={isAlertActive}
           />
-          {/* Move notification type text here to the right side */}
-          {enabled && (
-            <div className="text-[10px] text-orange-600 dark:text-orange-400 font-medium mt-0.5">
-              {type === 'min' ? `เตือนเมื่อต่ำกว่า ${threshold}%` : 
-               type === 'max' ? `เตือนเมื่อสูงกว่า ${threshold}%` : 
-               `เตือนเมื่อนอกช่วง ${threshold}%`}
-            </div>
-          )}
         </div>
       </div>
 
