@@ -472,8 +472,16 @@ export type Database = {
         Args: { user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
       }
+      has_device_access: {
+        Args: { device_code_param: string }
+        Returns: boolean
+      }
       has_role: {
         Args: { user_id: string; role: Database["public"]["Enums"]["app_role"] }
+        Returns: boolean
+      }
+      is_admin_or_superadmin: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
     }
