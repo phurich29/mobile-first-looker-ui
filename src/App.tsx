@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { CountdownProvider } from "@/contexts/CountdownContext";
 import Index from "./pages/Index";
 import DeviceDetails from "./pages/DeviceDetails";
 import UserManagement from "./pages/UserManagement";
@@ -40,23 +41,25 @@ function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <BrowserRouter>
-              <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50">
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/device/:deviceCode" element={<DeviceDetails />} />
-                  <Route path="/user-management" element={<UserManagement />} />
-                  <Route path="/news-management" element={<NewsManagement />} />
-                  <Route path="/device-management" element={<DeviceManagement />} />
-                  <Route path="/notification-history" element={<NotificationHistory />} />
-                  <Route path="/graph-monitor" element={<GraphMonitor />} />
-                  <Route path="/measurement-detail/:measurementSymbol" element={<MeasurementDetail />} />
-                </Routes>
-              </div>
-            </BrowserRouter>
-          </TooltipProvider>
+          <CountdownProvider initialSeconds={60}>
+            <TooltipProvider>
+              <Toaster />
+              <BrowserRouter>
+                <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50">
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/device/:deviceCode" element={<DeviceDetails />} />
+                    <Route path="/user-management" element={<UserManagement />} />
+                    <Route path="/news-management" element={<NewsManagement />} />
+                    <Route path="/device-management" element={<DeviceManagement />} />
+                    <Route path="/notification-history" element={<NotificationHistory />} />
+                    <Route path="/graph-monitor" element={<GraphMonitor />} />
+                    <Route path="/measurement-detail/:measurementSymbol" element={<MeasurementDetail />} />
+                  </Routes>
+                </div>
+              </BrowserRouter>
+            </TooltipProvider>
+          </CountdownProvider>
         </AuthProvider>
       </QueryClientProvider>
     </ErrorBoundary>
