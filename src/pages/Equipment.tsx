@@ -1,6 +1,4 @@
 
-import { Header } from "@/components/Header";
-import { FooterNav } from "@/components/FooterNav";
 import { AddDeviceForm } from "@/components/device-management/AddDeviceForm";
 import { DatabaseTable } from "@/components/DatabaseTable";
 import { useDeviceData, DevicesHeader, DevicesGrid } from "@/features/equipment";
@@ -48,12 +46,9 @@ export default function Equipment() {
       window.removeEventListener('sidebarStateChanged', updateSidebarState);
     };
   }, []);
-  
-  // สำหรับ desktop เท่านั้น mobile จะไม่มีการปรับ margin
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-950 overflow-x-hidden">
-      <Header />
       <main className={cn(
         "flex-1 p-4 pb-32 md:pb-16 md:mx-auto md:max-w-5xl md:px-8 w-full transition-all duration-300",
         // สำหรับหน้าจอ desktop ให้มี margin-left ที่เปลี่ยนตาม sidebar
@@ -103,8 +98,6 @@ export default function Equipment() {
           </div>
         )}
       </main>
-
-      <FooterNav />
     </div>
   );
 }
