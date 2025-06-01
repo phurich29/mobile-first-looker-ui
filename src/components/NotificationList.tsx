@@ -33,7 +33,7 @@ export const NotificationList = () => {
   const renderSkeletons = () => (
     <div className="space-y-2">
       {[...Array(3)].map((_, i) => (
-        <div key={i} className="flex items-center justify-between py-3 px-3 border-b border-gray-100 bg-gray-50">
+        <div key={i} className="flex items-center justify-between py-3 px-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
           <div className="flex items-start space-x-3 w-[60%]">
             <Skeleton className="h-10 w-10 rounded-full" />
             <div className="space-y-2">
@@ -63,10 +63,10 @@ export const NotificationList = () => {
     <>
       <div className="px-[5%] mb-3 flex justify-between items-center md:px-0" style={{ width: '100%', boxSizing: 'border-box' }}>
         <div>
-          <h2 className="font-semibold text-gray-700">
+          <h2 className="font-semibold text-gray-700 dark:text-white">
             {user ? "การแจ้งเตือนที่กำหนดไว้" : "ตัวอย่างการแจ้งเตือน"}
           </h2>
-          <p className="text-xs text-gray-500 flex items-center">
+          <p className="text-xs text-gray-500 dark:text-gray-300 flex items-center">
             อัพเดทล่าสุด: {formatRefreshTime()}
             {isFetching && !loading && (
               <span className="ml-2 inline-block animate-spin">
@@ -106,13 +106,13 @@ export const NotificationList = () => {
       </div>
 
       <div 
-        className={`bg-white ${!isMobile && 'rounded-xl shadow-sm'} cursor-pointer`} 
+        className={`bg-white dark:bg-gray-800 ${!isMobile && 'rounded-xl shadow-sm'} cursor-pointer`} 
         onClick={handleNavigateToSettings}
       >
         {loading ? (
           renderSkeletons()
         ) : notifications.length === 0 ? (
-          <div className="text-center py-6 text-gray-500">
+          <div className="text-center py-6 text-gray-500 dark:text-gray-400">
             ยังไม่มีการแจ้งเตือนที่กำหนดไว้
           </div>
         ) : (

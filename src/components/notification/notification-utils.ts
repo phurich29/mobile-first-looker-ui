@@ -3,9 +3,9 @@ import { format } from "date-fns";
 
 // Helper function to get background color based on notification type
 export const getNotificationBgColor = (type: 'min' | 'max' | 'both'): string => {
-  if (type === 'min') return 'bg-blue-50';
-  if (type === 'max') return 'bg-orange-50';
-  return 'bg-purple-50'; // both
+  if (type === 'min') return 'bg-blue-50 dark:bg-blue-900/40';
+  if (type === 'max') return 'bg-orange-50 dark:bg-orange-900/40';
+  return 'bg-purple-50 dark:bg-purple-900/40'; // both
 };
 
 // Helper function to get icon color based on notification type

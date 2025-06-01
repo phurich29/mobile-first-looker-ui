@@ -114,11 +114,11 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
     <>
       <div 
         onClick={handleClick}
-        className={`flex items-center justify-between py-3 px-3 border-b border-gray-100 ${getNotificationBgColor(type)} hover:brightness-95 transition-all duration-300 relative overflow-hidden cursor-pointer active:bg-gray-100`}
+        className={`flex items-center justify-between py-3 px-3 border-b border-gray-100 dark:border-gray-700 ${getNotificationBgColor(type)} hover:brightness-95 transition-all duration-300 relative overflow-hidden cursor-pointer active:bg-gray-100 dark:active:bg-gray-700`}
       >
         {/* Background layer - now opens settings dialog for this notification */}
         <div 
-          className="absolute inset-0 w-full h-full bg-white opacity-80 cursor-pointer"
+          className="absolute inset-0 w-full h-full bg-white dark:bg-gray-800 opacity-80 dark:opacity-60 cursor-pointer"
           onClick={handleBackgroundClick}
         ></div>
         
@@ -135,12 +135,12 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
           />
           <div className="min-w-0 h-full flex items-center">
             <div className="flex flex-col justify-center space-y-1">
-              <h3 className="font-medium text-sm text-gray-800 truncate">{name}</h3>
+              <h3 className="font-medium text-sm text-gray-800 dark:text-gray-100 truncate">{name}</h3>
               <div className="flex items-center">
-                <span className="text-xs text-gray-500 truncate">{deviceName}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 truncate">{deviceName}</span>
                 {/* Add notification type text here with consistent styling */}
                 {enabled && (
-                  <div className="text-[10px] text-orange-600 font-medium ml-1">
+                  <div className="text-[10px] text-orange-600 dark:text-orange-400 font-medium ml-1">
                     {type === 'min' ? `เตือนเมื่อต่ำกว่า ${threshold}%` : 
                      type === 'max' ? `เตือนเมื่อสูงกว่า ${threshold}%` : 
                      `เตือนเมื่อนอกช่วง ${threshold}%`}

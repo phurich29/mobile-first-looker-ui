@@ -97,18 +97,18 @@ export function EquipmentCard({
   
   return (
     <>
-      <Card className="hover:shadow-lg transition-shadow duration-300">
+      <Card className="hover:shadow-lg transition-shadow duration-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
         <CardHeader className="pb-1 p-4">
           <div className="flex items-start justify-between">
             <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-2">
               <img src={equipmentIcon} alt="อุปกรณ์" className="w-10 h-10" />
             </div>
-            <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full font-medium">
+            <span className="text-xs bg-amber-100 dark:bg-amber-800 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full font-medium">
               อุปกรณ์
             </span>
           </div>
           <div className="flex justify-between items-start">
-            <CardTitle className="text-base font-bold">{displayName || deviceCode}</CardTitle>
+            <CardTitle className="text-base font-bold text-gray-900 dark:text-white">{displayName || deviceCode}</CardTitle>
             {isAdmin && (
               <Button 
                 variant="ghost" 
@@ -120,21 +120,21 @@ export function EquipmentCard({
               </Button>
             )}
           </div>
-          <div className="text-xs text-gray-500 mt-1">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             รหัส: {deviceCode}
           </div>
         </CardHeader>
         <CardContent className="p-4 pt-0">
-          <div className="text-xs text-gray-600">
+          <div className="text-xs text-gray-600 dark:text-gray-300">
             <p className="mb-0.5">อัพเดทล่าสุด:</p>
-            <p className="font-medium">{formattedTime}</p>
+            <p className="font-medium text-gray-800 dark:text-gray-100">{formattedTime}</p>
           </div>
           
           <div className="flex flex-col gap-2 mt-3">
             <Button 
               variant="outline" 
               size="sm"
-              className="w-full text-xs"
+              className="w-full text-xs border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
               asChild
             >
               <Link to={`/device/${deviceCode}`}>
@@ -147,7 +147,7 @@ export function EquipmentCard({
               <Button
                 variant="secondary"
                 size="sm"
-                className="w-full text-xs"
+                className="w-full text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600"
                 onClick={() => setIsUsersDialogOpen(true)}
               >
                 จัดการสิทธิ์

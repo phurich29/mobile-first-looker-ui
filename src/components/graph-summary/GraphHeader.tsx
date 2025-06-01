@@ -34,13 +34,15 @@ export const GraphHeader: React.FC<GraphHeaderProps> = ({
         </div>
         
         <Popover open={helpOpen} onOpenChange={setHelpOpen}>
-          <PopoverTrigger>
-            <button 
-              className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full"
               aria-label="คำแนะนำการใช้งาน"
             >
-              <Info className="h-4 w-4 text-gray-500" />
-            </button>
+              <Info className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+            </Button>
           </PopoverTrigger>
           <PopoverContent className="w-80 p-3">
             <div className="space-y-2">

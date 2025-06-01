@@ -42,7 +42,10 @@ export const CountdownProvider: React.FC<CountdownProviderProps> = ({
   const reset = () => {
     setSeconds(initialSeconds);
     if (onCompleteRef.current) {
-      onCompleteRef.current();
+      const callback = onCompleteRef.current;
+      setTimeout(() => {
+        callback();
+      }, 0);
     }
     setLastCompleteTime(Date.now());
   };
@@ -54,7 +57,10 @@ export const CountdownProvider: React.FC<CountdownProviderProps> = ({
           if (currentSeconds <= 1) {
             // When we reach zero, call onComplete and reset
             if (onCompleteRef.current) {
-              onCompleteRef.current();
+              const callback = onCompleteRef.current; // เก็บ reference ของ callback ปัจจุบันไว้
+              setTimeout(() => {
+                callback(); // เรียก callback หลังจาก React update cycle ปัจจุบันเสร็จสิ้น
+              }, 0);
             }
             setLastCompleteTime(Date.now());
             return initialSeconds;

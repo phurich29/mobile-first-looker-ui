@@ -15,7 +15,7 @@ const MenuItem = ({
   iconColor
 }: MenuItemProps) => {
   const isMobile = useIsMobile();
-  return <Link to={to} className="flex flex-col items-center justify-center p-2 hover:opacity-80 transition-all duration-300 bg-white rounded-xl shadow-sm border border-gray-100 px-4">
+  return <Link to={to} className="flex flex-col items-center justify-center p-2 hover:opacity-80 transition-all duration-300 bg-white dark:bg-gray-700 rounded-xl shadow-sm border border-gray-100 dark:border-gray-600 px-4">
       <div className={`w-12 h-12 flex items-center justify-center ${!isMobile && 'mr-2'}`}>
         {React.cloneElement(icon as React.ReactElement, {
         size: isMobile ? 28 : 24,
@@ -23,7 +23,7 @@ const MenuItem = ({
         strokeWidth: 2.5
       })}
       </div>
-      <span className={`text-xs text-gray-700 font-medium text-center mt-1 ${!isMobile && 'text-sm'}`}>{label}</span>
+      <span className={`text-xs text-gray-700 dark:text-white font-medium text-center mt-1 ${!isMobile && 'text-sm'}`}>{label}</span>
     </Link>;
 };
 export const IconMenu = () => {
@@ -46,7 +46,7 @@ export const IconMenu = () => {
   }];
   return <div className="px-4 mb-6">
       <div className="px-[5%] mb-3 flex justify-between items-center md:px-0">
-        <h2 className="font-semibold text-gray-700 border-b-2 border-[#f7cd56] inline-block pb-1">รายการแนะนำ</h2>
+        <h2 className="font-semibold text-gray-700 dark:text-white border-b-2 border-[#f7cd56] inline-block pb-1">รายการแนะนำ</h2>
         <div className="flex items-center relative">
           {/* Wheat icon group with varied sizes and positions */}
           <Wheat className="text-amber-400 absolute -top-3 -left-8" size={16} strokeWidth={2.5} />
@@ -56,7 +56,7 @@ export const IconMenu = () => {
           <Wheat className="text-yellow-600 absolute -bottom-2 -right-3" size={12} strokeWidth={2.5} />
         </div>
       </div>
-      <div className={`rounded-lg p-3 ${isMobile ? 'grid grid-cols-3' : 'flex flex-wrap'} gap-2 md:bg-gray-50 md:p-6`}>
+      <div className={`rounded-lg p-3 ${isMobile ? 'grid grid-cols-3' : 'flex flex-wrap'} gap-2 md:bg-gray-50 md:dark:bg-gray-800 md:p-6`}>
         {menuItems.map((item, index) => <MenuItem key={index} icon={item.icon} label={item.label} to={item.to} iconColor={item.iconColor} />)}
       </div>
     </div>;
