@@ -14,6 +14,7 @@ export const ROUTES = {
   MEASUREMENTS: '/measurements',
   NEW_QUALITY_MEASUREMENTS: '/new-quality-measurements',
   DEVICE_DETAILS: (deviceCode: string) => `/device/${deviceCode}`,
+  DEVICE_MEASUREMENT_HISTORY: (deviceCode: string, symbol: string) => `/device/${deviceCode}/${symbol.toLowerCase().replace(/[^a-z0-9]/g, '')}`,
   MEASUREMENT_DETAIL: (measurementSymbol: string) => `/measurement-detail/${measurementSymbol}`,
   MEASUREMENT_HISTORY: (deviceCode: string, symbol: string) => `/measurement-history/${deviceCode}/${symbol}`,
   

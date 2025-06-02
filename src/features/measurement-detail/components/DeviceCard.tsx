@@ -11,10 +11,17 @@ interface DeviceCardProps {
   measurementSymbol: string | undefined;
 }
 
+// Helper function to convert measurement symbol to URL-friendly format
+const convertMeasurementSymbolToUrl = (symbol: string): string => {
+  return symbol.toLowerCase().replace(/[^a-z0-9]/g, '');
+};
+
 export const DeviceCard: React.FC<DeviceCardProps> = ({ device, measurementSymbol }) => {
+  const urlSymbol = measurementSymbol ? convertMeasurementSymbolToUrl(measurementSymbol) : '';
+  
   return (
     <Link 
-      to={`/measurement-history/${device.deviceCode}/${measurementSymbol}`}
+      to={`/device/${device.deviceCode}/${urlSymbol}`}
       className="block"
     >
       <Card className="p-4 border hover:border-emerald-300 hover:shadow-md transition-all">

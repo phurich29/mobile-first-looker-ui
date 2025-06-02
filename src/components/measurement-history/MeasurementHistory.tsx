@@ -7,8 +7,8 @@ import HistoryFooter from "./HistoryFooter";
 import { NotificationSettingsDialog } from "./notification-settings";
 import { useToast } from "@/hooks/use-toast";
 import { useMeasurementData } from "./hooks/useMeasurementData";
-import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
-import { useIsMobile } from "@/hooks/use-mobile"; // Import useIsMobile
+import { AppLayout } from "@/components/layouts/app-layout";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { getNotificationSettings } from "./api";
 import FilteredDatabaseTable from "./FilteredDatabaseTable";
 
@@ -22,6 +22,71 @@ interface MeasurementHistoryProps {
   onClose?: () => void;
 }
 
+// Helper function to convert URL symbol back to measurement symbol
+const convertUrlSymbolToMeasurementSymbol = (urlSymbol: string): string => {
+  const symbolMap: Record<string, string> = {
+    '70mm': 'class1',
+    'class1': 'class1',
+    'class2': 'class2', 
+    'class3': 'class3',
+    'shortgrain': 'short_grain',
+    'slenderkernel': 'slender_kernel',
+    'wholekernels': 'whole_kernels',
+    'headrice': 'head_rice',
+    'totalbrokens': 'total_brokens',
+    'smallbrokens': 'small_brokens',
+    'smallbrokesc1': 'small_brokens_c1',
+    'redlinerate': 'red_line_rate',
+    'parboiledredline': 'parboiled_red_line',
+    'parboiledwhiterice': 'parboiled_white_rice',
+    'honeyrice': 'honey_rice',
+    'yellowricerate': 'yellow_rice_rate',
+    'blackkernel': 'black_kernel',
+    'partlyblackpeck': 'partly_black_peck',
+    'partlyblack': 'partly_black',
+    'imperfectionrate': 'imperfection_rate',
+    'stickyricerate': 'sticky_rice_rate',
+    'impuritynum': 'impurity_num',
+    'paddyrate': 'paddy_rate',
+    'whiteness': 'whiteness',
+    'processprecision': 'process_precision'
+  };
+  
+  return symbolMap[urlSymbol.toLowerCase()] || urlSymbol;
+};
+
+// Helper function to get measurement name
+const getMeasurementName = (symbol: string): string => {
+  const nameMap: Record<string, string> = {
+    'class1': 'ชั้น 1 (>7.0 mm)',
+    'class2': 'ชั้น 2 (5.5-7.0 mm)',
+    'class3': 'ชั้น 3 (<5.5 mm)',
+    'short_grain': 'เมล็ดสั้น',
+    'slender_kernel': 'เมล็ดยาว',
+    'whole_kernels': 'เมล็ดเต็ม',
+    'head_rice': 'ข้าวหัว',
+    'total_brokens': 'ข้าวหักรวม',
+    'small_brokens': 'ข้าวหักเล็ก',
+    'small_brokens_c1': 'ข้าวหักเล็ก C1',
+    'red_line_rate': 'อัตราเส้นแดง',
+    'parboiled_red_line': 'ข้าวสุกเส้นแดง',
+    'parboiled_white_rice': 'ข้าวสุกขาว',
+    'honey_rice': 'ข้าวน้ำผึ้ง',
+    'yellow_rice_rate': 'อัตราข้าวเหลือง',
+    'black_kernel': 'เมล็ดดำ',
+    'partly_black_peck': 'จุดดำบางส่วน',
+    'partly_black': 'ดำบางส่วน',
+    'imperfection_rate': 'อัตราข้าวด้วย',
+    'sticky_rice_rate': 'อัตราข้าวเหนียว',
+    'impurity_num': 'จำนวนสิ่งปนเปื้อน',
+    'paddy_rate': 'อัตราข้าวเปลือก',
+    'whiteness': 'ความขาว',
+    'process_precision': 'ความแม่นยำกระบวนการ'
+  };
+  
+  return nameMap[symbol] || symbol;
+};
+
 const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({ 
   deviceCode: propDeviceCode, 
   symbol: propSymbol, 
@@ -29,14 +94,15 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
   unit,
   onClose
 }) => {
-  const isMobile = useIsMobile(); // Initialize useIsMobile
+  const isMobile = useIsMobile();
   // Get parameters from URL if not provided as props
   const params = useParams<{ deviceCode: string; symbol: string }>();
   
-  // Use props if available, otherwise use URL parameters
+  // Use props if available, otherwise use URL parameters and convert URL symbol
   const deviceCode = propDeviceCode || params.deviceCode;
-  const symbol = propSymbol || params.symbol;
-  const name = propName || symbol; // If name is not provided, use symbol as fallback
+  const urlSymbol = propSymbol || params.symbol;
+  const symbol = urlSymbol ? convertUrlSymbolToMeasurementSymbol(urlSymbol) : null;
+  const name = propName || (symbol ? getMeasurementName(symbol) : null);
   
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [notificationEnabled, setNotificationEnabled] = useState(false);
@@ -101,14 +167,12 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
     return (
       <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-8'}>
         <div className="flex flex-col flex-1 min-h-full bg-gradient-to-b from-emerald-50 to-gray-50 overflow-x-hidden">
-          {/* Header and FooterNav are handled by AppLayout */}
           <main className="flex-1 p-4 overflow-x-hidden">
             <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 text-center">
               <h3 className="text-lg font-medium text-red-600 mb-2">ข้อมูลไม่ครบถ้วน</h3>
               <p className="text-gray-600">ไม่พบข้อมูลอุปกรณ์หรือค่าที่ต้องการแสดง กรุณาลองใหม่อีกครั้ง</p>
             </div>
           </main>
-          {/* FooterNav is handled by AppLayout */}
         </div>
       </AppLayout>
     );
@@ -117,11 +181,10 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
   return (
     <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-8'}>
       <div className="flex flex-col flex-1 min-h-full bg-gradient-to-b from-emerald-50 to-gray-50 overflow-x-hidden">
-        {/* Header and FooterNav are handled by AppLayout */}
-        <main className="flex-1 overflow-x-hidden"> {/* Removed pb-32 and p-4 */}
+        <main className="flex-1 overflow-x-hidden">
           <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
             <HistoryHeader 
-              name={name}
+              name={name || ''}
               unit={unit}
               average={averageValue}
               onOpenSettings={() => setSettingsOpen(true)}
@@ -147,7 +210,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
               onOpenChange={handleOpenChange}
               deviceCode={deviceCode}
               symbol={symbol}
-              name={name}
+              name={name || ''}
             />
           </div>
           
@@ -165,10 +228,9 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
           <FilteredDatabaseTable 
             deviceCode={deviceCode} 
             symbol={symbol} 
-            name={name} 
+            name={name || ''} 
           />
         </main>
-        {/* Spacer div and FooterNav are handled by AppLayout */}
       </div>
     </AppLayout>
   );

@@ -1,3 +1,4 @@
+
 import { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -135,6 +136,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <DeviceDetails />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "device/:deviceCode/:symbol",
+        element: (
+          <ProtectedRoute>
+            <MeasurementHistory />
           </ProtectedRoute>
         ),
       },
