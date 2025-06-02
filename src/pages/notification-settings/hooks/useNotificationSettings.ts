@@ -14,11 +14,11 @@ export const useNotificationSettings = () => {
     try {
       setLoading(true);
       
-      // Fetch notification settings that are enabled
+      // Fetch ALL notification settings (not just enabled ones)
       const { data: notificationSettings, error: settingsError } = await supabase
         .from('notification_settings')
         .select('*')
-        .eq('enabled', true);
+        .order('id', { ascending: true });
         
       if (settingsError) throw settingsError;
 

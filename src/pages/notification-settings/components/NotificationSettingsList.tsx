@@ -33,7 +33,7 @@ export const NotificationSettingsList = ({
   return (
     <div className="space-y-3">
       <div className="mb-3 text-sm text-gray-700 dark:text-gray-300 flex justify-between font-medium">
-        <span>การแจ้งเตือนที่กำหนดไว้</span>
+        <span>การแจ้งเตือนทั้งหมด ({settings.length} รายการ)</span>
         <span>สถานะ</span>
       </div>
       {settings.map((setting) => (
