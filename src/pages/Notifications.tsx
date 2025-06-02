@@ -1,5 +1,5 @@
 
-import React from "react"; // Removed useEffect, useState as they are not used
+import React, { useEffect } from "react"; // Added useEffect
 import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
 // Header and FooterNav are handled by AppLayout
 import { NotificationList } from "@/components/NotificationList";
@@ -8,11 +8,55 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Clock, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Notifications = () => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  // Auto-check notifications when entering this page
+  useEffect(() => {
+    const autoCheckNotifications = async () => {
+      try {
+        console.log("Auto-checking notifications on page load...");
+        
+        const { data, error } = await supabase.functions.invoke('check_notifications', {
+          method: 'POST',
+          body: { 
+            timestamp: new Date().toISOString(),
+            checkType: 'auto_page_load'
+          }
+        });
+        
+        if (error) {
+          console.error("Error in auto notification check:", error);
+          return;
+        }
+        
+        const notificationCount = data?.notificationCount || 0;
+        console.log(`Auto-check completed: ${notificationCount} notifications processed`);
+        
+        // Show subtle notification only if new notifications were found
+        if (notificationCount > 0) {
+          toast({
+            title: "ตรวจพบการแจ้งเตือนใหม่",
+            description: `พบการแจ้งเตือนใหม่/อัพเดท ${notificationCount} รายการ`,
+            variant: "update",
+          });
+        }
+      } catch (error) {
+        console.error("Error during auto notification check:", error);
+      }
+    };
+
+    // Only auto-check if user is authenticated
+    if (user) {
+      autoCheckNotifications();
+    }
+  }, [user, toast]);
 
   return (
     <AppLayout showFooterNav={true}>
