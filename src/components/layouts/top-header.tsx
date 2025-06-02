@@ -80,7 +80,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
       </div>
 
       {/* Right Section */}
-      <div className="flex flex-col items-end md:flex-row md:items-center gap-1 md:gap-3">
+      <div className="flex flex-row items-center gap-3">
         <Button 
           variant="ghost" 
           className="text-white hover:bg-emerald-700/50 dark:hover:bg-slate-700/50 px-1 md:px-2 flex items-center h-auto md:h-10"
