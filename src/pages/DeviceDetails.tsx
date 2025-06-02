@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
 import { useIsMobile } from "@/hooks/use-mobile"; // Import useIsMobile
 // Header and FooterNav are handled by AppLayout for the main view
@@ -22,6 +22,7 @@ import { LoadingScreen } from "@/features/device-details/components/LoadingScree
 export default function DeviceDetails() {
   const { deviceCode } = useParams();
   const isMobile = useIsMobile(); // Add useIsMobile
+  const navigate = useNavigate();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMeasurement, setSelectedMeasurement] = useState<{
@@ -52,6 +53,10 @@ export default function DeviceDetails() {
   // Close history view
   const handleCloseHistory = () => {
     setSelectedMeasurement(null);
+    // Ensure we stay on the current device's detail page
+    if (deviceCode && deviceCode !== 'default') {
+      navigate(`/device/${deviceCode}`, { replace: true });
+    }
   };
 
   // Handler for when countdown completes

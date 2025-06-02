@@ -57,15 +57,6 @@ const HistoryHeader: React.FC<HistoryHeaderProps> = ({
   
   return (
     <div className="flex flex-col p-4 border-b border-gray-100">
-      <Button 
-        variant="outline" 
-        onClick={handleGoBack}
-        className="mb-4 flex items-center text-gray-600 hover:bg-gray-100 w-fit"
-      >
-        <ChevronLeft className="h-4 w-4 mr-1" />
-        <span>ย้อนกลับ</span>
-      </Button>
-      
       {/* Device information with more prominent display */}
       {deviceCode && displayName && (
         <div className="mb-4 p-3 bg-emerald-50 rounded-lg border border-emerald-100">

@@ -22,7 +22,7 @@ export default function MeasurementDetail() {
   return (
     <AppLayout showFooterNav={true} contentPaddingBottom="pb-32">
       {/* Main content container with original padding. Dynamic margins and specific footer padding are handled by AppLayout. */}
-      <div className="flex-1 p-4"> {/* Removed pb-32 as it's handled by AppLayout prop */}
+      <div className="flex-1"> {/* Removed pb-32 as it's handled by AppLayout prop */}
         <MeasurementHeader 
           measurementName={measurementName} 
           measurementSymbol={measurementSymbol} 

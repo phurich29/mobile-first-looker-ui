@@ -118,7 +118,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
     <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-8'}>
       <div className="flex flex-col flex-1 min-h-full bg-gradient-to-b from-emerald-50 to-gray-50 overflow-x-hidden">
         {/* Header and FooterNav are handled by AppLayout */}
-        <main className="flex-1 p-4 overflow-x-hidden"> {/* Removed pb-32 */}
+        <main className="flex-1 overflow-x-hidden"> {/* Removed pb-32 and p-4 */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
             <HistoryHeader 
               name={name}

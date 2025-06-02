@@ -31,6 +31,8 @@ export function UserRow({
   onChangeUserRole
 }: UserRowProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   return (
     <>
       <TableRow className={`${user.roles.includes('waiting_list') ? 'bg-amber-50 dark:bg-amber-900/30' : ''} dark:border-slate-700 ${isEditing ? 'border-b-0 dark:border-b-0' : ''}`}>
@@ -163,6 +165,41 @@ export function UserRow({
                   )}
                 </DropdownMenuContent>
               </DropdownMenu>
+            </div>
+
+            {/* Change Password Form */}
+            <div className="mt-4 pt-4 border-t dark:border-slate-600 space-y-2">
+              <h5 className="text-xs font-semibold mb-2 dark:text-gray-300">เปลี่ยนรหัสผ่าน:</h5>
+              <div>
+                <label htmlFor={`newPassword-${user.id}`} className="text-xs text-gray-600 dark:text-gray-400">รหัสผ่านใหม่:</label>
+                <input 
+                  id={`newPassword-${user.id}`}
+                  type="password" 
+                  placeholder="New Password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="mt-1 w-full border rounded-md p-2 text-xs dark:bg-slate-700 dark:text-white dark:border-slate-600 focus:ring-emerald-500 focus:border-emerald-500" 
+                />
+              </div>
+              <div>
+                <label htmlFor={`confirmPassword-${user.id}`} className="text-xs text-gray-600 dark:text-gray-400">ยืนยันรหัสผ่านใหม่:</label>
+                <input 
+                  id={`confirmPassword-${user.id}`}
+                  type="password" 
+                  placeholder="Confirm New Password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="mt-1 w-full border rounded-md p-2 text-xs dark:bg-slate-700 dark:text-white dark:border-slate-600 focus:ring-emerald-500 focus:border-emerald-500" 
+                />
+              </div>
+              <Button 
+                size="sm" 
+                onClick={() => console.log('Attempting to change password for', user.email, 'to', newPassword)} 
+                disabled={isProcessing || !newPassword || newPassword !== confirmPassword}
+                className="text-xs h-7 bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-700 dark:hover:bg-blue-800 mt-2"
+              >
+                เปลี่ยนรหัสผ่าน
+              </Button>
             </div>
 
             <div className="flex justify-end space-x-2 mt-4 pt-4 border-t dark:border-slate-600">
