@@ -15,16 +15,6 @@ export const MeasurementHeader: React.FC<MeasurementHeaderProps> = ({
 }) => {
   return (
     <div className="flex items-center mb-6">
-      <Button
-        variant="ghost" 
-        size="icon"
-        asChild
-        className="mr-2 text-emerald-600"
-      >
-        <Link to="/new-quality-measurements">
-          <ArrowLeft className="h-5 w-5" />
-        </Link>
-      </Button>
       <h1 className="text-2xl font-bold text-emerald-800">
         {measurementName || measurementSymbol}
       </h1>
