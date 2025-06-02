@@ -10,6 +10,7 @@ import { Clock, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { BackButton } from "@/components/ui/back-button";
 
 const Notifications = () => {
   const { user } = useAuth();
@@ -63,6 +64,9 @@ const Notifications = () => {
       {/* Main content container with original padding and max-width. Dynamic margins/paddings are now handled by AppLayout. */}
       <div className="p-4">
         <div className="mx-auto max-w-6xl">
+          {/* Back Button */}
+          <BackButton to="/" />
+          
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-800 mb-1">การแจ้งเตือน</h1>

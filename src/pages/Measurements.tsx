@@ -4,6 +4,7 @@ import { DeviceList } from "@/components/device-list/DeviceList";
 // Header and FooterNav are handled by AppLayout
 import { Search } from "lucide-react";
 import { useState } from "react";
+import { BackButton } from "@/components/ui/back-button";
 
 export default function Measurements() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -12,6 +13,9 @@ export default function Measurements() {
     <AppLayout showFooterNav={true} contentPaddingBottom="pb-20">
       {/* Main content container with original padding. Dynamic margins and specific footer padding are handled by AppLayout. */}
       <div className="flex-1 p-4"> {/* Removed pb-20 as it's handled by AppLayout prop */}
+        {/* Back Button */}
+        <BackButton to="/" />
+        
         <div className="mb-6">
           <h1 className="text-xl font-semibold text-gray-800 mb-2">อุปกรณ์ที่มีการอัพเดทล่าสุด</h1>
           <p className="text-sm text-gray-500">แตะที่อุปกรณ์เพื่อดูข้อมูลค่าวัดคุณภาพโดยละเอียด</p>

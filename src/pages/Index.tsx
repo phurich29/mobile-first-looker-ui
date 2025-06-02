@@ -6,12 +6,16 @@ import { CountdownTimer } from "@/components/CountdownTimer";
 import { NotificationList } from "@/components/NotificationList";
 import { File } from "lucide-react";
 import { AppLayout } from "@/components/layouts";
+import { BackButton } from "@/components/ui/back-button";
 
 const Index = () => {
   const isMobile = useIsMobile();
   
   return (
     <AppLayout wideContent showFooterNav contentPaddingBottom="pb-32 md:pb-16">
+        {/* Back Button */}
+        <BackButton to="/" />
+        
         {/* News slider section with countdown timer */}
         <div className={`mb-8 ${!isMobile ? 'mb-8' : 'mb-6'}`}>
           <div className="flex justify-between items-center mb-3">
