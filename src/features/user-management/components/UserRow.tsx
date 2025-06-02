@@ -1,13 +1,15 @@
 
 import { useState } from 'react';
 import { Badge } from "@/components/ui/badge";
-import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible"; // Added for inline editing
+import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChevronDown, Edit, Trash2 } from "lucide-react";
 import { User, UserRole } from "../types";
 import { formatDate } from "../utils";
+import { useToast } from "@/components/ui/use-toast";
+import * as userService from "../services/userService";
 
 interface UserRowProps {
   user: User;
@@ -20,8 +22,6 @@ interface UserRowProps {
 }
 
 export function UserRow({
-  // Note: onOpenResetDialog might become unused by this component after this change.
-  // We'll address prop cleanup in a later step if needed.
   user,
   isSuperAdmin,
   isProcessing,
@@ -33,6 +33,80 @@ export function UserRow({
   const [isEditing, setIsEditing] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const { toast } = useToast();
+
+  const handlePasswordChange = async () => {
+    // Validation
+    if (!newPassword.trim()) {
+      toast({
+        title: "ข้อผิดพลาด",
+        description: "กรุณากรอกรหัสผ่านใหม่",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toast({
+        title: "ข้อผิดพลาด",
+        description: "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "ข้อผิดพลาด",
+        description: "รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check permissions for superadmin users
+    if (!isSuperAdmin && user.roles.includes('superadmin')) {
+      toast({
+        title: "ไม่มีสิทธิ์",
+        description: "ไม่สามารถเปลี่ยนรหัสผ่านของ Superadmin ได้",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsChangingPassword(true);
+    
+    try {
+      await userService.resetUserPassword(user.id, newPassword);
+      
+      toast({
+        title: "เปลี่ยนรหัสผ่านสำเร็จ",
+        description: `เปลี่ยนรหัสผ่านสำหรับ ${user.email} เรียบร้อยแล้ว`,
+      });
+      
+      // Reset form
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error: any) {
+      console.error("Error changing password:", error);
+      
+      toast({
+        title: "เปลี่ยนรหัสผ่านไม่สำเร็จ",
+        description: error.message || "เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน",
+        variant: "destructive",
+      });
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setNewPassword('');
+    setConfirmPassword('');
+  };
+
   return (
     <>
       <TableRow className={`${user.roles.includes('waiting_list') ? 'bg-amber-50 dark:bg-amber-900/30' : ''} dark:border-slate-700 ${isEditing ? 'border-b-0 dark:border-b-0' : ''}`}>
@@ -87,9 +161,9 @@ export function UserRow({
             <Trash2 className="h-3 w-3" />
           </Button>
           
-              <Button variant="outline" size="sm" disabled={isProcessing} onClick={() => setIsEditing((prev) => !prev)} className="h-6 w-6 p-0 dark:text-gray-400 dark:hover:text-gray-200 dark:border-slate-600 dark:hover:border-slate-500">
-                <ChevronDown className="h-3 w-3" />
-              </Button>
+          <Button variant="outline" size="sm" disabled={isProcessing} onClick={() => setIsEditing((prev) => !prev)} className="h-6 w-6 p-0 dark:text-gray-400 dark:hover:text-gray-200 dark:border-slate-600 dark:hover:border-slate-500">
+            <ChevronDown className="h-3 w-3" />
+          </Button>
         </div>
       </TableCell>
     </TableRow>
@@ -109,7 +183,7 @@ export function UserRow({
                 id={`displayName-${user.id}`}
                 type="text" 
                 placeholder="Display Name" 
-                defaultValue={user.email} /* Placeholder, replace with actual display name if available */
+                defaultValue={user.email}
                 className="mt-1 w-full border rounded-md p-2 text-xs dark:bg-slate-700 dark:text-white dark:border-slate-600 focus:ring-emerald-500 focus:border-emerald-500" 
               />
             </div>
@@ -175,7 +249,7 @@ export function UserRow({
                 <input 
                   id={`newPassword-${user.id}`}
                   type="password" 
-                  placeholder="New Password"
+                  placeholder="รหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร)"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   className="mt-1 w-full border rounded-md p-2 text-xs dark:bg-slate-700 dark:text-white dark:border-slate-600 focus:ring-emerald-500 focus:border-emerald-500" 
@@ -186,7 +260,7 @@ export function UserRow({
                 <input 
                   id={`confirmPassword-${user.id}`}
                   type="password" 
-                  placeholder="Confirm New Password"
+                  placeholder="ยืนยันรหัสผ่านใหม่"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="mt-1 w-full border rounded-md p-2 text-xs dark:bg-slate-700 dark:text-white dark:border-slate-600 focus:ring-emerald-500 focus:border-emerald-500" 
@@ -194,19 +268,19 @@ export function UserRow({
               </div>
               <Button 
                 size="sm" 
-                onClick={() => console.log('Attempting to change password for', user.email, 'to', newPassword)} 
-                disabled={isProcessing || !newPassword || newPassword !== confirmPassword}
+                onClick={handlePasswordChange}
+                disabled={isProcessing || isChangingPassword || !newPassword || newPassword !== confirmPassword}
                 className="text-xs h-7 bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-700 dark:hover:bg-blue-800 mt-2"
               >
-                เปลี่ยนรหัสผ่าน
+                {isChangingPassword ? "กำลังเปลี่ยน..." : "เปลี่ยนรหัสผ่าน"}
               </Button>
             </div>
 
             <div className="flex justify-end space-x-2 mt-4 pt-4 border-t dark:border-slate-600">
-              <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)} className="text-xs h-7 dark:text-gray-300 dark:hover:bg-slate-700">
+              <Button size="sm" variant="ghost" onClick={handleCancel} className="text-xs h-7 dark:text-gray-300 dark:hover:bg-slate-700">
                 ยกเลิก
               </Button>
-              <Button size="sm" onClick={() => { /* Handle save logic here */ setIsEditing(false); }} className="text-xs h-7 bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-700 dark:hover:bg-emerald-800">
+              <Button size="sm" onClick={() => { setIsEditing(false); }} className="text-xs h-7 bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-700 dark:hover:bg-emerald-800">
                 บันทึก
               </Button>
             </div>
