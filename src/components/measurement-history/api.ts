@@ -106,17 +106,26 @@ export const getLatestMeasurement = async (
       .select('*')
       .eq('device_code', deviceCode)
       .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
+      .limit(1);
     
-    if (error || !data) {
+    // ตรวจสอบว่ามีข้อมูลหรือไม่
+    if (error) {
       console.error(`Error fetching latest measurement for ${symbol} on device ${deviceCode}:`, error);
       return { value: null, timestamp: null };
     }
     
+    // ตรวจสอบว่ามีข้อมูลในอาร์เรย์หรือไม่
+    if (!data || data.length === 0) {
+      // ไม่มีข้อมูล - ไม่ต้องแสดง error ในคอนโซล เพราะเป็นกรณีปกติที่อาจไม่มีข้อมูล
+      return { value: null, timestamp: null };
+    }
+    
+    // ใช้ข้อมูลรายการแรก (และเป็นรายการเดียวเนื่องจากใช้ limit(1))
+    const latestData = data[0];
+    
     return {
-      value: data[symbol],
-      timestamp: data.created_at
+      value: latestData[symbol],
+      timestamp: latestData.created_at
     };
   } catch (err) {
     console.error('Error in getLatestMeasurement:', err);
