@@ -10,7 +10,7 @@ export const PageHeader = ({ title, showBackButton = true }: PageHeaderProps) =>
   return (
     <div className="mb-6">
       <div className="flex items-center mb-2">
-        {showBackButton && <BackButton to="/" />}
+        {showBackButton && <BackButton to="/" ariaLabel="กลับไปหน้าแรก" />}
         <h1 className={`text-2xl font-bold text-gray-800 dark:text-gray-100 ${showBackButton ? '' : 'ml-0'}`}>{title}</h1>
       </div>
     </div>
