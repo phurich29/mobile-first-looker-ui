@@ -23,7 +23,7 @@ interface AppLayoutProps {
   /** กำหนดพื้นหลังของ container */
   className?: string;
   
-  /** padding-bottom เพิ่มเติมสำหรับ content เพื่อป้องกัน FooterNav ทับซ้อน */
+  /** padding-bottom เพิ่มเติมสำหรับ content (จะถูกรวมกับค่าเริ่มต้น) */
   contentPaddingBottom?: string;
 }
 
@@ -32,7 +32,7 @@ export function AppLayout({
   showFooterNav = true,
   wideContent = false,
   className,
-  contentPaddingBottom = 'pb-32 md:pb-16' // ค่าเริ่มต้นสำหรับหน้าที่มี FooterNav
+  contentPaddingBottom
 }: AppLayoutProps) {
   const isMobile = useIsMobile();
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -57,6 +57,19 @@ export function AppLayout({
     };
   }, []);
 
+  // คำนวณ padding-bottom อัตโนมัติ
+  const getMainPaddingBottom = () => {
+    const basePadding = 'p-5'; // 20px padding รอบๆ
+    
+    if (isMobile && showFooterNav) {
+      // เพิ่ม padding-bottom 80px (20 พื้นฐาน + 60 สำหรับ footer) บน mobile เมื่อมี footer
+      return cn(basePadding, 'pb-20', contentPaddingBottom);
+    } else {
+      // ใช้ padding ปกติบน desktop หรือเมื่อไม่มี footer
+      return cn(basePadding, contentPaddingBottom);
+    }
+  };
+
   return (
     <>
       {/* Render TopHeader */}
@@ -79,7 +92,7 @@ export function AppLayout({
       <main className={cn(
         "flex-1 transition-all duration-300 ease-in-out",
         isMobile ? "ml-0" : (isCollapsed ? "md:ml-20" : "md:ml-64"),
-        "p-5", // Apply 20px padding to all sides
+        getMainPaddingBottom(),
         className
       )}>
         {children}
