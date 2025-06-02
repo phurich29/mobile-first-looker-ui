@@ -101,7 +101,7 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
           {graphStyle === 'area' ? (
             <AreaChart
               data={chartData}
-              margin={{ top: 10, right: 20, left: 10, bottom: 10 }}
+              margin={{ top: 10, right: 20, left: -40, bottom: 10 }}
             >
               <defs>
                 <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
@@ -118,7 +118,7 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
                 tick={{ fontSize: 10, fill: '#64748b' }} 
                 axisLine={{ stroke: '#e2e8f0' }}
                 tickLine={false}
-                padding={{ left: 10, right: 10 }}
+                padding={{ left: 0, right: 10 }}
               />
               <YAxis 
                 domain={['auto', 'auto']} 
@@ -126,7 +126,8 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
                 tickFormatter={(value) => `${value}%`}
                 axisLine={false}
                 tickLine={false}
-                width={30}
+                width={15}
+                tickMargin={-10}
               />
               <Tooltip 
                 content={({ active, payload }) => {
@@ -173,7 +174,7 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
           ) : (
             <LineChart
               data={chartData}
-              margin={{ top: 10, right: 20, left: 10, bottom: 10 }}
+              margin={{ top: 10, right: 20, left: -40, bottom: 10 }}
             >
               <CartesianGrid strokeDasharray="3 3" vertical={true} stroke="#e0e0e0" strokeWidth={1} />
               <XAxis 
@@ -181,7 +182,7 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
                 tick={{ fontSize: 10, fill: '#64748b' }} 
                 axisLine={{ stroke: '#e2e8f0' }}
                 tickLine={false}
-                padding={{ left: 10, right: 10 }}
+                padding={{ left: 0, right: 10 }}
               />
               <YAxis 
                 domain={['auto', 'auto']} 
@@ -189,7 +190,8 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
                 tickFormatter={(value) => `${value}%`}
                 axisLine={false}
                 tickLine={false}
-                width={30}
+                width={15}
+                tickMargin={-10}
               />
               <Tooltip 
                 content={({ active, payload }) => {

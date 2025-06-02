@@ -25,7 +25,8 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X, PlusCircle, BarChart2, ChevronLeft } from "lucide-react";
+import { X, PlusCircle, BarChart2 } from "lucide-react";
+import { BackButton } from '@/components/ui/back-button';
 import { useGraphSelector } from "@/components/graph-monitor/graph-selector/useGraphSelector";
 import { TimeFrame } from "@/components/measurement-history/MeasurementHistory";
 import { Link } from "react-router-dom";
@@ -190,12 +191,7 @@ const GraphSummaryDetail = () => {
           {/* Header with back button */}
           <div className="flex flex-col md:flex-row items-center justify-between mb-6">
             <div className="flex items-center">
-              <Button variant="ghost" size="sm" asChild className="mr-2">
-                <Link to="/graph-summary" className="flex items-center gap-2">
-                  <ChevronLeft className="h-4 w-4" />
-                  <span>ย้อนกลับ</span>
-                </Link>
-              </Button>
+              <BackButton className="mr-2" />
               <h1 className="text-2xl font-semibold flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
                 <BarChart2 className="h-6 w-6" />
                 Graph Comparison
