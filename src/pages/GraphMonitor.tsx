@@ -16,7 +16,6 @@ import { LoadingGraphState } from "@/components/graph-monitor/LoadingGraphState"
 import { useGraphMonitor } from "@/components/graph-monitor/hooks/useGraphMonitor";
 import { SelectedGraph } from "@/components/graph-monitor/types";
 import { cn } from "@/lib/utils";
-import { BackButton } from "@/components/ui/back-button";
 
 const GraphMonitor = () => {
   const isMobile = useIsMobile(); // Retain for other logic if needed
@@ -76,9 +75,6 @@ const GraphMonitor = () => {
         "transition-all duration-300"
       )}>
         <div className="max-w-7xl mx-auto">
-          {/* Back Button */}
-          <BackButton to="/" />
-          
           <GraphHeader
             showSaveIndicator={showSaveIndicator}
             saving={saving}
