@@ -96,7 +96,7 @@ export const GraphPresets: React.FC<GraphPresetsProps> = ({
     <div className="flex flex-col md:flex-row items-start md:items-center gap-2 mb-4">
       <div className="flex items-center gap-2 flex-wrap">
         <Select value={activePreset} onValueChange={onChangePreset}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px] h-8 text-xs">
             <SelectValue placeholder="เลือกชุดการตั้งค่า" />
           </SelectTrigger>
           <SelectContent className="bg-white">
@@ -110,8 +110,8 @@ export const GraphPresets: React.FC<GraphPresetsProps> = ({
 
         <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" size="sm" className="flex items-center gap-1">
-              <Plus className="h-4 w-4" />
+            <Button variant="outline" size="sm" className="h-7 flex items-center gap-1 text-xs">
+              <Plus className="h-3.5 w-3.5" />
               <span>สร้างใหม่</span>
             </Button>
           </DialogTrigger>
@@ -135,9 +135,9 @@ export const GraphPresets: React.FC<GraphPresetsProps> = ({
             </div>
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="outline">ยกเลิก</Button>
+                <Button variant="outline" className="h-8 px-3 text-xs">ยกเลิก</Button>
               </DialogClose>
-              <Button onClick={handleCreatePreset}>สร้าง</Button>
+              <Button onClick={handleCreatePreset} className="h-8 px-3 text-xs">สร้าง</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -148,9 +148,9 @@ export const GraphPresets: React.FC<GraphPresetsProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                className="flex items-center gap-1 text-red-500 hover:text-red-700 hover:bg-red-50"
+                className="h-7 flex items-center gap-1 text-xs text-red-500 hover:text-red-700 hover:bg-red-50"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-3.5 w-3.5" />
                 <span>ลบชุดนี้</span>
               </Button>
             </DialogTrigger>
@@ -163,10 +163,10 @@ export const GraphPresets: React.FC<GraphPresetsProps> = ({
               </DialogHeader>
               <DialogFooter className="mt-4">
                 <DialogClose asChild>
-                  <Button variant="outline">ยกเลิก</Button>
+                  <Button variant="outline" className="h-8 px-3 text-xs">ยกเลิก</Button>
                 </DialogClose>
                 <Button
-                  variant="destructive"
+                  variant="destructive" className="h-8 px-3 text-xs"
                   onClick={handleDeletePreset}
                 >
                   ลบ
@@ -179,10 +179,10 @@ export const GraphPresets: React.FC<GraphPresetsProps> = ({
         <Button
           variant="outline"
           size="sm"
-          className="flex items-center gap-1"
+          className="h-7 flex items-center gap-1 text-xs"
           onClick={onResetGraphs}
         >
-          <RotateCw className="h-4 w-4" />
+          <RotateCw className="h-3.5 w-3.5" />
           <span>รีเซ็ต</span>
         </Button>
       </div>

@@ -44,7 +44,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ graph, onRemove }) => {
         lineColor={lineColor}
         setLineColor={setLineColor}
       />
-      <CardContent className={`p-4 h-64 relative ${chartTextColorClass}`}>
+      <CardContent className={`pt-4 pr-4 pb-4 pl-0 h-64 relative ${chartTextColorClass}`}>
         {/* Ultra subtle watermark - barely visible */}
         <div className="absolute inset-0 z-0 flex items-center justify-center opacity-[0.005] dark:opacity-[0.01] pointer-events-none">
           <svg 

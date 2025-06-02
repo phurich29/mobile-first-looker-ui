@@ -96,7 +96,7 @@ export const GraphChartContent: React.FC<GraphChartContentProps> = ({
           <AreaChart 
             data={data} 
             className="transition-all duration-500" 
-            margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+            margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
           >
             <defs>
               <linearGradient id={`colorValue-${graphSymbol}`} x1="0" y1="0" x2="0" y2="1">
@@ -146,7 +146,7 @@ export const GraphChartContent: React.FC<GraphChartContentProps> = ({
           <AreaChart 
             data={data} 
             className="transition-all duration-500"
-            margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+            margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
           >
             <defs>
               <linearGradient id={`colorValue-${graphSymbol}`} x1="0" y1="0" x2="0" y2="1">

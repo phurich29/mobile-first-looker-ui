@@ -39,7 +39,7 @@ export const GraphHeader: React.FC<GraphHeaderProps> = ({
   const thaiName = getMeasurementThaiName(graph.symbol) || graph.name;
 
   return (
-    <CardHeader className={`${styles.headerBg} py-3`}>
+    <CardHeader className={`${styles.headerBg} p-2`}>
       <div className="flex flex-col space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
