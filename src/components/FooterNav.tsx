@@ -34,9 +34,10 @@ export const FooterNav = () => {
     return null;
   }
   
-  return <div className="fixed bottom-0 left-0 right-0 z-50">
-      {/* Modern glass-morphism footer */}
-      <div className="bg-gradient-to-r from-emerald-500 to-teal-600 h-16 rounded-t-2xl shadow-lg backdrop-blur-sm bg-opacity-90">
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-50 h-16">
+      {/* Modern glass-morphism footer with consistent height */}
+      <div className="bg-gradient-to-r from-emerald-500 to-teal-600 h-full rounded-t-2xl shadow-lg backdrop-blur-sm bg-opacity-90">
         <nav className="flex justify-around items-center h-full">
           <NavLink to="/" className={({
           isActive
@@ -90,7 +91,8 @@ export const FooterNav = () => {
           </NavLink>
         </nav>
       </div>
-    </div>;
+    </div>
+  );
 };
 
 export default FooterNav;

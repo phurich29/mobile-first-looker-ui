@@ -3,7 +3,7 @@ import React, { ReactNode, useEffect, useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { LAYOUT_STYLES, cn } from '@/lib/layout-styles';
 import { HeaderSidebar } from '@/components/header/HeaderSidebar';
-import { TopHeader } from './top-header'; // Import the new TopHeader
+import { TopHeader } from './top-header';
 import { FooterNav } from '@/components/FooterNav';
 
 /**
@@ -23,7 +23,7 @@ interface AppLayoutProps {
   /** กำหนดพื้นหลังของ container */
   className?: string;
   
-  /** padding-bottom เพิ่มเติมสำหรับ content เพื่อป้องกัน FooterNav ทับซ้อน */
+  /** padding-bottom เพิ่มเติมสำหรับ content (จะถูกรวมกับค่าเริ่มต้นสำหรับ footer) */
   contentPaddingBottom?: string;
 }
 
@@ -32,7 +32,7 @@ export function AppLayout({
   showFooterNav = true,
   wideContent = false,
   className,
-  contentPaddingBottom = 'pb-32 md:pb-16' // ค่าเริ่มต้นสำหรับหน้าที่มี FooterNav
+  contentPaddingBottom
 }: AppLayoutProps) {
   const isMobile = useIsMobile();
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -57,6 +57,16 @@ export function AppLayout({
     };
   }, []);
 
+  // กำหนด padding-bottom ที่เหมาะสมสำหรับ footer nav
+  const getFooterSpacing = () => {
+    if (!showFooterNav) return 'pb-4'; // ไม่มี footer nav ให้ padding เล็กน้อย
+    if (isMobile) return 'pb-20'; // mobile มี footer nav ให้ padding มากพอ (80px)
+    return 'pb-4'; // desktop ไม่มี footer nav ให้ padding เล็กน้อย
+  };
+
+  const footerSpacing = getFooterSpacing();
+  const finalPaddingBottom = contentPaddingBottom ? `${footerSpacing} ${contentPaddingBottom}` : footerSpacing;
+
   return (
     <>
       {/* Render TopHeader */}
@@ -64,7 +74,6 @@ export function AppLayout({
         isMobile={isMobile} 
         isCollapsed={isCollapsed} 
         setSidebarOpen={setSidebarOpen} 
-        // pageTitle={...} // We can make pageTitle dynamic later
       />
       
       {/* Sidebar - now renders for both mobile and desktop */}
@@ -75,17 +84,18 @@ export function AppLayout({
         setIsCollapsed={setIsCollapsed} 
       />
       
-      {/* Main Content */}
+      {/* Main Content with automatic footer spacing */}
       <main className={cn(
-        "flex-1 transition-all duration-300 ease-in-out",
+        "flex-1 transition-all duration-300 ease-in-out min-h-screen",
         isMobile ? "ml-0" : (isCollapsed ? "md:ml-20" : "md:ml-64"),
-        "p-5", // Apply 20px padding to all sides
+        "p-5",
+        finalPaddingBottom, // ใช้ spacing ที่คำนวณแล้ว
         className
       )}>
         {children}
       </main>
       
-      {/* Footer Navigation - Mobile only */}
+      {/* Footer Navigation - Mobile only with consistent spacing */}
       {isMobile && showFooterNav && <FooterNav />}
     </>
   );
