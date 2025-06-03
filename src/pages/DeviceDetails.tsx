@@ -157,7 +157,7 @@ export default function DeviceDetails() {
   return (
     <CountdownProvider initialSeconds={60} onComplete={handleCountdownComplete}>
       <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-4'}>
-        <BackButton />
+        <BackButton to="/equipment" />
         <div className="flex-1">
           <DeviceHeader deviceCode={deviceCode} />
           
