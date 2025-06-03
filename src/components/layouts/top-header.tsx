@@ -12,6 +12,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/AuthProvider';
+import { fetchSuperAdminDevices, fetchUserDevices } from '@/features/equipment/services/deviceDataService';
 
 interface TopHeaderProps {
   isMobile: boolean;
@@ -57,63 +58,36 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
     };
   }, []); // Empty dependency array means this effect runs once on mount and cleanup on unmount
 
-  // Fetch devices for the dropdown
+  // Fetch devices using the same service as Equipment page
   useEffect(() => {
     const fetchDevices = async () => {
       if (!user) return;
       
       setIsLoadingDevices(true);
       try {
-        let query = supabase
-          .from('rice_quality_analysis')
-          .select('device_code')
-          .not('device_code', 'is', null)
-          .order('created_at', { ascending: false });
-
-        // If not superadmin, filter by user access
-        if (!isSuperAdmin) {
-          if (isAdmin) {
-            // Admin can see all devices
-          } else {
-            // Regular users see only authorized devices
-            const { data: userDevices } = await supabase
-              .from('user_device_access')
-              .select('device_code')
-              .eq('user_id', user.id);
-            
-            if (userDevices && userDevices.length > 0) {
-              const deviceCodes = userDevices.map(d => d.device_code);
-              query = query.in('device_code', deviceCodes);
-            } else {
-              // No access to any devices
-              setDevices([]);
-              return;
-            }
-          }
+        let deviceList;
+        
+        if (isSuperAdmin) {
+          console.log('Fetching devices for superadmin');
+          deviceList = await fetchSuperAdminDevices();
+        } else {
+          console.log('Fetching authorized devices for user...');
+          deviceList = await fetchUserDevices(user.id, isAdmin);
         }
 
-        const { data, error } = await query;
-
-        if (error) throw error;
-
-        // Get unique device codes
-        const uniqueDevices = Array.from(
-          new Set(data?.map(item => item.device_code))
-        ).map(device_code => ({ device_code }));
-
         // Fetch display names for devices
-        if (uniqueDevices.length > 0) {
-          const deviceCodes = uniqueDevices.map(d => d.device_code);
+        if (deviceList.length > 0) {
+          const deviceCodes = deviceList.map(d => d.device_code);
           const { data: settingsData } = await supabase
             .from('device_settings')
             .select('device_code, display_name')
             .in('device_code', deviceCodes);
 
           // Merge display names
-          const devicesWithNames = uniqueDevices.map(device => {
+          const devicesWithNames = deviceList.map(device => {
             const setting = settingsData?.find(s => s.device_code === device.device_code);
             return {
-              ...device,
+              device_code: device.device_code,
               display_name: setting?.display_name || device.device_code
             };
           });
