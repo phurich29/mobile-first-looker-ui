@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import HistoryHeader from "./HistoryHeader";
@@ -36,7 +35,7 @@ const convertUrlSymbolToMeasurementSymbol = (urlSymbol: string): string => {
     'headrice': 'head_rice',
     'totalbrokens': 'total_brokens',
     'smallbrokens': 'small_brokens',
-    'smallbrokesc1': 'small_brokens_c1',
+    'smallbrokenc1': 'small_brokens_c1',
     'redlinerate': 'red_line_rate',
     'parboiledredline': 'parboiled_red_line',
     'parboiledwhiterice': 'parboiled_white_rice',
@@ -181,7 +180,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
 
   return (
     <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-8'}>
-      <BackButton />
+      <BackButton to={`/device/${deviceCode}`} />
       <div className="flex flex-col flex-1 min-h-full bg-gradient-to-b from-emerald-50 to-gray-50 overflow-x-hidden">
         <main className="flex-1 overflow-x-hidden">
           <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
