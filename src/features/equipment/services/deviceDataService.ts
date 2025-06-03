@@ -19,13 +19,13 @@ export const REQUIRED_DEVICE_CODES = [
 export const fetchSuperAdminDevices = async () => {
   console.log('Starting with required devices for superadmin');
   
-  // For superadmin, start with required devices
+  // For superadmin, always start with all 7 required devices
   const requiredDeviceObjects = REQUIRED_DEVICE_CODES.map(deviceCode => ({
     device_code: deviceCode,
     updated_at: null
   }));
   
-  // Then fetch all devices from the database
+  // Then fetch additional devices from the database if any
   const { data, error } = await supabaseAdmin
     .from('rice_quality_analysis')
     .select('device_code')
@@ -33,62 +33,32 @@ export const fetchSuperAdminDevices = async () => {
     .not('device_code', 'eq', '');
     
   if (error) {
-    console.error("Error fetching all devices:", error);
-    // Even if there's an error, still return the required devices
-    return requiredDeviceObjects;
-  }
-  
-  // Process to get unique devices with latest timestamp
-  if (!data || data.length === 0) {
-    console.log("No devices found in database, using required devices only");
+    console.error("Error fetching additional devices:", error);
+    // Return at least the required devices even if there's an error
     return requiredDeviceObjects;
   }
   
   // Use Set to get unique device codes
   const uniqueDeviceCodes = new Set<string>();
   
-  // First add all required devices
+  // First add all required devices to ensure they're included
   REQUIRED_DEVICE_CODES.forEach(code => {
     uniqueDeviceCodes.add(code);
   });
   
   // Then add any additional devices from the database
-  data.forEach(item => {
-    if (item.device_code) {
+  data?.forEach(item => {
+    if (item.device_code && !REQUIRED_DEVICE_CODES.includes(item.device_code)) {
       uniqueDeviceCodes.add(item.device_code);
     }
   });
   
   // Convert Set to array of device codes
   const deviceCodes = Array.from(uniqueDeviceCodes);
-  console.log(`Found ${deviceCodes.length} unique device codes after merging`);
+  console.log(`Found ${deviceCodes.length} unique device codes (${REQUIRED_DEVICE_CODES.length} required + ${deviceCodes.length - REQUIRED_DEVICE_CODES.length} additional)`);
   
   // For each unique device code, get the latest entry
   const devicePromises = deviceCodes.map(async (deviceCode) => {
-    // For required devices that aren't in the database yet, just return with null timestamp
-    if (REQUIRED_DEVICE_CODES.includes(deviceCode)) {
-      const { data: latestEntry, error: latestError } = await supabaseAdmin
-        .from('rice_quality_analysis')
-        .select('device_code, created_at')
-        .eq('device_code', deviceCode)
-        .order('created_at', { ascending: false })
-        .limit(1);
-        
-      // If there's data, use it, otherwise use null timestamp
-      if (latestError || !latestEntry || latestEntry.length === 0) {
-        return {
-          device_code: deviceCode,
-          updated_at: null
-        };
-      }
-      
-      return {
-        device_code: deviceCode,
-        updated_at: latestEntry[0].created_at
-      };
-    }
-    
-    // For other devices, get their latest timestamp
     const { data: latestEntry, error: latestError } = await supabaseAdmin
       .from('rice_quality_analysis')
       .select('device_code, created_at')
@@ -96,8 +66,8 @@ export const fetchSuperAdminDevices = async () => {
       .order('created_at', { ascending: false })
       .limit(1);
       
-    if (latestError) {
-      console.error(`Error fetching latest data for device ${deviceCode}:`, latestError);
+    if (latestError || !latestEntry || latestEntry.length === 0) {
+      // Return device with null timestamp if no data found
       return {
         device_code: deviceCode,
         updated_at: null
@@ -106,7 +76,7 @@ export const fetchSuperAdminDevices = async () => {
     
     return {
       device_code: deviceCode,
-      updated_at: latestEntry && latestEntry.length > 0 ? latestEntry[0].created_at : null
+      updated_at: latestEntry[0].created_at
     };
   });
   
@@ -122,7 +92,18 @@ export const fetchSuperAdminDevices = async () => {
 export const fetchUserDevices = async (userId: string, isAdmin: boolean) => {
   console.log('Fetching authorized devices for user...');
   
-  // Get devices that user has access to
+  // Create a set of authorized device codes
+  const authorizedDeviceCodes = new Set<string>();
+  
+  // If user is admin or superadmin, always include all required devices
+  if (isAdmin) {
+    REQUIRED_DEVICE_CODES.forEach(code => {
+      authorizedDeviceCodes.add(code);
+    });
+    console.log('Admin user: Added all 7 required devices');
+  }
+  
+  // Get additional devices that user has explicit access to
   const { data: userDevices, error: userDevicesError } = await supabase
     .from('user_device_access')
     .select('device_code')
@@ -130,25 +111,24 @@ export const fetchUserDevices = async (userId: string, isAdmin: boolean) => {
 
   if (userDevicesError) {
     console.error("Error fetching user device access:", userDevicesError);
+    // For admins, still return required devices even if there's an error
+    if (isAdmin) {
+      const requiredDevices = REQUIRED_DEVICE_CODES.map(deviceCode => ({
+        device_code: deviceCode,
+        updated_at: null
+      }));
+      console.log('Error occurred but admin gets required devices:', requiredDevices.length);
+      return requiredDevices;
+    }
     return [];
   }
 
-  // Create a set of authorized device codes
-  const authorizedDeviceCodes = new Set<string>();
-  
-  // Add user's authorized devices
+  // Add user's explicitly authorized devices
   userDevices?.forEach(d => {
     if (d.device_code) {
       authorizedDeviceCodes.add(d.device_code);
     }
   });
-  
-  // If user is admin, also add required devices
-  if (isAdmin) {
-    REQUIRED_DEVICE_CODES.forEach(code => {
-      authorizedDeviceCodes.add(code);
-    });
-  }
   
   if (authorizedDeviceCodes.size === 0) {
     console.log("User has no device access permissions.");
@@ -192,7 +172,10 @@ export const fetchUserDevices = async (userId: string, isAdmin: boolean) => {
 export const countUniqueDevices = async () => {
   console.log('Counting unique devices...');
   
-  // Fetch all device codes from rice_quality_analysis
+  // Start with required devices count
+  const uniqueDeviceCodes = new Set(REQUIRED_DEVICE_CODES);
+  
+  // Fetch additional devices from rice_quality_analysis
   const { data, error } = await supabaseAdmin
     .from('rice_quality_analysis')
     .select('device_code')
@@ -200,24 +183,19 @@ export const countUniqueDevices = async () => {
     .not('device_code', 'eq', '');
     
   if (error) {
-    console.error("Error counting unique devices:", error);
-    return 0;
+    console.error("Error counting additional devices:", error);
+    // Return at least the required devices count
+    return REQUIRED_DEVICE_CODES.length;
   }
   
-  // Get unique device codes
-  const uniqueDeviceCodes = new Set();
+  // Add additional devices to the set
   data?.forEach(item => {
     if (item.device_code) {
       uniqueDeviceCodes.add(item.device_code);
     }
   });
   
-  // Also add required devices to the count
-  REQUIRED_DEVICE_CODES.forEach(code => {
-    uniqueDeviceCodes.add(code);
-  });
-  
   const count = uniqueDeviceCodes.size;
-  console.log(`Found ${count} unique devices`);
+  console.log(`Found ${count} unique devices (${REQUIRED_DEVICE_CODES.length} required + ${count - REQUIRED_DEVICE_CODES.length} additional)`);
   return count;
 };
