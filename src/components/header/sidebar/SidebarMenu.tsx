@@ -1,5 +1,5 @@
 
-import { Home, Settings, BarChart2, AlertCircle, History, Monitor, Layout, User, Users, FileText } from "lucide-react";
+import { Home, Settings, AlertCircle, History, Monitor, Layout, User, Users, FileText } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useActivePath } from "./sidebar-utils";
@@ -38,15 +38,6 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
           label="อุปกรณ์"
           isActive={isActive("/equipment")}
           isCollapsed={isCollapsed}
-        />
-        
-        <SidebarMenuItem 
-          path="/new-quality-measurements" 
-          icon={BarChart2}
-          label="ค่าวัดคุณภาพ"
-          isActive={isActive("/new-quality-measurements")}
-          isCollapsed={isCollapsed}
-          pathStartsWith="/measurement-detail"
         />
         
         {user && (
