@@ -1,3 +1,4 @@
+
 import { supabase, supabaseAdmin } from "@/integrations/supabase/client";
 import { DeviceInfo } from "../types";
 
@@ -13,46 +14,81 @@ export const REQUIRED_DEVICE_CODES = [
 ];
 
 /**
- * Fetches devices with all details using the new database function
+ * Fetches devices with all details using the optimized database function
  */
 export const fetchDevicesWithDetails = async (
   userId: string,
   isAdmin: boolean,
   isSuperAdmin: boolean
 ): Promise<DeviceInfo[]> => {
-  console.log('Fetching devices with details using database function...');
+  console.log('Fetching devices with details using optimized database function...');
   
   try {
-    // For now, fall back to legacy approach while database function is being fixed
+    // Use the new optimized database function
+    const { data, error } = await supabaseAdmin.rpc('get_devices_with_details', {
+      user_id_param: userId,
+      is_admin_param: isAdmin,
+      is_superadmin_param: isSuperAdmin
+    });
+
+    if (error) {
+      console.error("Error calling get_devices_with_details:", error);
+      // Fallback to legacy approach on error
+      console.log('Falling back to legacy approach due to error');
+      return await fallbackToLegacyApproach(userId, isAdmin, isSuperAdmin);
+    }
+
+    if (!data || !Array.isArray(data)) {
+      console.log("No devices returned from function, using fallback");
+      return await fallbackToLegacyApproach(userId, isAdmin, isSuperAdmin);
+    }
+
+    // Transform the data to match DeviceInfo interface
+    const devices: DeviceInfo[] = data.map((item: any) => ({
+      device_code: item.device_code,
+      updated_at: item.updated_at,
+      display_name: item.display_name || item.device_code
+    }));
+
+    console.log(`Successfully fetched ${devices.length} devices with details in single query`);
+    return devices;
+
+  } catch (error) {
+    console.error('Error in fetchDevicesWithDetails:', error);
+    console.log('Falling back to legacy approach due to exception');
+    return await fallbackToLegacyApproach(userId, isAdmin, isSuperAdmin);
+  }
+};
+
+/**
+ * Fallback function that uses legacy approach when database function fails
+ */
+const fallbackToLegacyApproach = async (
+  userId: string,
+  isAdmin: boolean,
+  isSuperAdmin: boolean
+): Promise<DeviceInfo[]> => {
+  console.log('Using fallback legacy approach...');
+  
+  try {
     if (isSuperAdmin) {
-      console.log('Using legacy fetchSuperAdminDevices for superadmin');
       const legacyDevices = await fetchSuperAdminDevices();
       return legacyDevices.map(device => ({
         device_code: device.device_code,
         updated_at: device.updated_at,
-        display_name: device.device_code // Will be enhanced with actual display names later
-      }));
-    } else if (isAdmin) {
-      console.log('Using legacy fetchUserDevices for admin');
-      const legacyDevices = await fetchUserDevices(userId, isAdmin);
-      return legacyDevices.map(device => ({
-        device_code: device.device_code,
-        updated_at: device.updated_at,
-        display_name: device.device_code // Will be enhanced with actual display names later
+        display_name: device.device_code
       }));
     } else {
-      console.log('Using legacy fetchUserDevices for regular user');
       const legacyDevices = await fetchUserDevices(userId, isAdmin);
       return legacyDevices.map(device => ({
         device_code: device.device_code,
         updated_at: device.updated_at,
-        display_name: device.device_code // Will be enhanced with actual display names later
+        display_name: device.device_code
       }));
     }
-
-  } catch (error) {
-    console.error('Error in fetchDevicesWithDetails:', error);
-    throw error;
+  } catch (fallbackError) {
+    console.error('Even fallback approach failed:', fallbackError);
+    return [];
   }
 };
 
@@ -210,32 +246,33 @@ export const fetchUserDevices = async (userId: string, isAdmin: boolean) => {
 };
 
 /**
- * Counts total unique devices in the system using optimized query
+ * Counts total unique devices using the optimized database function
  */
 export const countUniqueDevices = async () => {
-  console.log('Counting unique devices...');
+  console.log('Counting unique devices using optimized function...');
   
   try {
-    // Use a more efficient query to count unique devices
-    const { data, error } = await supabaseAdmin
-      .from('rice_quality_analysis')
-      .select('device_code', { count: 'exact', head: true })
-      .not('device_code', 'is', null)
-      .not('device_code', 'eq', '');
-      
+    // Use the database function to get accurate count
+    const { data, error } = await supabaseAdmin.rpc('get_devices_with_details', {
+      user_id_param: null,
+      is_admin_param: false,
+      is_superadmin_param: true
+    });
+    
     if (error) {
-      console.error("Error counting devices:", error);
-      return REQUIRED_DEVICE_CODES.length;
+      console.error("Error counting devices with function:", error);
+      // Fallback to legacy count
+      const superAdminDevices = await fetchSuperAdminDevices();
+      return superAdminDevices.length || REQUIRED_DEVICE_CODES.length;
     }
     
-    // For now, use legacy approach to count
-    const superAdminDevices = await fetchSuperAdminDevices();
-    const count = superAdminDevices.length || REQUIRED_DEVICE_CODES.length;
-    console.log(`Found ${count} unique devices`);
+    const count = Array.isArray(data) ? data.length : REQUIRED_DEVICE_CODES.length;
+    console.log(`Found ${count} unique devices using optimized function`);
     return count;
     
   } catch (error) {
     console.error("Error in countUniqueDevices:", error);
+    // Final fallback
     return REQUIRED_DEVICE_CODES.length;
   }
 };
