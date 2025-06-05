@@ -1,4 +1,5 @@
 
+
 import { IconMenu } from "@/components/IconMenu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { CountdownTimer } from "@/components/CountdownTimer";
@@ -12,8 +13,8 @@ const Index = () => {
         {/* Clock timer section */}
         <div className={`mb-8 ${!isMobile ? 'mb-8' : 'mb-6'}`}>
           <div className="flex justify-between items-center mb-3">
-            <div className="flex items-center gap-2">
-              <span className="text-lg text-slate-950 font-extrabold">Analyzed by</span>
+            <div className="flex flex-col items-start">
+              <span className="text-xs text-slate-500 font-light mb-1">Analyzed by</span>
               <img 
                 src="/lovable-uploads/7fffa74e-7e4c-450c-8eb3-d41e3071a92e.png" 
                 alt="Meyer Logo" 
@@ -40,3 +41,4 @@ const Index = () => {
 };
 
 export default Index;
+
