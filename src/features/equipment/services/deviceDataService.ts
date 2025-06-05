@@ -1,4 +1,3 @@
-
 import { supabase, supabaseAdmin } from "@/integrations/supabase/client";
 import { DeviceInfo } from "../types";
 
@@ -24,8 +23,8 @@ export const fetchDevicesWithDetails = async (
   console.log('Fetching devices with details using database function...');
   
   try {
-    // Use the new database function that combines all queries
-    const { data, error } = await supabaseAdmin.rpc('get_devices_with_details', {
+    // Use supabaseAdmin.rpc with any type to bypass TypeScript checking for new function
+    const { data, error } = await (supabaseAdmin as any).rpc('get_devices_with_details', {
       user_id_param: userId,
       is_admin_param: isAdmin,
       is_superadmin_param: isSuperAdmin
@@ -36,13 +35,13 @@ export const fetchDevicesWithDetails = async (
       throw error;
     }
 
-    if (!data) {
+    if (!data || !Array.isArray(data)) {
       console.log("No devices returned from function");
       return [];
     }
 
     // Transform the data to match DeviceInfo interface
-    const devices: DeviceInfo[] = data.map(item => ({
+    const devices: DeviceInfo[] = data.map((item: any) => ({
       device_code: item.device_code,
       updated_at: item.updated_at,
       display_name: item.display_name
@@ -229,20 +228,19 @@ export const countUniqueDevices = async () => {
       return REQUIRED_DEVICE_CODES.length;
     }
     
-    // Get unique count using a simpler approach
-    const { data: uniqueData, error: uniqueError } = await supabaseAdmin
-      .rpc('get_devices_with_details', {
-        user_id_param: null,
-        is_admin_param: false,
-        is_superadmin_param: true
-      });
+    // Get unique count using the same function
+    const { data: uniqueData, error: uniqueError } = await (supabaseAdmin as any).rpc('get_devices_with_details', {
+      user_id_param: null,
+      is_admin_param: false,
+      is_superadmin_param: true
+    });
     
-    if (uniqueError) {
+    if (uniqueError || !Array.isArray(uniqueData)) {
       console.error("Error counting unique devices:", uniqueError);
       return REQUIRED_DEVICE_CODES.length;
     }
     
-    const count = uniqueData?.length || REQUIRED_DEVICE_CODES.length;
+    const count = uniqueData.length || REQUIRED_DEVICE_CODES.length;
     console.log(`Found ${count} unique devices`);
     return count;
     
