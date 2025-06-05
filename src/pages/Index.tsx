@@ -1,4 +1,5 @@
 
+
 import { IconMenu } from "@/components/IconMenu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { CountdownTimer } from "@/components/CountdownTimer";
@@ -12,7 +13,8 @@ const Index = () => {
     <AppLayout wideContent showFooterNav contentPaddingBottom="pb-32 md:pb-16">
         {/* Clock timer section */}
         <div className={`mb-8 ${!isMobile ? 'mb-8' : 'mb-6'}`}>
-          <div className="flex justify-end items-center mb-3">
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-sm text-gray-600 font-medium">Analyzed by Meyer</span>
             <CountdownTimer 
               useGlobal={true}
               initialSeconds={60}
@@ -34,3 +36,4 @@ const Index = () => {
 };
 
 export default Index;
+
