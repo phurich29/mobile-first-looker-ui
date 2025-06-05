@@ -14,7 +14,9 @@ const Index = () => {
         {/* Clock timer section */}
         <div className={`mb-8 ${!isMobile ? 'mb-8' : 'mb-6'}`}>
           <div className="flex justify-between items-center mb-3">
-            <span className="text-sm text-gray-600 font-medium">Analyzed by Meyer</span>
+            <span className="text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-2 rounded-lg text-sm font-medium shadow-sm">
+              Analyzed by Meyer
+            </span>
             <div className="flex items-center gap-3">
               <ClockDisplay />
               <CountdownTimer 
