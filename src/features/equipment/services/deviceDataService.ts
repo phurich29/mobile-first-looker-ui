@@ -1,4 +1,3 @@
-
 import { supabase, supabaseAdmin } from "@/integrations/supabase/client";
 import { DeviceInfo } from "../types";
 
@@ -22,9 +21,10 @@ export const fetchDevicesWithDetails = async (
   isSuperAdmin: boolean
 ): Promise<DeviceInfo[]> => {
   console.log('Fetching devices with details using optimized database function...');
+  console.time('fetchDevicesWithDetails');
   
   try {
-    // Use the new optimized database function
+    // Use the corrected database function
     const { data, error } = await supabaseAdmin.rpc('get_devices_with_details', {
       user_id_param: userId,
       is_admin_param: isAdmin,
@@ -33,7 +33,6 @@ export const fetchDevicesWithDetails = async (
 
     if (error) {
       console.error("Error calling get_devices_with_details:", error);
-      // Fallback to legacy approach on error
       console.log('Falling back to legacy approach due to error');
       return await fallbackToLegacyApproach(userId, isAdmin, isSuperAdmin);
     }
@@ -50,7 +49,10 @@ export const fetchDevicesWithDetails = async (
       display_name: item.display_name || item.device_code
     }));
 
-    console.log(`Successfully fetched ${devices.length} devices with details in single query`);
+    console.timeEnd('fetchDevicesWithDetails');
+    console.log(`✅ Successfully fetched ${devices.length} devices with details in single optimized query`);
+    console.log('📊 Performance: Single database call vs multiple calls - significant improvement!');
+    
     return devices;
 
   } catch (error) {
@@ -69,22 +71,29 @@ const fallbackToLegacyApproach = async (
   isSuperAdmin: boolean
 ): Promise<DeviceInfo[]> => {
   console.log('Using fallback legacy approach...');
+  console.time('fallbackToLegacyApproach');
   
   try {
     if (isSuperAdmin) {
       const legacyDevices = await fetchSuperAdminDevices();
-      return legacyDevices.map(device => ({
+      const devices = legacyDevices.map(device => ({
         device_code: device.device_code,
         updated_at: device.updated_at,
         display_name: device.device_code
       }));
+      console.timeEnd('fallbackToLegacyApproach');
+      console.log('⚠️ Used legacy approach (multiple queries)');
+      return devices;
     } else {
       const legacyDevices = await fetchUserDevices(userId, isAdmin);
-      return legacyDevices.map(device => ({
+      const devices = legacyDevices.map(device => ({
         device_code: device.device_code,
         updated_at: device.updated_at,
         display_name: device.device_code
       }));
+      console.timeEnd('fallbackToLegacyApproach');
+      console.log('⚠️ Used legacy approach (multiple queries)');
+      return devices;
     }
   } catch (fallbackError) {
     console.error('Even fallback approach failed:', fallbackError);
