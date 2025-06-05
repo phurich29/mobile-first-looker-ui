@@ -1,10 +1,10 @@
 
-
 import { IconMenu } from "@/components/IconMenu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { NotificationList } from "@/components/NotificationList";
 import { AppLayout } from "@/components/layouts";
+import { ClockDisplay } from "@/components/layouts/top-header/ClockDisplay";
 
 const Index = () => {
   const isMobile = useIsMobile();
@@ -15,10 +15,13 @@ const Index = () => {
         <div className={`mb-8 ${!isMobile ? 'mb-8' : 'mb-6'}`}>
           <div className="flex justify-between items-center mb-3">
             <span className="text-sm text-gray-600 font-medium">Analyzed by Meyer</span>
-            <CountdownTimer 
-              useGlobal={true}
-              initialSeconds={60}
-            />
+            <div className="flex items-center gap-3">
+              <ClockDisplay />
+              <CountdownTimer 
+                useGlobal={true}
+                initialSeconds={60}
+              />
+            </div>
           </div>
         </div>
         
@@ -36,4 +39,3 @@ const Index = () => {
 };
 
 export default Index;
-

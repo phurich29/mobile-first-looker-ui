@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,6 @@ import { useAuth } from '@/components/AuthProvider';
 import { MobileMenuButton } from './MobileMenuButton';
 import { HeaderLogo } from './HeaderLogo';
 import { DeviceDropdown } from './DeviceDropdown';
-import { ClockDisplay } from './ClockDisplay';
 import { useDeviceData } from './useDeviceData';
 
 interface TopHeaderProps {
@@ -72,8 +70,6 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             isLoadingDevices={isLoadingDevices}
           />
         )}
-
-        <ClockDisplay />
         
         <Button variant="ghost" size="icon" className="text-white hover:bg-emerald-700/50 dark:hover:bg-slate-700/50">
           <Bell className="h-5 w-5" />
