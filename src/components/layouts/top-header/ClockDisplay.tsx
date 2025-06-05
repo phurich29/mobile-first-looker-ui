@@ -24,7 +24,7 @@ export const ClockDisplay: React.FC = () => {
   return (
     <Button 
       variant="ghost" 
-      className="text-white hover:bg-emerald-700/50 dark:hover:bg-slate-700/50 px-1 md:px-2 flex items-center h-auto md:h-10"
+      className="text-gray-500 hover:bg-gray-100 px-1 md:px-2 flex items-center h-auto md:h-10"
     >
       <Clock className="h-3 w-3 md:h-5 md:w-5 mr-1 md:mr-1.5" /> 
       <span className="text-xs md:text-sm">{formattedTime}</span>
