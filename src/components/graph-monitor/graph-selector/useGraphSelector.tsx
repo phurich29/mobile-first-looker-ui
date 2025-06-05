@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
-import { REQUIRED_DEVICE_CODES } from "@/features/equipment/services/deviceDataService";
+import { REQUIRED_DEVICE_CODES } from "@/features/equipment/services";
 
 interface DeviceInfo {
   device_code: string;

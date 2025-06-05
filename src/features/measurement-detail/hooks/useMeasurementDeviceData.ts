@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { REQUIRED_DEVICE_CODES } from "@/features/equipment/services/deviceDataService";
+import { REQUIRED_DEVICE_CODES } from "@/features/equipment/services";
 import { formatBangkokTime } from "@/components/measurement-history/api";
 
 export interface DeviceData {
