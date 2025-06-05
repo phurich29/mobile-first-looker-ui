@@ -15,7 +15,7 @@ const Index = () => {
             <div className="flex flex-col items-start gap-0">
               <span className="text-xs text-black font-semibold">Analyzed by</span>
               <img 
-                src="/lovable-uploads/7fffa74e-7e4c-450c-8eb3-d41e3071a92e.png" 
+                src="/lovable-uploads/6b12828f-a844-4f45-be72-ca664963430d.png" 
                 alt="Meyer Logo" 
                 className="h-6 object-contain"
               />
