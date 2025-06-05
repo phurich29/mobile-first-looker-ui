@@ -468,6 +468,18 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_devices_with_details: {
+        Args: {
+          user_id_param?: string
+          is_admin_param?: boolean
+          is_superadmin_param?: boolean
+        }
+        Returns: {
+          device_code: string
+          display_name: string
+          updated_at: string
+        }[]
+      }
       get_user_roles: {
         Args: { user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]

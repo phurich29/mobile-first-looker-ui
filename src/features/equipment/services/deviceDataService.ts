@@ -23,32 +23,32 @@ export const fetchDevicesWithDetails = async (
   console.log('Fetching devices with details using database function...');
   
   try {
-    // Use supabaseAdmin.rpc with any type to bypass TypeScript checking for new function
-    const { data, error } = await (supabaseAdmin as any).rpc('get_devices_with_details', {
-      user_id_param: userId,
-      is_admin_param: isAdmin,
-      is_superadmin_param: isSuperAdmin
-    });
-
-    if (error) {
-      console.error("Error calling get_devices_with_details:", error);
-      throw error;
+    // For now, fall back to legacy approach while database function is being fixed
+    if (isSuperAdmin) {
+      console.log('Using legacy fetchSuperAdminDevices for superadmin');
+      const legacyDevices = await fetchSuperAdminDevices();
+      return legacyDevices.map(device => ({
+        device_code: device.device_code,
+        updated_at: device.updated_at,
+        display_name: device.device_code // Will be enhanced with actual display names later
+      }));
+    } else if (isAdmin) {
+      console.log('Using legacy fetchUserDevices for admin');
+      const legacyDevices = await fetchUserDevices(userId, isAdmin);
+      return legacyDevices.map(device => ({
+        device_code: device.device_code,
+        updated_at: device.updated_at,
+        display_name: device.device_code // Will be enhanced with actual display names later
+      }));
+    } else {
+      console.log('Using legacy fetchUserDevices for regular user');
+      const legacyDevices = await fetchUserDevices(userId, isAdmin);
+      return legacyDevices.map(device => ({
+        device_code: device.device_code,
+        updated_at: device.updated_at,
+        display_name: device.device_code // Will be enhanced with actual display names later
+      }));
     }
-
-    if (!data || !Array.isArray(data)) {
-      console.log("No devices returned from function");
-      return [];
-    }
-
-    // Transform the data to match DeviceInfo interface
-    const devices: DeviceInfo[] = data.map((item: any) => ({
-      device_code: item.device_code,
-      updated_at: item.updated_at,
-      display_name: item.display_name
-    }));
-
-    console.log(`Fetched ${devices.length} devices with details in single query`);
-    return devices;
 
   } catch (error) {
     console.error('Error in fetchDevicesWithDetails:', error);
@@ -228,19 +228,9 @@ export const countUniqueDevices = async () => {
       return REQUIRED_DEVICE_CODES.length;
     }
     
-    // Get unique count using the same function
-    const { data: uniqueData, error: uniqueError } = await (supabaseAdmin as any).rpc('get_devices_with_details', {
-      user_id_param: null,
-      is_admin_param: false,
-      is_superadmin_param: true
-    });
-    
-    if (uniqueError || !Array.isArray(uniqueData)) {
-      console.error("Error counting unique devices:", uniqueError);
-      return REQUIRED_DEVICE_CODES.length;
-    }
-    
-    const count = uniqueData.length || REQUIRED_DEVICE_CODES.length;
+    // For now, use legacy approach to count
+    const superAdminDevices = await fetchSuperAdminDevices();
+    const count = superAdminDevices.length || REQUIRED_DEVICE_CODES.length;
     console.log(`Found ${count} unique devices`);
     return count;
     
