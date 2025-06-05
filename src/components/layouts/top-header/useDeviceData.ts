@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/AuthProvider';
-import { fetchDevicesWithDetails } from '@/features/equipment/services/deviceDataService';
+import { fetchDevicesWithDetails } from '@/features/equipment/services';
 
 interface Device {
   device_code: string;

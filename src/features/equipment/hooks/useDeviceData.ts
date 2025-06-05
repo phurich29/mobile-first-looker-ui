@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/ui/use-toast";
 import { DeviceInfo } from "../types";
-import { fetchDevicesWithDetails, countUniqueDevices } from "../services/deviceDataService";
+import { fetchDevicesWithDetails, countUniqueDevices } from "../services";
 
 export function useDeviceData() {
   const { user, userRoles } = useAuth();

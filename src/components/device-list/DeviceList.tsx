@@ -8,7 +8,7 @@ import { useAuth } from '@/components/AuthProvider';
 import { formatDistanceToNow } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
-import { fetchDevicesWithDetails } from '@/features/equipment/services/deviceDataService';
+import { fetchDevicesWithDetails } from '@/features/equipment/services';
 
 interface DeviceData {
   device_code: string;
