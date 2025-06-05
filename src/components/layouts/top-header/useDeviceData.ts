@@ -1,8 +1,7 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/AuthProvider';
-import { fetchSuperAdminDevices, fetchUserDevices } from '@/features/equipment/services/deviceDataService';
+import { fetchDevicesWithDetails } from '@/features/equipment/services/deviceDataService';
 
 interface Device {
   device_code: string;
@@ -23,37 +22,26 @@ export const useDeviceData = () => {
       
       setIsLoadingDevices(true);
       try {
-        let deviceList;
+        console.log('TopHeader: Fetching devices using optimized function...');
         
-        if (isSuperAdmin) {
-          console.log('Fetching devices for superadmin');
-          deviceList = await fetchSuperAdminDevices();
-        } else {
-          console.log('Fetching authorized devices for user...');
-          deviceList = await fetchUserDevices(user.id, isAdmin);
-        }
+        // Use the new optimized function
+        const deviceList = await fetchDevicesWithDetails(
+          user.id,
+          isAdmin,
+          isSuperAdmin
+        );
 
-        // Fetch display names for devices
-        if (deviceList.length > 0) {
-          const deviceCodes = deviceList.map(d => d.device_code);
-          const { data: settingsData } = await supabase
-            .from('device_settings')
-            .select('device_code, display_name')
-            .in('device_code', deviceCodes);
+        // Transform to match the expected interface
+        const devicesWithNames = deviceList.map(device => ({
+          device_code: device.device_code,
+          display_name: device.display_name || device.device_code
+        }));
 
-          // Merge display names
-          const devicesWithNames = deviceList.map(device => {
-            const setting = settingsData?.find(s => s.device_code === device.device_code);
-            return {
-              device_code: device.device_code,
-              display_name: setting?.display_name || device.device_code
-            };
-          });
-
-          setDevices(devicesWithNames);
-        }
+        console.log(`TopHeader: Fetched ${devicesWithNames.length} devices in single query`);
+        setDevices(devicesWithNames);
+        
       } catch (error) {
-        console.error('Error fetching devices:', error);
+        console.error('TopHeader: Error fetching devices:', error);
       } finally {
         setIsLoadingDevices(false);
       }

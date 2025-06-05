@@ -1,18 +1,19 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { ActivitySquare, Calendar, Clock } from 'lucide-react';
+import { ActivitySquare, Clock } from 'lucide-react';
 import { useAuth } from '@/components/AuthProvider';
 import { formatDistanceToNow } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
+import { fetchDevicesWithDetails } from '@/features/equipment/services/deviceDataService';
 
 interface DeviceData {
   device_code: string;
   updated_at: string;
+  display_name?: string;
 }
 
 export const DeviceList = () => {
@@ -20,56 +21,43 @@ export const DeviceList = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, userRoles } = useAuth();
+  
+  const isAdmin = userRoles.includes('admin');
+  const isSuperAdmin = userRoles.includes('superadmin');
   
   useEffect(() => {
     const fetchDevices = async () => {
+      if (!user) {
+        setDevices([]);
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         
-        // First check user device access if user is logged in
-        if (user) {
-          const { data: accessData, error: accessError } = await supabase
-            .from('user_device_access')
-            .select('device_code')
-            .eq('user_id', user.id);
-            
-          if (accessError) {
-            throw new Error(accessError.message);
-          }
-          
-          // If user has specific device access
-          if (accessData && accessData.length > 0) {
-            // Get the latest data for user's accessible devices
-            const { data, error } = await supabase
-              .rpc('get_device_data');
-            
-            if (error) {
-              throw new Error(error.message);
-            }
-            
-            // Filter only the devices user has access to
-            const accessibleDeviceCodes = accessData.map(access => access.device_code);
-            const filteredDevices = data?.filter(device => 
-              accessibleDeviceCodes.includes(device.device_code)
-            );
-            
-            setDevices(filteredDevices || []);
-            return;
-          }
-        }
+        console.log('DeviceList: Fetching devices using optimized function...');
         
-        // If no user or user has no specific access, fetch all device data
-        const { data, error } = await supabase
-          .rpc('get_device_data');
+        // Use the new optimized function
+        const deviceList = await fetchDevicesWithDetails(
+          user.id,
+          isAdmin,
+          isSuperAdmin
+        );
         
-        if (error) {
-          throw new Error(error.message);
-        }
+        // Transform to match expected interface
+        const transformedDevices = deviceList.map(device => ({
+          device_code: device.device_code,
+          updated_at: device.updated_at || new Date().toISOString(),
+          display_name: device.display_name
+        }));
         
-        setDevices(data || []);
+        console.log(`DeviceList: Fetched ${transformedDevices.length} devices in single query`);
+        setDevices(transformedDevices);
+        
       } catch (error) {
-        console.error('Error fetching devices:', error);
+        console.error('DeviceList: Error fetching devices:', error);
         toast({
           title: 'เกิดข้อผิดพลาดในการโหลดข้อมูล',
           description: 'ไม่สามารถโหลดรายการอุปกรณ์ได้ กรุณาลองใหม่อีกครั้ง',
@@ -81,7 +69,7 @@ export const DeviceList = () => {
     };
     
     fetchDevices();
-  }, [user, toast]);
+  }, [user, isAdmin, isSuperAdmin, toast]);
   
   // Format the date to be more readable
   const formatUpdatedAt = (dateString: string) => {
@@ -141,7 +129,12 @@ export const DeviceList = () => {
             <CardContent className="p-0">
               <div className="p-4 flex justify-between items-center">
                 <div>
-                  <h3 className="font-medium text-gray-800">{device.device_code}</h3>
+                  <h3 className="font-medium text-gray-800">
+                    {device.display_name || device.device_code}
+                  </h3>
+                  {device.display_name && device.display_name !== device.device_code && (
+                    <p className="text-xs text-gray-400">{device.device_code}</p>
+                  )}
                   <p className="text-sm text-gray-500">อุปกรณ์วัดคุณภาพข้าว</p>
                 </div>
                 <div className="bg-emerald-100 p-2 rounded-full">

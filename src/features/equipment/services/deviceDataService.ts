@@ -14,10 +14,55 @@ export const REQUIRED_DEVICE_CODES = [
 ];
 
 /**
+ * Fetches devices with all details using the new database function
+ */
+export const fetchDevicesWithDetails = async (
+  userId: string,
+  isAdmin: boolean,
+  isSuperAdmin: boolean
+): Promise<DeviceInfo[]> => {
+  console.log('Fetching devices with details using database function...');
+  
+  try {
+    // Use the new database function that combines all queries
+    const { data, error } = await supabaseAdmin.rpc('get_devices_with_details', {
+      user_id_param: userId,
+      is_admin_param: isAdmin,
+      is_superadmin_param: isSuperAdmin
+    });
+
+    if (error) {
+      console.error("Error calling get_devices_with_details:", error);
+      throw error;
+    }
+
+    if (!data) {
+      console.log("No devices returned from function");
+      return [];
+    }
+
+    // Transform the data to match DeviceInfo interface
+    const devices: DeviceInfo[] = data.map(item => ({
+      device_code: item.device_code,
+      updated_at: item.updated_at,
+      display_name: item.display_name
+    }));
+
+    console.log(`Fetched ${devices.length} devices with details in single query`);
+    return devices;
+
+  } catch (error) {
+    console.error('Error in fetchDevicesWithDetails:', error);
+    throw error;
+  }
+};
+
+/**
+ * Legacy function - kept for fallback compatibility
  * Fetches all devices for a superadmin user
  */
 export const fetchSuperAdminDevices = async () => {
-  console.log('Starting with required devices for superadmin');
+  console.log('Using legacy fetchSuperAdminDevices - consider using fetchDevicesWithDetails');
   
   // For superadmin, always start with all 7 required devices
   const requiredDeviceObjects = REQUIRED_DEVICE_CODES.map(deviceCode => ({
@@ -34,7 +79,6 @@ export const fetchSuperAdminDevices = async () => {
     
   if (error) {
     console.error("Error fetching additional devices:", error);
-    // Return at least the required devices even if there's an error
     return requiredDeviceObjects;
   }
   
@@ -67,7 +111,6 @@ export const fetchSuperAdminDevices = async () => {
       .limit(1);
       
     if (latestError || !latestEntry || latestEntry.length === 0) {
-      // Return device with null timestamp if no data found
       return {
         device_code: deviceCode,
         updated_at: null
@@ -87,10 +130,11 @@ export const fetchSuperAdminDevices = async () => {
 };
 
 /**
+ * Legacy function - kept for fallback compatibility
  * Fetches devices that a user has access to
  */
 export const fetchUserDevices = async (userId: string, isAdmin: boolean) => {
-  console.log('Fetching authorized devices for user...');
+  console.log('Using legacy fetchUserDevices - consider using fetchDevicesWithDetails');
   
   // Create a set of authorized device codes
   const authorizedDeviceCodes = new Set<string>();
@@ -167,35 +211,43 @@ export const fetchUserDevices = async (userId: string, isAdmin: boolean) => {
 };
 
 /**
- * Counts total unique devices in the system
+ * Counts total unique devices in the system using optimized query
  */
 export const countUniqueDevices = async () => {
   console.log('Counting unique devices...');
   
-  // Start with required devices count
-  const uniqueDeviceCodes = new Set(REQUIRED_DEVICE_CODES);
-  
-  // Fetch additional devices from rice_quality_analysis
-  const { data, error } = await supabaseAdmin
-    .from('rice_quality_analysis')
-    .select('device_code')
-    .not('device_code', 'is', null)
-    .not('device_code', 'eq', '');
+  try {
+    // Use a more efficient query to count unique devices
+    const { data, error } = await supabaseAdmin
+      .from('rice_quality_analysis')
+      .select('device_code', { count: 'exact', head: true })
+      .not('device_code', 'is', null)
+      .not('device_code', 'eq', '');
+      
+    if (error) {
+      console.error("Error counting devices:", error);
+      return REQUIRED_DEVICE_CODES.length;
+    }
     
-  if (error) {
-    console.error("Error counting additional devices:", error);
-    // Return at least the required devices count
+    // Get unique count using a simpler approach
+    const { data: uniqueData, error: uniqueError } = await supabaseAdmin
+      .rpc('get_devices_with_details', {
+        user_id_param: null,
+        is_admin_param: false,
+        is_superadmin_param: true
+      });
+    
+    if (uniqueError) {
+      console.error("Error counting unique devices:", uniqueError);
+      return REQUIRED_DEVICE_CODES.length;
+    }
+    
+    const count = uniqueData?.length || REQUIRED_DEVICE_CODES.length;
+    console.log(`Found ${count} unique devices`);
+    return count;
+    
+  } catch (error) {
+    console.error("Error in countUniqueDevices:", error);
     return REQUIRED_DEVICE_CODES.length;
   }
-  
-  // Add additional devices to the set
-  data?.forEach(item => {
-    if (item.device_code) {
-      uniqueDeviceCodes.add(item.device_code);
-    }
-  });
-  
-  const count = uniqueDeviceCodes.size;
-  console.log(`Found ${count} unique devices (${REQUIRED_DEVICE_CODES.length} required + ${count - REQUIRED_DEVICE_CODES.length} additional)`);
-  return count;
 };
