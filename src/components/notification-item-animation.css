@@ -1,5 +1,3 @@
-
-
 /* Animation สำหรับไอคอนกระดิ่งแจ้งเตือน */
 .bell-animation {
   animation: bell-pulse 2s infinite ease-in-out;
@@ -30,13 +28,13 @@
     opacity: 1;
   }
   25% {
-    opacity: 0.3;
+    opacity: 0.1;
   }
   50% {
     opacity: 1;
   }
   75% {
-    opacity: 0.3;
+    opacity: 0.1;
   }
   100% {
     opacity: 1;
@@ -59,4 +57,3 @@
     opacity: 1;
   }
 }
-
