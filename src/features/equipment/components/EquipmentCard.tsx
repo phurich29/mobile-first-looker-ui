@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart, Edit2, Clock } from "lucide-react";
+import { BarChart, Settings, Clock } from "lucide-react";
 import equipmentIcon from "@/assets/equipment-icon.svg";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
@@ -140,7 +140,7 @@ export function EquipmentCard({
                     className="h-6 w-6 p-0 ml-1 flex-shrink-0"
                     onClick={() => setIsEditDialogOpen(true)}
                   >
-                    <Edit2 className="h-3.5 w-3.5" />
+                    <Settings className="h-3.5 w-3.5" />
                   </Button>
                 )}
               </div>
