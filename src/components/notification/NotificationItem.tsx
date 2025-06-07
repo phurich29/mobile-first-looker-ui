@@ -121,9 +121,6 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
           onClick={handleBackgroundClick}
         ></div>
         
-        {/* Alert bell animation */}
-        <NotificationAlert isAlertActive={isAlertActive} />
-        
         {/* Device info and icon */}
         <div className="flex items-center relative z-10 w-[60%] h-[60px] py-2">
           <NotificationIcon 
@@ -133,8 +130,11 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
             enabled={enabled}
           />
           <div className="min-w-0 h-full flex items-center">
-            <div className="flex flex-col justify-center space-y-1">
-              <h3 className="font-medium text-sm text-gray-800 dark:text-gray-100 truncate">{name}</h3>
+            <div className="flex flex-col justify-center space-y-1 w-full">
+              <div className="flex items-center gap-2">
+                <h3 className="font-medium text-sm text-gray-800 dark:text-gray-100 truncate flex-1">{name}</h3>
+                <NotificationAlert isAlertActive={isAlertActive} />
+              </div>
               <div className="flex items-center">
                 <span className="text-xs text-gray-500 dark:text-gray-400 truncate">{deviceName}</span>
               </div>

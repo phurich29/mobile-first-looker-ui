@@ -34,8 +34,8 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
     <header
       className={cn(
         'sticky top-0 z-30 flex h-16 items-center justify-between left-0 right-0',
-        'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white',
-        'shadow-lg dark:from-slate-800 dark:to-slate-900',
+        'bg-emerald-600 text-white',
+        'shadow-lg dark:bg-emerald-800',
         'transition-all duration-300 ease-in-out',
         'px-4',
         isMobile ? '' : (isCollapsed ? 'md:pl-[100px]' : 'md:pl-[276px]'),
@@ -71,7 +71,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           />
         )}
         
-        <Button variant="ghost" size="icon" className="text-white hover:bg-emerald-700/50 dark:hover:bg-slate-700/50">
+        <Button variant="ghost" size="icon" className="text-white hover:bg-emerald-700/50 dark:hover:bg-emerald-700/50">
           <Bell className="h-5 w-5" />
         </Button>
       </div>
