@@ -24,10 +24,10 @@ export function DevicesHeader({
       <div>
         <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-800 dark:text-white`}>อุปกรณ์</h1>
         {isSuperAdmin && totalUniqueDevices > 0 && (
-          <p className="text-gray-500 dark:text-gray-300 mt-1">จำนวนอุปกรณ์ทั้งหมดในระบบ: {totalUniqueDevices} เครื่อง</p>
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-1">จำนวนอุปกรณ์ทั้งหมดในระบบ: {totalUniqueDevices} เครื่อง</p>
         )}
         {!isSuperAdmin && (
-          <p className="text-gray-500 dark:text-gray-300 mt-1">แสดงเฉพาะอุปกรณ์ที่คุณได้รับสิทธิ์การเข้าถึง</p>
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-1">แสดงเฉพาะอุปกรณ์ที่คุณได้รับสิทธิ์การเข้าถึง</p>
         )}
       </div>
       <Button 

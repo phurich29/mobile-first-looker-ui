@@ -20,7 +20,7 @@ export const GraphHeader: React.FC<GraphHeaderProps> = ({
     <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
       <div>
         <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">กราฟมอนิเตอร์</h1>
-        <p className="text-gray-600 text-sm mt-1 dark:text-gray-400">
+        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-1">
           แสดงผลกราฟจากอุปกรณ์ต่างๆ ในรูปแบบ dashboard
         </p>
       </div>

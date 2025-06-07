@@ -51,7 +51,7 @@ export function NewsManagementView() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">จัดการข่าวสาร</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">เพิ่ม แก้ไข และจัดการข่าวสารสำหรับผู้ใช้งานทั้งหมด</p>
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-1">เพิ่ม แก้ไข และจัดการข่าวสารสำหรับผู้ใช้งานทั้งหมด</p>
           </div>
           
           <div className="flex flex-wrap gap-3">

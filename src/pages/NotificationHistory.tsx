@@ -17,8 +17,8 @@ const NotificationHistory: React.FC = () => {
       <div className={cn("relative z-10", /* overflow-x-hidden might be needed if content overflows */ )}>
         <div className="mx-auto max-w-7xl">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">ประวัติการแจ้งเตือน</h1>
-            <p className="text-gray-600 dark:text-gray-300">
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">ประวัติการแจ้งเตือน</h1>
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-1">
               แสดงประวัติการแจ้งเตือนที่เกิดจากการตรวจพบค่าที่เกินเกณฑ์ที่กำหนดไว้
             </p>
           </div>
