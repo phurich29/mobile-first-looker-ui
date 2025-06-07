@@ -48,7 +48,8 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
       )}>
         <div className={cn(
           "flex flex-col h-full bg-[#fff9df] dark:bg-gray-900",
-          isCollapsed ? "p-2" : "p-4" // ลด padding ลงเมื่อ sidebar หดตัวเพื่อให้ไม่มีพื้นที่ว่างด้านขวา
+          isCollapsed ? "p-2" : "p-4", // ลด padding ลงเมื่อ sidebar หดตัวเพื่อให้ไม่มีพื้นที่ว่างด้านขวา
+          isMobile ? "pb-20" : "" // เพิ่ม padding-bottom บน mobile เพื่อเว้นพื้นที่สำหรับ footer menu
         )}>
           {/* Header with logo and mobile close button */}
           <SidebarHeader 
