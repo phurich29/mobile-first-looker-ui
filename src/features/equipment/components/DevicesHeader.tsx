@@ -24,16 +24,16 @@ export function DevicesHeader({
       <div>
         <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-800 dark:text-white`}>อุปกรณ์</h1>
         {isSuperAdmin && totalUniqueDevices > 0 && (
-          <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">จำนวนอุปกรณ์ทั้งหมดในระบบ: {totalUniqueDevices} เครื่อง</p>
+          <p className="text-gray-500 dark:text-gray-300 mt-1">จำนวนอุปกรณ์ทั้งหมดในระบบ: {totalUniqueDevices} เครื่อง</p>
         )}
         {!isSuperAdmin && (
-          <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">แสดงเฉพาะอุปกรณ์ที่คุณได้รับสิทธิ์การเข้าถึง</p>
+          <p className="text-gray-500 dark:text-gray-300 mt-1">แสดงเฉพาะอุปกรณ์ที่คุณได้รับสิทธิ์การเข้าถึง</p>
         )}
       </div>
       <Button 
         variant="outline" 
         size="sm"
-        className="flex items-center gap-1 border-emerald-200 dark:border-emerald-700 bg-white dark:bg-gray-800 hover:bg-emerald-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
+        className="flex items-center gap-1 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
         onClick={handleRefresh} 
         disabled={isRefreshing}
       >

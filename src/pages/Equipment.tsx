@@ -28,7 +28,6 @@ export default function Equipment() {
               totalUniqueDevices={totalUniqueDevices}
               isSuperAdmin={isSuperAdmin}
             />
-            <div className="absolute -bottom-1 left-0 w-16 h-1 bg-emerald-500 rounded-full"></div>
           </div>
           
           {/* Add Device Form - Only for admin and superadmin */}
