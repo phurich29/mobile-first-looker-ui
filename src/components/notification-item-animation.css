@@ -1,4 +1,5 @@
 
+
 /* Animation สำหรับไอคอนกระดิ่งแจ้งเตือน */
 .bell-animation {
   animation: bell-pulse 2s infinite ease-in-out;
@@ -19,23 +20,23 @@
   }
 }
 
-/* Animation กระพริบช้าๆ แบบผู้ดี */
+/* Animation กระพริบช้าๆ แบบผู้ดี - 1 วินาที กระพริบ 2 ครั้ง */
 .bell-gentle-blink {
-  animation: gentle-blink 3s infinite ease-in-out;
+  animation: gentle-blink 1s infinite ease-in-out;
 }
 
 @keyframes gentle-blink {
   0% {
     opacity: 1;
   }
-  30% {
-    opacity: 1;
-  }
-  50% {
+  25% {
     opacity: 0.3;
   }
-  70% {
+  50% {
     opacity: 1;
+  }
+  75% {
+    opacity: 0.3;
   }
   100% {
     opacity: 1;
@@ -58,3 +59,4 @@
     opacity: 1;
   }
 }
+
