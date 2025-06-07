@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart, Settings, Clock } from "lucide-react";
+import { BarChart, Settings, Clock, Users } from "lucide-react";
 import equipmentIcon from "@/assets/equipment-icon.svg";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
@@ -137,10 +137,10 @@ export function EquipmentCard({
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    className="h-6 w-6 p-0 ml-1 flex-shrink-0"
-                    onClick={() => setIsEditDialogOpen(true)}
+                    className="h-6 w-6 p-0 ml-1 flex-shrink-0 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    onClick={() => setIsUsersDialogOpen(true)}
                   >
-                    <Settings className="h-3.5 w-3.5" />
+                    <Users className="h-4 w-4" />
                   </Button>
                 )}
               </div>
@@ -177,11 +177,12 @@ export function EquipmentCard({
             
             {isAdmin && (
               <Button
-                variant="secondary"
-                className="flex-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 h-8 px-2 rounded-md sm:h-9 sm:px-3"
-                onClick={() => setIsUsersDialogOpen(true)}
+                variant="outline"
+                size="icon"
+                className="h-8 w-8 p-0 flex items-center justify-center rounded-md sm:h-9 sm:w-9 flex-shrink-0 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                onClick={() => setIsEditDialogOpen(true)}
               >
-                จัดการสิทธิ์
+                <Settings className="h-3.5 w-3.5" />
               </Button>
             )}
           </div>
