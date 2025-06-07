@@ -1,3 +1,4 @@
+
 import React from "react";
 import { ClockDisplay } from "./top-header/ClockDisplay";
 import { CountdownTimer } from "@/components/CountdownTimer";
@@ -25,7 +26,7 @@ export const MeyerAndTimeBar: React.FC<MeyerAndTimeBarProps> = ({
         <div className="flex flex-col items-start gap-0">
           <span className="text-xs text-black font-semibold">Analyzed by</span>
           <img 
-            src="/lovable-uploads/6b12828f-a844-4f45-be72-ca664963430d.png" 
+            src="/lovable-uploads/69c73af7-03be-4238-b73c-f296246cd364.png" 
             alt="Meyer Logo" 
             className="h-6 object-contain"
           />
