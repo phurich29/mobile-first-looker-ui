@@ -119,7 +119,7 @@ export function EquipmentCard({
   
   return (
     <>
-      <Card className="duration-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+      <Card className="duration-300 border border-gray-200 dark:border-gray-700 bg-emerald-100 dark:bg-emerald-800 bg-[linear-gradient(rgba(255,255,255,0.98),rgba(255,255,255,0.98)),url('/lovable-uploads/6b12828f-a844-4f45-be72-ca664963430d.png')] bg-repeat shadow-none">
         <CardHeader className="pb-1 p-2 sm:p-4">
           <div className="flex flex-row items-start gap-2 sm:gap-3">
             {/* Column 1: Icon */}
