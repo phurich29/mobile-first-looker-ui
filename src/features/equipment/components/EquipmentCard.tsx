@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart, Edit2 } from "lucide-react";
+import { BarChart, Edit2, Clock } from "lucide-react";
 import equipmentIcon from "@/assets/equipment-icon.svg";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
@@ -41,7 +41,7 @@ export function EquipmentCard({
         const date = new Date(lastUpdated);
         // เพิ่มเวลาอีก 7 ชั่วโมง
         date.setHours(date.getHours() + 7);
-        return format(date, "dd MMMM yyyy HH:mm:ss น.", { locale: th });
+        return format(date, "dd MMM yy HH:mm น.", { locale: th });
       })()
     : "ไม่มีข้อมูล";
 
@@ -119,49 +119,54 @@ export function EquipmentCard({
   
   return (
     <>
-      <Card className="transition-shadow duration-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-        <CardHeader className="pb-1 p-4">
-          <div className="flex items-start justify-between">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-2">
-              <img src={equipmentIcon} alt="อุปกรณ์" className="w-10 h-10" />
+      <Card className="duration-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+        <CardHeader className="pb-1 p-2 sm:p-4">
+          <div className="flex flex-row items-start gap-2 sm:gap-3">
+            {/* Column 1: Icon */}
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0 mt-1 sm:mt-0">
+              <img src={equipmentIcon} alt="อุปกรณ์" className="w-full h-full" />
             </div>
-            <span className="text-xs bg-amber-100 dark:bg-amber-800 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full font-medium">
-              อุปกรณ์
-            </span>
-          </div>
-          <div className="flex justify-between items-start">
-            <CardTitle className="text-base font-bold text-gray-900 dark:text-white">{displayName || deviceCode}</CardTitle>
-            {isAdmin && (
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className="h-6 w-6 p-0 ml-2"
-                onClick={() => setIsEditDialogOpen(true)}
-              >
-                <Edit2 className="h-3.5 w-3.5" />
-              </Button>
-            )}
-          </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            รหัส: {deviceCode}
+
+            {/* Column 2: Text details and Badge */}
+            <div className="flex-grow min-w-0">
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-sm sm:text-base font-bold text-gray-900 dark:text-white truncate pr-1">
+                  {displayName || deviceCode}
+                </CardTitle>
+                {isAdmin && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="h-6 w-6 p-0 ml-1 flex-shrink-0"
+                    onClick={() => setIsEditDialogOpen(true)}
+                  >
+                    <Edit2 className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-0 sm:mt-0.5 truncate">
+                รหัส: {deviceCode}
+              </div>
+            </div>
           </div>
         </CardHeader>
-        <CardContent className="p-4 pt-0">
+        <CardContent className="p-2 pt-1 sm:p-4 sm:pt-0">
           <div className="text-xs text-gray-600 dark:text-slate-400">
-            <p className="mb-0.5">อัพเดทล่าสุด:</p>
-            <p className={timeClasses}>{formattedTime}</p>
-            {isRecentUpdate && (
-              <p className="text-xs text-red-600 dark:text-red-400 mt-0.5">
-                อัปเดตล่าสุดใน 24 ชม.
-              </p>
-            )}
+            <div className="flex items-center">
+              <Clock className="h-3.5 w-3.5 mr-1.5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+              <span className={timeClasses}>{formattedTime}</span>
+              {isRecentUpdate && (
+                <span className="text-xs text-red-600 dark:text-red-400 ml-1">
+                  (ใน 24 ชม.)
+                </span>
+              )}
+            </div>
           </div>
           
-          <div className="flex flex-col gap-2 mt-3">
+          <div className="flex flex-row gap-2 mt-2 sm:mt-3">
             <Button 
               variant="outline" 
-              size="sm"
-              className="w-full text-xs border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+              className="flex-1 text-xs border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 h-8 px-2 rounded-md sm:h-9 sm:px-3"
               asChild
             >
               <Link to={`/device/${deviceCode}`}>
@@ -173,8 +178,7 @@ export function EquipmentCard({
             {isAdmin && (
               <Button
                 variant="secondary"
-                size="sm"
-                className="w-full text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600"
+                className="flex-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 h-8 px-2 rounded-md sm:h-9 sm:px-3"
                 onClick={() => setIsUsersDialogOpen(true)}
               >
                 จัดการสิทธิ์
