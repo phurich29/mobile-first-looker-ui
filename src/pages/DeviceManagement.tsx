@@ -8,7 +8,6 @@ import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { DeviceManagementView } from "@/components/DeviceManagementView";
-import { BackButton } from '@/components/ui/back-button';
 
 export default function DeviceManagement() {
   const { user, userRoles, isLoading: isAuthLoading } = useAuth();
@@ -179,7 +178,6 @@ export default function DeviceManagement() {
       {/* Header and FooterNav are handled by AppLayout */}
       {/* The main content area. Background and min-height are handled by AppLayout or its children. */}
       {/* The md:ml-64 for sidebar is handled by AppLayout */}
-      <BackButton />
       <div className="flex-1 p-4">
         <h1 className="text-2xl font-bold mb-6">จัดการอุปกรณ์และสิทธิ์การเข้าถึง</h1>
         

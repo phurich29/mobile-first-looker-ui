@@ -6,7 +6,6 @@ import { PageHeader } from "./components/PageHeader";
 import { NotificationSettingsList } from "./components/NotificationSettingsList";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNotificationSettings } from "./hooks/useNotificationSettings";
-import { BackButton } from '@/components/ui/back-button';
 // Header and FooterNav are handled by AppLayout
 
 const NotificationSettings = () => {
@@ -17,7 +16,6 @@ const NotificationSettings = () => {
   
   return (
     <AppLayout showFooterNav={isMobile}>
-      <BackButton />
       <BackgroundImage />
       {/* Main content container with original padding and max-width. Dynamic margins/paddings are now handled by AppLayout. */}
       <div className={cn(

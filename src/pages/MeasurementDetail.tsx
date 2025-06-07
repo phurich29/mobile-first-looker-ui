@@ -11,7 +11,6 @@ import {
   MeasurementHeader,
   DeviceCardList
 } from "@/features/measurement-detail";
-import { BackButton } from '@/components/ui/back-button';
 
 export default function MeasurementDetail() {
   const { measurementSymbol } = useParams<{ measurementSymbol: string }>();
@@ -22,7 +21,6 @@ export default function MeasurementDetail() {
 
   return (
     <AppLayout showFooterNav={true} contentPaddingBottom="pb-32">
-      <BackButton />
       {/* Main content container with original padding. Dynamic margins and specific footer padding are handled by AppLayout. */}
       <div className="flex-1"> {/* Removed pb-32 as it's handled by AppLayout prop */}
         <MeasurementHeader 

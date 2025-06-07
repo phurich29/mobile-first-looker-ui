@@ -10,7 +10,6 @@ import { AppLayout } from "@/components/layouts/app-layout";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getNotificationSettings } from "./api";
 import FilteredDatabaseTable from "./FilteredDatabaseTable";
-import { BackButton } from '@/components/ui/back-button';
 
 export type TimeFrame = '1h' | '24h' | '7d' | '30d';
 
@@ -180,7 +179,6 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
 
   return (
     <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-8'}>
-      <BackButton to={`/device/${deviceCode}`} />
       <div className="flex flex-col flex-1 min-h-full bg-gradient-to-b from-emerald-50 to-gray-50 overflow-x-hidden">
         <main className="flex-1 overflow-x-hidden">
           <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">

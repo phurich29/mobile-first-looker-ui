@@ -8,7 +8,6 @@ import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppLayout } from "@/components/layouts"; // Import AppLayout
-import { BackButton } from '@/components/ui/back-button';
 
 // All measurement types organized by category
 const measurementTypes = {
@@ -83,7 +82,6 @@ export default function NewQualityMeasurements() {
 
   return (
     <AppLayout wideContent={true} showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-16' : 'pb-6'}>
-      <BackButton />
       <BackgroundImage />
       <div className="">
         <h1 className="text-2xl font-bold text-emerald-700 dark:text-emerald-300 mb-4">ค่าวัดคุณภาพ</h1>

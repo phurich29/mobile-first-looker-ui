@@ -4,6 +4,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { LAYOUT_STYLES, cn } from '@/lib/layout-styles';
 import { HeaderSidebar } from '@/components/header/HeaderSidebar';
 import { TopHeader } from './top-header'; // Import the new TopHeader
+import { MeyerAndTimeBar } from './meyer-and-time-bar'; // Import MeyerAndTimeBar
 import { FooterNav } from '@/components/FooterNav';
 
 /**
@@ -95,6 +96,7 @@ export function AppLayout({
         getMainPaddingBottom(),
         className
       )}>
+        <MeyerAndTimeBar />
         {children}
       </main>
       

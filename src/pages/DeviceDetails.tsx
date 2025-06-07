@@ -7,7 +7,6 @@ import MeasurementHistory from "@/components/measurement-history/MeasurementHist
 import "@/components/notification-item-animation.css";
 import { CountdownProvider } from "@/contexts/CountdownContext";
 import { CountdownTimer } from "@/components/CountdownTimer";
-import { BackButton } from '@/components/ui/back-button';
 
 // Import custom hooks
 import { useDeviceData } from "@/features/device-details/hooks/useDeviceData";
@@ -157,7 +156,6 @@ export default function DeviceDetails() {
   return (
     <CountdownProvider initialSeconds={60} onComplete={handleCountdownComplete}>
       <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-4'}>
-        <BackButton to="/equipment" />
         <div className="flex-1">
           <DeviceHeader deviceCode={deviceCode} />
           

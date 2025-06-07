@@ -5,7 +5,6 @@ import { useIsMobile } from "@/hooks/use-mobile"; // Retained as it's used in JS
 // Header and FooterNav are handled by AppLayout
 import { NotificationDebugger } from "@/components/notification-history/components/NotificationDebugger";
 import { BackgroundImage } from "@/components/graph-monitor/BackgroundImage";
-import { BackButton } from '@/components/ui/back-button';
 import { cn } from "@/lib/utils";
 
 const NotificationHistory: React.FC = () => {
@@ -13,7 +12,6 @@ const NotificationHistory: React.FC = () => {
 
   return (
     <AppLayout showFooterNav={true}>
-      <BackButton />
       <BackgroundImage />
       {/* Main content container with original padding and max-width. Dynamic margins/paddings are now handled by AppLayout. */}
       <div className={cn("relative z-10", /* overflow-x-hidden might be needed if content overflows */ )}>
