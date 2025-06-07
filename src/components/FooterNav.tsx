@@ -36,8 +36,8 @@ export const FooterNav = () => {
   
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
-      {/* Modern glass-morphism footer with fixed height */}
-      <div className="bg-emerald-600 dark:bg-emerald-800 h-16 rounded-t-2xl shadow-lg backdrop-blur-sm bg-opacity-90">
+      {/* Modern glass-morphism footer with fixed height - removed gradient */}
+      <div className="bg-emerald-600 dark:bg-emerald-800 h-16 rounded-t-2xl shadow-lg backdrop-blur-sm">
         <nav className="flex justify-around items-center h-full">
           <NavLink to="/" className={({
           isActive
