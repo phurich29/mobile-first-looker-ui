@@ -19,6 +19,29 @@
   }
 }
 
+/* Animation กระพริบช้าๆ แบบผู้ดี */
+.bell-gentle-blink {
+  animation: gentle-blink 3s infinite ease-in-out;
+}
+
+@keyframes gentle-blink {
+  0% {
+    opacity: 1;
+  }
+  30% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 /* Animation สำหรับค่าที่วัดได้เมื่อเข้าเงื่อนไขแจ้งเตือน */
 .value-blink {
   animation: value-blink-animation 1.5s infinite ease-in-out;

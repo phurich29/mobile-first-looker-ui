@@ -12,7 +12,7 @@ const NotificationAlert: React.FC<NotificationAlertProps> = ({ isAlertActive }) 
   }
   
   return (
-    <div className="flex-shrink-0 bell-animation">
+    <div className="flex-shrink-0 bell-gentle-blink">
       <Bell size={16} className="text-yellow-400 fill-yellow-400" />
     </div>
   );
