@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { AppLayout } from "@/components/layouts/app-layout"; 
-import { useIsMobile } from "@/hooks/use-mobile"; 
-import MeasurementHistory from "@/components/measurement-history/MeasurementHistory"; 
+import { AppLayout } from "@/components/layouts/app-layout";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MeasurementHistory from "@/components/measurement-history/MeasurementHistory";
 import "@/components/notification-item-animation.css";
 import { CountdownProvider } from "@/contexts/CountdownContext";
 import { CountdownTimer } from "@/components/CountdownTimer";
@@ -48,7 +47,6 @@ const convertUrlSymbolToMeasurementSymbol = (urlSymbol: string): string => {
     'whiteness': 'whiteness',
     'processprecision': 'process_precision'
   };
-  
   return symbolMap[urlSymbol.toLowerCase()] || urlSymbol;
 };
 
@@ -56,7 +54,7 @@ const convertUrlSymbolToMeasurementSymbol = (urlSymbol: string): string => {
 const getMeasurementName = (symbol: string): string => {
   const nameMap: Record<string, string> = {
     'class1': 'ชั้น 1 (>7.0 mm)',
-    'class2': 'ชั้น 2 (5.5-7.0 mm)', 
+    'class2': 'ชั้น 2 (5.5-7.0 mm)',
     'class3': 'ชั้น 3 (<5.5 mm)',
     'short_grain': 'เมล็ดสั้น',
     'slender_kernel': 'เมล็ดยาว',
@@ -80,15 +78,15 @@ const getMeasurementName = (symbol: string): string => {
     'whiteness': 'ความขาว',
     'process_precision': 'ความแม่นยำกระบวนการ'
   };
-  
   return nameMap[symbol] || symbol;
 };
-
 export default function DeviceDetails() {
-  const { deviceCode, symbol: urlSymbol } = useParams();
+  const {
+    deviceCode,
+    symbol: urlSymbol
+  } = useParams();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMeasurement, setSelectedMeasurement] = useState<{
     symbol: string;
@@ -125,7 +123,9 @@ export default function DeviceDetails() {
   // Close history view - go back to device details
   const handleCloseHistory = () => {
     if (deviceCode && deviceCode !== 'default') {
-      navigate(`/device/${deviceCode}`, { replace: true });
+      navigate(`/device/${deviceCode}`, {
+        replace: true
+      });
     }
   };
 
@@ -142,46 +142,21 @@ export default function DeviceDetails() {
 
   // Show measurement history if a measurement symbol is present in URL
   if (measurementSymbol && measurementName && deviceCode && deviceCode !== 'default') {
-    return (
-      <MeasurementHistory
-        symbol={measurementSymbol}
-        name={measurementName}
-        deviceCode={deviceCode}
-        onClose={handleCloseHistory}
-      />
-    );
+    return <MeasurementHistory symbol={measurementSymbol} name={measurementName} deviceCode={deviceCode} onClose={handleCloseHistory} />;
   }
 
   // Main device details view with AppLayout
-  return (
-    <CountdownProvider initialSeconds={60} onComplete={handleCountdownComplete}>
+  return <CountdownProvider initialSeconds={60} onComplete={handleCountdownComplete}>
       <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-4'}>
         <div className="flex-1">
           <DeviceHeader deviceCode={deviceCode} />
           
-          <div className="flex justify-between items-center mb-4">
-            <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-            <CountdownTimer useGlobal={true} iconSize={18} className="mr-2" />
-          </div>
+          
 
           <div className="mb-4">
-            <MeasurementTabs
-              deviceCode={deviceCode}
-              searchTerm={searchTerm}
-              wholeGrainData={wholeGrainData}
-              ingredientsData={ingredientsData}
-              impuritiesData={impuritiesData}
-              allData={allData}
-              notificationSettings={notificationSettings || []}
-              isLoadingWholeGrain={isLoadingWholeGrain}
-              isLoadingIngredients={isLoadingIngredients}
-              isLoadingImpurities={isLoadingImpurities}
-              isLoadingAllData={isLoadingAllData}
-              onMeasurementClick={handleMeasurementClick}
-            />
+            <MeasurementTabs deviceCode={deviceCode} searchTerm={searchTerm} wholeGrainData={wholeGrainData} ingredientsData={ingredientsData} impuritiesData={impuritiesData} allData={allData} notificationSettings={notificationSettings || []} isLoadingWholeGrain={isLoadingWholeGrain} isLoadingIngredients={isLoadingIngredients} isLoadingImpurities={isLoadingImpurities} isLoadingAllData={isLoadingAllData} onMeasurementClick={handleMeasurementClick} />
           </div>
         </div>
       </AppLayout>
-    </CountdownProvider>
-  );
+    </CountdownProvider>;
 }
