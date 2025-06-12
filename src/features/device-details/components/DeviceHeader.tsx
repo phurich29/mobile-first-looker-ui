@@ -35,7 +35,7 @@ export const DeviceHeader: React.FC<DeviceHeaderProps> = ({ deviceCode }) => {
         <DeviceHeaderDisplay displayName={displayName} deviceCode={deviceCode} />
         <div className="flex-shrink-0">
           <img 
-            src="/lovable-uploads/5b6e947c-93ae-449e-89dd-6bf6cd9ad162.png" 
+            src="/lovable-uploads/3378fa49-33a3-4564-8e34-6414821138e0.png" 
             alt="Rice Seeds" 
             className="w-20 h-20 object-cover rounded-lg opacity-60"
             onError={(e) => {
