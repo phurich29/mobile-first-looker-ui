@@ -33,6 +33,13 @@ export const DeviceHeader: React.FC<DeviceHeaderProps> = ({ deviceCode }) => {
     <>
       <div className="flex justify-between items-center mb-4">
         <DeviceHeaderDisplay displayName={displayName} deviceCode={deviceCode} />
+        <div className="flex-shrink-0">
+          <img 
+            src="/rice-background.jpg" 
+            alt="Rice Plant" 
+            className="w-20 h-20 object-cover rounded-lg opacity-60"
+          />
+        </div>
       </div>
     </>
   );
