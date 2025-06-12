@@ -3,6 +3,7 @@ import { LogOut, Bell } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
+import { useAuth } from "@/components/AuthProvider";
 
 interface SidebarFooterProps {
   user: any | null;
@@ -11,6 +12,16 @@ interface SidebarFooterProps {
 }
 
 export const SidebarFooter = ({ user, isCollapsed, isMobile }: SidebarFooterProps) => {
+  const { signOut } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   return (
     <div className={cn(
       "mt-auto",
@@ -24,13 +35,16 @@ export const SidebarFooter = ({ user, isCollapsed, isMobile }: SidebarFooterProp
           {(isMobile || !isCollapsed) ? (
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <Link to="/logout" className={cn(
-                  "flex items-center rounded-lg transition-colors text-red-600 hover:bg-red-50 hover:border hover:border-red-200 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:border-red-800",
-                  isCollapsed ? "gap-2 py-2 px-1 justify-center" : "gap-3 py-2.5 px-3" // ปรับขนาดของปุ่มตามขนาดของ sidebar
-                )}>
+                <button 
+                  onClick={handleLogout}
+                  className={cn(
+                    "flex items-center rounded-lg transition-colors text-red-600 hover:bg-red-50 hover:border hover:border-red-200 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:border-red-800",
+                    isCollapsed ? "gap-2 py-2 px-1 justify-center" : "gap-3 py-2.5 px-3" // ปรับขนาดของปุ่มตามขนาดของ sidebar
+                  )}
+                >
                   <LogOut className="h-5 w-5" />
                   <span className="text-sm">ออกจากระบบ</span>
-                </Link>
+                </button>
               </div>
               <div className="flex items-center space-x-2">
                 {/* Mobile only notifications link */}
@@ -45,9 +59,12 @@ export const SidebarFooter = ({ user, isCollapsed, isMobile }: SidebarFooterProp
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center gap-2">
-              <Link to="/logout" className="flex items-center justify-center h-7 w-7 rounded-lg bg-red-100 hover:bg-red-200 dark:bg-red-900/20 dark:hover:bg-red-800/30 transition-colors">
+              <button 
+                onClick={handleLogout}
+                className="flex items-center justify-center h-7 w-7 rounded-lg bg-red-100 hover:bg-red-200 dark:bg-red-900/20 dark:hover:bg-red-800/30 transition-colors"
+              >
                 <LogOut className="h-4 w-4 text-red-600 dark:text-red-400" />
-              </Link>
+              </button>
               <ThemeSwitcher />
             </div>
           )}
