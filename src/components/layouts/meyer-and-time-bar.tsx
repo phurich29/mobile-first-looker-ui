@@ -9,6 +9,10 @@ interface MeyerAndTimeBarProps {
    * ระยะห่างด้านล่างของ component
    */
   marginBottom?: string;
+  /**
+   * แสดง countdown timer หรือไม่
+   */
+  showCountdown?: boolean;
 }
 
 /**
@@ -16,7 +20,8 @@ interface MeyerAndTimeBarProps {
  * สามารถใช้ได้ทุกหน้าเพื่อความสม่ำเสมอของ UI
  */
 export const MeyerAndTimeBar: React.FC<MeyerAndTimeBarProps> = ({ 
-  marginBottom = "mb-8"
+  marginBottom = "mb-8",
+  showCountdown = true
 }) => {
   const isMobile = useIsMobile();
   
@@ -33,7 +38,7 @@ export const MeyerAndTimeBar: React.FC<MeyerAndTimeBarProps> = ({
         </div>
         <div className="flex items-center gap-3">
           <ClockDisplay />
-          <CountdownTimer useGlobal={true} initialSeconds={60} />
+          {showCountdown && <CountdownTimer useGlobal={true} initialSeconds={60} />}
         </div>
       </div>
     </div>
