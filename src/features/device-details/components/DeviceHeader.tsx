@@ -38,6 +38,10 @@ export const DeviceHeader: React.FC<DeviceHeaderProps> = ({ deviceCode }) => {
             src="/lovable-uploads/5b6e947c-93ae-449e-89dd-6bf6cd9ad162.png" 
             alt="Rice Seeds" 
             className="w-20 h-20 object-cover rounded-lg opacity-60"
+            onError={(e) => {
+              console.log('Image failed to load:', e);
+              e.currentTarget.style.display = 'none';
+            }}
           />
         </div>
       </div>
