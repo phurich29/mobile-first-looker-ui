@@ -13,6 +13,7 @@ interface TopHeaderProps {
   isMobile: boolean;
   isCollapsed: boolean;
   setSidebarOpen: (open: boolean) => void;
+  isUserLoggedIn: boolean; // เพิ่ม prop สำหรับสถานะ login
   pageTitle?: string;
   logoSrc?: string;
   logoAlt?: string;
@@ -23,12 +24,13 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   isMobile,
   isCollapsed,
   setSidebarOpen,
+  isUserLoggedIn, // Correctly destructure isUserLoggedIn here
   pageTitle = 'หน้าหลัก',
   logoSrc = "/lovable-uploads/649554cd-4d80-484a-995d-e49f2721a07d.png",
   logoAlt = "RiceFlow Logo",
   appName = "RiceFlow",
 }) => {
-  const { user } = useAuth();
+  const { user } = useAuth(); // Keep one declaration
   const { devices, isLoadingDevices } = useDeviceData();
 
   return (
@@ -65,16 +67,18 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
       {/* Right Section */}
       <div className="flex flex-row items-center gap-3">
         {/* Device Dropdown */}
-        {user && (
+        {isUserLoggedIn && user && (
           <DeviceDropdown 
             devices={devices}
             isLoadingDevices={isLoadingDevices}
           />
         )}
         
-        <Button variant="ghost" size="icon" className="text-white hover:bg-emerald-700/50 dark:hover:bg-emerald-700/50">
-          <Bell className="h-5 w-5" />
-        </Button>
+        {isUserLoggedIn && (
+          <Button variant="ghost" size="icon" className="text-white hover:bg-emerald-700/50 dark:hover:bg-emerald-700/50">
+            <Bell className="h-5 w-5" />
+          </Button>
+        )}
       </div>
     </header>
   );

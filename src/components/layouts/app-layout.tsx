@@ -1,8 +1,9 @@
-
 import React, { ReactNode, useEffect, useState } from 'react';
+import { LoginForm } from '../auth/login-form'; // เพิ่มการ import LoginForm
 import { useIsMobile } from '@/hooks/use-mobile';
 import { LAYOUT_STYLES, cn } from '@/lib/layout-styles';
 import { HeaderSidebar } from '@/components/header/HeaderSidebar';
+import { useAuth } from '@/components/AuthProvider'; // Import the new TopHeader
 import { TopHeader } from './top-header'; // Import the new TopHeader
 import { MeyerAndTimeBar } from './meyer-and-time-bar'; // Import MeyerAndTimeBar
 import { FooterNav } from '@/components/FooterNav';
@@ -12,6 +13,10 @@ import { FooterNav } from '@/components/FooterNav';
  * ประกอบด้วย 3 ส่วนหลัก: Sidebar, Header และ Content
  */
 interface AppLayoutProps {
+  /** แสดงสถานะการ login ของผู้ใช้ */
+  // เราจะใช้ state ภายใน แต่เผื่อ props นี้ไว้ถ้าต้องการควบคุมจากภายนอกในอนาคต
+  // initialIsLoggedIn?: boolean; 
+
   /** เนื้อหาหลักของหน้า */
   children: ReactNode;
   
@@ -36,27 +41,15 @@ export function AppLayout({
   contentPaddingBottom
 }: AppLayoutProps) {
   const isMobile = useIsMobile();
+  const { user, isLoading } = useAuth(); // Use user from auth context
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  
-  useEffect(() => {
-    const updateSidebarState = (event?: Event) => {
-      const customEvent = event as CustomEvent;
-      if (customEvent?.detail) {
-        setIsCollapsed(customEvent.detail.isCollapsed);
-      } else {
-        const savedCollapsedState = localStorage.getItem('sidebarCollapsed');
-        setIsCollapsed(savedCollapsedState === 'true');
-      }
-    };
-    updateSidebarState();
-    window.addEventListener('storage', () => updateSidebarState());
-    window.addEventListener('sidebarStateChanged', updateSidebarState);
-    return () => {
-      window.removeEventListener('storage', () => updateSidebarState());
-      window.removeEventListener('sidebarStateChanged', updateSidebarState);
-    };
-  }, []);
+
+  if (isLoading) {
+    return <div>Loading...</div>; // Or a proper loading spinner component
+  }
+
+  const isUserLoggedIn = !!user;
 
   // คำนวณ padding-bottom อัตโนมัติ
   const getMainPaddingBottom = () => {
@@ -71,37 +64,45 @@ export function AppLayout({
     }
   };
 
+  const mainContentMargin = isMobile ? "ml-0" : (isCollapsed ? "md:ml-20" : "md:ml-64");
+
   return (
     <>
       {/* Render TopHeader */}
       <TopHeader 
         isMobile={isMobile} 
-        isCollapsed={isCollapsed} 
+        isCollapsed={isCollapsed}
         setSidebarOpen={setSidebarOpen} 
-        // pageTitle={...} // We can make pageTitle dynamic later
+        isUserLoggedIn={isUserLoggedIn} 
       />
       
       {/* Sidebar - now renders for both mobile and desktop */}
       <HeaderSidebar 
-        sidebarOpen={sidebarOpen} 
-        setSidebarOpen={setSidebarOpen} 
-        isCollapsed={isCollapsed} 
-        setIsCollapsed={setIsCollapsed} 
+        sidebarOpen={isSidebarOpen} 
+        setSidebarOpen={setSidebarOpen}
+        isCollapsed={isCollapsed}
+        setIsCollapsed={setIsCollapsed}
+        isUserLoggedIn={isUserLoggedIn} 
       />
       
       {/* Main Content */}
-      <main className={cn(
-        "flex-1 transition-all duration-300 ease-in-out",
-        isMobile ? "ml-0" : (isCollapsed ? "md:ml-20" : "md:ml-64"),
-        getMainPaddingBottom(),
-        className
-      )}>
-        <MeyerAndTimeBar />
-        {children}
+      <main className={`transition-all duration-300 ease-in-out ${mainContentMargin}`}>
+        <div className="p-5">
+          {!isUserLoggedIn ? (
+            <div className="flex items-center justify-center h-full">
+              <LoginForm />
+            </div>
+          ) : (
+            <>
+              <MeyerAndTimeBar />
+              {children}
+            </>
+          )}
+        </div>
       </main>
       
       {/* Footer Navigation - Mobile only */}
-      {isMobile && showFooterNav && <FooterNav />}
+      {isMobile && showFooterNav && <FooterNav isUserLoggedIn={isUserLoggedIn} />}
     </>
   );
 }
