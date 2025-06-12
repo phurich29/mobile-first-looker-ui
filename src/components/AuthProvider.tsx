@@ -9,7 +9,6 @@ type AuthContextType = {
   userRoles: string[];
   isLoading: boolean;
   signOut: () => Promise<void>;
-  login: (email: string, pass: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -18,7 +17,6 @@ const AuthContext = createContext<AuthContextType>({
   userRoles: [],
   isLoading: true,
   signOut: async () => {},
-  login: async (email: string, pass: string) => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -152,45 +150,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
   }, []);
 
-  const login = async (email: string, password: string) => {
-    console.log(`Simulating login for ${email}`);
-    // In a real app, this would be:
-    // const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    // if (error) { console.error('Login Error:', error); throw error; }
-    // The onAuthStateChange listener would then handle setting the user, session, and roles.
-
-    // For simulation, we'll manually create and set a mock user and session.
-    // This will trigger re-renders in components consuming the context.
-    const mockUser: User = {
-      id: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
-      app_metadata: { provider: 'email', providers: ['email'] },
-      user_metadata: { name: 'Mock User', full_name: 'Mock J. User' },
-      aud: 'authenticated',
-      confirmation_sent_at: new Date().toISOString(),
-      created_at: new Date().toISOString(),
-      email: email,
-      last_sign_in_at: new Date().toISOString(),
-      phone: '',
-      role: 'authenticated',
-      updated_at: new Date().toISOString(),
-    };
-
-    const mockSession: Session = {
-      access_token: 'mock-access-token',
-      refresh_token: 'mock-refresh-token',
-      expires_in: 3600,
-      token_type: 'bearer',
-      user: mockUser,
-    };
-
-    setUser(mockUser);
-    setSession(mockSession);
-    // For the device dropdown to work, we need roles.
-    // The real fetchUserRoles would fail with a mock ID, so we'll just set mock roles.
-    setUserRoles(['user', 'admin']);
-    setIsLoading(false);
-  };
-
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
@@ -208,7 +167,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     userRoles,
     isLoading,
     signOut,
-    login,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

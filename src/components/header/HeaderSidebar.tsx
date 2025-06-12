@@ -13,10 +13,9 @@ interface HeaderSidebarProps {
   setSidebarOpen: (open: boolean) => void;
   isCollapsed: boolean;
   setIsCollapsed: (collapsed: boolean) => void;
-  isUserLoggedIn: boolean;
 }
 
-export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsCollapsed, isUserLoggedIn }: HeaderSidebarProps) => {
+export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsCollapsed }: HeaderSidebarProps) => {
   const { user, userRoles } = useAuth();
   const isMobile = useIsMobile();
   
@@ -66,7 +65,6 @@ export const HeaderSidebar = ({ sidebarOpen, setSidebarOpen, isCollapsed, setIsC
             isMobile={isMobile}
             userRoles={userRoles}
             user={user}
-            isUserLoggedIn={isUserLoggedIn} // ส่งสถานะ login
           />
           
           {/* Footer with theme switcher and logout */}

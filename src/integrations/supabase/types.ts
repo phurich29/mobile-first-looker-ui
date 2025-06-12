@@ -260,13 +260,10 @@ export type Database = {
           created_at: string | null
           device_code: string | null
           head_rice: number | null
-          heavy_chalkiness_rate: number
           honey_rice: number | null
           id: number
           imperfection_rate: number | null
           impurity_num: number | null
-          light_honey_rice: number
-          other_backline: number
           output: number | null
           paddy_rate: number | null
           parboiled_red_line: number | null
@@ -282,7 +279,6 @@ export type Database = {
           small_brokens_c1: number | null
           sticky_rice_rate: number | null
           thai_datetime: string | null
-          topline_rate: number
           total_brokens: number | null
           whiteness: number | null
           whole_kernels: number | null
@@ -296,13 +292,10 @@ export type Database = {
           created_at?: string | null
           device_code?: string | null
           head_rice?: number | null
-          heavy_chalkiness_rate?: number
           honey_rice?: number | null
           id?: number
           imperfection_rate?: number | null
           impurity_num?: number | null
-          light_honey_rice?: number
-          other_backline?: number
           output?: number | null
           paddy_rate?: number | null
           parboiled_red_line?: number | null
@@ -318,7 +311,6 @@ export type Database = {
           small_brokens_c1?: number | null
           sticky_rice_rate?: number | null
           thai_datetime?: string | null
-          topline_rate?: number
           total_brokens?: number | null
           whiteness?: number | null
           whole_kernels?: number | null
@@ -332,13 +324,10 @@ export type Database = {
           created_at?: string | null
           device_code?: string | null
           head_rice?: number | null
-          heavy_chalkiness_rate?: number
           honey_rice?: number | null
           id?: number
           imperfection_rate?: number | null
           impurity_num?: number | null
-          light_honey_rice?: number
-          other_backline?: number
           output?: number | null
           paddy_rate?: number | null
           parboiled_red_line?: number | null
@@ -354,7 +343,6 @@ export type Database = {
           small_brokens_c1?: number | null
           sticky_rice_rate?: number | null
           thai_datetime?: string | null
-          topline_rate?: number
           total_brokens?: number | null
           whiteness?: number | null
           whole_kernels?: number | null

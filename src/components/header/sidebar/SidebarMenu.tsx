@@ -10,10 +10,9 @@ interface SidebarMenuProps {
   isMobile: boolean;
   userRoles: string[];
   user: any | null;
-  isUserLoggedIn: boolean; // เพิ่ม prop สำหรับสถานะ login
 }
 
-export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user, isUserLoggedIn }: SidebarMenuProps) => {
+export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarMenuProps) => {
   const { isActive } = useActivePath();
   
   // ตรวจสอบว่าผู้ใช้มีสิทธิ์ในการเข้าถึงหน้าจัดการผู้ใช้งานหรือไม่
@@ -25,7 +24,6 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user, isUserLogg
       isCollapsed ? "-mr-2 pr-2" : "-mr-4 pr-4" // ปรับ margin และ padding ตามขนาดของ sidebar
     )}>
       <nav className="flex flex-col space-y-1 mt-4">
-        {/* หน้าหลัก (Home) - แสดงเสมอ */}
         <SidebarMenuItem 
           path="/" 
           icon={Home}
@@ -34,83 +32,78 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user, isUserLogg
           isCollapsed={isCollapsed}
         />
         
-        {/* เมนูอื่นๆ จะแสดงเมื่อ isUserLoggedIn เป็น true */}
-        {isUserLoggedIn && (
-          <>
-            <SidebarMenuItem 
-              path="/equipment" 
-              icon={Settings}
-              label="อุปกรณ์"
-              isActive={isActive("/equipment")}
-              isCollapsed={isCollapsed}
-            />
-            
-            {user && (
-              <SidebarMenuItem 
-                path="/notifications" 
-                icon={AlertCircle}
-                label="การแจ้งเตือนที่กำหนดไว้"
-                isActive={isActive("/notifications") || isActive("/notification-settings")}
-                isCollapsed={isCollapsed}
-              />
-            )}
-            
-            {user && (
-              <SidebarMenuItem 
-                path="/notification-history" 
-                icon={History}
-                label="ประวัติการแจ้งเตือน"
-                isActive={isActive("/notification-history")}
-                isCollapsed={isCollapsed}
-              />
-            )}
-            
-            <SidebarMenuItem 
-              path="/graph-monitor" 
-              icon={Monitor}
-              label="Graph Monitor"
-              isActive={isActive("/graph-monitor")}
-              isCollapsed={isCollapsed}
-            />
-            
-            <SidebarMenuItem 
-              path="/graph-summary" 
-              icon={Layout}
-              label="Graph Summary"
-              isActive={isActive("/graph-summary") || isActive("/graph-summary-detail")}
-              isCollapsed={isCollapsed}
-            />
-            
-            {user && (
-              <SidebarMenuItem 
-                path="/profile" 
-                icon={User}
-                label="ข้อมูลส่วนตัว"
-                isActive={isActive("/profile")}
-                isCollapsed={isCollapsed}
-              />
-            )}
-            
-            {user && canAccessUserManagement && (
-              <SidebarMenuItem 
-                path="/user-management" 
-                icon={Users}
-                label="จัดการผู้ใช้งาน"
-                isActive={isActive("/user-management")}
-                isCollapsed={isCollapsed}
-              />
-            )}
-            
-            {user && canAccessUserManagement && (
-              <SidebarMenuItem 
-                path="/news-management" 
-                icon={FileText}
-                label="จัดการข่าวสาร"
-                isActive={isActive("/news-management")}
-                isCollapsed={isCollapsed}
-              />
-            )}
-          </>
+        <SidebarMenuItem 
+          path="/equipment" 
+          icon={Settings}
+          label="อุปกรณ์"
+          isActive={isActive("/equipment")}
+          isCollapsed={isCollapsed}
+        />
+        
+        {user && (
+          <SidebarMenuItem 
+            path="/notifications" 
+            icon={AlertCircle}
+            label="การแจ้งเตือนที่กำหนดไว้"
+            isActive={isActive("/notifications") || isActive("/notification-settings")}
+            isCollapsed={isCollapsed}
+          />
+        )}
+        
+        {user && (
+          <SidebarMenuItem 
+            path="/notification-history" 
+            icon={History}
+            label="ประวัติการแจ้งเตือน"
+            isActive={isActive("/notification-history")}
+            isCollapsed={isCollapsed}
+          />
+        )}
+        
+        <SidebarMenuItem 
+          path="/graph-monitor" 
+          icon={Monitor}
+          label="Graph Monitor"
+          isActive={isActive("/graph-monitor")}
+          isCollapsed={isCollapsed}
+        />
+        
+        <SidebarMenuItem 
+          path="/graph-summary" 
+          icon={Layout}
+          label="Graph Summary"
+          isActive={isActive("/graph-summary") || isActive("/graph-summary-detail")}
+          isCollapsed={isCollapsed}
+        />
+        
+        {user && (
+          <SidebarMenuItem 
+            path="/profile" 
+            icon={User}
+            label="ข้อมูลส่วนตัว"
+            isActive={isActive("/profile")}
+            isCollapsed={isCollapsed}
+          />
+        )}
+        
+        {user && canAccessUserManagement && (
+          <SidebarMenuItem 
+            path="/user-management" 
+            icon={Users}
+            label="จัดการผู้ใช้งาน"
+            isActive={isActive("/user-management")}
+            isCollapsed={isCollapsed}
+          />
+        )}
+        
+        {user && canAccessUserManagement && (
+          <SidebarMenuItem 
+            path="/news-management" 
+            icon={FileText}
+            label="จัดการข่าวสาร"
+            isActive={isActive("/news-management")}
+            isCollapsed={isCollapsed}
+          />
         )}
       </nav>
     </ScrollArea>
