@@ -6,6 +6,7 @@ import MeasurementHistory from "@/components/measurement-history/MeasurementHist
 import "@/components/notification-item-animation.css";
 import { CountdownProvider } from "@/contexts/CountdownContext";
 import { CountdownTimer } from "@/components/CountdownTimer";
+import { Wheat } from "lucide-react";
 
 // Import custom hooks
 import { useDeviceData } from "@/features/device-details/hooks/useDeviceData";
@@ -149,7 +150,17 @@ export default function DeviceDetails() {
   return <CountdownProvider initialSeconds={60} onComplete={handleCountdownComplete}>
       <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-4'}>
         <div className="flex-1">
-          <DeviceHeader deviceCode={deviceCode} />
+          <div className="px-[5%] mb-3 flex justify-between items-center md:px-0">
+            <DeviceHeader deviceCode={deviceCode} />
+            <div className="flex items-center relative">
+              {/* Wheat icon group with varied sizes and positions */}
+              <Wheat className="text-amber-400 absolute -top-3 -left-8" size={16} strokeWidth={2.5} />
+              <Wheat className="text-amber-500 mr-1" size={20} strokeWidth={2.5} />
+              <Wheat className="text-amber-600" size={18} strokeWidth={2.5} />
+              <Wheat className="text-amber-700 ml-1" size={14} strokeWidth={2.5} />
+              <Wheat className="text-yellow-600 absolute -bottom-2 -right-3" size={12} strokeWidth={2.5} />
+            </div>
+          </div>
           
           
 

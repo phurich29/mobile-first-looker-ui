@@ -60,10 +60,10 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
   return (
     <>
       <div 
-        className={`flex items-center justify-between p-4 border-b border-gray-100 ${bgColor} hover:brightness-95 transition-all duration-300 relative overflow-hidden ${deviceCode ? 'cursor-pointer active:bg-gray-100' : ''} ${isAlertActive ? 'bg-red-50/90' : ''}`}
+        className={`flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700 ${bgColor} dark:bg-gray-800 hover:brightness-95 dark:hover:brightness-110 transition-all duration-300 relative overflow-hidden ${deviceCode ? 'cursor-pointer active:bg-gray-100 dark:active:bg-gray-700' : ''} ${isAlertActive ? 'bg-red-50/90 dark:bg-red-900/50' : ''}`}
       >
         {/* เพิ่มองค์ประกอบด้านหลังเพื่อความมีมิติ */}
-        <div className="absolute inset-0 w-full h-full bg-white opacity-80"></div>
+        <div className="absolute inset-0 w-full h-full bg-white dark:bg-gray-800 opacity-80 dark:opacity-50"></div>
         
         <div className="flex items-center relative z-10">
           <NotificationIcon 
@@ -76,9 +76,9 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
           <div className="px-3 py-2 flex-1">
             <div className="flex flex-col">
               <div className="flex flex-col">
-                <h3 className="font-bold text-base text-gray-800">{name}</h3>
+                <h3 className="font-bold text-base text-gray-800 dark:text-gray-200">{name}</h3>
                 <div className="flex items-center">
-                  <span className="text-xs text-gray-500">{symbol}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{symbol}</span>
                   <NotificationText 
                     enabled={enabled}
                     notificationType={notificationType}
@@ -87,7 +87,7 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
                 </div>
               </div>
               {deviceName && (
-                <span className="text-xs text-gray-500 mt-0.5">{deviceName}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{deviceName}</span>
               )}
             </div>
           </div>
