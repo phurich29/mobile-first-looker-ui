@@ -30,7 +30,7 @@ export const DeviceHeader: React.FC<DeviceHeaderProps> = ({
           <img src="/lovable-uploads/3378fa49-33a3-4564-8e34-6414821138e0.png" alt="Rice Seeds" onError={e => {
           console.log('Image failed to load:', e);
           e.currentTarget.style.display = 'none';
-        }} className="w-20 h-20 rounded-lg opacity-60 object-contain" />
+        }} className="w-20 h-20 rounded-lg opacity-100 object-contain" />
         </div>
       </div>
     </>;
