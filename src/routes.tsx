@@ -1,4 +1,3 @@
-
 import { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -10,6 +9,7 @@ import { cn } from "@/lib/utils";
 // Import pages directly (non-lazy for better performance on core pages)
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import Logout from "./pages/Logout";
 import NotFound from "./pages/NotFound";
 import Waiting from "./pages/Waiting";
 import Profile from "./pages/Profile";
@@ -105,6 +105,11 @@ export const router = createBrowserRouter([
       {
         path: "rice-prices",
         element: <RicePrices />,
+      },
+      // Logout route
+      {
+        path: "logout",
+        element: <Logout />,
       },
       // Protected routes
       {
