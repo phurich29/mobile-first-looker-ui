@@ -84,9 +84,9 @@ export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCo
     { key: 'total_brokens', label: 'ข้าวหักรวม' },
     { key: 'small_brokens', label: 'ข้าวหักเล็ก' },
     { key: 'whiteness', label: 'ความขาว' },
-    { key: 'imperfection_rate', label: 'อัตราข้าวด้วย' },
-    { key: 'paddy_rate', label: 'อัตราข้าวเปลือก' },
-    { key: 'yellow_rice_rate', label: 'อัตราข้าวเหลือง' },
+    { key: 'imperfection_rate', label: 'ข้าวด้วย' },
+    { key: 'paddy_rate', label: 'ข้าวเปลือก' },
+    { key: 'yellow_rice_rate', label: 'ข้าวเหลือง' },
   ];
 
   if (isLoading) {
@@ -127,17 +127,17 @@ export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCo
               <TableHeader>
                 <TableRow>
                   {getDisplayColumns().map((col) => (
-                    <TableHead key={col.key} style={{ width: '7.69%' }}>
+                    <TableHead key={col.key}>
                       {col.label}
                     </TableHead>
                   ))}
-                  <TableHead style={{ width: '7.69%' }}>รายละเอียด</TableHead>
+                  <TableHead>รายละเอียด</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {historyData.data.map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell style={{ width: '7.69%' }}>
+                    <TableCell>
                       {row.thai_datetime ? 
                         new Date(row.thai_datetime).toLocaleString('th-TH', {
                           year: 'numeric',
@@ -155,18 +155,18 @@ export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCo
                         })
                       }
                     </TableCell>
-                    <TableCell style={{ width: '7.69%' }}>{formatValue(row.class1)}</TableCell>
-                    <TableCell style={{ width: '7.69%' }}>{formatValue(row.class2)}</TableCell>
-                    <TableCell style={{ width: '7.69%' }}>{formatValue(row.class3)}</TableCell>
-                    <TableCell style={{ width: '7.69%' }}>{formatValue(row.whole_kernels)}</TableCell>
-                    <TableCell style={{ width: '7.69%' }}>{formatValue(row.head_rice)}</TableCell>
-                    <TableCell style={{ width: '7.69%' }}>{formatValue(row.total_brokens)}</TableCell>
-                    <TableCell style={{ width: '7.69%' }}>{formatValue(row.small_brokens)}</TableCell>
-                    <TableCell style={{ width: '7.69%' }}>{formatValue(row.whiteness)}</TableCell>
-                    <TableCell style={{ width: '7.69%' }}>{formatValue(row.imperfection_rate)}</TableCell>
-                    <TableCell style={{ width: '7.69%' }}>{formatValue(row.paddy_rate)}</TableCell>
-                    <TableCell style={{ width: '7.69%' }}>{formatValue(row.yellow_rice_rate)}</TableCell>
-                    <TableCell style={{ width: '7.69%' }}>
+                    <TableCell>{formatValue(row.class1)}</TableCell>
+                    <TableCell>{formatValue(row.class2)}</TableCell>
+                    <TableCell>{formatValue(row.class3)}</TableCell>
+                    <TableCell>{formatValue(row.whole_kernels)}</TableCell>
+                    <TableCell>{formatValue(row.head_rice)}</TableCell>
+                    <TableCell>{formatValue(row.total_brokens)}</TableCell>
+                    <TableCell>{formatValue(row.small_brokens)}</TableCell>
+                    <TableCell>{formatValue(row.whiteness)}</TableCell>
+                    <TableCell>{formatValue(row.imperfection_rate)}</TableCell>
+                    <TableCell>{formatValue(row.paddy_rate)}</TableCell>
+                    <TableCell>{formatValue(row.yellow_rice_rate)}</TableCell>
+                    <TableCell>
                       <Button
                         variant="ghost"
                         size="sm"
