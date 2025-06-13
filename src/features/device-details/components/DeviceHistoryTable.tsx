@@ -75,16 +75,16 @@ export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCo
   };
 
   const getDisplayColumns = () => [
-    { key: 'thai_datetime', label: 'วันที่-เวลา' },
-    { key: 'class1', label: 'ชั้น 1' },
-    { key: 'class2', label: 'ชั้น 2' },
-    { key: 'class3', label: 'ชั้น 3' },
-    { key: 'whole_kernels', label: 'เมล็ดเต็ม' },
-    { key: 'head_rice', label: 'ข้าวหัว' },
-    { key: 'total_brokens', label: 'ข้าวหักรวม' },
-    { key: 'whiteness', label: 'ความขาว' },
-    { key: 'imperfection_rate', label: 'อัตราข้าวด้วย' },
-    { key: 'paddy_rate', label: 'อัตราข้าวเปลือก' },
+    { key: 'thai_datetime', label: 'วันที่-เวลา', width: 'w-40' },
+    { key: 'class1', label: 'ชั้น 1', width: 'w-20' },
+    { key: 'class2', label: 'ชั้น 2', width: 'w-20' },
+    { key: 'class3', label: 'ชั้น 3', width: 'w-20' },
+    { key: 'whole_kernels', label: 'เมล็ดเต็ม', width: 'w-24' },
+    { key: 'head_rice', label: 'ข้าวหัว', width: 'w-20' },
+    { key: 'total_brokens', label: 'ข้าวหักรวม', width: 'w-24' },
+    { key: 'whiteness', label: 'ความขาว', width: 'w-24' },
+    { key: 'imperfection_rate', label: 'อัตราข้าวด้วย', width: 'w-28' },
+    { key: 'paddy_rate', label: 'อัตราข้าวเปลือก', width: 'w-32' },
   ];
 
   if (isLoading) {
@@ -121,90 +121,61 @@ export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCo
 
         {historyData?.data && historyData.data.length > 0 ? (
           <>
-            <div className="overflow-x-auto">
-              <table className="w-full caption-bottom text-xs">
-                <thead className="[&_tr]:border-b">
-                  <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                    <th className="h-8 px-1 text-left align-middle font-medium text-muted-foreground grid-cols-1">
-                      วันที่-เวลา
-                    </th>
-                    <th className="h-8 px-1 text-left align-middle font-medium text-muted-foreground grid-cols-1">
-                      ชั้น 1
-                    </th>
-                    <th className="h-8 px-1 text-left align-middle font-medium text-muted-foreground grid-cols-1">
-                      ชั้น 2
-                    </th>
-                    <th className="h-8 px-1 text-left align-middle font-medium text-muted-foreground grid-cols-1">
-                      ชั้น 3
-                    </th>
-                    <th className="h-8 px-1 text-left align-middle font-medium text-muted-foreground grid-cols-1">
-                      เมล็ดเต็ม
-                    </th>
-                    <th className="h-8 px-1 text-left align-middle font-medium text-muted-foreground grid-cols-1">
-                      ข้าวหัว
-                    </th>
-                    <th className="h-8 px-1 text-left align-middle font-medium text-muted-foreground grid-cols-1">
-                      ข้าวหักรวม
-                    </th>
-                    <th className="h-8 px-1 text-left align-middle font-medium text-muted-foreground grid-cols-1">
-                      ความขาว
-                    </th>
-                    <th className="h-8 px-1 text-left align-middle font-medium text-muted-foreground grid-cols-1">
-                      อัตราข้าวด้วย
-                    </th>
-                    <th className="h-8 px-1 text-left align-middle font-medium text-muted-foreground grid-cols-1">
-                      อัตราข้าวเปลือก
-                    </th>
-                    <th className="h-8 px-1 text-left align-middle font-medium text-muted-foreground w-16">
-                      รายละเอียด
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="[&_tr:last-child]:border-0">
-                  {historyData.data.map((row) => (
-                    <tr key={row.id} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                      <td className="px-1 align-middle" style={{width: '9.09%'}}>
-                        {row.thai_datetime ? 
-                          new Date(row.thai_datetime).toLocaleString('th-TH', {
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          }) : 
-                          new Date(row.created_at).toLocaleString('th-TH', {
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })
-                        }
-                      </td>
-                      <td className="px-1 align-middle" style={{width: '9.09%'}}>{formatValue(row.class1)}</td>
-                      <td className="px-1 align-middle" style={{width: '9.09%'}}>{formatValue(row.class2)}</td>
-                      <td className="px-1 align-middle" style={{width: '9.09%'}}>{formatValue(row.class3)}</td>
-                      <td className="px-1 align-middle" style={{width: '9.09%'}}>{formatValue(row.whole_kernels)}</td>
-                      <td className="px-1 align-middle" style={{width: '9.09%'}}>{formatValue(row.head_rice)}</td>
-                      <td className="px-1 align-middle" style={{width: '9.09%'}}>{formatValue(row.total_brokens)}</td>
-                      <td className="px-1 align-middle" style={{width: '9.09%'}}>{formatValue(row.whiteness)}</td>
-                      <td className="px-1 align-middle" style={{width: '9.09%'}}>{formatValue(row.imperfection_rate)}</td>
-                      <td className="px-1 align-middle" style={{width: '9.09%'}}>{formatValue(row.paddy_rate)}</td>
-                      <td className="px-1 align-middle" style={{width: '9.1%'}}>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setSelectedRow(row)}
-                          className="h-8 w-8 p-0"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </td>
-                    </tr>
+            <ResponsiveTable>
+              <TableHeader>
+                <TableRow>
+                  {getDisplayColumns().map((col) => (
+                    <TableHead key={col.key} className={col.width}>
+                      {col.label}
+                    </TableHead>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                  <TableHead className="w-16">รายละเอียด</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {historyData.data.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>
+                      {row.thai_datetime ? 
+                        new Date(row.thai_datetime).toLocaleString('th-TH', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        }) : 
+                        new Date(row.created_at).toLocaleString('th-TH', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })
+                      }
+                    </TableCell>
+                    <TableCell>{formatValue(row.class1)}</TableCell>
+                    <TableCell>{formatValue(row.class2)}</TableCell>
+                    <TableCell>{formatValue(row.class3)}</TableCell>
+                    <TableCell>{formatValue(row.whole_kernels)}</TableCell>
+                    <TableCell>{formatValue(row.head_rice)}</TableCell>
+                    <TableCell>{formatValue(row.total_brokens)}</TableCell>
+                    <TableCell>{formatValue(row.whiteness)}</TableCell>
+                    <TableCell>{formatValue(row.imperfection_rate)}</TableCell>
+                    <TableCell>{formatValue(row.paddy_rate)}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedRow(row)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </ResponsiveTable>
 
             {/* Pagination */}
             {totalPages > 1 && (
