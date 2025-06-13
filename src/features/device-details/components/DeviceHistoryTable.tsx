@@ -41,6 +41,7 @@ interface RiceQualityData {
   paddy_rate: number | null;
   whiteness: number | null;
   process_precision: number | null;
+  [key: string]: any;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -74,20 +75,96 @@ export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCo
     return value.toFixed(2);
   };
 
-  const getDisplayColumns = () => [
-    { key: 'thai_datetime', label: 'วันที่-เวลา' },
-    { key: 'class1', label: 'ชั้น 1' },
-    { key: 'class2', label: 'ชั้น 2' },
-    { key: 'class3', label: 'ชั้น 3' },
-    { key: 'whole_kernels', label: 'เมล็ดเต็ม' },
-    { key: 'head_rice', label: 'ข้าวหัว' },
-    { key: 'total_brokens', label: 'ข้าวหักรวม' },
-    { key: 'small_brokens', label: 'ข้าวหักเล็ก' },
-    { key: 'whiteness', label: 'ความขาว' },
-    { key: 'imperfection_rate', label: 'ข้าวด้วย' },
-    { key: 'paddy_rate', label: 'ข้าวเปลือก' },
-    { key: 'yellow_rice_rate', label: 'ข้าวเหลือง' },
-  ];
+  // Get all column keys from the first data item, excluding internal columns
+  const getColumnKeys = () => {
+    if (!historyData?.data || historyData.data.length === 0) return [];
+    
+    const firstItem = historyData.data[0];
+    
+    // Get filtered columns - exclude specific columns
+    const filteredColumns = Object.keys(firstItem).filter(key => 
+      !key.startsWith('_') && 
+      key !== 'sample_index' && 
+      key !== 'output' &&
+      key !== 'id' &&
+      key !== 'created_at'
+    );
+    
+    // Create a prioritized array with thai_datetime first, then device_code
+    let orderedColumns = [];
+    
+    // Add thai_datetime first if it exists
+    if (filteredColumns.includes('thai_datetime')) {
+      orderedColumns.push('thai_datetime');
+      filteredColumns.splice(filteredColumns.indexOf('thai_datetime'), 1);
+    }
+    
+    // Add device_code next if it exists
+    if (filteredColumns.includes('device_code')) {
+      orderedColumns.push('device_code');
+      filteredColumns.splice(filteredColumns.indexOf('device_code'), 1);
+    }
+    
+    // Add the rest
+    return [...orderedColumns, ...filteredColumns];
+  };
+
+  // Get Thai column names
+  const getColumnDisplayName = (key: string): string => {
+    const nameMap: Record<string, string> = {
+      'thai_datetime': 'วันที่-เวลา',
+      'device_code': 'รหัสเครื่อง',
+      'class1': 'ชั้น 1',
+      'class2': 'ชั้น 2', 
+      'class3': 'ชั้น 3',
+      'short_grain': 'เมล็ดสั้น',
+      'slender_kernel': 'เมล็ดยาว',
+      'whole_kernels': 'เมล็ดเต็ม',
+      'head_rice': 'ข้าวหัว',
+      'total_brokens': 'ข้าวหักรวม',
+      'small_brokens': 'ข้าวหักเล็ก',
+      'small_brokens_c1': 'ข้าวหักเล็ก C1',
+      'red_line_rate': 'เส้นแดง',
+      'parboiled_red_line': 'ข้าวสุกเส้นแดง',
+      'parboiled_white_rice': 'ข้าวสุกขาว',
+      'honey_rice': 'ข้าวน้ำผึ้ง',
+      'yellow_rice_rate': 'ข้าวเหลือง',
+      'black_kernel': 'เมล็ดดำ',
+      'partly_black_peck': 'จุดดำบางส่วน',
+      'partly_black': 'ดำบางส่วน',
+      'imperfection_rate': 'ข้าวด้วย',
+      'sticky_rice_rate': 'ข้าวเหนียว',
+      'impurity_num': 'สิ่งปนเปื้อน',
+      'paddy_rate': 'ข้าวเปลือก',
+      'whiteness': 'ความขาว',
+      'process_precision': 'ความแม่นยำ',
+      'other_backline': 'เส้นอื่นๆ',
+      'light_honey_rice': 'ข้าวน้ำผึ้งอ่อน',
+      'heavy_chalkiness_rate': 'ปูนขาวหนัก',
+      'topline_rate': 'เส้นบน'
+    };
+    return nameMap[key] || key;
+  };
+
+  // Format cell value based on column type
+  const formatCellValue = (key: string, value: any): string => {
+    if (key === 'thai_datetime') {
+      return value ? 
+        new Date(value).toLocaleString('th-TH', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        }) : '-';
+    }
+    
+    if (key === 'device_code') {
+      return value?.toString() || '-';
+    }
+    
+    return formatValue(value);
+  };
 
   if (isLoading) {
     return (
@@ -111,75 +188,55 @@ export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCo
     );
   }
 
+  const columnKeys = getColumnKeys();
+
   return (
     <>
       <div className="bg-white rounded-lg shadow-sm p-6 mb-4">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">ประวัติข้อมูลทั้งหมด</h3>
           <span className="text-sm text-gray-500">
-            รวม {historyData?.count || 0} รายการ
+            รวม {historyData?.count || 0} รายการ | แสดง {columnKeys.length + 1} คอลัมน์
           </span>
         </div>
 
         {historyData?.data && historyData.data.length > 0 ? (
           <>
-            <ResponsiveTable>
-              <TableHeader>
-                <TableRow>
-                  {getDisplayColumns().map((col) => (
-                    <TableHead key={col.key}>
-                      {col.label}
-                    </TableHead>
-                  ))}
-                  <TableHead>รายละเอียด</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {historyData.data.map((row) => (
-                  <TableRow key={row.id}>
-                    <TableCell>
-                      {row.thai_datetime ? 
-                        new Date(row.thai_datetime).toLocaleString('th-TH', {
-                          year: 'numeric',
-                          month: '2-digit',
-                          day: '2-digit',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        }) : 
-                        new Date(row.created_at).toLocaleString('th-TH', {
-                          year: 'numeric',
-                          month: '2-digit',
-                          day: '2-digit',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })
-                      }
-                    </TableCell>
-                    <TableCell>{formatValue(row.class1)}</TableCell>
-                    <TableCell>{formatValue(row.class2)}</TableCell>
-                    <TableCell>{formatValue(row.class3)}</TableCell>
-                    <TableCell>{formatValue(row.whole_kernels)}</TableCell>
-                    <TableCell>{formatValue(row.head_rice)}</TableCell>
-                    <TableCell>{formatValue(row.total_brokens)}</TableCell>
-                    <TableCell>{formatValue(row.small_brokens)}</TableCell>
-                    <TableCell>{formatValue(row.whiteness)}</TableCell>
-                    <TableCell>{formatValue(row.imperfection_rate)}</TableCell>
-                    <TableCell>{formatValue(row.paddy_rate)}</TableCell>
-                    <TableCell>{formatValue(row.yellow_rice_rate)}</TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedRow(row)}
-                        className="h-8 w-8 p-0"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <ResponsiveTable>
+                <TableHeader>
+                  <TableRow>
+                    {columnKeys.map((key) => (
+                      <TableHead key={key} className="whitespace-nowrap">
+                        {getColumnDisplayName(key)}
+                      </TableHead>
+                    ))}
+                    <TableHead className="whitespace-nowrap">รายละเอียด</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </ResponsiveTable>
+                </TableHeader>
+                <TableBody>
+                  {historyData.data.map((row) => (
+                    <TableRow key={row.id}>
+                      {columnKeys.map((key) => (
+                        <TableCell key={`${row.id}-${key}`} className="whitespace-nowrap">
+                          {formatCellValue(key, row[key])}
+                        </TableCell>
+                      ))}
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedRow(row)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </ResponsiveTable>
+            </div>
 
             {/* Pagination */}
             {totalPages > 1 && (
