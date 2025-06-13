@@ -7,6 +7,7 @@ import { TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/compon
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { getColumnThaiName } from "@/lib/columnTranslations";
 
 interface DeviceHistoryTableProps {
   deviceCode: string;
@@ -109,43 +110,6 @@ export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCo
     return [...orderedColumns, ...filteredColumns];
   };
 
-  // Get Thai column names
-  const getColumnDisplayName = (key: string): string => {
-    const nameMap: Record<string, string> = {
-      'thai_datetime': 'วันที่-เวลา',
-      'device_code': 'รหัสเครื่อง',
-      'class1': 'ชั้น 1',
-      'class2': 'ชั้น 2', 
-      'class3': 'ชั้น 3',
-      'short_grain': 'เมล็ดสั้น',
-      'slender_kernel': 'เมล็ดยาว',
-      'whole_kernels': 'เมล็ดเต็ม',
-      'head_rice': 'ข้าวหัว',
-      'total_brokens': 'ข้าวหักรวม',
-      'small_brokens': 'ข้าวหักเล็ก',
-      'small_brokens_c1': 'ข้าวหักเล็ก C1',
-      'red_line_rate': 'เส้นแดง',
-      'parboiled_red_line': 'ข้าวสุกเส้นแดง',
-      'parboiled_white_rice': 'ข้าวสุกขาว',
-      'honey_rice': 'ข้าวน้ำผึ้ง',
-      'yellow_rice_rate': 'ข้าวเหลือง',
-      'black_kernel': 'เมล็ดดำ',
-      'partly_black_peck': 'จุดดำบางส่วน',
-      'partly_black': 'ดำบางส่วน',
-      'imperfection_rate': 'ข้าวด้วย',
-      'sticky_rice_rate': 'ข้าวเหนียว',
-      'impurity_num': 'สิ่งปนเปื้อน',
-      'paddy_rate': 'ข้าวเปลือก',
-      'whiteness': 'ความขาว',
-      'process_precision': 'ความแม่นยำ',
-      'other_backline': 'เส้นอื่นๆ',
-      'light_honey_rice': 'ข้าวน้ำผึ้งอ่อน',
-      'heavy_chalkiness_rate': 'ปูนขาวหนัก',
-      'topline_rate': 'เส้นบน'
-    };
-    return nameMap[key] || key;
-  };
-
   // Format cell value based on column type
   const formatCellValue = (key: string, value: any): string => {
     if (key === 'thai_datetime') {
@@ -208,7 +172,7 @@ export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCo
                   <TableRow>
                     {columnKeys.map((key) => (
                       <TableHead key={key} className="whitespace-nowrap">
-                        {getColumnDisplayName(key)}
+                        {getColumnThaiName(key)}
                       </TableHead>
                     ))}
                     <TableHead className="whitespace-nowrap">รายละเอียด</TableHead>
@@ -294,54 +258,54 @@ export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCo
               <div>
                 <h4 className="font-semibold mb-2">การจำแนกเมล็ด</h4>
                 <div className="space-y-1 text-sm">
-                  <div>ชั้น 1: {formatValue(selectedRow.class1)}%</div>
-                  <div>ชั้น 2: {formatValue(selectedRow.class2)}%</div>
-                  <div>ชั้น 3: {formatValue(selectedRow.class3)}%</div>
-                  <div>เมล็ดสั้น: {formatValue(selectedRow.short_grain)}%</div>
-                  <div>เมล็ดยาว: {formatValue(selectedRow.slender_kernel)}%</div>
+                  <div>{getColumnThaiName('class1')}: {formatValue(selectedRow.class1)}%</div>
+                  <div>{getColumnThaiName('class2')}: {formatValue(selectedRow.class2)}%</div>
+                  <div>{getColumnThaiName('class3')}: {formatValue(selectedRow.class3)}%</div>
+                  <div>{getColumnThaiName('short_grain')}: {formatValue(selectedRow.short_grain)}%</div>
+                  <div>{getColumnThaiName('slender_kernel')}: {formatValue(selectedRow.slender_kernel)}%</div>
                 </div>
               </div>
 
               <div>
                 <h4 className="font-semibold mb-2">คุณภาพข้าว</h4>
                 <div className="space-y-1 text-sm">
-                  <div>เมล็ดเต็ม: {formatValue(selectedRow.whole_kernels)}%</div>
-                  <div>ข้าวหัว: {formatValue(selectedRow.head_rice)}%</div>
-                  <div>ข้าวหักรวม: {formatValue(selectedRow.total_brokens)}%</div>
-                  <div>ข้าวหักเล็ก: {formatValue(selectedRow.small_brokens)}%</div>
-                  <div>ข้าวหักเล็ก C1: {formatValue(selectedRow.small_brokens_c1)}%</div>
+                  <div>{getColumnThaiName('whole_kernels')}: {formatValue(selectedRow.whole_kernels)}%</div>
+                  <div>{getColumnThaiName('head_rice')}: {formatValue(selectedRow.head_rice)}%</div>
+                  <div>{getColumnThaiName('total_brokens')}: {formatValue(selectedRow.total_brokens)}%</div>
+                  <div>{getColumnThaiName('small_brokens')}: {formatValue(selectedRow.small_brokens)}%</div>
+                  <div>{getColumnThaiName('small_brokens_c1')}: {formatValue(selectedRow.small_brokens_c1)}%</div>
                 </div>
               </div>
 
               <div>
                 <h4 className="font-semibold mb-2">สีและความบริสุทธิ์</h4>
                 <div className="space-y-1 text-sm">
-                  <div>ความขาว: {formatValue(selectedRow.whiteness)}</div>
-                  <div>เส้นแดง: {formatValue(selectedRow.red_line_rate)}%</div>
-                  <div>ข้าวเหลือง: {formatValue(selectedRow.yellow_rice_rate)}%</div>
-                  <div>ข้าวน้ำผึ้ง: {formatValue(selectedRow.honey_rice)}%</div>
-                  <div>เมล็ดดำ: {formatValue(selectedRow.black_kernel)}%</div>
+                  <div>{getColumnThaiName('whiteness')}: {formatValue(selectedRow.whiteness)}</div>
+                  <div>{getColumnThaiName('red_line_rate')}: {formatValue(selectedRow.red_line_rate)}%</div>
+                  <div>{getColumnThaiName('yellow_rice_rate')}: {formatValue(selectedRow.yellow_rice_rate)}%</div>
+                  <div>{getColumnThaiName('honey_rice')}: {formatValue(selectedRow.honey_rice)}%</div>
+                  <div>{getColumnThaiName('black_kernel')}: {formatValue(selectedRow.black_kernel)}%</div>
                 </div>
               </div>
 
               <div>
                 <h4 className="font-semibold mb-2">สิ่งเจือปน</h4>
                 <div className="space-y-1 text-sm">
-                  <div>ข้าวด้วย: {formatValue(selectedRow.imperfection_rate)}%</div>
-                  <div>ข้าวเหนียว: {formatValue(selectedRow.sticky_rice_rate)}%</div>
-                  <div>ข้าวเปลือก: {formatValue(selectedRow.paddy_rate)}%</div>
-                  <div>สิ่งปนเปื้อน: {formatValue(selectedRow.impurity_num)}%</div>
+                  <div>{getColumnThaiName('imperfection_rate')}: {formatValue(selectedRow.imperfection_rate)}%</div>
+                  <div>{getColumnThaiName('sticky_rice_rate')}: {formatValue(selectedRow.sticky_rice_rate)}%</div>
+                  <div>{getColumnThaiName('paddy_rate')}: {formatValue(selectedRow.paddy_rate)}%</div>
+                  <div>{getColumnThaiName('impurity_num')}: {formatValue(selectedRow.impurity_num)}%</div>
                 </div>
               </div>
 
               <div>
                 <h4 className="font-semibold mb-2">อื่นๆ</h4>
                 <div className="space-y-1 text-sm">
-                  <div>ความแม่นยำ: {formatValue(selectedRow.process_precision)}%</div>
-                  <div>ข้าวสุกขาว: {formatValue(selectedRow.parboiled_white_rice)}%</div>
-                  <div>ข้าวสุกเส้นแดง: {formatValue(selectedRow.parboiled_red_line)}%</div>
-                  <div>ดำบางส่วน: {formatValue(selectedRow.partly_black)}%</div>
-                  <div>จุดดำบางส่วน: {formatValue(selectedRow.partly_black_peck)}%</div>
+                  <div>{getColumnThaiName('process_precision')}: {formatValue(selectedRow.process_precision)}%</div>
+                  <div>{getColumnThaiName('parboiled_white_rice')}: {formatValue(selectedRow.parboiled_white_rice)}%</div>
+                  <div>{getColumnThaiName('parboiled_red_line')}: {formatValue(selectedRow.parboiled_red_line)}%</div>
+                  <div>{getColumnThaiName('partly_black')}: {formatValue(selectedRow.partly_black)}%</div>
+                  <div>{getColumnThaiName('partly_black_peck')}: {formatValue(selectedRow.partly_black_peck)}%</div>
                 </div>
               </div>
             </div>

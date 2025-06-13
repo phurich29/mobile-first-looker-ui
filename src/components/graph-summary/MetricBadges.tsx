@@ -6,7 +6,7 @@ import { X, Cpu, Save } from "lucide-react";
 import { SelectedMetric } from "./types";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { HexColorPicker } from "react-colorful";
-import { getMeasurementThaiName } from "@/utils/measurements";
+import { getColumnThaiName } from "@/lib/columnTranslations";
 
 interface MetricBadgesProps {
   selectedMetrics: SelectedMetric[];
@@ -27,7 +27,7 @@ export const MetricBadges: React.FC<MetricBadgesProps> = ({
     <div className="flex flex-wrap gap-2 mb-3">
       {selectedMetrics.map((metric) => {
         // Get Thai name if available, otherwise use the original name
-        const thaiName = getMeasurementThaiName(metric.symbol) || metric.name;
+        const thaiName = getColumnThaiName(metric.symbol) || metric.name;
         
         return (
           <div key={`${metric.deviceCode}-${metric.symbol}`} className="flex items-center">
