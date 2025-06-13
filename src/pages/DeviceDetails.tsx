@@ -17,6 +17,7 @@ import { DeviceHeader } from "@/features/device-details/components/DeviceHeader"
 import { SearchBar } from "@/features/device-details/components/SearchBar";
 import { MeasurementTabs } from "@/features/device-details/components/MeasurementTabs";
 import { LoadingScreen } from "@/features/device-details/components/LoadingScreen";
+import { DeviceHistoryTable } from "@/features/device-details/components/DeviceHistoryTable";
 
 // Helper function to convert URL symbol back to measurement symbol
 const convertUrlSymbolToMeasurementSymbol = (urlSymbol: string): string => {
@@ -162,11 +163,16 @@ export default function DeviceDetails() {
             </div>
           </div>
           
-          
-
           <div className="mb-4">
             <MeasurementTabs deviceCode={deviceCode} searchTerm={searchTerm} wholeGrainData={wholeGrainData} ingredientsData={ingredientsData} impuritiesData={impuritiesData} allData={allData} notificationSettings={notificationSettings || []} isLoadingWholeGrain={isLoadingWholeGrain} isLoadingIngredients={isLoadingIngredients} isLoadingImpurities={isLoadingImpurities} isLoadingAllData={isLoadingAllData} onMeasurementClick={handleMeasurementClick} />
           </div>
+
+          {/* Add Device History Table at the bottom */}
+          {deviceCode && deviceCode !== 'default' && (
+            <div className="px-[5%] md:px-0">
+              <DeviceHistoryTable deviceCode={deviceCode} />
+            </div>
+          )}
         </div>
       </AppLayout>
     </CountdownProvider>;
