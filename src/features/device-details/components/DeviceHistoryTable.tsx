@@ -7,7 +7,6 @@ import { TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/compon
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { formatDateTime } from "@/utils/measurements";
 
 interface DeviceHistoryTableProps {
   deviceCode: string;
