@@ -7,6 +7,9 @@ import { TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/compon
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { getColumnThaiName } from "@/lib/columnTranslations";
 
 interface DeviceHistoryTableProps {
@@ -46,6 +49,39 @@ interface RiceQualityData {
 }
 
 const ITEMS_PER_PAGE = 20;
+
+// Define categorized data structure
+const DATA_CATEGORIES = {
+  general: {
+    title: "ข้อมูลทั่วไป",
+    icon: "📋",
+    color: "bg-blue-50 border-blue-200",
+    fields: ['device_code', 'thai_datetime']
+  },
+  wholeGrain: {
+    title: "การจำแนกเมล็ดข้าวทั้งเมล็ด",
+    icon: "🌾",
+    color: "bg-green-50 border-green-200",
+    fields: ['class1', 'class2', 'class3', 'short_grain', 'slender_kernel']
+  },
+  composition: {
+    title: "องค์ประกอบ",
+    icon: "🔬",
+    color: "bg-purple-50 border-purple-200", 
+    fields: ['whole_kernels', 'head_rice', 'total_brokens', 'small_brokens', 'small_brokens_c1']
+  },
+  characteristics: {
+    title: "คุณลักษณะและความบกพร่อง",
+    icon: "⚠️",
+    color: "bg-orange-50 border-orange-200",
+    fields: [
+      'red_line_rate', 'parboiled_red_line', 'parboiled_white_rice', 'honey_rice',
+      'yellow_rice_rate', 'black_kernel', 'partly_black_peck', 'partly_black',
+      'imperfection_rate', 'sticky_rice_rate', 'impurity_num', 'paddy_rate',
+      'whiteness', 'process_precision'
+    ]
+  }
+};
 
 export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCode }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -128,6 +164,46 @@ export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCo
     }
     
     return formatValue(value);
+  };
+
+  // Render categorized data in the dialog
+  const renderCategorizedData = (data: RiceQualityData) => {
+    return Object.entries(DATA_CATEGORIES).map(([categoryKey, category]) => {
+      const categoryData = category.fields.filter(field => 
+        data[field] !== null && data[field] !== undefined
+      );
+
+      if (categoryData.length === 0) return null;
+
+      return (
+        <Card key={categoryKey} className={`${category.color} shadow-sm`}>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <span>{category.icon}</span>
+              {category.title}
+              <Badge variant="secondary" className="ml-auto">
+                {categoryData.length} รายการ
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {categoryData.map((field) => (
+                <div key={field} className="flex justify-between items-center p-2 bg-white/60 rounded-md">
+                  <span className="text-sm text-gray-600 font-medium">
+                    {getColumnThaiName(field)}:
+                  </span>
+                  <span className="text-sm font-semibold text-gray-800">
+                    {formatCellValue(field, data[field])}
+                    {field !== 'device_code' && field !== 'thai_datetime' && field !== 'paddy_rate' ? '%' : ''}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      );
+    });
   };
 
   if (isLoading) {
@@ -236,69 +312,46 @@ export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCo
         )}
       </div>
 
-      {/* Detail Dialog */}
+      {/* Detail Dialog with New Categorized Format */}
       <Dialog open={selectedRow !== null} onOpenChange={() => setSelectedRow(null)}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>รายละเอียดข้อมูลการวิเคราะห์</DialogTitle>
+            <DialogTitle className="text-xl font-bold text-center text-emerald-700">
+              📊 รายละเอียดข้อมูลการวิเคราะห์คุณภาพข้าว
+            </DialogTitle>
+            <Separator className="my-2" />
           </DialogHeader>
           {selectedRow && (
-            <div className="space-y-6 mt-4">
-              {/* ข้อมูลทั่วไป */}
-              <div>
-                <h4 className="text-md font-semibold mb-2 border-b pb-1">ข้อมูลทั่วไป</h4>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                  <div>รหัสอุปกรณ์:</div><div>{selectedRow.device_code}</div>
-                  <div>วันที่-เวลา:</div><div>{selectedRow.thai_datetime 
-                    ? new Date(selectedRow.thai_datetime).toLocaleString('th-TH', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }) 
-                    : new Date(selectedRow.created_at).toLocaleString('th-TH', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
-                  }</div>
+            <div className="space-y-4 mt-4">
+              {/* Summary Header */}
+              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h4 className="font-semibold text-emerald-800">รหัสอุปกรณ์: {selectedRow.device_code}</h4>
+                    <p className="text-sm text-emerald-600">
+                      วันที่-เวลา: {selectedRow.thai_datetime 
+                        ? new Date(selectedRow.thai_datetime).toLocaleString('th-TH', { 
+                            year: 'numeric', month: '2-digit', day: '2-digit', 
+                            hour: '2-digit', minute: '2-digit', second: '2-digit' 
+                          }) 
+                        : new Date(selectedRow.created_at).toLocaleString('th-TH', { 
+                            year: 'numeric', month: '2-digit', day: '2-digit', 
+                            hour: '2-digit', minute: '2-digit', second: '2-digit' 
+                          })
+                      }
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <Badge variant="outline" className="text-emerald-700 border-emerald-300">
+                      ID: {selectedRow.id}
+                    </Badge>
+                  </div>
                 </div>
               </div>
 
-              {/* ตารางที่ 1: การจำแนกเมล็ดข้าวทั้งเมล็ด */}
-              <div>
-                <h4 className="text-md font-semibold mb-2 border-b pb-1">ตารางที่ 1: การจำแนกเมล็ดข้าวทั้งเมล็ด</h4>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                  <div>{getColumnThaiName('Class 1(>7.0...)')}:</div><div>{formatValue(selectedRow.class1)}%</div>
-                  <div>{getColumnThaiName('Class 2(>6.6-...)')}:</div><div>{formatValue(selectedRow.class2)}%</div>
-                  <div>{getColumnThaiName('Class 3(>6.2-...)')}:</div><div>{formatValue(selectedRow.class3)}%</div>
-                  <div>{getColumnThaiName('Short(≤6.2mm)')}:</div><div>{formatValue(selectedRow.short_grain)}%</div>
-                  <div>{getColumnThaiName('Slender rice')}:</div><div>{formatValue(selectedRow.slender_kernel)}%</div>
-                </div>
-              </div>
-
-              {/* ตารางที่ 2: องค์ประกอบ */}
-              <div>
-                <h4 className="text-md font-semibold mb-2 border-b pb-1">ตารางที่ 2: องค์ประกอบ</h4>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                  <div>{getColumnThaiName('Whole kernels')}:</div><div>{formatValue(selectedRow.whole_kernels)}%</div>
-                  <div>{getColumnThaiName('Head rice')}:</div><div>{formatValue(selectedRow.head_rice)}%</div>
-                  <div>{getColumnThaiName('Total brokens')}:</div><div>{formatValue(selectedRow.total_brokens)}%</div>
-                  <div>{getColumnThaiName('Small brokens')}:</div><div>{formatValue(selectedRow.small_brokens)}%</div>
-                  <div>{getColumnThaiName('C1 brokens')}:</div><div>{formatValue(selectedRow.small_brokens_c1)}%</div>
-                </div>
-              </div>
-
-              {/* ตารางที่ 3: คุณลักษณะและความบกพร่อง */}
-              <div>
-                <h4 className="text-md font-semibold mb-2 border-b pb-1">ตารางที่ 3: คุณลักษณะและความบกพร่อง</h4>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                  <div>{getColumnThaiName('Red line')}:</div><div>{formatValue(selectedRow.red_line_rate)}%</div>
-                  <div>{getColumnThaiName('Undercooked')}:</div><div>{formatValue(selectedRow.undercooked)}%</div>
-                  <div>{getColumnThaiName('Deviated color')}:</div><div>{formatValue(selectedRow.deviated_color)}%</div>
-                  <div>{getColumnThaiName('Slight deviated')}:</div><div>{formatValue(selectedRow.slight_deviated)}%</div>
-                  <div>{getColumnThaiName('Yellow')}:</div><div>{formatValue(selectedRow.yellow_rice_rate)}%</div>
-                  <div>{getColumnThaiName('Black kernels')}:</div><div>{formatValue(selectedRow.black_kernel)}%</div>
-                  <div>{getColumnThaiName('Partly black & peck')}:</div><div>{formatValue(selectedRow.partly_black_peck)}%</div>
-                  <div>{getColumnThaiName('Partly black')}:</div><div>{formatValue(selectedRow.partly_black)}%</div>
-                  <div>{getColumnThaiName('Damaged')}:</div><div>{formatValue(selectedRow.imperfection_rate)}%</div>
-                  <div>{getColumnThaiName('Glutinous rice')}:</div><div>{formatValue(selectedRow.sticky_rice_rate)}%</div>
-                  <div>{getColumnThaiName('Impurity')}:</div><div>{formatValue(selectedRow.impurity_num)}%</div>
-                  <div>{getColumnThaiName('Paddy(grain/kg)')}:</div><div>{formatValue(selectedRow.paddy_rate)}</div>
-                  <div>{getColumnThaiName('Whiteness')}:</div><div>{formatValue(selectedRow.whiteness)}</div>
-                  <div>{getColumnThaiName('Mill Degree')}:</div><div>{formatValue(selectedRow.process_precision)}%</div>
-                </div>
+              {/* Categorized Data Display */}
+              <div className="grid gap-4">
+                {renderCategorizedData(selectedRow)}
               </div>
             </div>
           )}
