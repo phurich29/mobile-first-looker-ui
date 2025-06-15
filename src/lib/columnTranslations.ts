@@ -19,51 +19,43 @@
  * จัดกลุ่มตามประเภทข้อมูลเพื่อง่ายต่อการจัดการ
  */
 export const COLUMN_TRANSLATIONS: Record<string, string> = {
-  // ข้อมูลทั่วไป / General Information
+  // ตารางที่ 1: การจำแนกเมล็ดข้าวทั้งเมล็ด (Whole kernel classification)
+  'class 1(>7.0...)': 'ชั้น 1(>7.0mm)',
+  'class 2(>6.6-...)': 'ชั้น 2(>6.6-7...)',
+  'class 3(>6.2-...)': 'ชั้น 3(>6.2-6...)',
+  'short(≤6.2mm)': 'เมล็ดสั้น(≤6.2...)',
+  'slender rice': 'ข้าวลีบ',
+
+  // ตารางที่ 2: องค์ประกอบ (Composition)
+  'whole kernels': 'เมล็ดเต็ม',
+  'head rice': 'ต้นข้าว',
+  'total brokens': 'ข้าวหักรวม',
+  'small brokens': 'ปลายข้าว',
+  'c1 brokens': 'ปลายข้าวC1',
+
+  // ตารางที่ 3: คุณลักษณะและความบกพร่อง (Characteristics and Defects)
+  'red line': 'เมล็ดแดง',
+  'undercooked': 'ข้าวดิบ',
+  'deviated color': 'เมล็ดม่วง',
+  'slight deviated': 'ม่วงอ่อน',
+  'yellow': 'เมล็ดเหลือง',
+  'black kernels': 'เมล็ดดำ',
+  'partly black & peck': 'ดำบางส่วน & จุดดำ',
+  'partly black': 'ดำบางส่วน',
+  'damaged': 'เมล็ดเสีย',
+  'glutinous rice': 'ข้าวเหนียว',
+  'impurity': 'เมล็ดอื่นๆ',
+  'paddy(grain/kg)': 'ข้าวเปลือก(เมล็ด/กก.)',
+  'whiteness': 'ความขาว',
+  'mill degree': 'ระดับขัดสี',
+
+  // ข้อมูลทั่วไป / General Information (Preserved - not part of the 3 tables above)
   'thai_datetime': 'วันที่-เวลา',
   'device_code': 'รหัสเครื่อง',
   'created_at': 'วันที่สร้าง',
   'updated_at': 'วันที่อัปเดต',
-  
-  // การจำแนกเมล็ด / Grain Classification
-  'class1': 'ชั้น 1 (>7.0mm)',
-  'class2': 'ชั้น 2 (6.6-7.0mm)', 
-  'class3': 'ชั้น 3 (6.2-6.6mm)',
-  'short_grain': 'เมล็ดสั้น',
-  'slender_kernel': 'เมล็ดยาว',
-  
-  // คุณภาพข้าว / Rice Quality
-  'whole_kernels': 'เมล็ดเต็ม',
-  'head_rice': 'ข้าวหัว',
-  'total_brokens': 'ข้าวหักรวม',
-  'small_brokens': 'ข้าวหักเล็ก',
-  'small_brokens_c1': 'ข้าวหักเล็ก C1',
-  
-  // สีและความบริสุทธิ์ / Color and Purity
-  'whiteness': 'ความขาว',
-  'red_line_rate': 'เส้นแดง',
-  'parboiled_red_line': 'ข้าวสุกเส้นแดง',
-  'parboiled_white_rice': 'ข้าวสุกขาว',
-  'honey_rice': 'ข้าวน้ำผึ้ง',
-  'light_honey_rice': 'ข้าวน้ำผึ้งอ่อน',
-  'yellow_rice_rate': 'ข้าวเหลือง',
-  'black_kernel': 'เมล็ดดำ',
-  'partly_black_peck': 'จุดดำบางส่วน',
-  'partly_black': 'ดำบางส่วน',
-  
-  // สิ่งเจือปน / Impurities
-  'imperfection_rate': 'ข้าวด้วย',
-  'sticky_rice_rate': 'ข้าวเหนียว',
-  'impurity_num': 'สิ่งปนเปื้อน',
-  'paddy_rate': 'ข้าวเปลือก',
-  
-  // อื่นๆ / Others
-  'process_precision': 'ความแม่นยำ',
-  'other_backline': 'เส้นอื่นๆ',
-  'heavy_chalkiness_rate': 'ปูนขาวหนัก',
-  'topline_rate': 'เส้นบน',
-  
-  // Legacy mappings for backward compatibility
+
+  // Legacy mappings for backward compatibility (Preserved)
   '70mm': 'ชั้น 1 (>7.0mm)',
   'shortgrain': 'เมล็ดสั้น',
   'slenderkernel': 'เมล็ดยาว',

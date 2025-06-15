@@ -57,19 +57,7 @@ const HistoryHeader: React.FC<HistoryHeaderProps> = ({
   
   return (
     <div className="flex flex-col p-4 border-b border-gray-100">
-      {/* Device information with more prominent display */}
-      {deviceCode && displayName && (
-        <div className="mb-4 p-3 bg-emerald-50 rounded-lg border border-emerald-100">
-          <div className="flex items-center">
-            <Smartphone className="h-5 w-5 text-emerald-600 mr-2" />
-            <div>
-              <h2 className="text-lg font-semibold text-emerald-800">{displayName}</h2>
-              <p className="text-xs text-emerald-600">รหัสอุปกรณ์: {deviceCode}</p>
-            </div>
-          </div>
-        </div>
-      )}
-      
+
       <div className="flex items-center justify-between">
         <div>
           <div className="mb-1">

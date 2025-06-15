@@ -1,3 +1,5 @@
+import { DeviceHeader } from "@/features/device-details/components/DeviceHeader";
+import { Wheat } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import HistoryHeader from "./HistoryHeader";
@@ -166,7 +168,7 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
     return (
       <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-8'}>
         <div className="flex flex-col flex-1 min-h-full bg-gradient-to-b from-emerald-50 to-gray-50 overflow-x-hidden">
-          <main className="flex-1 p-4 overflow-x-hidden">
+          <main className="flex-1 overflow-x-hidden">
             <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 text-center">
               <h3 className="text-lg font-medium text-red-600 mb-2">ข้อมูลไม่ครบถ้วน</h3>
               <p className="text-gray-600">ไม่พบข้อมูลอุปกรณ์หรือค่าที่ต้องการแสดง กรุณาลองใหม่อีกครั้ง</p>
@@ -181,7 +183,18 @@ const MeasurementHistory: React.FC<MeasurementHistoryProps> = ({
     <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-8'}>
       <div className="flex flex-col flex-1 min-h-full bg-gradient-to-b from-emerald-50 to-gray-50 overflow-x-hidden">
         <main className="flex-1 overflow-x-hidden">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                <div className="flex justify-between items-center">
+          <DeviceHeader deviceCode={deviceCode} />
+          <div className="flex items-center relative">
+            {/* Wheat icon group with varied sizes and positions */}
+            <Wheat className="text-amber-400 absolute -top-3 -left-8" size={16} strokeWidth={2.5} />
+            <Wheat className="text-amber-500 mr-1" size={20} strokeWidth={2.5} />
+            <Wheat className="text-amber-600" size={18} strokeWidth={2.5} />
+            <Wheat className="text-amber-700 ml-1" size={14} strokeWidth={2.5} />
+            <Wheat className="text-yellow-600 absolute -bottom-2 -right-3" size={12} strokeWidth={2.5} />
+          </div>
+        </div>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden mt-4">
             <HistoryHeader 
               name={name || ''}
               unit={unit}
