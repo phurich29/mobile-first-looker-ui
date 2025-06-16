@@ -28,23 +28,23 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
       if (categoryData.length === 0) return null;
 
       return (
-        <div key={categoryKey} className="border border-gray-200 rounded-md mb-2">
-          <div className="bg-gray-50 px-3 py-2 border-b border-gray-200">
+        <div key={categoryKey} className="border border-gray-300 rounded mb-1">
+          <div className="bg-gray-100 px-3 py-1.5 border-b border-gray-300">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-medium text-gray-900">{category.title}</h4>
-              <Badge variant="outline" className="text-xs bg-white border-gray-300">
+              <h4 className="text-sm font-medium text-black">{category.title}</h4>
+              <Badge variant="outline" className="text-xs bg-white border-gray-400 text-black">
                 {categoryData.length}
               </Badge>
             </div>
           </div>
-          <div className="p-3">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
+          <div className="p-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
               {categoryData.map((field) => (
-                <div key={field} className="flex justify-between items-center py-1 px-2 hover:bg-gray-50 rounded text-xs">
-                  <span className="text-gray-600 truncate mr-2">
+                <div key={field} className="flex justify-between items-center py-0.5 px-2 hover:bg-gray-50 rounded text-xs">
+                  <span className="text-gray-700 truncate mr-2">
                     {getColumnThaiName(field)}
                   </span>
-                  <span className="font-medium text-gray-900 flex-shrink-0">
+                  <span className="font-medium text-black flex-shrink-0">
                     {formatCellValue(field, data[field])}
                     {field !== 'device_code' && field !== 'thai_datetime' && field !== 'paddy_rate' ? '%' : ''}
                   </span>
@@ -59,22 +59,22 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
 
   return (
     <Dialog open={selectedRow !== null} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto bg-white border border-gray-300">
-        <DialogHeader className="pb-2">
-          <DialogTitle className="text-lg font-semibold text-gray-900 text-center">
-            รายละเอียดข้อมูลการวิเคราะห์คุณภาพข้าว
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white border border-gray-400 p-4">
+        <DialogHeader className="pb-1">
+          <DialogTitle className="text-lg font-semibold text-black text-center">
+            Rice Quality Analysis Details
           </DialogTitle>
-          <Separator className="bg-gray-200" />
+          <Separator className="bg-gray-300" />
         </DialogHeader>
         
         {selectedRow && (
           <>
-            {/* Summary Header - Minimal Style */}
-            <div className="bg-gray-50 border border-gray-200 rounded-md p-3 mb-3">
+            {/* Summary Header - Equal spacing */}
+            <div className="bg-gray-100 border border-gray-300 rounded p-3 mb-2">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <div className="text-sm font-medium text-gray-900 mb-1">
-                    รหัสอุปกรณ์: {selectedRow.device_code}
+                  <div className="text-sm font-medium text-black mb-1">
+                    Device Code: {selectedRow.device_code}
                   </div>
                   <div className="text-xs text-gray-600">
                     {selectedRow.thai_datetime 
@@ -89,13 +89,13 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
                     }
                   </div>
                 </div>
-                <Badge variant="outline" className="bg-white border-gray-300 text-xs">
+                <Badge variant="outline" className="bg-white border-gray-400 text-xs text-black">
                   ID: {selectedRow.id}
                 </Badge>
               </div>
             </div>
 
-            {/* Categorized Data Display - Compact */}
+            {/* Categorized Data Display - Tighter spacing */}
             <div className="space-y-0">
               {renderCategorizedData(selectedRow)}
             </div>
