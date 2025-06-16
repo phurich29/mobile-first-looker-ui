@@ -3,6 +3,7 @@ import React, { useRef } from "react";
 import { ResponsiveTable } from "@/components/ui/responsive-table";
 import { TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { getColumnThaiName } from "@/lib/columnTranslations";
 import { RiceQualityData } from './types';
@@ -14,7 +15,9 @@ interface HistoryTableProps {
   totalCount: number;
   currentPage: number;
   totalPages: number;
+  itemsPerPage: number;
   onPageChange: (page: number) => void;
+  onItemsPerPageChange: (itemsPerPage: number) => void;
   onRowClick: (row: RiceQualityData) => void;
 }
 
@@ -23,7 +26,9 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
   totalCount,
   currentPage,
   totalPages,
+  itemsPerPage,
   onPageChange,
+  onItemsPerPageChange,
   onRowClick
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -40,6 +45,31 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
 
   return (
     <>
+      {/* Row limit controls */}
+      <div className="flex justify-between items-center mb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-600">แสดง:</span>
+          <Select 
+            value={itemsPerPage.toString()} 
+            onValueChange={(value) => onItemsPerPageChange(parseInt(value))}
+          >
+            <SelectTrigger className="w-[80px] h-8 text-sm bg-white border border-gray-300">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-white border border-gray-300 z-50">
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+              <SelectItem value="100">100</SelectItem>
+              <SelectItem value="500">500</SelectItem>
+            </SelectContent>
+          </Select>
+          <span className="text-sm text-gray-600">แถว</span>
+        </div>
+        <div className="text-sm text-gray-500">
+          รวม {totalCount} รายการ
+        </div>
+      </div>
+
       <div 
         ref={containerRef}
         className={`overflow-x-auto ${dragState.isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}

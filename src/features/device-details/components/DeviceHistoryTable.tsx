@@ -15,9 +15,11 @@ export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCo
     totalCount,
     currentPage,
     totalPages,
+    itemsPerPage,
     isLoading,
     error,
-    setCurrentPage
+    setCurrentPage,
+    setItemsPerPage
   } = useHistoryData(deviceCode);
 
   const handleRowClick = (row: RiceQualityData) => {
@@ -58,7 +60,7 @@ export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCo
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">ประวัติข้อมูลทั้งหมด</h3>
           <span className="text-sm text-gray-500">
-            รวม {totalCount} รายการ | แสดง {columnKeys.length + 1} คอลัมน์
+            แสดง {columnKeys.length + 1} คอลัมน์
           </span>
         </div>
 
@@ -67,7 +69,9 @@ export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCo
           totalCount={totalCount}
           currentPage={currentPage}
           totalPages={totalPages}
+          itemsPerPage={itemsPerPage}
           onPageChange={setCurrentPage}
+          onItemsPerPageChange={setItemsPerPage}
           onRowClick={handleRowClick}
         />
       </div>
