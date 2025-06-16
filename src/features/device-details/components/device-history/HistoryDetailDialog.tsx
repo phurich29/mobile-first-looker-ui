@@ -29,23 +29,23 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
 
       return (
         <Card key={categoryKey} className={`${category.color} shadow-sm`}>
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-2 pt-3">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <span>{category.icon}</span>
               {category.title}
-              <Badge variant="secondary" className="ml-auto">
+              <Badge variant="secondary" className="ml-auto text-xs">
                 {categoryData.length} รายการ
               </Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="pt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <CardContent className="pt-0 pb-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {categoryData.map((field) => (
-                <div key={field} className="flex justify-between items-center p-2 bg-white/60 rounded-md">
-                  <span className="text-sm text-gray-600 font-medium">
+                <div key={field} className="flex justify-between items-center p-1.5 bg-white/60 rounded-md">
+                  <span className="text-xs text-gray-600 font-medium">
                     {getColumnThaiName(field)}:
                   </span>
-                  <span className="text-sm font-semibold text-gray-800">
+                  <span className="text-xs font-semibold text-gray-800">
                     {formatCellValue(field, data[field])}
                     {field !== 'device_code' && field !== 'thai_datetime' && field !== 'paddy_rate' ? '%' : ''}
                   </span>
@@ -60,21 +60,21 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
 
   return (
     <Dialog open={selectedRow !== null} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-center text-emerald-700">
+          <DialogTitle className="text-lg font-bold text-center text-emerald-700">
             📊 รายละเอียดข้อมูลการวิเคราะห์คุณภาพข้าว
           </DialogTitle>
-          <Separator className="my-2" />
+          <Separator className="my-1" />
         </DialogHeader>
         {selectedRow && (
-          <div className="space-y-4 mt-4">
+          <div className="space-y-3 mt-2">
             {/* Summary Header */}
-            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
               <div className="flex justify-between items-center">
                 <div>
-                  <h4 className="font-semibold text-emerald-800">รหัสอุปกรณ์: {selectedRow.device_code}</h4>
-                  <p className="text-sm text-emerald-600">
+                  <h4 className="font-semibold text-emerald-800 text-sm">รหัสอุปกรณ์: {selectedRow.device_code}</h4>
+                  <p className="text-xs text-emerald-600">
                     วันที่-เวลา: {selectedRow.thai_datetime 
                       ? new Date(selectedRow.thai_datetime).toLocaleString('th-TH', { 
                           year: 'numeric', month: '2-digit', day: '2-digit', 
@@ -88,7 +88,7 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
                   </p>
                 </div>
                 <div className="text-right">
-                  <Badge variant="outline" className="text-emerald-700 border-emerald-300">
+                  <Badge variant="outline" className="text-emerald-700 border-emerald-300 text-xs">
                     ID: {selectedRow.id}
                   </Badge>
                 </div>
@@ -96,7 +96,7 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
             </div>
 
             {/* Categorized Data Display */}
-            <div className="grid gap-4">
+            <div className="grid gap-3">
               {renderCategorizedData(selectedRow)}
             </div>
           </div>
