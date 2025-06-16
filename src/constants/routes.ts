@@ -18,10 +18,14 @@ export const ROUTES = {
   MEASUREMENT_DETAIL: (measurementSymbol: string) => `/measurement-detail/${measurementSymbol}`,
   MEASUREMENT_HISTORY: (deviceCode: string, symbol: string) => `/measurement-history/${deviceCode}/${symbol}`,
   
-  // Graphs
+  // Graphs - Global
   GRAPH_MONITOR: '/graph-monitor',
   GRAPH_SUMMARY: '/graph-summary',
   GRAPH_SUMMARY_DETAIL: '/graph-summary-detail',
+  
+  // Graphs - Device specific
+  DEVICE_GRAPH_MONITOR: (deviceCode: string) => `/device/${deviceCode}/graph-monitor`,
+  DEVICE_GRAPH_SUMMARY: (deviceCode: string) => `/device/${deviceCode}/graph-summary`,
   
   // Notifications
   NOTIFICATIONS: '/notifications',

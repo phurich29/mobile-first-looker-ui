@@ -1,3 +1,4 @@
+
 import { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -30,6 +31,10 @@ import GraphSummaryDetail from "./pages/GraphSummaryDetail";
 import NewQualityMeasurements from "./pages/NewQualityMeasurements";
 import MeasurementDetail from "./pages/MeasurementDetail";
 import DeviceManagement from "./pages/DeviceManagement";
+
+// Device-specific graph pages
+import DeviceGraphMonitor from "./pages/DeviceGraphMonitor";
+import DeviceGraphSummary from "./pages/DeviceGraphSummary";
 
 // Loading component
 const LoadingSpinner = () => (
@@ -149,6 +154,23 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <MeasurementHistory />
+          </ProtectedRoute>
+        ),
+      },
+      // Device-specific graph routes
+      {
+        path: "device/:deviceCode/graph-monitor",
+        element: (
+          <ProtectedRoute>
+            <DeviceGraphMonitor />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "device/:deviceCode/graph-summary",
+        element: (
+          <ProtectedRoute>
+            <DeviceGraphSummary />
           </ProtectedRoute>
         ),
       },

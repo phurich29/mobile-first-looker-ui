@@ -6,8 +6,12 @@ import { useToast } from "@/hooks/use-toast";
 import { usePresetOperations } from "./usePresetOperations";
 import { loadSavedGraphsFromDB, saveGraphPreferencesToDB } from "./graphPreferenceService";
 import { UseGraphPreferencesProps, UseGraphPreferencesReturn } from "./graphPreferenceTypes";
+import { useParams } from "react-router-dom";
 
-export const useGraphPreferences = ({ deviceCode = "all" }: UseGraphPreferencesProps = {}): UseGraphPreferencesReturn => {
+export const useGraphPreferences = ({ deviceCode: propDeviceCode = "all" }: UseGraphPreferencesProps = {}): UseGraphPreferencesReturn => {
+  const { deviceCode: urlDeviceCode } = useParams<{ deviceCode: string }>();
+  const deviceCode = urlDeviceCode || propDeviceCode; // Use URL param if available, otherwise use prop
+  
   const [savedGraphs, setSavedGraphs] = useState<SelectedGraph[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
