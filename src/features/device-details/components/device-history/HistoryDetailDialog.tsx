@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,10 +8,12 @@ import { getColumnThaiName } from "@/lib/columnTranslations";
 import { RiceQualityData } from './types';
 import { DATA_CATEGORIES } from './dataCategories';
 import { formatCellValue } from './utils';
+
 interface HistoryDetailDialogProps {
   selectedRow: RiceQualityData | null;
   onClose: () => void;
 }
+
 export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
   selectedRow,
   onClose
@@ -20,7 +23,9 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
     return Object.entries(DATA_CATEGORIES).map(([categoryKey, category]) => {
       const categoryData = category.fields.filter(field => data[field] !== null && data[field] !== undefined);
       if (categoryData.length === 0) return null;
-      return <div key={categoryKey} className="border border-gray-300 rounded mb-1 my-[15px]">
+
+      return (
+        <div key={categoryKey} className="border border-gray-300 rounded my-[15px]">
           <div className="bg-gray-100 px-3 py-1.5 border-b border-gray-300 my-0">
             <div className="flex items-center justify-between">
               <h4 className="text-sm font-medium text-black">{category.title}</h4>
@@ -31,7 +36,8 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
           </div>
           <div className="p-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
-              {categoryData.map(field => <div key={field} className="flex justify-between items-center py-0.5 px-2 hover:bg-gray-50 rounded text-xs">
+              {categoryData.map(field => (
+                <div key={field} className="flex justify-between items-center py-0.5 px-2 hover:bg-gray-50 rounded text-xs">
                   <span className="text-gray-700 truncate mr-2">
                     {getColumnThaiName(field)}
                   </span>
@@ -39,13 +45,17 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
                     {formatCellValue(field, data[field])}
                     {field !== 'device_code' && field !== 'thai_datetime' && field !== 'paddy_rate' ? '%' : ''}
                   </span>
-                </div>)}
+                </div>
+              ))}
             </div>
           </div>
-        </div>;
+        </div>
+      );
     });
   };
-  return <Dialog open={selectedRow !== null} onOpenChange={() => onClose()}>
+
+  return (
+    <Dialog open={selectedRow !== null} onOpenChange={() => onClose()}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white border border-gray-400 p-4">
         <DialogHeader className="pb-1">
           <DialogTitle className="text-lg font-semibold text-black text-center">
@@ -54,7 +64,8 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
           <Separator className="bg-gray-300" />
         </DialogHeader>
         
-        {selectedRow && <>
+        {selectedRow && (
+          <>
             {/* Summary Header - Equal spacing */}
             <div className="bg-gray-100 border border-gray-300 rounded p-3 mb-2">
               <div className="flex justify-between items-start">
@@ -64,18 +75,18 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
                   </div>
                   <div className="text-xs text-gray-600">
                     {selectedRow.thai_datetime ? new Date(selectedRow.thai_datetime).toLocaleString('th-TH', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                }) : new Date(selectedRow.created_at).toLocaleString('th-TH', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    }) : new Date(selectedRow.created_at).toLocaleString('th-TH', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
                   </div>
                 </div>
                 <Badge variant="outline" className="bg-white border-gray-400 text-xs text-black">
@@ -88,7 +99,9 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
             <div className="space-y-0">
               {renderCategorizedData(selectedRow)}
             </div>
-          </>}
+          </>
+        )}
       </DialogContent>
-    </Dialog>;
+    </Dialog>
+  );
 };
