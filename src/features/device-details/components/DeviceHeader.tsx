@@ -1,9 +1,10 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Monitor, Layout, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ROUTES } from "@/constants/routes";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DeviceHeaderProps {
   deviceCode: string;
@@ -13,9 +14,43 @@ interface DeviceHeaderProps {
 
 export const DeviceHeader: React.FC<DeviceHeaderProps> = ({
   deviceCode,
-  displayName,
+  displayName: propDisplayName,
   onBack,
 }) => {
+  const [deviceDisplayName, setDeviceDisplayName] = useState<string | null>(propDisplayName || null);
+
+  // Fetch device display name if not provided as prop
+  useEffect(() => {
+    const fetchDeviceDisplayName = async () => {
+      if (propDisplayName) {
+        setDeviceDisplayName(propDisplayName);
+        return;
+      }
+
+      if (!deviceCode) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('device_settings')
+          .select('display_name')
+          .eq('device_code', deviceCode)
+          .maybeSingle();
+
+        if (error) {
+          console.error('Error fetching device display name:', error);
+          setDeviceDisplayName(null);
+        } else {
+          setDeviceDisplayName(data?.display_name || null);
+        }
+      } catch (error) {
+        console.error('Error fetching device display name:', error);
+        setDeviceDisplayName(null);
+      }
+    };
+
+    fetchDeviceDisplayName();
+  }, [deviceCode, propDisplayName]);
+
   return (
     <div className="flex flex-col space-y-4 mb-6">
       {/* Header with back button and device info */}
@@ -36,9 +71,9 @@ export const DeviceHeader: React.FC<DeviceHeaderProps> = ({
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               รายละเอียดอุปกรณ์
             </h1>
-            {displayName && (
+            {deviceDisplayName && (
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Name : {displayName}
+                ชื่ออุปกรณ์: {deviceDisplayName}
               </p>
             )}
             <p className="text-sm text-gray-600 dark:text-gray-400">
