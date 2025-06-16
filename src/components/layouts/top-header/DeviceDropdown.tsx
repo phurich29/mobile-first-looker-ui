@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 import {
@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 interface Device {
   device_code: string;
@@ -25,12 +25,41 @@ export const DeviceDropdown: React.FC<DeviceDropdownProps> = ({
   isLoadingDevices
 }) => {
   const navigate = useNavigate();
+  const { deviceCode: deviceCodeFromUrl } = useParams<{ deviceCode?: string }>();
+  const [selectedDeviceName, setSelectedDeviceName] = useState<string>("เลือกอุปกรณ์");
+
+  useEffect(() => {
+    if (isLoadingDevices) {
+      setSelectedDeviceName("กำลังโหลด...");
+      return;
+    }
+
+    if (devices.length === 0) {
+      // The component returns null below if devices.length is 0 after loading,
+      // so this state might not be visibly used often, but set for completeness.
+      setSelectedDeviceName("ไม่มีอุปกรณ์"); 
+      return;
+    }
+
+    if (deviceCodeFromUrl) {
+      const currentDevice = devices.find(d => d.device_code === deviceCodeFromUrl);
+      if (currentDevice) {
+        setSelectedDeviceName(currentDevice.display_name || currentDevice.device_code);
+      } else {
+        // Device code in URL, but not found in the list
+        setSelectedDeviceName("เลือกอุปกรณ์");
+      }
+    } else {
+      // No device code in URL (e.g., on a general page)
+      setSelectedDeviceName("เลือกอุปกรณ์");
+    }
+  }, [deviceCodeFromUrl, devices, isLoadingDevices]);
 
   const handleDeviceSelect = (deviceCode: string) => {
     navigate(`/device/${deviceCode}`);
   };
 
-  if (devices.length === 0) return null;
+  if (!isLoadingDevices && devices.length === 0) return null;
 
   return (
     <DropdownMenu>
@@ -40,7 +69,9 @@ export const DeviceDropdown: React.FC<DeviceDropdownProps> = ({
           className="text-white hover:bg-emerald-700/50 dark:hover:bg-slate-700/50 px-2 md:px-3 flex items-center h-auto md:h-10 text-xs md:text-sm"
           disabled={isLoadingDevices}
         >
-          <span className="mr-1 md:mr-2">อุปกรณ์</span>
+          <span className="mr-1 md:mr-2 truncate max-w-[100px] xs:max-w-[120px] sm:max-w-[150px] md:max-w-[180px] lg:max-w-[200px]">
+            {selectedDeviceName}
+          </span>
           <ChevronDown className="h-3 w-3 md:h-4 md:w-4" />
         </Button>
       </DropdownMenuTrigger>

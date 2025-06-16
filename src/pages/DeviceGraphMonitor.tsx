@@ -115,12 +115,12 @@ const DeviceGraphMonitor = () => {
                 variant="ghost"
                 size="sm"
                 onClick={goBack}
-                className="h-8 w-8 p-0 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="h-6 w-6 p-0 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 opacity-50"
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="h-3.5 w-3.5" />
               </Button>
               <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-                กราฟมอนิเตอร์
+                Graph Monitor
               </h1>
               <div className="bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full">
                 <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
@@ -129,7 +129,7 @@ const DeviceGraphMonitor = () => {
               </div>
             </div>
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              แสดงผลกราฟจากอุปกรณ์ {deviceCode} ในรูปแบบ dashboard
+              แสดงผลกราฟจากอุปกรณ์ <strong className="text-gray-900 dark:text-gray-100">{deviceDisplayName ? `${deviceDisplayName} (${deviceCode})` : deviceCode}</strong> ในรูปแบบ dashboard
             </p>
           </div>
 
