@@ -43,37 +43,35 @@ const DEFAULT_ICON = TrendingUp;
 
 // Define categories and icons for measurements
 const MEASUREMENT_INFO: Record<string, { category: string; icon: React.ElementType }> = {
-  // คุณภาพ (Quality)
-  class1: { category: "คุณภาพ", icon: Wheat },
-  class2: { category: "คุณภาพ", icon: Wheat },
-  class3: { category: "คุณภาพ", icon: Wheat },
-  short_grain: { category: "คุณภาพ", icon: Wheat },
-  slender_kernel: { category: "คุณภาพ", icon: Wheat },
-  whole_kernels: { category: "คุณภาพ", icon: Wheat },
-  head_rice: { category: "คุณภาพ", icon: Wheat },
-  whiteness: { category: "คุณภาพ", icon: Wheat },
-  process_precision: { category: "คุณภาพ", icon: Wheat }, 
+  // พื้นข้าวเต็มเมล็ด (Whole Kernel Rice Base)
+  whole_kernels: { category: "พื้นข้าวเต็มเมล็ด", icon: Wheat },
+  head_rice: { category: "พื้นข้าวเต็มเมล็ด", icon: Wheat },
+  whiteness: { category: "พื้นข้าวเต็มเมล็ด", icon: Wheat },
+  process_precision: { category: "พื้นข้าวเต็มเมล็ด", icon: Wheat },
+  class1: { category: "พื้นข้าวเต็มเมล็ด", icon: Wheat }, // Assuming top-grade whole kernel
+  slender_kernel: { category: "พื้นข้าวเต็มเมล็ด", icon: Wheat },
+  short_grain: { category: "พื้นข้าวเต็มเมล็ด", icon: Wheat },
 
-  // ความบกพร่อง (Defects)
-  total_brokens: { category: "ความบกพร่อง", icon: Zap },
-  small_brokens: { category: "ความบกพร่อง", icon: Zap },
-  small_brokens_c1: { category: "ความบกพร่อง", icon: Zap },
-  red_line_rate: { category: "ความบกพร่อง", icon: Zap }, // Can also be impurity
-  parboiled_red_line: { category: "ความบกพร่อง", icon: Zap },
-  honey_rice: { category: "ความบกพร่อง", icon: Zap }, // Can also be impurity
-  yellow_rice_rate: { category: "ความบกพร่อง", icon: Zap }, // Can also be impurity
-  black_kernel: { category: "ความบกพร่อง", icon: Zap },
-  partly_black_peck: { category: "ความบกพร่อง", icon: Zap },
-  partly_black: { category: "ความบกพร่อง", icon: Zap },
-  imperfection_rate: { category: "ความบกพร่อง", icon: Zap },
-
-  // สิ่งปนเปื้อน (Impurities/Contaminants)
-  parboiled_white_rice: { category: "สิ่งปนเปื้อน", icon: Activity }, // If context is about contamination with parboiled
-  sticky_rice_rate: { category: "สิ่งปนเปื้อน", icon: Activity },
-  impurity_num: { category: "สิ่งปนเปื้อน", icon: Activity },
-  paddy_rate: { category: "สิ่งปนเปื้อน", icon: Activity },
-  // Note: Some items like red_line_rate, yellow_rice_rate, honey_rice could fit multiple categories.
-  // The primary categorization here is based on common interpretations.
+  // ส่วนผสม (Ingredients/Mixture)
+  class2: { category: "ส่วนผสม", icon: Zap }, // Assuming lower grade, part of mix
+  class3: { category: "ส่วนผสม", icon: Zap }, // Assuming lower grade, part of mix
+  total_brokens: { category: "ส่วนผสม", icon: Zap },
+  small_brokens: { category: "ส่วนผสม", icon: Zap },
+  small_brokens_c1: { category: "ส่วนผสม", icon: Zap },
+  sticky_rice_rate: { category: "ส่วนผสม", icon: Zap }, // Considered an admixture
+  parboiled_white_rice: { category: "ส่วนผสม", icon: Zap }, // Considered an admixture
+  parboiled_red_line: { category: "ส่วนผสม", icon: Zap }, // Admixture of parboiled with defects
+  
+  // สิ่งเจือปน (Impurities)
+  impurity_num: { category: "สิ่งเจือปน", icon: Activity },
+  paddy_rate: { category: "สิ่งเจือปน", icon: Activity },
+  red_line_rate: { category: "สิ่งเจือปน", icon: Activity }, // Defect acting as impurity
+  honey_rice: { category: "สิ่งเจือปน", icon: Activity }, // Defect acting as impurity
+  yellow_rice_rate: { category: "สิ่งเจือปน", icon: Activity }, // Defect acting as impurity
+  black_kernel: { category: "สิ่งเจือปน", icon: Activity }, // Defect acting as impurity
+  partly_black_peck: { category: "สิ่งเจือปน", icon: Activity }, // Defect acting as impurity
+  partly_black: { category: "สิ่งเจือปน", icon: Activity }, // Defect acting as impurity
+  imperfection_rate: { category: "สิ่งเจือปน", icon: Activity } // General rate of impurities/defects
 };
 
 export const GraphSelector: React.FC<GraphSelectorProps> = ({ 
