@@ -44,7 +44,7 @@ export const DeviceInfoCard = ({ deviceCode }: DeviceInfoCardProps) => {
         <Smartphone className="h-5 w-5 text-gray-500" />
         <div>
           {displayName && (
-            <p className="text-sm font-medium">{displayName}</p>
+            <p className="text-sm font-medium">Name : {displayName}</p>
           )}
           <p className="text-sm font-medium">รหัสอุปกรณ์</p>
           <p className="text-sm text-gray-500">{deviceCode}</p>
