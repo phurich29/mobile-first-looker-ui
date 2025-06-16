@@ -68,7 +68,7 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
           <Separator className="my-1" />
         </DialogHeader>
         {selectedRow && (
-          <div className="space-y-3 mt-2">
+          <>
             {/* Summary Header */}
             <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
               <div className="flex justify-between items-center">
@@ -99,7 +99,7 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
             <div className="grid gap-3">
               {renderCategorizedData(selectedRow)}
             </div>
-          </div>
+          </>
         )}
       </DialogContent>
     </Dialog>
