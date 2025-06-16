@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,7 +25,7 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
       if (categoryData.length === 0) return null;
 
       return (
-        <div key={categoryKey} className="border border-gray-300 rounded mt-[15px] mb-[10px]">
+        <div key={categoryKey} className="border border-gray-300 rounded">
           <div className="bg-gray-100 px-3 py-1.5 border-b border-gray-300 my-0">
             <div className="flex items-center justify-between">
               <h4 className="text-sm font-medium text-black">{category.title}</h4>
@@ -94,8 +95,8 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
               </div>
             </div>
 
-            {/* Categorized Data Display - Tighter spacing */}
-            <div className="space-y-0">
+            {/* Categorized Data Display - Updated spacing */}
+            <div className="space-y-2.5">
               {renderCategorizedData(selectedRow)}
             </div>
           </>
