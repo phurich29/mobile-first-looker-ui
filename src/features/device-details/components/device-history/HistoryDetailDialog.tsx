@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +7,7 @@ import { getColumnThaiName } from "@/lib/columnTranslations";
 import { RiceQualityData } from './types';
 import { DATA_CATEGORIES } from './dataCategories';
 import { formatCellValue } from './utils';
+import { supabase } from "@/integrations/supabase/client";
 
 interface HistoryDetailDialogProps {
   selectedRow: RiceQualityData | null;
@@ -18,6 +18,38 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
   selectedRow,
   onClose
 }) => {
+  const [deviceDisplayName, setDeviceDisplayName] = useState<string | null>(null);
+
+  // Fetch device display name when selectedRow changes
+  useEffect(() => {
+    const fetchDeviceDisplayName = async () => {
+      if (!selectedRow?.device_code) {
+        setDeviceDisplayName(null);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('device_settings')
+          .select('display_name')
+          .eq('device_code', selectedRow.device_code)
+          .maybeSingle();
+
+        if (error) {
+          console.error('Error fetching device display name:', error);
+          setDeviceDisplayName(null);
+        } else {
+          setDeviceDisplayName(data?.display_name || null);
+        }
+      } catch (error) {
+        console.error('Error fetching device display name:', error);
+        setDeviceDisplayName(null);
+      }
+    };
+
+    fetchDeviceDisplayName();
+  }, [selectedRow?.device_code]);
+
   // Render categorized data in minimal style
   const renderCategorizedData = (data: RiceQualityData) => {
     return Object.entries(DATA_CATEGORIES).map(([categoryKey, category]) => {
@@ -70,6 +102,11 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
             <div className="bg-gray-100 border border-gray-300 rounded p-3 mb-2">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
+                  {deviceDisplayName && (
+                    <div className="text-sm font-medium text-black mb-1">
+                      {deviceDisplayName}
+                    </div>
+                  )}
                   <div className="text-sm font-medium text-black mb-1">
                     Device Code: {selectedRow.device_code}
                   </div>
