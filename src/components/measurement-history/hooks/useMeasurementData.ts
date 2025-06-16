@@ -17,7 +17,7 @@ interface HistoryDataItem {
 }
 
 export const useMeasurementData = ({ deviceCode, symbol }: UseMeasurementDataProps) => {
-  const [timeFrame, setTimeFrame] = useState<TimeFrame>('24h');
+  const [timeFrame, setTimeFrame] = useState<TimeFrame>('1h');
   
   const { 
     data: historyData, 
