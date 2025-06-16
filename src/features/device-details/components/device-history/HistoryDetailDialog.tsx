@@ -104,7 +104,7 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
                 <div className="flex-1">
                   {deviceDisplayName && (
                     <div className="text-sm font-medium text-black mb-1">
-                      {deviceDisplayName}
+                      Name : {deviceDisplayName}
                     </div>
                   )}
                   <div className="text-sm font-medium text-black mb-1">
