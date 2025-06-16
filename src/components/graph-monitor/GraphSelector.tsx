@@ -12,7 +12,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { X, Zap, TrendingUp, Settings, Wheat, Activity } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
-import { getMeasurementThaiName } from "@/utils/measurements";
+import { getColumnThaiName } from "@/lib/columnTranslations";
+import { COLUMN_ORDER } from "@/features/device-details/components/device-history/utils"; // Import COLUMN_ORDER
 
 interface GraphSelectorProps {
   open: boolean;
@@ -31,19 +32,49 @@ interface Measurement {
   symbol: string;
   name: string;
   category: string;
-  description?: string;
+  icon: React.ElementType;
 }
 
-const measurements: Measurement[] = [
-  { symbol: "whiteness", name: "ความขาว", category: "คุณภาพ", description: "ระดับความขาวของข้าว" },
-  { symbol: "head_rice", name: "ข้าวหัวมม", category: "คุณภาพ", description: "เปอร์เซ็นต์ข้าวหัวมม" },
-  { symbol: "whole_kernels", name: "เมล็ดทั้งเมล็ด", category: "คุณภาพ", description: "เปอร์เซ็นต์เมล็ดทั้งเมล็ด" },
-  { symbol: "small_brokens", name: "ข้าวปลายหัก", category: "ความบกพร่อง", description: "เปอร์เซ็นต์ข้าวปลายหัก" },
-  { symbol: "total_brokens", name: "ข้าวหักรวม", category: "ความบกพร่อง", description: "เปอร์เซ็นต์ข้าวหักทั้งหมด" },
-  { symbol: "paddy_rate", name: "ข้าวเปลือก", category: "สิ่งปนเปื้อน", description: "เปอร์เซ็นต์ข้าวเปลือก" },
-  { symbol: "yellow_rice_rate", name: "ข้าวเหลือง", category: "สิ่งปนเปื้อน", description: "เปอร์เซ็นต์ข้าวเหลือง" },
-  { symbol: "sticky_rice_rate", name: "ข้าวเหนียว", category: "สิ่งปนเปื้อน", description: "เปอร์เซ็นต์ข้าวเหนียว" },
-];
+// This will be populated dynamically
+// const measurements: Measurement[] = [];
+
+const DEFAULT_CATEGORY = "ข้อมูลทั่วไป";
+const DEFAULT_ICON = TrendingUp;
+
+// Define categories and icons for measurements
+const MEASUREMENT_INFO: Record<string, { category: string; icon: React.ElementType }> = {
+  // คุณภาพ (Quality)
+  class1: { category: "คุณภาพ", icon: Wheat },
+  class2: { category: "คุณภาพ", icon: Wheat },
+  class3: { category: "คุณภาพ", icon: Wheat },
+  short_grain: { category: "คุณภาพ", icon: Wheat },
+  slender_kernel: { category: "คุณภาพ", icon: Wheat },
+  whole_kernels: { category: "คุณภาพ", icon: Wheat },
+  head_rice: { category: "คุณภาพ", icon: Wheat },
+  whiteness: { category: "คุณภาพ", icon: Wheat },
+  process_precision: { category: "คุณภาพ", icon: Wheat }, 
+
+  // ความบกพร่อง (Defects)
+  total_brokens: { category: "ความบกพร่อง", icon: Zap },
+  small_brokens: { category: "ความบกพร่อง", icon: Zap },
+  small_brokens_c1: { category: "ความบกพร่อง", icon: Zap },
+  red_line_rate: { category: "ความบกพร่อง", icon: Zap }, // Can also be impurity
+  parboiled_red_line: { category: "ความบกพร่อง", icon: Zap },
+  honey_rice: { category: "ความบกพร่อง", icon: Zap }, // Can also be impurity
+  yellow_rice_rate: { category: "ความบกพร่อง", icon: Zap }, // Can also be impurity
+  black_kernel: { category: "ความบกพร่อง", icon: Zap },
+  partly_black_peck: { category: "ความบกพร่อง", icon: Zap },
+  partly_black: { category: "ความบกพร่อง", icon: Zap },
+  imperfection_rate: { category: "ความบกพร่อง", icon: Zap },
+
+  // สิ่งปนเปื้อน (Impurities/Contaminants)
+  parboiled_white_rice: { category: "สิ่งปนเปื้อน", icon: Activity }, // If context is about contamination with parboiled
+  sticky_rice_rate: { category: "สิ่งปนเปื้อน", icon: Activity },
+  impurity_num: { category: "สิ่งปนเปื้อน", icon: Activity },
+  paddy_rate: { category: "สิ่งปนเปื้อน", icon: Activity },
+  // Note: Some items like red_line_rate, yellow_rice_rate, honey_rice could fit multiple categories.
+  // The primary categorization here is based on common interpretations.
+};
 
 export const GraphSelector: React.FC<GraphSelectorProps> = ({ 
   open, 
@@ -54,12 +85,27 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
   const [devices, setDevices] = useState<Device[]>([]);
   const [selectedDevice, setSelectedDevice] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [availableMeasurements, setAvailableMeasurements] = useState<Measurement[]>([]);
   const { user, userRoles } = useAuth();
 
   // Load devices when component mounts
   useEffect(() => {
     if (open) {
       loadDevices();
+      // Prepare available measurements from COLUMN_ORDER
+      const dynamicMeasurements = COLUMN_ORDER.filter(
+        // Exclude non-graphable or irrelevant columns if any, similar to getColumnKeys logic
+        key => !['thai_datetime', 'device_code', 'sample_index', 'output', 'id', 'created_at'].includes(key)
+      ).map(key => {
+        const info = MEASUREMENT_INFO[key] || { category: DEFAULT_CATEGORY, icon: DEFAULT_ICON };
+        return {
+          symbol: key,
+          name: getColumnThaiName(key) || key, // Fallback to key if no Thai name
+          category: info.category,
+          icon: info.icon
+        };
+      });
+      setAvailableMeasurements(dynamicMeasurements);
     }
   }, [open, user]);
 
@@ -187,7 +233,7 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
             </h3>
             <ScrollArea className="h-80">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {measurements.map((measurement) => (
+                {availableMeasurements.map((measurement) => (
                   <Button
                     key={measurement.symbol}
                     variant="outline"
@@ -197,9 +243,7 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
                   >
                     <div className="flex items-start space-x-3 w-full">
                       <div className="flex-shrink-0 mt-1">
-                        {measurement.category === "คุณภาพ" && <Wheat className="h-5 w-5 text-green-600" />}
-                        {measurement.category === "ความบกพร่อง" && <Zap className="h-5 w-5 text-orange-600" />}
-                        {measurement.category === "สิ่งปนเปื้อน" && <Activity className="h-5 w-5 text-red-600" />}
+                        <measurement.icon className="h-5 w-5" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-gray-900 dark:text-gray-100">
@@ -208,11 +252,6 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
                         <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                           {measurement.category}
                         </div>
-                        {measurement.description && (
-                          <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                            {measurement.description}
-                          </div>
-                        )}
                       </div>
                     </div>
                   </Button>

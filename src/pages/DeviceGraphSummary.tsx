@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { useAppNavigation } from "@/hooks/useAppNavigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { AppLayout } from "@/components/layouts/app-layout";
@@ -32,8 +33,7 @@ const colors = [
 const DeviceGraphSummary = () => {
   const { deviceCode } = useParams<{ deviceCode: string }>();
   const isMobile = useIsMobile();
-  const navigate = useNavigate();
-  const goBack = () => navigate(-1);
+  const { goBack } = useAppNavigation();
   const { user } = useAuth();
   const [selectorOpen, setSelectorOpen] = useState(false);
   const [deviceNames, setDeviceNames] = useState<Record<string, string>>({});
@@ -194,11 +194,6 @@ const DeviceGraphSummary = () => {
               <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
                 Graph Summary
               </h1>
-              <div className="bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full">
-                <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                  {deviceDisplayName ? `Name : ${deviceDisplayName}` : `Device: ${deviceCode}`}
-                </span>
-              </div>
             </div>
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
               เปรียบเทียบข้อมูลจากอุปกรณ์ <strong className="text-gray-900 dark:text-gray-100">{deviceDisplayName ? `${deviceDisplayName} (${deviceCode})` : deviceCode}</strong> ในกราฟเดียวกัน

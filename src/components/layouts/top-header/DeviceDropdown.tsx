@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 interface Device {
   device_code: string;
@@ -26,6 +26,7 @@ export const DeviceDropdown: React.FC<DeviceDropdownProps> = ({
 }) => {
   const navigate = useNavigate();
   const { deviceCode: deviceCodeFromUrl } = useParams<{ deviceCode?: string }>();
+  const location = useLocation();
   const [selectedDeviceName, setSelectedDeviceName] = useState<string>("เลือกอุปกรณ์");
 
   useEffect(() => {
@@ -55,8 +56,26 @@ export const DeviceDropdown: React.FC<DeviceDropdownProps> = ({
     }
   }, [deviceCodeFromUrl, devices, isLoadingDevices]);
 
-  const handleDeviceSelect = (deviceCode: string) => {
-    navigate(`/device/${deviceCode}`);
+  const handleDeviceSelect = (newDeviceCode: string) => {
+    const currentPathname = location.pathname;
+
+    if (deviceCodeFromUrl && currentPathname.startsWith(`/device/${deviceCodeFromUrl}`)) {
+      const basePathSegment = `/device/${deviceCodeFromUrl}`;
+      if (currentPathname === basePathSegment) {
+        // Current path is exactly /device/OLD_CODE
+        navigate(`/device/${newDeviceCode}`);
+      } else if (currentPathname.startsWith(basePathSegment + '/')) {
+        // Current path is /device/OLD_CODE/some/subpath
+        const remainingPath = currentPathname.substring(basePathSegment.length); // e.g., /graphs or /settings/profile
+        navigate(`/device/${newDeviceCode}${remainingPath}`);
+      } else {
+        // Fallback: Should not happen if logic is sound, but as a safeguard
+        navigate(`/device/${newDeviceCode}`);
+      }
+    } else {
+      // Not on a device-specific page or no device code in URL, navigate to base page for new device
+      navigate(`/device/${newDeviceCode}`);
+    }
   };
 
   if (!isLoadingDevices && devices.length === 0) return null;

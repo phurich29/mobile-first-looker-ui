@@ -12,7 +12,21 @@ export const useAppNavigation = () => {
   };
 
   const goBack = () => {
-    navigate(-1);
+    const pathname = location.pathname;
+    const parts = pathname.split('/').filter(part => part !== ''); // Filter out empty strings from leading/trailing slashes
+
+    // Check if it's a device-specific subpage e.g., /device/DEVICE_CODE/subpath
+    if (parts.length === 3 && parts[0] === 'device') {
+      // Path is /device/DEVICE_CODE/SUBPATH, navigate to /device/DEVICE_CODE/
+      navigate(`/device/${parts[1]}/`);
+    } else if (parts.length === 2 && parts[0] === 'device') {
+      // Path is /device/DEVICE_CODE, navigate to /equipment or a general overview page
+      // Assuming /equipment is the general listing page for devices
+      navigate('/equipment');
+    } else {
+      // For any other path, or if the logic above doesn't fit, use standard browser back
+      navigate(-1);
+    }
   };
 
   const goToLogin = () => {

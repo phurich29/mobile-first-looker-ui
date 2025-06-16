@@ -122,11 +122,6 @@ const DeviceGraphMonitor = () => {
               <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
                 Graph Monitor
               </h1>
-              <div className="bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full">
-                <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                  {deviceDisplayName ? `Name : ${deviceDisplayName}` : `Device: ${deviceCode}`}
-                </span>
-              </div>
             </div>
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
               แสดงผลกราฟจากอุปกรณ์ <strong className="text-gray-900 dark:text-gray-100">{deviceDisplayName ? `${deviceDisplayName} (${deviceCode})` : deviceCode}</strong> ในรูปแบบ dashboard

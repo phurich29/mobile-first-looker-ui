@@ -7,7 +7,7 @@ export const formatValue = (value: number | null): string => {
 };
 
 // ลำดับคอลัมน์ที่ต้องการแสดง
-const COLUMN_ORDER = [
+export const COLUMN_ORDER = [
   'thai_datetime',
   'device_code',
   'class1',
