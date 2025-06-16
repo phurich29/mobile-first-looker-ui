@@ -37,7 +37,7 @@ export const DeviceHeaderDisplay: React.FC<DeviceHeaderDisplayProps> = ({
             <Button 
               variant="outline" 
               size="sm" 
-              className="w-full md:w-auto text-xs py-1 h-7 flex items-center gap-1.5 bg-white hover:bg-gray-50 border-gray-200"
+              className="w-full md:w-auto text-xs py-1 h-7 flex items-center gap-1.5 bg-white hover:bg-gray-50 border-gray-200 shadow-sm"
               onClick={() => {
                 // TODO: Implement chart display logic
                 console.log('Show device on chart:', deviceCode);
