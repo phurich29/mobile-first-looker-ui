@@ -47,7 +47,7 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
     <>
       <div 
         ref={containerRef}
-        className={`overflow-x-auto ${dragState.isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        className={`overflow-x-auto text-xs ${dragState.isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         onMouseDown={dragHandlers.handleMouseDown}
         onMouseMove={dragHandlers.handleMouseMove}
         onMouseUp={dragHandlers.handleDragEnd}
@@ -61,31 +61,20 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
           <TableHeader>
             <TableRow>
               {columnKeys.map((key) => (
-                <TableHead key={key} className="whitespace-nowrap">
+                <TableHead key={key} className="whitespace-nowrap px-1.5 py-0.5 text-[11px] font-medium">
                   {getColumnThaiName(key)}
                 </TableHead>
               ))}
-              <TableHead className="whitespace-nowrap">รายละเอียด</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {historyData.map((row) => (
               <TableRow key={row.id} onClick={() => onRowClick(row)} className="cursor-pointer hover:bg-muted/50">
                 {columnKeys.map((key) => (
-                  <TableCell key={`${row.id}-${key}`} className="whitespace-nowrap">
+                  <TableCell key={`${row.id}-${key}`} className="whitespace-nowrap px-1.5 py-0.5 text-[11px]">
                     {formatCellValue(key, row[key])}
                   </TableCell>
                 ))}
-                <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onRowClick(row)}
-                    className="h-8 w-8 p-0"
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -93,14 +82,14 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
       </div>
 
       {/* Row limit controls - moved to bottom */}
-      <div className="flex justify-between items-center mt-3">
+      <div className="flex justify-between items-center mt-1.5 text-xs">
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-600">แสดง:</span>
           <Select 
             value={itemsPerPage.toString()} 
             onValueChange={(value) => onItemsPerPageChange(parseInt(value))}
           >
-            <SelectTrigger className="w-[80px] h-8 text-sm bg-white border border-gray-300">
+            <SelectTrigger className="w-[60px] h-6 text-[11px] bg-white border border-gray-300">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-white border border-gray-300 z-50">
@@ -112,33 +101,35 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
           </Select>
           <span className="text-sm text-gray-600">แถว</span>
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-xs text-gray-500">
           รวม {totalCount} รายการ
         </div>
       </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-4 px-2">
-          <div className="text-sm text-gray-500">
+        <div className="flex items-center justify-between mt-0.5 px-0.5 text-[10px]">
+          <div className="text-[10px] text-gray-500">
             หน้า {currentPage} จาก {totalPages}
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-1.5">
             <Button
               variant="outline"
               size="sm"
+              className="h-7 w-7 p-0"
               onClick={() => onPageChange(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-3 w-3" />
             </Button>
             <Button
               variant="outline"
               size="sm"
+              className="h-7 w-7 p-0"
               onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3 w-3" />
             </Button>
           </div>
         </div>

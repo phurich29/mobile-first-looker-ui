@@ -141,7 +141,7 @@ export default function DeviceDetails() {
 
           {/* Add Device History Table at the bottom */}
           {deviceCode && deviceCode !== 'default' && (
-            <div className="px-[5%] md:px-0">
+            <div className="px-0">
               <DeviceHistoryTable deviceCode={deviceCode} />
             </div>
           )}

@@ -6,8 +6,9 @@ import HistoryHeader from "../HistoryHeader";
 import HistoryChart from "../HistoryChart";
 import HistoryFooter from "../HistoryFooter";
 import { NotificationSettingsDialog } from "../notification-settings";
-import FilteredDatabaseTable from "../FilteredDatabaseTable";
+// FilteredDatabaseTable ถูกลบออกตามที่ต้องการ
 import { TimeFrame } from "../MeasurementHistory";
+import { DeviceHistoryTable } from "@/features/device-details/components/DeviceHistoryTable";
 
 interface MeasurementHistoryContentProps {
   deviceCode: string;
@@ -71,14 +72,26 @@ const MeasurementHistoryContent: React.FC<MeasurementHistoryContentProps> = ({
           onTimeFrameChange={setTimeFrame} 
         />
         
-        <HistoryChart 
-          historyData={historyData} 
-          dataKey={symbol}
-          isLoading={isLoading}
-          error={isError ? "ไม่สามารถโหลดข้อมูลประวัติได้" : null}
-          unit={unit}
-        />
-
+        <div className="space-y-6">
+          <HistoryChart 
+            historyData={historyData} 
+            dataKey={symbol}
+            isLoading={isLoading}
+            error={isError ? "ไม่สามารถโหลดข้อมูลได้" : null}
+            unit={unit}
+            timeFrame={timeFrame}
+            styleOptions={{
+              graphStyle: 'line',
+              lineColor: '#10B981',
+            }}
+          />
+          
+          {/* ตารางประวัติข้อมูล */}
+          <div className="bg-white rounded-lg shadow-sm p-4 -mt-2">
+            <DeviceHistoryTable deviceCode={deviceCode} />
+          </div>
+        </div>
+        
         <NotificationSettingsDialog
           open={settingsOpen}
           onOpenChange={handleOpenChange}
@@ -98,12 +111,7 @@ const MeasurementHistoryContent: React.FC<MeasurementHistoryContentProps> = ({
         </button>
       )}
       
-      {/* Filtered Database Table */}
-      <FilteredDatabaseTable 
-        deviceCode={deviceCode} 
-        symbol={symbol} 
-        name={name} 
-      />
+      {/* FilteredDatabaseTable ถูกลบออกตามที่ต้องการ */}
     </>
   );
 };

@@ -3,6 +3,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Bell } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/AuthProvider';
 import { MobileMenuButton } from './MobileMenuButton';
 import { HeaderLogo } from './HeaderLogo';
@@ -30,6 +31,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 }) => {
   const { user } = useAuth();
   const { devices, isLoadingDevices } = useDeviceData();
+  const navigate = useNavigate();
 
   return (
     <header
@@ -72,7 +74,12 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           />
         )}
         
-        <Button variant="ghost" size="icon" className="text-white hover:bg-emerald-700/50 dark:hover:bg-emerald-700/50">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="text-white hover:bg-emerald-700/50 dark:hover:bg-emerald-700/50"
+          onClick={() => navigate('/notifications')}
+        >
           <Bell className="h-5 w-5" />
         </Button>
       </div>
