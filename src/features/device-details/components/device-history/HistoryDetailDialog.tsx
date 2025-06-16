@@ -20,8 +20,8 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
     return Object.entries(DATA_CATEGORIES).map(([categoryKey, category]) => {
       const categoryData = category.fields.filter(field => data[field] !== null && data[field] !== undefined);
       if (categoryData.length === 0) return null;
-      return <div key={categoryKey} className="border border-gray-300 rounded mb-1 my-[10px]">
-          <div className="bg-gray-100 px-3 py-1.5 border-b border-gray-300">
+      return <div key={categoryKey} className="border border-gray-300 rounded mb-1 my-[15px]">
+          <div className="bg-gray-100 px-3 py-1.5 border-b border-gray-300 my-0">
             <div className="flex items-center justify-between">
               <h4 className="text-sm font-medium text-black">{category.title}</h4>
               <Badge variant="outline" className="text-xs bg-white border-gray-400 text-black">
