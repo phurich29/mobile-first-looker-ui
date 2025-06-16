@@ -22,11 +22,11 @@ function App() {
   const handleGlobalCountdownComplete = () => {
     console.log("Global countdown complete - triggering refresh or other actions");
     // This function will be called every minute (60 seconds) globally
-    toast({
-      title: "ระบบกำลังอัปเดตข้อมูล",
-      description: "ระบบได้ทำการอัปเดตข้อมูลล่าสุดจากเซิร์ฟเวอร์",
-      duration: 3000,
-    });
+    // toast({
+    //   title: "ระบบกำลังอัปเดตข้อมูล",
+    //   description: "ระบบได้ทำการอัปเดตข้อมูลล่าสุดจากเซิร์ฟเวอร์",
+    //   duration: 3000,
+    // });
     
     // Invalidate queries that should refresh on the global timer
     queryClient.invalidateQueries({ queryKey: ['notifications'] });
