@@ -9,7 +9,7 @@ export const DATA_CATEGORIES: Record<string, DataCategory> = {
     fields: ['device_code', 'thai_datetime']
   },
   wholeGrain: {
-    title: "การจำแนกเมล็ดข้าวทั้งเมล็ด",
+    title: "พื้นข้าวเต็มเมล็ด",
     icon: "🌾",
     color: "bg-green-50 border-green-200",
     fields: ['class1', 'class2', 'class3', 'short_grain', 'slender_kernel']
