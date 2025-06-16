@@ -19,7 +19,13 @@ import { DeviceHeader } from "@/features/device-details/components/DeviceHeader"
 import { SearchBar } from "@/features/device-details/components/SearchBar";
 import { MeasurementTabs } from "@/features/device-details/components/MeasurementTabs";
 import { LoadingScreen } from "@/features/device-details/components/LoadingScreen";
-import { DeviceHistoryTable } from "@/features/device-details/components/DeviceHistoryTable";
+import { lazy, Suspense } from "react";
+
+// Lazy load the DeviceHistoryTable component with named export
+const DeviceHistoryTable = lazy(() => 
+  import("@/features/device-details/components/DeviceHistoryTable")
+    .then(module => ({ default: module.DeviceHistoryTable }))
+);
 
 // Helper function to convert URL symbol back to measurement symbol
 const convertUrlSymbolToMeasurementSymbol = (urlSymbol: string): string => {
@@ -139,10 +145,19 @@ export default function DeviceDetails() {
             <MeasurementTabs deviceCode={deviceCode} searchTerm={searchTerm} wholeGrainData={wholeGrainData} ingredientsData={ingredientsData} impuritiesData={impuritiesData} allData={allData} notificationSettings={notificationSettings || []} isLoadingWholeGrain={isLoadingWholeGrain} isLoadingIngredients={isLoadingIngredients} isLoadingImpurities={isLoadingImpurities} isLoadingAllData={isLoadingAllData} onMeasurementClick={handleMeasurementClick} />
           </div>
 
-          {/* Add Device History Table at the bottom */}
+          {/* Add Device History Table at the bottom with Suspense for lazy loading */}
           {deviceCode && deviceCode !== 'default' && (
             <div className="px-0">
-              <DeviceHistoryTable deviceCode={deviceCode} />
+              <Suspense fallback={
+                <div className="bg-white rounded-lg shadow-sm p-6 mb-4">
+                  <h3 className="text-lg font-semibold mb-4">ประวัติข้อมูลทั้งหมด</h3>
+                  <div className="flex justify-center items-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+                  </div>
+                </div>
+              }>
+                <DeviceHistoryTable deviceCode={deviceCode} />
+              </Suspense>
             </div>
           )}
         </div>
