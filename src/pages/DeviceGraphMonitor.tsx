@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { AppLayout } from "@/components/layouts/app-layout";
@@ -107,17 +108,16 @@ const DeviceGraphMonitor = () => {
         "transition-all duration-300"
       )}>
         <div className="max-w-7xl mx-auto">
-          {/* Device-specific header with redesigned back button */}
+          {/* Device-specific header with minimal back button */}
           <div className="mb-4">
             <div className="flex items-center gap-3 mb-2">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={goBack}
-                className="h-9 px-3 bg-white/80 hover:bg-white border-gray-300 dark:bg-gray-800/80 dark:hover:bg-gray-800 dark:border-gray-600 text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 shadow-sm backdrop-blur-sm transition-all duration-200"
+                className="h-8 w-8 p-0 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                <span className="text-sm">กลับ</span>
+                <ArrowLeft className="h-4 w-4" />
               </Button>
               <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
                 กราฟมอนิเตอร์
