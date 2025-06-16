@@ -1,4 +1,5 @@
 
+
 import { DataCategory } from './types';
 
 export const DATA_CATEGORIES: Record<string, DataCategory> = {
@@ -21,7 +22,7 @@ export const DATA_CATEGORIES: Record<string, DataCategory> = {
     fields: ['whole_kernels', 'head_rice', 'total_brokens', 'small_brokens', 'small_brokens_c1']
   },
   characteristics: {
-    title: "คุณลักษณะและความบกพร่อง",
+    title: "สิ่งเจือปน",
     icon: "⚠️",
     color: "bg-orange-50 border-orange-200",
     fields: [
@@ -32,3 +33,4 @@ export const DATA_CATEGORIES: Record<string, DataCategory> = {
     ]
   }
 };
+
