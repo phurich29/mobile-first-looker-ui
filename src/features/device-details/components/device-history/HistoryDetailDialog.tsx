@@ -28,7 +28,7 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
       if (categoryData.length === 0) return null;
 
       return (
-        <div key={categoryKey} className="border border-gray-300 rounded mb-1">
+        <div key={categoryKey} className="border border-gray-300 rounded mb-[5px]">
           <div className="bg-gray-100 px-3 py-1.5 border-b border-gray-300">
             <div className="flex items-center justify-between">
               <h4 className="text-sm font-medium text-black">{category.title}</h4>
