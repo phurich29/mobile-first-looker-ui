@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useRef } from "react";
 import { ResponsiveTable } from "@/components/ui/responsive-table";
 import { TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { getColumnThaiName } from "@/lib/columnTranslations";
 import { RiceQualityData } from './types';
 import { formatCellValue, getColumnKeys } from './utils';
+import { useDragScroll } from "@/utils/dragUtils";
 
 interface HistoryTableProps {
   historyData: RiceQualityData[];
@@ -25,6 +26,8 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
   onPageChange,
   onRowClick
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dragState, dragHandlers] = useDragScroll(containerRef);
   const columnKeys = getColumnKeys(historyData);
 
   if (!historyData || historyData.length === 0) {
@@ -37,7 +40,18 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
 
   return (
     <>
-      <div className="overflow-x-auto">
+      <div 
+        ref={containerRef}
+        className={`overflow-x-auto ${dragState.isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        onMouseDown={dragHandlers.handleMouseDown}
+        onMouseMove={dragHandlers.handleMouseMove}
+        onMouseUp={dragHandlers.handleDragEnd}
+        onMouseLeave={dragHandlers.handleDragEnd}
+        onTouchStart={dragHandlers.handleTouchStart}
+        onTouchMove={dragHandlers.handleTouchMove}
+        onTouchEnd={dragHandlers.handleDragEnd}
+        style={{ userSelect: dragState.isDragging ? 'none' : 'auto' }}
+      >
         <ResponsiveTable>
           <TableHeader>
             <TableRow>
