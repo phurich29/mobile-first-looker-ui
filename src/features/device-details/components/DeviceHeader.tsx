@@ -8,7 +8,7 @@ import { ROUTES } from "@/constants/routes";
 interface DeviceHeaderProps {
   deviceCode: string;
   displayName?: string | null;
-  onBack: () => void;
+  onBack?: () => void; // Make this optional
 }
 
 export const DeviceHeader: React.FC<DeviceHeaderProps> = ({
@@ -21,15 +21,17 @@ export const DeviceHeader: React.FC<DeviceHeaderProps> = ({
       {/* Header with back button and device info */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBack}
-            className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            กลับ
-          </Button>
+          {onBack && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onBack}
+              className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              กลับ
+            </Button>
+          )}
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               รายละเอียดอุปกรณ์
