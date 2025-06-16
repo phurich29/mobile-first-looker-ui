@@ -42,16 +42,6 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
         
         {user && (
           <SidebarMenuItem 
-            path="/notifications" 
-            icon={AlertCircle}
-            label="การแจ้งเตือนที่กำหนดไว้"
-            isActive={isActive("/notifications") || isActive("/notification-settings")}
-            isCollapsed={isCollapsed}
-          />
-        )}
-        
-        {user && (
-          <SidebarMenuItem 
             path="/notification-history" 
             icon={History}
             label="ประวัติการแจ้งเตือน"
