@@ -15,7 +15,7 @@ export const DATA_CATEGORIES: Record<string, DataCategory> = {
     fields: ['class1', 'class2', 'class3', 'short_grain', 'slender_kernel']
   },
   composition: {
-    title: "องค์ประกอบ",
+    title: "ส่วนผสม",
     icon: "🔬",
     color: "bg-purple-50 border-purple-200", 
     fields: ['whole_kernels', 'head_rice', 'total_brokens', 'small_brokens', 'small_brokens_c1']
