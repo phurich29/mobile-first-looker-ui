@@ -13,15 +13,23 @@ import {
   Area
 } from 'recharts';
 import { SelectedMetric, GraphStyle } from './types';
+import { TimeFrame } from "@/components/measurement-history/MeasurementHistory";
 
 interface MainChartProps {
   graphData: any[];
   selectedMetrics: SelectedMetric[];
   graphStyle: GraphStyle;
   globalLineColor: string;
+  timeFrame: TimeFrame;
 }
 
-export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics, graphStyle, globalLineColor }) => {
+export const MainChart: React.FC<MainChartProps> = ({ 
+  graphData, 
+  selectedMetrics, 
+  graphStyle, 
+  globalLineColor,
+  timeFrame 
+}) => {
   // ฟังก์ชันเพื่อกำหนดสีพื้นหลังตามสไตล์
   const getGradientOffset = () => {
     if (graphStyle === 'classic') {
