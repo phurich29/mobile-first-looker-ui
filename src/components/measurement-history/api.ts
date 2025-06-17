@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { TimeFrame } from "./MeasurementHistory";
 
@@ -52,18 +53,21 @@ export const fetchMeasurementHistory = async (
 export const formatBangkokTime = (dateString?: string): { thaiDate: string; thaiTime: string } => {
   if (!dateString) return { thaiDate: "ไม่มีข้อมูล", thaiTime: "ไม่มีข้อมูล" };
   
+  // ใช้ thai_datetime โดยตรง โดยบังคับให้แสดงเป็นเวลาไทย
   const date = new Date(dateString);
   
   const dateOptions: Intl.DateTimeFormatOptions = {
     day: '2-digit',
     month: '2-digit',
-    year: 'numeric'
+    year: 'numeric',
+    timeZone: 'Asia/Bangkok'
   };
   
   const timeOptions: Intl.DateTimeFormatOptions = {
     hour: '2-digit',
     minute: '2-digit',
-    hour12: false
+    hour12: false,
+    timeZone: 'Asia/Bangkok'
   };
   
   const thaiDate = new Intl.DateTimeFormat('th-TH', dateOptions).format(date);

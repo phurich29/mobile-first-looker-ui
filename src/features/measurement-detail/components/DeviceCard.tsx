@@ -3,7 +3,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Server } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { formatBangkokTime } from "@/components/measurement-history/api";
 import type { DeviceData } from "../hooks/useMeasurementDeviceData";
 
 interface DeviceCardProps {
@@ -14,6 +13,21 @@ interface DeviceCardProps {
 // Helper function to convert measurement symbol to URL-friendly format
 const convertMeasurementSymbolToUrl = (symbol: string): string => {
   return symbol.toLowerCase().replace(/[^a-z0-9]/g, '');
+};
+
+// Format time from thai_datetime directly
+const formatThaiTime = (dateString?: string): string => {
+  if (!dateString) return 'ไม่มีข้อมูล';
+  
+  // ใช้ thai_datetime โดยตรง โดยบังคับให้แสดงเป็นเวลาไทย
+  const date = new Date(dateString);
+  
+  return new Intl.DateTimeFormat('th-TH', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: 'Asia/Bangkok'
+  }).format(date);
 };
 
 export const DeviceCard: React.FC<DeviceCardProps> = ({ device, measurementSymbol }) => {
@@ -41,7 +55,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({ device, measurementSymbo
                 <div className="text-lg font-bold text-emerald-600">{device.value}%</div>
                 {device.timestamp && (
                   <div className="text-xs text-gray-500">
-                    {formatBangkokTime(device.timestamp).thaiTime}
+                    {formatThaiTime(device.timestamp)}
                   </div>
                 )}
               </>

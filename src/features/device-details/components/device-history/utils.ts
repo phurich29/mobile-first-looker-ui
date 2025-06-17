@@ -48,14 +48,24 @@ export const getColumnKeys = (data: RiceQualityData[]): string[] => {
 
 export const formatCellValue = (key: string, value: any): string => {
   if (key === 'thai_datetime') {
-    return value ? 
-      new Date(value).toLocaleString('th-TH', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      }) : '-';
+    if (!value) return '-';
+    
+    // ใช้ thai_datetime โดยตรงจากฐานข้อมูลโดยไม่บวกเวลาเพิ่ม
+    // สมมติว่า value เป็น string เช่น "2025-06-17T18:20:14.319163+00:00"
+    const dateStr = typeof value === 'string' ? value : String(value);
+    
+    // แยกเฉพาะส่วนวันที่และเวลา ไม่ต้องแปลง timezone
+    const date = new Date(dateStr);
+    
+    // ใช้ toLocaleString แบบไทยโดยไม่กำหนด timezone (ใช้ของ local)
+    return date.toLocaleString('th-TH', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Asia/Bangkok' // บังคับให้ใช้เวลาไทย
+    });
   }
   
   if (key === 'device_code') {
