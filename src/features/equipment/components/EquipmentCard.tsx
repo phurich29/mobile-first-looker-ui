@@ -6,7 +6,7 @@ import { BarChart, Settings, Clock, Users } from "lucide-react";
 import equipmentIcon from "@/assets/equipment-icon.svg";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UserAccessDialog } from "./access/UserAccessDialog";
 import { DeviceInfo } from "../types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -169,7 +169,7 @@ export function EquipmentCard({
               className="flex-1 text-xs border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 h-8 px-2 rounded-md sm:h-9 sm:px-3"
               asChild
             >
-              <Link to={`/device/${deviceCode}`}>
+              <Link to={`/device/${deviceCode}`} onClick={() => { localStorage.setItem('lastViewedDeviceCode', deviceCode); }}>
                 <BarChart className="h-3 w-3 mr-1" />
                 ดูข้อมูล
               </Link>
