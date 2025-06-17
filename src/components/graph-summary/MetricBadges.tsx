@@ -2,7 +2,7 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { X, Cpu, Save } from "lucide-react";
+import { X, Cpu, Save, PlusCircle } from "lucide-react";
 import { SelectedMetric } from "./types";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { HexColorPicker } from "react-colorful";
@@ -14,6 +14,7 @@ interface MetricBadgesProps {
   onUpdateMetricColor?: (deviceCode: string, symbol: string, color: string) => void;
   onSavePreferences?: () => void;
   saving?: boolean;
+  onOpenSelector?: () => void; // Added prop to open graph selector
 }
 
 export const MetricBadges: React.FC<MetricBadgesProps> = ({
@@ -21,7 +22,8 @@ export const MetricBadges: React.FC<MetricBadgesProps> = ({
   onRemoveMetric,
   onUpdateMetricColor,
   onSavePreferences,
-  saving = false
+  saving = false,
+  onOpenSelector // Destructure new prop
 }) => {
   return (
     <div className="flex flex-wrap gap-2 mb-3">
@@ -73,6 +75,17 @@ export const MetricBadges: React.FC<MetricBadgesProps> = ({
         );
       })}
       
+      {onOpenSelector && (
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={onOpenSelector}
+          className="ml-auto h-7 px-2 text-xs bg-blue-50 text-blue-700 border-blue-300 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800"
+        >
+          <PlusCircle size={14} className="mr-1" />
+          เพิ่มกราฟ
+        </Button>
+      )}
       {selectedMetrics.length > 0 && onSavePreferences && (
         <Button 
           variant="outline" 

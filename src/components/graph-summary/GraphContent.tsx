@@ -82,6 +82,7 @@ export const GraphContent: React.FC<GraphContentProps> = ({
             onUpdateMetricColor={onUpdateMetricColor}
             onSavePreferences={onSavePreferences}
             saving={saving}
+            onOpenSelector={onOpenSelector} // Pass onOpenSelector to MetricBadges
           />
           
           <GraphStyleControls 
