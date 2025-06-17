@@ -9,17 +9,26 @@ export const formatDate = (dateString: string | null, columnKey?: string): strin
   if (!dateString) return "-";
   
   try {
-    // เพื่อความสม่ำเสมอ ให้แสดง thai_datetime ตามที่มีในฐานข้อมูลโดยตรง
-    if (columnKey === 'thai_datetime' || dateString.includes('T')) {
-      // แยกส่วนวันที่และเวลาจาก thai_datetime
-      const [datePart, timePart] = dateString.split('T');
-      // ตัดส่วน timezone ออกจากเวลา (ถ้ามี)
-      const timeOnly = timePart ? timePart.split('+')[0] : '';
+    // สำหรับ thai_datetime ให้แสดงโดยตรงโดยไม่แปลงเวลา เพราะเป็นเวลาไทยแล้ว
+    if (columnKey === 'thai_datetime') {
+      // แยกส่วนวันที่และเวลาจาก thai_datetime และจัดรูปแบบใหม่
+      if (dateString.includes('T')) {
+        const [datePart, timePart] = dateString.split('T');
+        // ตัดส่วน timezone และมิลลิวินาทีออก
+        const timeOnly = timePart ? timePart.split('.')[0] : '';
+        
+        // แปลงรูปแบบวันที่จาก YYYY-MM-DD เป็น DD/MM/YYYY
+        const [year, month, day] = datePart.split('-');
+        const formattedDate = `${day}/${month}/${year}`;
+        
+        return `${formattedDate} ${timeOnly}`;
+      }
       
-      return `${datePart} ${timeOnly}`;
+      // ถ้าไม่มี T แสดงว่าเป็นแค่วันที่
+      return dateString;
     }
     
-    // สำหรับคอลัมน์อื่นๆ ยังคงใช้การแปลงวันที่แบบเดิม
+    // สำหรับคอลัมน์อื่นๆ ที่ไม่ใช่ thai_datetime ยังคงใช้การแปลงวันที่แบบเดิม
     return new Date(dateString).toLocaleString('th-TH', {
       year: 'numeric',
       month: 'short',
@@ -29,6 +38,7 @@ export const formatDate = (dateString: string | null, columnKey?: string): strin
       second: '2-digit'
     });
   } catch (e) {
+    // ถ้าแปลงไม่ได้ให้ return ค่าเดิม
     return dateString;
   }
 };
