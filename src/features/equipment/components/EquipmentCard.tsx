@@ -34,6 +34,36 @@ export function EquipmentCard({
   const [newDisplayName, setNewDisplayName] = useState(displayName || deviceCode);
   const { toast } = useToast();
   
+  // Calculate if the update is recent (within 30 minutes)
+  const isRecentUpdate = (() => {
+    if (!lastUpdated) return false;
+    try {
+      const lastUpdateDate = new Date(lastUpdated);
+      if (isNaN(lastUpdateDate.getTime())) {
+        console.warn("Invalid lastUpdated date string:", lastUpdated);
+        return false;
+      }
+      
+      // Get current time in Thailand timezone
+      const now = new Date();
+      const thailandOffset = 7 * 60 * 60 * 1000; // +7 hours in milliseconds
+      const nowInThailand = new Date(now.getTime() + thailandOffset);
+      
+      // Convert lastUpdated to Thailand time for comparison
+      const lastUpdateInThailand = new Date(lastUpdateDate.getTime() + thailandOffset);
+      
+      const thirtyMinutesInMs = 30 * 60 * 1000; // 30 minutes in milliseconds
+      const diffMs = nowInThailand.getTime() - lastUpdateInThailand.getTime();
+      
+      console.log(`Device ${deviceCode}: Last update ${lastUpdateInThailand.toISOString()}, Now ${nowInThailand.toISOString()}, Diff: ${diffMs}ms, Recent: ${diffMs >= 0 && diffMs < thirtyMinutesInMs}`);
+      
+      return diffMs >= 0 && diffMs < thirtyMinutesInMs;
+    } catch (error) {
+      console.error("Error processing lastUpdated date:", lastUpdated, error);
+      return false;
+    }
+  })();
+  
   // Format the last updated time to show exact date and time with +7 hours
   const formattedTime = lastUpdated 
     ? (() => {
@@ -43,24 +73,6 @@ export function EquipmentCard({
         return format(date, "dd MMM yy HH:mm น.", { locale: th });
       })()
     : "ไม่มีข้อมูล";
-
-  const isRecentUpdate = (() => {
-    if (!lastUpdated) return false;
-    try {
-      const lastUpdateDate = new Date(lastUpdated);
-      if (isNaN(lastUpdateDate.getTime())) {
-        console.warn("Invalid lastUpdated date string:", lastUpdated);
-        return false;
-      }
-      const now = new Date();
-      const thirtyMinutesInMs = 30 * 60 * 1000; // 30 minutes in milliseconds
-      const diffMs = now.getTime() - lastUpdateDate.getTime();
-      return diffMs >= 0 && diffMs < thirtyMinutesInMs;
-    } catch (error) {
-      console.error("Error processing lastUpdated date:", lastUpdated, error);
-      return false;
-    }
-  })();
 
   const timeClasses = isRecentUpdate
     ? "font-bold text-green-700 bg-yellow-200 dark:text-green-300 dark:bg-yellow-600/40 px-1.5 py-0.5 rounded-md"
