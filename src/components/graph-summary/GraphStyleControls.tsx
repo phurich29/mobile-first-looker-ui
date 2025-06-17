@@ -2,13 +2,16 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { TimeFrame } from "@/components/measurement-history/MeasurementHistory";
 import { GraphStyle } from "./types";
 
 interface GraphStyleControlsProps {
+  timeFrame: TimeFrame;
+  setTimeFrame: (value: TimeFrame) => void;
   graphStyle: GraphStyle;
+  setGraphStyle: (value: GraphStyle) => void;
   globalLineColor: string;
-  onGraphStyleChange: (value: GraphStyle) => void;
-  onGlobalLineColorChange: (color: string) => void;
+  setGlobalLineColor: (value: string) => void;
 }
 
 const getStyleName = (style: GraphStyle): string => {
@@ -54,10 +57,12 @@ const getStyleMenuClass = (graphStyle: GraphStyle): string => {
 };
 
 export const GraphStyleControls: React.FC<GraphStyleControlsProps> = ({
+  timeFrame,
+  setTimeFrame,
   graphStyle,
+  setGraphStyle,
   globalLineColor,
-  onGraphStyleChange,
-  onGlobalLineColorChange
+  setGlobalLineColor
 }) => {
   return <div className="flex flex-wrap items-center justify-end space-x-2 space-y-2 sm:space-y-0 mb-2">
       <DropdownMenu>
@@ -67,28 +72,28 @@ export const GraphStyleControls: React.FC<GraphStyleControlsProps> = ({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className={`min-w-32 ${getStyleMenuClass(graphStyle)}`}>
-          <DropdownMenuItem className={`text-sm ${graphStyle === 'line' ? 'bg-blue-50 dark:bg-blue-900/30' : ''}`} onClick={() => onGraphStyleChange('line')}>
+          <DropdownMenuItem className={`text-sm ${graphStyle === 'line' ? 'bg-blue-50 dark:bg-blue-900/30' : ''}`} onClick={() => setGraphStyle('line')}>
             เส้น
           </DropdownMenuItem>
-          <DropdownMenuItem className={`text-sm ${graphStyle === 'area' ? 'bg-green-50 dark:bg-green-900/30' : ''}`} onClick={() => onGraphStyleChange('area')}>
+          <DropdownMenuItem className={`text-sm ${graphStyle === 'area' ? 'bg-green-50 dark:bg-green-900/30' : ''}`} onClick={() => setGraphStyle('area')}>
             พื้นที่
           </DropdownMenuItem>
-          <DropdownMenuItem className={`text-sm ${graphStyle === 'classic' ? 'bg-purple-50 dark:bg-purple-900/30' : ''}`} onClick={() => onGraphStyleChange('classic')}>
+          <DropdownMenuItem className={`text-sm ${graphStyle === 'classic' ? 'bg-purple-50 dark:bg-purple-900/30' : ''}`} onClick={() => setGraphStyle('classic')}>
             คลาสสิก
           </DropdownMenuItem>
-          <DropdownMenuItem className={`text-sm ${graphStyle === 'natural' ? 'bg-green-50 dark:bg-green-900/30' : ''}`} onClick={() => onGraphStyleChange('natural')}>
+          <DropdownMenuItem className={`text-sm ${graphStyle === 'natural' ? 'bg-green-50 dark:bg-green-900/30' : ''}`} onClick={() => setGraphStyle('natural')}>
             ธรรมชาติ
           </DropdownMenuItem>
-          <DropdownMenuItem className={`text-sm ${graphStyle === 'neon' ? 'bg-cyan-900' : ''}`} onClick={() => onGraphStyleChange('neon')}>
+          <DropdownMenuItem className={`text-sm ${graphStyle === 'neon' ? 'bg-cyan-900' : ''}`} onClick={() => setGraphStyle('neon')}>
             นีออน
           </DropdownMenuItem>
-          <DropdownMenuItem className={`text-sm ${graphStyle === 'pastel' ? 'bg-pink-100 dark:bg-pink-900/30' : ''}`} onClick={() => onGraphStyleChange('pastel')}>
+          <DropdownMenuItem className={`text-sm ${graphStyle === 'pastel' ? 'bg-pink-100 dark:bg-pink-900/30' : ''}`} onClick={() => setGraphStyle('pastel')}>
             พาสเทล
           </DropdownMenuItem>
-          <DropdownMenuItem className={`text-sm ${graphStyle === 'monochrome' ? 'bg-gray-800' : ''}`} onClick={() => onGraphStyleChange('monochrome')}>
+          <DropdownMenuItem className={`text-sm ${graphStyle === 'monochrome' ? 'bg-gray-800' : ''}`} onClick={() => setGraphStyle('monochrome')}>
             โมโนโครม
           </DropdownMenuItem>
-          <DropdownMenuItem className={`text-sm ${graphStyle === 'gradient' ? 'bg-indigo-800' : ''}`} onClick={() => onGraphStyleChange('gradient')}>
+          <DropdownMenuItem className={`text-sm ${graphStyle === 'gradient' ? 'bg-indigo-800' : ''}`} onClick={() => setGraphStyle('gradient')}>
             ไล่สี
           </DropdownMenuItem>
         </DropdownMenuContent>

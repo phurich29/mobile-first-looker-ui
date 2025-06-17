@@ -96,18 +96,6 @@ const DeviceGraphSummary = () => {
       setGlobalLineColor(preferences.globalLineColor || "#f97316");
     }
   }, [preferences, preferencesLoading, deviceCode]);
-
-  // Auto-save when selectedMetrics change (after initial load)
-  useEffect(() => {
-    if (!preferencesLoading && user) {
-      // Delay auto-save to avoid saving during initial load
-      const timer = setTimeout(() => {
-        handleSavePreferences();
-      }, 500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [selectedMetrics, timeFrame, graphStyle, globalLineColor]);
   
   // Function to add a new metric to the graph
   const handleAddGraph = (selectedDeviceCode: string, symbol: string, name: string, deviceName?: string) => {
