@@ -1,9 +1,39 @@
 
 import { RiceQualityData } from './types';
 
-export const formatValue = (value: number | null): string => {
-  if (value === null || value === undefined) return '-';
-  return value.toFixed(2);
+// แก้ไข: เพิ่มการตรวจสอบประเภทข้อมูลก่อนเรียก toFixed และรองรับค่าที่เป็นสตริงที่สามารถแปลงเป็นตัวเลขได้
+// Thai comment: แก้ไข: เพิ่มการตรวจสอบประเภทข้อมูลก่อนเรียก toFixed และรองรับค่าที่เป็นสตริงที่สามารถแปลงเป็นตัวเลขได้
+export const formatValue = (value: any): string => {
+  // ตรวจสอบค่า null หรือ undefined ก่อน
+  // Thai comment: ตรวจสอบค่า null หรือ undefined ก่อน
+  if (value === null || value === undefined) {
+    return '-';
+  }
+
+  // ตรวจสอบว่า value เป็นตัวเลขหรือไม่
+  // Thai comment: ตรวจสอบว่า value เป็นตัวเลขหรือไม่
+  if (typeof value === 'number') {
+    return value.toFixed(2);
+  }
+
+  // ถ้า value เป็นสตริง ให้ลองแปลงเป็นตัวเลข
+  // กรณีนี้รองรับค่าตัวเลขที่อาจถูกส่งมาในรูปแบบสตริง
+  // Thai comment: ถ้า value เป็นสตริง ให้ลองแปลงเป็นตัวเลข
+  // Thai comment: กรณีนี้รองรับค่าตัวเลขที่อาจถูกส่งมาในรูปแบบสตริง
+  if (typeof value === 'string') {
+    const parsedNum = parseFloat(value);
+    if (!isNaN(parsedNum)) {
+      return parsedNum.toFixed(2);
+    }
+  }
+
+  // ถ้า value ไม่ใช่ตัวเลข, ไม่ใช่ null/undefined, และไม่ใช่สตริงที่แปลงเป็นตัวเลขได้
+  // ให้คืนค่าเป็นสตริงของ value นั้นๆ เพื่อให้มีบางอย่างแสดงผล
+  // อาจพิจารณาคืนค่า '-' หากประเภทข้อมูลที่ไม่ใช่ตัวเลขเป็นสิ่งที่ไม่คาดคิด
+  // Thai comment: ถ้า value ไม่ใช่ตัวเลข, ไม่ใช่ null/undefined, และไม่ใช่สตริงที่แปลงเป็นตัวเลขได้
+  // Thai comment: ให้คืนค่าเป็นสตริงของ value นั้นๆ เพื่อให้มีบางอย่างแสดงผล
+  // Thai comment: อาจพิจารณาคืนค่า '-' หากประเภทข้อมูลที่ไม่ใช่ตัวเลขเป็นสิ่งที่ไม่คาดคิด
+  return String(value);
 };
 
 // ลำดับคอลัมน์ที่ต้องการแสดง
