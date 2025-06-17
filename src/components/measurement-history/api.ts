@@ -22,7 +22,7 @@ export const fetchMeasurementHistory = async (
   if (!deviceCode || !symbol) throw new Error("Missing device code or measurement symbol");
   
   try {
-    // Dynamic select query - ใช้ thai_datetime แทน created_at
+    // Dynamic select query
     const selectQuery = `id, ${symbol}, created_at, thai_datetime`;
     
     // Calculate cutoff date based on timeframe
@@ -53,21 +53,18 @@ export const fetchMeasurementHistory = async (
 export const formatBangkokTime = (dateString?: string): { thaiDate: string; thaiTime: string } => {
   if (!dateString) return { thaiDate: "ไม่มีข้อมูล", thaiTime: "ไม่มีข้อมูล" };
   
-  // ใช้ thai_datetime โดยตรง โดยบังคับให้แสดงเป็นเวลาไทย
   const date = new Date(dateString);
   
   const dateOptions: Intl.DateTimeFormatOptions = {
     day: '2-digit',
     month: '2-digit',
-    year: 'numeric',
-    timeZone: 'Asia/Bangkok'
+    year: 'numeric'
   };
   
   const timeOptions: Intl.DateTimeFormatOptions = {
     hour: '2-digit',
     minute: '2-digit',
-    hour12: false,
-    timeZone: 'Asia/Bangkok'
+    hour12: false
   };
   
   const thaiDate = new Intl.DateTimeFormat('th-TH', dateOptions).format(date);
@@ -90,7 +87,7 @@ export const calculateAverage = (historyData: any[], symbol: string): number => 
   return sum / values.length;
 };
 
-// ดึงค่าการวัดล่าสุดสำหรับอุปกรณ์และประเภทข้อมูลเฉพาะ - ใช้ thai_datetime
+// ดึงค่าการวัดล่าสุดสำหรับอุปกรณ์และประเภทข้อมูลเฉพาะ
 export const getLatestMeasurement = async (
   deviceCode: string,
   symbol: string
@@ -100,10 +97,11 @@ export const getLatestMeasurement = async (
       return { value: null, timestamp: null };
     }
 
-    // ดึงข้อมูลล่าสุดพร้อม thai_datetime
+    // ดึงข้อมูลล่าสุดเพียง 1 รายการ
+    // เลือกทุกคอลัมน์แล้วค่อยดึงค่าที่ต้องการในภายหลัง
     const { data, error } = await supabase
       .from('rice_quality_analysis')
-      .select('*, thai_datetime')
+      .select('*')
       .eq('device_code', deviceCode)
       .order('created_at', { ascending: false })
       .limit(1);
@@ -125,7 +123,7 @@ export const getLatestMeasurement = async (
     
     return {
       value: latestData[symbol],
-      timestamp: latestData.thai_datetime || latestData.created_at
+      timestamp: latestData.created_at
     };
   } catch (err) {
     console.error('Error in getLatestMeasurement:', err);

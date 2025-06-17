@@ -52,8 +52,8 @@ export const useMeasurementDeviceData = (measurementSymbol: string | undefined) 
             };
           }
 
-          // Select thai_datetime instead of created_at for proper Thai timezone
-          const selectQuery = `device_code, ${measurementSymbol}, thai_datetime`;
+          // Select dynamically based on the measurement symbol
+          const selectQuery = `device_code, ${measurementSymbol}, created_at`;
           
           const { data, error } = await supabase
             .from('rice_quality_analysis')
@@ -87,12 +87,14 @@ export const useMeasurementDeviceData = (measurementSymbol: string | undefined) 
             };
           }
           
-          // Use thai_datetime instead of created_at for proper Thai timezone
-          const timestamp = data && 'thai_datetime' in data 
-            ? String(data.thai_datetime) 
+          // Check if data has the necessary properties before accessing them
+          // Fix for TS18047 error - Ensure data is not null before accessing properties
+          const timestamp = data && 'created_at' in data 
+            ? String(data.created_at) 
             : null;
           
           // Ensure value is cast to number or null to match DeviceData type
+          // Fix for TS18047 error - Ensure data is not null before accessing properties
           const measurementValue = data && measurementSymbol in data
             ? data[measurementSymbol as keyof typeof data]
             : null;

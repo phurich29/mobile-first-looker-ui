@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { DeviceHistoryTableProps } from "./device-history/types";
 import { useHistoryData } from "./device-history/useHistoryData";
@@ -25,10 +26,8 @@ export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCo
     setSelectedRow(row);
   };
 
-  const handleCloseDialog = (open: boolean) => {
-    if (!open) {
-      setSelectedRow(null);
-    }
+  const handleCloseDialog = () => {
+    setSelectedRow(null);
   };
 
   if (isLoading) {
@@ -78,9 +77,8 @@ export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCo
       </div>
 
       <HistoryDetailDialog
-        open={selectedRow !== null}
-        onOpenChange={handleCloseDialog}
-        data={selectedRow}
+        selectedRow={selectedRow}
+        onClose={handleCloseDialog}
       />
     </>
   );
