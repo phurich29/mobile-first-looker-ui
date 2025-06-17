@@ -2,7 +2,7 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { X, Cpu, Save } from "lucide-react";
+import { X, Cpu, Plus } from "lucide-react";
 import { SelectedMetric } from "./types";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { HexColorPicker } from "react-colorful";
@@ -12,16 +12,14 @@ interface MetricBadgesProps {
   selectedMetrics: SelectedMetric[];
   onRemoveMetric: (deviceCode: string, symbol: string) => void;
   onUpdateMetricColor?: (deviceCode: string, symbol: string, color: string) => void;
-  onSavePreferences?: () => void;
-  saving?: boolean;
+  onAddGraph?: () => void;
 }
 
 export const MetricBadges: React.FC<MetricBadgesProps> = ({
   selectedMetrics,
   onRemoveMetric,
   onUpdateMetricColor,
-  onSavePreferences,
-  saving = false
+  onAddGraph
 }) => {
   return (
     <div className="flex flex-wrap gap-2 mb-3">
@@ -73,16 +71,15 @@ export const MetricBadges: React.FC<MetricBadgesProps> = ({
         );
       })}
       
-      {selectedMetrics.length > 0 && onSavePreferences && (
+      {onAddGraph && (
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={onSavePreferences}
+          onClick={onAddGraph}
           className="ml-2 h-7 px-2 text-xs bg-green-50 text-green-700 border-green-300 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
-          disabled={saving}
         >
-          <Save size={14} className="mr-1" />
-          {saving ? 'กำลังบันทึก...' : 'บันทึกการตั้งค่า'}
+          <Plus size={14} className="mr-1" />
+          เพิ่มเส้นกราฟ
         </Button>
       )}
     </div>
