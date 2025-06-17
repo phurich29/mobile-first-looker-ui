@@ -1,5 +1,5 @@
 
-import { Home, Settings, AlertCircle, History, Monitor, Layout, User, Users, FileText } from "lucide-react";
+import { Home, Settings, AlertCircle, History, User, Users, FileText } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useActivePath } from "./sidebar-utils";
@@ -49,22 +49,6 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
             isCollapsed={isCollapsed}
           />
         )}
-        
-        <SidebarMenuItem 
-          path="/graph-monitor" 
-          icon={Monitor}
-          label="Graph Monitor"
-          isActive={isActive("/graph-monitor")}
-          isCollapsed={isCollapsed}
-        />
-        
-        <SidebarMenuItem 
-          path="/graph-summary" 
-          icon={Layout}
-          label="Graph Summary"
-          isActive={isActive("/graph-summary") || isActive("/graph-summary-detail")}
-          isCollapsed={isCollapsed}
-        />
         
         {user && (
           <SidebarMenuItem 
