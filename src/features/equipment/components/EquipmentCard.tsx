@@ -146,6 +146,16 @@ export function EquipmentCard({
               <div className="text-xs text-gray-500 dark:text-gray-400 mt-0 sm:mt-0.5 truncate">
                 รหัส: {deviceCode}
               </div>
+              {/* Status indicator */}
+              <div className="mt-1">
+                <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                  isRecentUpdate 
+                    ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400" 
+                    : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
+                }`}>
+                  {isRecentUpdate ? "On" : "Off"}
+                </span>
+              </div>
             </div>
           </div>
         </CardHeader>
