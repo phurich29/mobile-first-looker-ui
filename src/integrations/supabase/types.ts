@@ -251,6 +251,39 @@ export type Database = {
         }
         Relationships: []
       }
+      rice_prices_addon: {
+        Row: {
+          category: string
+          created_at: string
+          document_date: string | null
+          id: string
+          name: string
+          price: string | null
+          pricecolor: string | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          document_date?: string | null
+          id?: string
+          name: string
+          price?: string | null
+          pricecolor?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          document_date?: string | null
+          id?: string
+          name?: string
+          price?: string | null
+          pricecolor?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       rice_quality_analysis: {
         Row: {
           black_kernel: number | null
