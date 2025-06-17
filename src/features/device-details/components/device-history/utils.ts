@@ -47,17 +47,25 @@ export const getColumnKeys = (data: RiceQualityData[]): string[] => {
 };
 
 export const formatCellValue = (key: string, value: any): string => {
-  if (key === 'created_at') { // เปลี่ยน key จาก thai_datetime เป็น created_at
-    return value ? 
-      new Date(value).toLocaleString('th-TH', {
-        timeZone: 'Asia/Bangkok', // เพิ่มการระบุ Timezone เป็นของไทย
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        // second: '2-digit' // สามารถเพิ่มวินาทีได้หากต้องการ
-      }) : '-';
+  if (key === 'created_at') {
+    if (!value) return '-';
+    // Assuming value is a UTC timestamp string from Supabase
+    const dateObj = new Date(value);
+
+    // เพิ่มเวลา 7 ชั่วโมงเหมือน TimeDisplay.tsx
+    dateObj.setHours(dateObj.getHours() + 7);
+
+    const formattedDate = dateObj.toLocaleDateString('th-TH', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+    const formattedTime = dateObj.toLocaleTimeString('th-TH', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false, // ใช้รูปแบบ 24 ชั่วโมง
+    });
+    return `${formattedDate} ${formattedTime}`;
   }
   
   if (key === 'device_code') {
