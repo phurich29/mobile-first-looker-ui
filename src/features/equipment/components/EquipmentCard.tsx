@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -34,36 +35,6 @@ export function EquipmentCard({
   const [newDisplayName, setNewDisplayName] = useState(displayName || deviceCode);
   const { toast } = useToast();
   
-  // Calculate if the update is recent (within 30 minutes)
-  const isRecentUpdate = (() => {
-    if (!lastUpdated) return false;
-    try {
-      const lastUpdateDate = new Date(lastUpdated);
-      if (isNaN(lastUpdateDate.getTime())) {
-        console.warn("Invalid lastUpdated date string:", lastUpdated);
-        return false;
-      }
-      
-      // Get current time in Thailand timezone
-      const now = new Date();
-      const thailandOffset = 7 * 60 * 60 * 1000; // +7 hours in milliseconds
-      const nowInThailand = new Date(now.getTime() + thailandOffset);
-      
-      // Convert lastUpdated to Thailand time for comparison
-      const lastUpdateInThailand = new Date(lastUpdateDate.getTime() + thailandOffset);
-      
-      const thirtyMinutesInMs = 30 * 60 * 1000; // 30 minutes in milliseconds
-      const diffMs = nowInThailand.getTime() - lastUpdateInThailand.getTime();
-      
-      console.log(`Device ${deviceCode}: Last update ${lastUpdateInThailand.toISOString()}, Now ${nowInThailand.toISOString()}, Diff: ${diffMs}ms, Recent: ${diffMs >= 0 && diffMs < thirtyMinutesInMs}`);
-      
-      return diffMs >= 0 && diffMs < thirtyMinutesInMs;
-    } catch (error) {
-      console.error("Error processing lastUpdated date:", lastUpdated, error);
-      return false;
-    }
-  })();
-  
   // Format the last updated time to show exact date and time with +7 hours
   const formattedTime = lastUpdated 
     ? (() => {
@@ -73,6 +44,24 @@ export function EquipmentCard({
         return format(date, "dd MMM yy HH:mm น.", { locale: th });
       })()
     : "ไม่มีข้อมูล";
+
+  const isRecentUpdate = (() => {
+    if (!lastUpdated) return false;
+    try {
+      const lastUpdateDate = new Date(lastUpdated);
+      if (isNaN(lastUpdateDate.getTime())) {
+        console.warn("Invalid lastUpdated date string:", lastUpdated);
+        return false;
+      }
+      const now = new Date();
+      const twentyFourHoursInMs = 24 * 60 * 60 * 1000;
+      const diffMs = now.getTime() - lastUpdateDate.getTime();
+      return diffMs >= 0 && diffMs < twentyFourHoursInMs;
+    } catch (error) {
+      console.error("Error processing lastUpdated date:", lastUpdated, error);
+      return false;
+    }
+  })();
 
   const timeClasses = isRecentUpdate
     ? "font-bold text-green-700 bg-yellow-200 dark:text-green-300 dark:bg-yellow-600/40 px-1.5 py-0.5 rounded-md"
@@ -158,16 +147,6 @@ export function EquipmentCard({
               <div className="text-xs text-gray-500 dark:text-gray-400 mt-0 sm:mt-0.5 truncate">
                 รหัส: {deviceCode}
               </div>
-              {/* Status indicator */}
-              <div className="mt-1">
-                <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                  isRecentUpdate 
-                    ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400" 
-                    : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
-                }`}>
-                  {isRecentUpdate ? "On" : "Off"}
-                </span>
-              </div>
             </div>
           </div>
         </CardHeader>
@@ -178,7 +157,7 @@ export function EquipmentCard({
               <span className={timeClasses}>{formattedTime}</span>
               {isRecentUpdate && (
                 <span className="text-xs text-red-600 dark:text-red-400 ml-1">
-                  (ใน 30 นาที)
+                  (ใน 24 ชม.)
                 </span>
               )}
             </div>
