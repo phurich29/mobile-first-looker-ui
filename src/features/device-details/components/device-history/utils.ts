@@ -8,7 +8,7 @@ export const formatValue = (value: number | null): string => {
 
 // ลำดับคอลัมน์ที่ต้องการแสดง
 export const COLUMN_ORDER = [
-  'thai_datetime',
+  'created_at', // เปลี่ยนจาก thai_datetime เป็น created_at
   'device_code',
   'class1',
   'class2',
@@ -42,19 +42,21 @@ export const getColumnKeys = (data: RiceQualityData[]): string[] => {
   // ใช้ลำดับคอลัมน์ที่กำหนดไว้ล่วงหน้า และกรองคอลัมน์ที่ไม่มีข้อมูล
   return COLUMN_ORDER.filter(key => 
     data[0].hasOwnProperty(key) && 
-    !['id', 'created_at', 'sample_index', 'output'].includes(key)
+    !['id', 'thai_datetime', 'sample_index', 'output'].includes(key) // กรอง thai_datetime ออก, ไม่กรอง created_at
   );
 };
 
 export const formatCellValue = (key: string, value: any): string => {
-  if (key === 'thai_datetime') {
+  if (key === 'created_at') { // เปลี่ยน key จาก thai_datetime เป็น created_at
     return value ? 
       new Date(value).toLocaleString('th-TH', {
+        timeZone: 'Asia/Bangkok', // เพิ่มการระบุ Timezone เป็นของไทย
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
+        // second: '2-digit' // สามารถเพิ่มวินาทีได้หากต้องการ
       }) : '-';
   }
   

@@ -50,9 +50,9 @@ export const COLUMN_TRANSLATIONS: Record<string, string> = {
   'process_precision': 'ความแม่นยำ',
 
   // ข้อมูลทั่วไป / General Information (Preserved - not part of the 3 tables above)
-  'thai_datetime': 'วันที่-เวลา',
+  'thai_datetime': 'วันที่-เวลา', // ยังคงเก็บไว้เผื่อมีการใช้งานที่อื่น
   'device_code': 'รหัสเครื่อง',
-  'created_at': 'วันที่สร้าง',
+  'created_at': 'วันที่-เวลา', // เปลี่ยนคำแปลสำหรับ created_at
   'updated_at': 'วันที่อัปเดต',
 
   // Legacy mappings for backward compatibility (Preserved)
