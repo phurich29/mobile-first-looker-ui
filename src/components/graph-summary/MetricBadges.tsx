@@ -86,18 +86,6 @@ export const MetricBadges: React.FC<MetricBadgesProps> = ({
           เพิ่มกราฟ
         </Button>
       )}
-      {selectedMetrics.length > 0 && onSavePreferences && (
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={onSavePreferences}
-          className="ml-2 h-7 px-2 text-xs bg-green-50 text-green-700 border-green-300 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
-          disabled={saving}
-        >
-          <Save size={14} className="mr-1" />
-          {saving ? 'กำลังบันทึก...' : 'บันทึกการตั้งค่า'}
-        </Button>
-      )}
     </div>
   );
 };

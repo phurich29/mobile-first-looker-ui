@@ -85,17 +85,6 @@ export const DeviceHeader: React.FC<DeviceHeaderProps> = ({
 
       {/* Graph navigation buttons */}
       <div className="flex flex-wrap gap-3">
-        <Link to={ROUTES.DEVICE_GRAPH_MONITOR(deviceCode)}>
-          <Button
-            variant="outline"
-            size="sm"
-            className="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white dark:border-gray-700"
-          >
-            <Monitor className="h-4 w-4 mr-2" />
-            Graph Monitor
-          </Button>
-        </Link>
-        
         <Link to={ROUTES.DEVICE_GRAPH_SUMMARY(deviceCode)}>
           <Button
             variant="outline"

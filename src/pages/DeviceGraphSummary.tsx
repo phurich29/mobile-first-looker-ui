@@ -136,6 +136,14 @@ const DeviceGraphSummary = () => {
     ];
     
     setSelectedMetrics(newMetrics);
+
+    // Automatically save preferences when a new graph is added
+    savePreferences({
+      selectedMetrics: newMetrics, // Use the newMetrics directly
+      timeFrame,
+      graphStyle,
+      globalLineColor
+    });
     
     // Close selector after adding
     setSelectorOpen(false);
