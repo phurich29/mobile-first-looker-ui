@@ -36,15 +36,14 @@ export const useMeasurementData = ({ deviceCode, symbol }: UseMeasurementDataPro
   const latestEntry = isValidHistoryData && historyData.length > 0 ? historyData[0] as HistoryDataItem : null;
   const latestValue = latestEntry ? latestEntry[symbol] : 0;
   
-  // ใช้ thai_datetime โดยตรงโดยไม่บวกเวลาเพิ่ม
+  // Safely handle date formatting with proper type checking
   const dateTimeInfo = { thaiDate: "", thaiTime: "" };
   if (latestEntry && typeof latestEntry === 'object') {
-    // ใช้ thai_datetime ก่อน ถ้าไม่มีค่อยใช้ created_at
     const dateString = 
-      latestEntry.thai_datetime && typeof latestEntry.thai_datetime === 'string' 
-        ? latestEntry.thai_datetime 
-        : latestEntry.created_at && typeof latestEntry.created_at === 'string'
-          ? latestEntry.created_at
+      latestEntry.created_at && typeof latestEntry.created_at === 'string' 
+        ? latestEntry.created_at 
+        : latestEntry.thai_datetime && typeof latestEntry.thai_datetime === 'string'
+          ? latestEntry.thai_datetime
           : undefined;
     
     if (dateString) {
@@ -68,3 +67,4 @@ export const useMeasurementData = ({ deviceCode, symbol }: UseMeasurementDataPro
 };
 
 export default useMeasurementData;
+

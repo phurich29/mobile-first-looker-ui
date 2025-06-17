@@ -49,11 +49,13 @@ export const fetchMeasurementHistory = async (
   }
 };
 
-// Format Bangkok time - ใช้ thai_datetime โดยตรงโดยไม่บวกเวลาเพิ่ม
+// Format Bangkok time (+7)
 export const formatBangkokTime = (dateString?: string): { thaiDate: string; thaiTime: string } => {
   if (!dateString) return { thaiDate: "ไม่มีข้อมูล", thaiTime: "ไม่มีข้อมูล" };
   
   const date = new Date(dateString);
+  const adjustedDate = new Date(date);
+  adjustedDate.setHours(adjustedDate.getHours() + 7);
   
   const dateOptions: Intl.DateTimeFormatOptions = {
     day: '2-digit',
@@ -67,8 +69,8 @@ export const formatBangkokTime = (dateString?: string): { thaiDate: string; thai
     hour12: false
   };
   
-  const thaiDate = new Intl.DateTimeFormat('th-TH', dateOptions).format(date);
-  const thaiTime = new Intl.DateTimeFormat('th-TH', timeOptions).format(date);
+  const thaiDate = new Intl.DateTimeFormat('th-TH', dateOptions).format(adjustedDate);
+  const thaiTime = new Intl.DateTimeFormat('th-TH', timeOptions).format(adjustedDate);
   
   return { thaiDate, thaiTime };
 };

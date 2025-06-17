@@ -6,11 +6,15 @@ interface TimeDisplayProps {
 }
 
 export const TimeDisplay: React.FC<TimeDisplayProps> = ({ updatedAt }) => {
-  // Format the time from thai_datetime โดยไม่บวกเวลาเพิ่ม
+  // Format the Bangkok time (+7)
   const formatBangkokTime = (date?: Date): { thaiDate: string; thaiTime: string } => {
     if (!date) return { thaiDate: "ไม่มีข้อมูล", thaiTime: "ไม่มีข้อมูล" };
     
-    // ใช้เวลาตามที่มาจาก thai_datetime โดยตรง
+    // เพิ่มเวลาอีก 7 ชั่วโมง
+    const adjustedDate = new Date(date);
+    adjustedDate.setHours(adjustedDate.getHours() + 7);
+    
+    // แยกวันที่และเวลาเป็นคนละบรรทัด
     const dateOptions: Intl.DateTimeFormatOptions = {
       day: '2-digit',
       month: '2-digit',
@@ -23,8 +27,8 @@ export const TimeDisplay: React.FC<TimeDisplayProps> = ({ updatedAt }) => {
       hour12: false
     };
     
-    const thaiDate = new Intl.DateTimeFormat('th-TH', dateOptions).format(date);
-    const thaiTime = new Intl.DateTimeFormat('th-TH', timeOptions).format(date);
+    const thaiDate = new Intl.DateTimeFormat('th-TH', dateOptions).format(adjustedDate);
+    const thaiTime = new Intl.DateTimeFormat('th-TH', timeOptions).format(adjustedDate);
     
     return { thaiDate, thaiTime };
   };
