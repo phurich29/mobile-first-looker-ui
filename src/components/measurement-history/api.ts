@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { TimeFrame } from "./MeasurementHistory";
 
@@ -22,7 +21,7 @@ export const fetchMeasurementHistory = async (
   if (!deviceCode || !symbol) throw new Error("Missing device code or measurement symbol");
   
   try {
-    // Dynamic select query
+    // Dynamic select query - ใช้ thai_datetime แทน created_at
     const selectQuery = `id, ${symbol}, created_at, thai_datetime`;
     
     // Calculate cutoff date based on timeframe
@@ -87,7 +86,7 @@ export const calculateAverage = (historyData: any[], symbol: string): number => 
   return sum / values.length;
 };
 
-// ดึงค่าการวัดล่าสุดสำหรับอุปกรณ์และประเภทข้อมูลเฉพาะ
+// ดึงค่าการวัดล่าสุดสำหรับอุปกรณ์และประเภทข้อมูลเฉพาะ - ใช้ thai_datetime
 export const getLatestMeasurement = async (
   deviceCode: string,
   symbol: string
@@ -97,11 +96,10 @@ export const getLatestMeasurement = async (
       return { value: null, timestamp: null };
     }
 
-    // ดึงข้อมูลล่าสุดเพียง 1 รายการ
-    // เลือกทุกคอลัมน์แล้วค่อยดึงค่าที่ต้องการในภายหลัง
+    // ดึงข้อมูลล่าสุดพร้อม thai_datetime
     const { data, error } = await supabase
       .from('rice_quality_analysis')
-      .select('*')
+      .select('*, thai_datetime')
       .eq('device_code', deviceCode)
       .order('created_at', { ascending: false })
       .limit(1);
@@ -123,7 +121,7 @@ export const getLatestMeasurement = async (
     
     return {
       value: latestData[symbol],
-      timestamp: latestData.created_at
+      timestamp: latestData.thai_datetime || latestData.created_at
     };
   } catch (err) {
     console.error('Error in getLatestMeasurement:', err);
