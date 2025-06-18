@@ -16,10 +16,9 @@ export const ClockDisplay: React.FC = () => {
     };
   }, []);
 
-  const formattedTime = currentTime.toLocaleTimeString('th-TH', {
+  const formattedTime = currentTime.toLocaleTimeString(navigator.language, {
     hour: '2-digit',
     minute: '2-digit',
-    hour12: false, // เปลี่ยนเป็น false เพื่อใช้รูปแบบ 24 ชั่วโมง
   });
 
   return (
