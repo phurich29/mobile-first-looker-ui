@@ -53,9 +53,9 @@ export function EquipmentCard({
         return false;
       }
       const now = new Date();
-      const twentyFourHoursInMs = 24 * 60 * 60 * 1000;
+      const thirtyMinutesInMs = 30 * 60 * 1000; // 30 minutes in milliseconds
       const diffMs = now.getTime() - lastUpdateDate.getTime();
-      return diffMs >= 0 && diffMs < twentyFourHoursInMs;
+      return diffMs >= 0 && diffMs < thirtyMinutesInMs;
     } catch (error) {
       console.error("Error processing lastUpdated date:", lastUpdated, error);
       return false;
@@ -157,7 +157,7 @@ export function EquipmentCard({
               {isRecentUpdate ? (
                 <>
                   <span className="text-xs text-red-600 dark:text-red-400 ml-1">
-                    (ใน 24 ชม.)
+                    (ใน 30 นาที)
                   </span>
                   <Circle className="h-4 w-4 ml-1.5 text-green-500 fill-green-500" />
                 </>
