@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart, Settings, Clock, Users, Signal } from "lucide-react";
+import { BarChart, Settings, Clock, Users, Circle } from "lucide-react";
 import equipmentIcon from "@/assets/equipment-icon.svg";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
@@ -159,7 +159,7 @@ export function EquipmentCard({
                   <span className="text-xs text-red-600 dark:text-red-400 ml-1">
                     (ใน 24 ชม.)
                   </span>
-                  <Signal className="h-3.5 w-3.5 ml-1.5 text-green-500" />
+                  <Circle className="h-4 w-4 ml-1.5 text-green-500 fill-green-500" />
                 </>
               )}
             </div>
