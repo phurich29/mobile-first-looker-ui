@@ -107,19 +107,29 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
                     Device Code: {selectedRow.device_code}
                   </div>
                   <div className="text-xs text-blue-700">
-                    {selectedRow.thai_datetime ? new Date(selectedRow.thai_datetime).toLocaleString('th-TH', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    }) : new Date(selectedRow.created_at).toLocaleString('th-TH', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
+                    {selectedRow.thai_datetime ? (() => {
+                      const dateObj = new Date(selectedRow.thai_datetime);
+                      // ลบ 7 ชั่วโมงแทนการบวก
+                      dateObj.setHours(dateObj.getHours() - 7);
+                      return dateObj.toLocaleString('th-TH', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      });
+                    })() : (() => {
+                      const dateObj = new Date(selectedRow.created_at);
+                      // ลบ 7 ชั่วโมงแทนการบวก
+                      dateObj.setHours(dateObj.getHours() - 7);
+                      return dateObj.toLocaleString('th-TH', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      });
+                    })()}
                   </div>
                 </div>
                 <Badge variant="outline" className="bg-white border-blue-300 text-xs text-blue-800">
