@@ -63,7 +63,7 @@ export function EquipmentCard({
   })();
 
   const timeClasses = isRecentUpdate
-    ? "font-bold text-green-700 bg-yellow-200 dark:text-green-300 dark:bg-yellow-600/40 px-1.5 py-0.5 rounded-md"
+    ? "font-bold text-yellow-800 bg-yellow-200 dark:text-yellow-300 dark:bg-yellow-600/40 px-1.5 py-0.5 rounded-md"
     : "font-medium text-gray-800 dark:text-teal-200";
 
   const handleSaveDisplayName = async () => {
@@ -155,7 +155,7 @@ export function EquipmentCard({
               <Clock className="h-3.5 w-3.5 mr-1.5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
               <span className={timeClasses}>{formattedTime}</span>
               {isRecentUpdate && (
-                <span className="text-xs text-red-600 dark:text-red-400 ml-1">
+                <span className="text-xs text-yellow-600 dark:text-yellow-400 ml-1">
                   (ใน 30 นาที)
                 </span>
               )}
