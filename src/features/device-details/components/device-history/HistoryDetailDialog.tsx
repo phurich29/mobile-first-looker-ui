@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -67,13 +66,8 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
           </div>
           <div className="p-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
-              {categoryData.map((field, index) => (
-                <div 
-                  key={field} 
-                  className={`flex justify-between items-center py-0.5 px-2 hover:bg-gray-50 rounded text-xs ${
-                    index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                  }`}
-                >
+              {categoryData.map(field => (
+                <div key={field} className="flex justify-between items-center py-0.5 px-2 hover:bg-gray-50 rounded text-xs">
                   <span className="text-gray-700 truncate mr-2">
                     {getColumnThaiName(field)}
                   </span>
@@ -146,4 +140,3 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
     </Dialog>
   );
 };
-
