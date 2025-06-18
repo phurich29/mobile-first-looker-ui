@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -61,9 +62,6 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
           <div className="bg-gray-100 px-3 py-1.5 border-b border-gray-300 my-0">
             <div className="flex items-center justify-between">
               <h4 className="text-sm font-medium text-black">{category.title}</h4>
-              <Badge variant="outline" className="text-xs bg-white border-gray-400 text-black">
-                {categoryData.length}
-              </Badge>
             </div>
           </div>
           <div className="p-2">
