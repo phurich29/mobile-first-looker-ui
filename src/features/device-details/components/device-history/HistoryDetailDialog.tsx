@@ -51,35 +51,31 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
     fetchDeviceDisplayName();
   }, [selectedRow?.device_code]);
 
-  // Render categorized data in minimal style
+  // Render categorized data with striped table style
   const renderCategorizedData = (data: RiceQualityData) => {
     return Object.entries(DATA_CATEGORIES).map(([categoryKey, category]) => {
       const categoryData = category.fields.filter(field => data[field] !== null && data[field] !== undefined);
       if (categoryData.length === 0) return null;
 
       return (
-        <div key={categoryKey} className="border border-gray-300 rounded">
-          <div className="bg-gray-100 px-3 py-1.5 border-b border-gray-300 my-0">
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm font-medium text-black">{category.title}</h4>
-            </div>
+        <div key={categoryKey} className="border border-gray-300 rounded-lg overflow-hidden">
+          <div className="bg-slate-200 px-4 py-2 border-b border-gray-300">
+            <h4 className="text-sm font-semibold text-slate-800">{category.title}</h4>
           </div>
-          <div className="p-0">
-            <div className="grid grid-cols-1 md:grid-cols-2">
-              {categoryData.map((field, index) => (
-                <div key={field} className={`flex justify-between items-center py-2 px-3 text-xs border-b border-gray-200 last:border-b-0 ${
-                  index % 2 === 0 ? 'bg-white' : 'bg-gray-100'
-                }`}>
-                  <span className="text-gray-700 truncate mr-2 font-medium">
-                    {getColumnThaiName(field)}
-                  </span>
-                  <span className="font-semibold text-black flex-shrink-0">
-                    {formatCellValue(field, data[field])}
-                    {field !== 'device_code' && field !== 'thai_datetime' && field !== 'paddy_rate' ? '%' : ''}
-                  </span>
-                </div>
-              ))}
-            </div>
+          <div className="bg-white">
+            {categoryData.map((field, index) => (
+              <div key={field} className={`flex justify-between items-center py-3 px-4 border-b border-gray-100 last:border-b-0 ${
+                index % 2 === 0 ? 'bg-slate-50' : 'bg-white'
+              }`}>
+                <span className="text-slate-700 font-medium text-sm">
+                  {getColumnThaiName(field)}
+                </span>
+                <span className="font-bold text-slate-900 text-sm">
+                  {formatCellValue(field, data[field])}
+                  {field !== 'device_code' && field !== 'thai_datetime' && field !== 'paddy_rate' ? '%' : ''}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       );
@@ -98,19 +94,19 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
         
         {selectedRow && (
           <>
-            {/* Summary Header - Equal spacing */}
-            <div className="bg-gray-100 border border-gray-300 rounded p-3 mb-2">
+            {/* Summary Header */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   {deviceDisplayName && (
-                    <div className="text-sm font-medium text-black mb-1">
+                    <div className="text-sm font-medium text-blue-900 mb-1">
                       Name : {deviceDisplayName}
                     </div>
                   )}
-                  <div className="text-sm font-medium text-black mb-1">
+                  <div className="text-sm font-medium text-blue-900 mb-1">
                     Device Code: {selectedRow.device_code}
                   </div>
-                  <div className="text-xs text-gray-600">
+                  <div className="text-xs text-blue-700">
                     {selectedRow.thai_datetime ? new Date(selectedRow.thai_datetime).toLocaleString('th-TH', {
                       year: 'numeric',
                       month: '2-digit',
@@ -126,14 +122,14 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
                     })}
                   </div>
                 </div>
-                <Badge variant="outline" className="bg-white border-gray-400 text-xs text-black">
+                <Badge variant="outline" className="bg-white border-blue-300 text-xs text-blue-800">
                   ID: {selectedRow.id}
                 </Badge>
               </div>
             </div>
 
-            {/* Categorized Data Display - Updated spacing */}
-            <div className="space-y-2.5">
+            {/* Categorized Data Display */}
+            <div className="space-y-3">
               {renderCategorizedData(selectedRow)}
             </div>
           </>
