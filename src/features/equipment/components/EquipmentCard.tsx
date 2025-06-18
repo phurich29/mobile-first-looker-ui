@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart, Settings, Clock, Users } from "lucide-react";
+import { BarChart, Settings, Clock, Users, Signal } from "lucide-react";
 import equipmentIcon from "@/assets/equipment-icon.svg";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
@@ -156,7 +156,8 @@ export function EquipmentCard({
                 <Clock className="h-3.5 w-3.5 mr-1.5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
                 <span className={timeClasses}>{formattedTime}</span>
                 {isRecentUpdate && (
-                  <span className="text-sm font-bold text-green-600 dark:text-green-400 ml-2">
+                  <span className="text-sm font-bold text-green-600 dark:text-green-400 ml-2 flex items-center gap-1">
+                    <Signal className="h-4 w-4 text-green-600 dark:text-green-400" />
                     ON
                   </span>
                 )}
