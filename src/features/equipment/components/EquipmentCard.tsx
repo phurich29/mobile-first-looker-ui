@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -155,9 +156,14 @@ export function EquipmentCard({
               <Clock className="h-3.5 w-3.5 mr-1.5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
               <span className={timeClasses}>{formattedTime}</span>
               {isRecentUpdate && (
-                <span className="text-xs text-yellow-600 dark:text-yellow-400 ml-1">
-                  (ใน 30 นาที)
-                </span>
+                <>
+                  <span className="text-xs text-yellow-600 dark:text-yellow-400 ml-1">
+                    (ใน 30 นาที)
+                  </span>
+                  <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-800 text-xs font-medium rounded-full border border-green-200">
+                    On
+                  </span>
+                </>
               )}
             </div>
           </div>
