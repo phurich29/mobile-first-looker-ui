@@ -119,17 +119,7 @@ export function EquipmentCard({
   return (
     <>
       <div className="relative">
-        {/* ON indicator - outside of card to avoid being clipped */}
-        {isRecentUpdate && (
-          <div className="absolute -top-2 -right-2 z-50">
-            <div className="bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-xl border-2 border-white animate-pulse flex items-center gap-1">
-              <div className="w-2 h-2 bg-white rounded-full"></div>
-              ON
-            </div>
-          </div>
-        )}
-        
-        <Card className="duration-300 border border-gray-200 dark:border-gray-700 bg-emerald-100 dark:bg-emerald-800 bg-[linear-gradient(rgba(255,255,255,0.98),rgba(255,255,255,0.98)),url('/lovable-uploads/6b12828f-a844-4f45-be72-ca664963430d.png')] bg-repeat shadow-none overflow-visible">
+        <Card className="duration-300 border border-gray-200 dark:border-gray-700 bg-emerald-100 dark:bg-emerald-800 bg-[linear-gradient(rgba(255,255,255,0.98),rgba(255,255,255,0.98)),url('/lovable-uploads/6b12828f-a844-4f45-be72-ca664963430d.png')] bg-repeat shadow-none">
           <CardHeader className="pb-1 p-2 sm:p-4">
             <div className="flex flex-row items-start gap-2 sm:gap-3">
               {/* Column 1: Icon */}
@@ -166,8 +156,8 @@ export function EquipmentCard({
                 <Clock className="h-3.5 w-3.5 mr-1.5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
                 <span className={timeClasses}>{formattedTime}</span>
                 {isRecentUpdate && (
-                  <span className="text-xs text-yellow-600 dark:text-yellow-400 ml-1">
-                    (ใน 30 นาที)
+                  <span className="text-sm font-bold text-green-600 dark:text-green-400 ml-2">
+                    ON
                   </span>
                 )}
               </div>
