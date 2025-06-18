@@ -47,6 +47,12 @@ export default function Equipment() {
             onDeviceUpdated={handleRefresh}
           />
           
+          {/* All Devices Table - Show to all users at the bottom */}
+          <div className="mt-8 bg-white/70 dark:bg-gray-800/40 p-5 rounded-xl border border-gray-100 dark:border-gray-800/30 shadow-md backdrop-blur-sm">
+            <h2 className="text-lg font-semibold text-emerald-800 dark:text-emerald-400 mb-4">ตารางรวมทุกอุปกรณ์</h2>
+            <DatabaseTable />
+          </div>
+          
           {/* Database Table Section - Only visible to admins and superadmins */}
           {isAdmin && (
             <div className="mb-8 bg-white/70 dark:bg-gray-800/40 p-5 rounded-xl border border-gray-100 dark:border-gray-800/30 shadow-md backdrop-blur-sm">
