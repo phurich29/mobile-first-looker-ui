@@ -9,17 +9,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { X, Zap, TrendingUp, Settings, Wheat, Activity } from "lucide-react";
+import { X, Wheat, Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { getColumnThaiName } from "@/lib/columnTranslations";
-import { COLUMN_ORDER } from "@/features/device-details/components/device-history/utils"; // Import COLUMN_ORDER
+import { COLUMN_ORDER } from "@/features/device-details/components/device-history/utils";
 
 interface GraphSelectorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelectGraph: (deviceCode: string, symbol: string, name: string, deviceName?: string) => void;
-  deviceFilter?: string; // Optional filter to show only specific device
+  deviceFilter?: string;
 }
 
 interface Device {
@@ -35,43 +35,39 @@ interface Measurement {
   icon: React.ElementType;
 }
 
-// This will be populated dynamically
-// const measurements: Measurement[] = [];
-
 const DEFAULT_CATEGORY = "ข้อมูลทั่วไป";
-const DEFAULT_ICON = TrendingUp;
 
-// Define categories and icons for measurements
+// Define categories for measurements - all will use Wheat icon
 const MEASUREMENT_INFO: Record<string, { category: string; icon: React.ElementType }> = {
   // พื้นข้าวเต็มเมล็ด (Whole Kernel Rice Base)
   whole_kernels: { category: "พื้นข้าวเต็มเมล็ด", icon: Wheat },
   head_rice: { category: "พื้นข้าวเต็มเมล็ด", icon: Wheat },
   whiteness: { category: "พื้นข้าวเต็มเมล็ด", icon: Wheat },
   process_precision: { category: "พื้นข้าวเต็มเมล็ด", icon: Wheat },
-  class1: { category: "พื้นข้าวเต็มเมล็ด", icon: Wheat }, // Assuming top-grade whole kernel
+  class1: { category: "พื้นข้าวเต็มเมล็ด", icon: Wheat },
   slender_kernel: { category: "พื้นข้าวเต็มเมล็ด", icon: Wheat },
   short_grain: { category: "พื้นข้าวเต็มเมล็ด", icon: Wheat },
 
   // ส่วนผสม (Ingredients/Mixture)
-  class2: { category: "ส่วนผสม", icon: Zap }, // Assuming lower grade, part of mix
-  class3: { category: "ส่วนผสม", icon: Zap }, // Assuming lower grade, part of mix
-  total_brokens: { category: "ส่วนผสม", icon: Zap },
-  small_brokens: { category: "ส่วนผสม", icon: Zap },
-  small_brokens_c1: { category: "ส่วนผสม", icon: Zap },
-  sticky_rice_rate: { category: "ส่วนผสม", icon: Zap }, // Considered an admixture
-  parboiled_white_rice: { category: "ส่วนผสม", icon: Zap }, // Considered an admixture
-  parboiled_red_line: { category: "ส่วนผสม", icon: Zap }, // Admixture of parboiled with defects
+  class2: { category: "ส่วนผสม", icon: Wheat },
+  class3: { category: "ส่วนผสม", icon: Wheat },
+  total_brokens: { category: "ส่วนผสม", icon: Wheat },
+  small_brokens: { category: "ส่วนผสม", icon: Wheat },
+  small_brokens_c1: { category: "ส่วนผสม", icon: Wheat },
+  sticky_rice_rate: { category: "ส่วนผสม", icon: Wheat },
+  parboiled_white_rice: { category: "ส่วนผสม", icon: Wheat },
+  parboiled_red_line: { category: "ส่วนผสม", icon: Wheat },
   
   // สิ่งเจือปน (Impurities)
-  impurity_num: { category: "สิ่งเจือปน", icon: Activity },
-  paddy_rate: { category: "สิ่งเจือปน", icon: Activity },
-  red_line_rate: { category: "สิ่งเจือปน", icon: Activity }, // Defect acting as impurity
-  honey_rice: { category: "สิ่งเจือปน", icon: Activity }, // Defect acting as impurity
-  yellow_rice_rate: { category: "สิ่งเจือปน", icon: Activity }, // Defect acting as impurity
-  black_kernel: { category: "สิ่งเจือปน", icon: Activity }, // Defect acting as impurity
-  partly_black_peck: { category: "สิ่งเจือปน", icon: Activity }, // Defect acting as impurity
-  partly_black: { category: "สิ่งเจือปน", icon: Activity }, // Defect acting as impurity
-  imperfection_rate: { category: "สิ่งเจือปน", icon: Activity } // General rate of impurities/defects
+  impurity_num: { category: "สิ่งเจือปน", icon: Wheat },
+  paddy_rate: { category: "สิ่งเจือปน", icon: Wheat },
+  red_line_rate: { category: "สิ่งเจือปน", icon: Wheat },
+  honey_rice: { category: "สิ่งเจือปน", icon: Wheat },
+  yellow_rice_rate: { category: "สิ่งเจือปน", icon: Wheat },
+  black_kernel: { category: "สิ่งเจือปน", icon: Wheat },
+  partly_black_peck: { category: "สิ่งเจือปน", icon: Wheat },
+  partly_black: { category: "สิ่งเจือปน", icon: Wheat },
+  imperfection_rate: { category: "สิ่งเจือปน", icon: Wheat }
 };
 
 export const GraphSelector: React.FC<GraphSelectorProps> = ({ 
@@ -90,17 +86,16 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
   useEffect(() => {
     if (open) {
       loadDevices();
-      // Prepare available measurements from COLUMN_ORDER
+      // Prepare available measurements from COLUMN_ORDER - all use Wheat icon
       const dynamicMeasurements = COLUMN_ORDER.filter(
-        // Exclude non-graphable or irrelevant columns if any, similar to getColumnKeys logic
         key => !['thai_datetime', 'device_code', 'sample_index', 'output', 'id', 'created_at'].includes(key)
       ).map(key => {
-        const info = MEASUREMENT_INFO[key] || { category: DEFAULT_CATEGORY, icon: DEFAULT_ICON };
+        const info = MEASUREMENT_INFO[key] || { category: DEFAULT_CATEGORY, icon: Wheat };
         return {
           symbol: key,
-          name: getColumnThaiName(key) || key, // Fallback to key if no Thai name
+          name: getColumnThaiName(key) || key,
           category: info.category,
-          icon: info.icon
+          icon: Wheat // Force all icons to be Wheat
         };
       });
       setAvailableMeasurements(dynamicMeasurements);
@@ -241,7 +236,7 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
                   >
                     <div className="flex items-start space-x-3 w-full">
                       <div className="flex-shrink-0 mt-1">
-                        <measurement.icon className="h-5 w-5" />
+                        <Wheat className="h-5 w-5" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-gray-900 dark:text-gray-100">
