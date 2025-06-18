@@ -19,43 +19,56 @@
  * จัดกลุ่มตามประเภทข้อมูลเพื่อง่ายต่อการจัดการ
  */
 export const COLUMN_TRANSLATIONS: Record<string, string> = {
-  // ตารางที่ 1: การจำแนกเมล็ดข้าวทั้งเมล็ด (Whole kernel classification)
-  'class1': 'ชั้น 1(>7.0mm)',
-  'class2': 'ชั้น 2(>6.6-7.0mm)',
-  'class3': 'ชั้น 3(>6.2-6.6mm)',
-  'short_grain': 'เมล็ดสั้น(≤6.2mm)',
+  // ========== ข้อมูลเมล็ดข้าว (Rice Grain Data) ==========
+  'class1': 'ชั้น 1 (>7.0mm)',
+  'class2': 'ชั้น 2 (>6.6-7.0mm)',
+  'class3': 'ชั้น 3 (>6.2-6.6mm)',
+  'short_grain': 'เมล็ดสั้น (≤6.2mm)',
   'slender_kernel': 'ข้าวลีบ',
-
-  // ตารางที่ 2: องค์ประกอบ (Composition)
-  'whole_kernels': 'เมล็ดเต็ม',
+  'whole_kernels': 'เต็มเมล็ด',
   'head_rice': 'ต้นข้าว',
   'total_brokens': 'ข้าวหักรวม',
   'small_brokens': 'ปลายข้าว',
   'small_brokens_c1': 'ปลายข้าว C1',
-
-  // ตารางที่ 3: คุณลักษณะและความบกพร่อง (Characteristics and Defects)
-  'red_line_rate': 'เมล็ดแดง',
-  'parboiled_red_line': 'ข้าวนึ่งแดง',
-  'parboiled_white_rice': 'ข้าวนึ่งขาว',
-  'honey_rice': 'ข้าวน้ำผึ้ง',
+  'red_line_rate': 'สีต่ำกว่ามาตรฐาน',
+  'parboiled_red_line': 'เมล็ดแดง',
+  'parboiled_white_rice': 'ข้าวดิบ',
+  'honey_rice': 'เมล็ดม่วง',
   'yellow_rice_rate': 'เมล็ดเหลือง',
   'black_kernel': 'เมล็ดดำ',
   'partly_black_peck': 'ดำบางส่วน & จุดดำ',
   'partly_black': 'ดำบางส่วน',
   'imperfection_rate': 'เมล็ดเสีย',
   'sticky_rice_rate': 'ข้าวเหนียว',
-  'impurity_num': 'สิ่งเจือปน',
-  'paddy_rate': 'ข้าวเปลือก(เมล็ด/กก.)',
+  'impurity_num': 'เมล็ดอื่นๆ',
+  'paddy_rate': 'ข้าวเปลือก (เมล็ด/กก.)',
   'whiteness': 'ความขาว',
-  'process_precision': 'ความแม่นยำ',
-
-  // ข้อมูลทั่วไป / General Information (Preserved - not part of the 3 tables above)
-  'thai_datetime': 'วันที่-เวลา', // ยังคงเก็บไว้เผื่อมีการใช้งานที่อื่น
+  'process_precision': 'ระดับขัดสี',
+  
+  // ========== ข้อมูลทั่วไป (General Information) ==========
+  'thai_datetime': 'วันที่-เวลา',
   'device_code': 'รหัสเครื่อง',
-  'created_at': 'วันที่-เวลา', // เปลี่ยนคำแปลสำหรับ created_at
+  'created_at': 'วันที่บันทึก',
   'updated_at': 'วันที่อัปเดต',
-
-  // Legacy mappings for backward compatibility (Preserved)
+  'date': 'วันที่',
+  'time': 'เวลา',
+  'id': 'รหัส',
+  'batch_id': 'รหัสล็อต',
+  'user_id': 'ผู้ใช้งาน',
+  'status': 'สถานะ',
+  'notes': 'หมายเหตุ',
+  'measurement_time': 'เวลาวัด',
+  'measurement_date': 'วันที่วัด',
+  'measurement_datetime': 'วันและเวลาวัด',
+  'device_name': 'ชื่ออุปกรณ์',
+  'location': 'สถานที่',
+  'operator': 'ผู้ดำเนินการ',
+  'shift': 'กะการทำงาน',
+  'lot_number': 'หมายเลขล็อต',
+  'sample_id': 'รหัสตัวอย่าง',
+  'sample_weight': 'น้ำหนักตัวอย่าง (กรัม)',
+  
+  // ========== Legacy Mappings (for backward compatibility) ==========
   '70mm': 'ชั้น 1 (>7.0mm)',
   'shortgrain': 'เมล็ดสั้น',
   'slenderkernel': 'เมล็ดยาว',
@@ -72,9 +85,9 @@ export const COLUMN_TRANSLATIONS: Record<string, string> = {
   'blackkernel': 'เมล็ดดำ',
   'partlyblackpeck': 'จุดดำบางส่วน',
   'partlyblack': 'ดำบางส่วน',
-  'imperfectionrate': 'ข้าวด้วย',
+  'imperfectionrate': 'เมล็ดเสีย',
   'stickyricerate': 'ข้าวเหนียว',
-  'impuritynum': 'สิ่งปนเปื้อน',
+  'impuritynum': 'สิ่งเจือปน',
   'paddyrate': 'ข้าวเปลือก',
   'processprecision': 'ความแม่นยำ'
 };

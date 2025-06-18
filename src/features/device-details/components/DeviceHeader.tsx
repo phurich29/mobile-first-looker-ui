@@ -69,14 +69,9 @@ export const DeviceHeader: React.FC<DeviceHeaderProps> = ({
           )}
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              รายละเอียดอุปกรณ์
+              {deviceDisplayName || 'รายละเอียดอุปกรณ์'}
             </h1>
-            {deviceDisplayName && (
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                ชื่ออุปกรณ์: {deviceDisplayName}
-              </p>
-            )}
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               รหัสอุปกรณ์: {deviceCode}
             </p>
           </div>

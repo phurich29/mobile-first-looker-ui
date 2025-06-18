@@ -30,18 +30,6 @@ interface GraphContentProps {
 // Function to get the appropriate card styling based on graph style
 const getCardStyles = (graphStyle: GraphStyle): string => {
   switch (graphStyle) {
-    case 'classic':
-      return "flex flex-col bg-white dark:bg-gray-800 border border-purple-100 dark:border-gray-700 p-4 h-[600px]";
-    case 'natural':
-      return "flex flex-col bg-[#F5F5F2] dark:bg-[#1F2A1D] border border-[#E8E6DD] dark:border-[#2A3626] p-4 h-[600px]";
-    case 'neon':
-      return "flex flex-col bg-gray-900 border border-cyan-600 p-4 h-[600px] text-cyan-300";
-    case 'pastel':
-      return "flex flex-col bg-blue-50/80 border border-blue-200/80 p-4 h-[600px] dark:bg-indigo-950/30 dark:border-indigo-800/40";
-    case 'monochrome':
-      return "flex flex-col bg-gray-900 border border-gray-700 p-4 h-[600px] text-gray-200";
-    case 'gradient':
-      return "flex flex-col bg-gradient-to-br from-violet-900 to-indigo-900 border border-indigo-700 p-4 h-[600px] text-white";
     case 'area':
       return "flex flex-col bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-700 p-4 h-[600px]";
     case 'line':
@@ -72,9 +60,9 @@ export const GraphContent: React.FC<GraphContentProps> = ({
         <LoadingState />
       ) : selectedMetrics.length === 0 ? (
         <EmptyState onOpenSelector={onOpenSelector} />
-      ) : graphData.length === 0 ? (
-        <NoDataState />
       ) : (
+        // Always render graph components if not loading and metrics are selected,
+        // MainChart will handle empty graphData
         <>
           <MetricBadges 
             selectedMetrics={selectedMetrics} 

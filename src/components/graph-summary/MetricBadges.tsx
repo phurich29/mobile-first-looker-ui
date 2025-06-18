@@ -58,11 +58,8 @@ export const MetricBadges: React.FC<MetricBadgesProps> = ({
                   </PopoverContent>
                 )}
               </Popover>
-              <span className="mr-1">
-                <Cpu size={12} className="text-gray-500" />
-              </span>
               <span>
-                {thaiName} ({metric.deviceName})
+                {thaiName}
               </span>
               <button
                 onClick={() => onRemoveMetric(metric.deviceCode, metric.symbol)}

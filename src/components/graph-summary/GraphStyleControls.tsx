@@ -14,44 +14,28 @@ interface GraphStyleControlsProps {
   setGlobalLineColor: (value: string) => void;
 }
 
+// Helper functions for graph style (kept outside component as they don't depend on props/state)
 const getStyleName = (style: GraphStyle): string => {
   const styleNames: Record<GraphStyle, string> = {
-    line: "เส้น",
-    area: "พื้นที่",
-    classic: "คลาสสิก",
-    natural: "ธรรมชาติ",
-    neon: "นีออน",
-    pastel: "พาสเทล",
-    monochrome: "โมโนโครม",
-    gradient: "ไล่สี"
+    line: "เส้น", // เส้น = Line
+    area: "พื้นที่" // พื้นที่ = Area
   };
   return styleNames[style] || "เส้น";
 };
 
 const getStyleSelectButtonClass = (graphStyle: GraphStyle): string => {
   const styleClasses: Record<GraphStyle, string> = {
-    line: "border-gray-300",
-    area: "border-blue-300",
-    classic: "border-purple-400 text-purple-700 dark:text-purple-300",
-    natural: "border-green-400 text-green-700 dark:text-green-300",
-    neon: "border-cyan-500 text-cyan-900 dark:text-cyan-300 bg-cyan-50 dark:bg-cyan-950",
-    pastel: "border-pink-300 text-pink-700 dark:text-pink-300",
-    monochrome: "border-gray-400 text-gray-700 dark:text-gray-300",
-    gradient: "border-indigo-400 text-indigo-700 dark:text-indigo-300"
+    line: "border-gray-300 dark:border-gray-600",
+    area: "border-blue-300 dark:border-blue-700"
   };
-  return styleClasses[graphStyle] || "border-gray-300";
+  return styleClasses[graphStyle] || "border-gray-300 dark:border-gray-600";
 };
 
 const getStyleMenuClass = (graphStyle: GraphStyle): string => {
+  // This function can be used to apply specific classes to the menu content based on style if needed
   const menuClasses: Record<GraphStyle, string> = {
     line: "",
-    area: "",
-    classic: "bg-purple-50 dark:bg-purple-950 border-purple-100 dark:border-purple-800",
-    natural: "bg-green-50 dark:bg-green-950 border-green-100 dark:border-green-800",
-    neon: "bg-cyan-50 dark:bg-cyan-950 border-cyan-100 dark:border-cyan-800",
-    pastel: "bg-pink-50 dark:bg-pink-950 border-pink-100 dark:border-pink-800",
-    monochrome: "bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-800",
-    gradient: "bg-indigo-50 dark:bg-indigo-950 border-indigo-100 dark:border-indigo-800"
+    area: ""
   };
   return menuClasses[graphStyle] || "";
 };
@@ -61,47 +45,70 @@ export const GraphStyleControls: React.FC<GraphStyleControlsProps> = ({
   setTimeFrame,
   graphStyle,
   setGraphStyle,
-  globalLineColor,
-  setGlobalLineColor
+  // globalLineColor, // Not used in this component's UI directly after changes
+  // setGlobalLineColor // Not used in this component's UI directly after changes
 }) => {
-  return <div className="flex flex-wrap items-center justify-end space-x-2 space-y-2 sm:space-y-0 mb-2">
+
+  const getTimeFrameText = (frame: TimeFrame): string => {
+    switch (frame) {
+      case '1h': return '1 ชม.'; // 1 ชั่วโมง
+      case '24h': return '24 ชม.'; // 24 ชั่วโมง
+      case '7d': return '7 วัน'; // 7 วัน
+      case '30d': return '30 วัน'; // 30 วัน
+      default: return '24 ชม.';
+    }
+  };
+
+  const timeFrames: TimeFrame[] = ['1h', '24h', '7d', '30d'];
+
+  return (
+    <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-2 sm:gap-y-0 mb-3">
+      {/* Time Frame Buttons */}
+      <div className="flex items-center space-x-1.5">
+        {timeFrames.map(frame => (
+          <button
+            key={frame}
+            type="button"
+            className={`px-2.5 py-1 h-7 text-xs rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-400 dark:focus:ring-offset-slate-900 ${ 
+              timeFrame === frame
+                ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700'
+            }`}
+            onClick={() => setTimeFrame(frame)}
+          >
+            {getTimeFrameText(frame)}
+          </button>
+        ))}
+      </div>
+
+      {/* Graph Style Dropdown */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className={`h-7 px-2 text-xs ${getStyleSelectButtonClass(graphStyle)}`}>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className={`h-7 px-2 text-xs ${getStyleSelectButtonClass(graphStyle)} hover:bg-gray-50 dark:hover:bg-slate-700`}
+          >
             สไตล์: {getStyleName(graphStyle)}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className={`min-w-32 ${getStyleMenuClass(graphStyle)}`}>
-          <DropdownMenuItem className={`text-sm ${graphStyle === 'line' ? 'bg-blue-50 dark:bg-blue-900/30' : ''}`} onClick={() => setGraphStyle('line')}>
+        <DropdownMenuContent align="end" className={`min-w-[80px] ${getStyleMenuClass(graphStyle)}`}>
+          <DropdownMenuItem 
+            className={`text-xs ${graphStyle === 'line' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 'dark:text-slate-300'}`}
+            onClick={() => setGraphStyle('line')}
+          >
             เส้น
           </DropdownMenuItem>
-          <DropdownMenuItem className={`text-sm ${graphStyle === 'area' ? 'bg-green-50 dark:bg-green-900/30' : ''}`} onClick={() => setGraphStyle('area')}>
+          <DropdownMenuItem 
+            className={`text-xs ${graphStyle === 'area' ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300' : 'dark:text-slate-300'}`}
+            onClick={() => setGraphStyle('area')}
+          >
             พื้นที่
-          </DropdownMenuItem>
-          <DropdownMenuItem className={`text-sm ${graphStyle === 'classic' ? 'bg-purple-50 dark:bg-purple-900/30' : ''}`} onClick={() => setGraphStyle('classic')}>
-            คลาสสิก
-          </DropdownMenuItem>
-          <DropdownMenuItem className={`text-sm ${graphStyle === 'natural' ? 'bg-green-50 dark:bg-green-900/30' : ''}`} onClick={() => setGraphStyle('natural')}>
-            ธรรมชาติ
-          </DropdownMenuItem>
-          <DropdownMenuItem className={`text-sm ${graphStyle === 'neon' ? 'bg-cyan-900' : ''}`} onClick={() => setGraphStyle('neon')}>
-            นีออน
-          </DropdownMenuItem>
-          <DropdownMenuItem className={`text-sm ${graphStyle === 'pastel' ? 'bg-pink-100 dark:bg-pink-900/30' : ''}`} onClick={() => setGraphStyle('pastel')}>
-            พาสเทล
-          </DropdownMenuItem>
-          <DropdownMenuItem className={`text-sm ${graphStyle === 'monochrome' ? 'bg-gray-800' : ''}`} onClick={() => setGraphStyle('monochrome')}>
-            โมโนโครม
-          </DropdownMenuItem>
-          <DropdownMenuItem className={`text-sm ${graphStyle === 'gradient' ? 'bg-indigo-800' : ''}`} onClick={() => setGraphStyle('gradient')}>
-            ไล่สี
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      
-      {/* เพิ่มที่ว่างเล็กน้อย */}
-      <div className="w-2"></div>
-    </div>;
+    </div>
+  );
 };
 
 export default GraphStyleControls;

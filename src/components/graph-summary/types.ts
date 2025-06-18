@@ -11,13 +11,7 @@ export interface SelectedMetric {
 
 export type GraphStyle = 
   | "line" 
-  | "area" 
-  | "classic" 
-  | "natural" 
-  | "neon" 
-  | "pastel" 
-  | "monochrome" 
-  | "gradient";
+  | "area";
 
 export interface GraphStyleOptions {
   graphStyle?: string;
