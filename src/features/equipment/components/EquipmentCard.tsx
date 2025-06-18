@@ -154,13 +154,15 @@ export function EquipmentCard({
             <div className="flex items-center">
               <Clock className="h-3.5 w-3.5 mr-1.5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
               <span className={timeClasses}>{formattedTime}</span>
-              {isRecentUpdate && (
+              {isRecentUpdate ? (
                 <>
                   <span className="text-xs text-red-600 dark:text-red-400 ml-1">
                     (ใน 24 ชม.)
                   </span>
                   <Circle className="h-4 w-4 ml-1.5 text-green-500 fill-green-500" />
                 </>
+              ) : (
+                <Circle className="h-4 w-4 ml-1.5 text-red-500 fill-red-500" />
               )}
             </div>
           </div>
