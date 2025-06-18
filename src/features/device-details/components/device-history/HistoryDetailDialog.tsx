@@ -64,16 +64,16 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
               <h4 className="text-sm font-medium text-black">{category.title}</h4>
             </div>
           </div>
-          <div className="p-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
+          <div className="p-0">
+            <div className="grid grid-cols-1 md:grid-cols-2">
               {categoryData.map((field, index) => (
-                <div key={field} className={`flex justify-between items-center py-0.5 px-2 hover:bg-gray-50 rounded text-xs ${
-                  index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                <div key={field} className={`flex justify-between items-center py-2 px-3 text-xs border-b border-gray-200 last:border-b-0 ${
+                  index % 2 === 0 ? 'bg-white' : 'bg-gray-100'
                 }`}>
-                  <span className="text-gray-700 truncate mr-2">
+                  <span className="text-gray-700 truncate mr-2 font-medium">
                     {getColumnThaiName(field)}
                   </span>
-                  <span className="font-medium text-black flex-shrink-0">
+                  <span className="font-semibold text-black flex-shrink-0">
                     {formatCellValue(field, data[field])}
                     {field !== 'device_code' && field !== 'thai_datetime' && field !== 'paddy_rate' ? '%' : ''}
                   </span>
