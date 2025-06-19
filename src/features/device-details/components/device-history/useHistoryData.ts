@@ -4,19 +4,24 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { RiceQualityData } from './types';
 
-export const useHistoryData = (deviceCode: string) => {
+export const useHistoryData = (deviceCode?: string) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const { data: historyData, isLoading, error } = useQuery({
-    queryKey: ['deviceHistory', deviceCode, currentPage, itemsPerPage],
+    queryKey: ['deviceHistory', deviceCode || 'all', currentPage, itemsPerPage],
     queryFn: async () => {
       const offset = (currentPage - 1) * itemsPerPage;
       
-      const { data, error, count } = await supabase
+      let query = supabase
         .from('rice_quality_analysis')
-        .select('*', { count: 'exact' })
-        .eq('device_code', deviceCode)
+        .select('*', { count: 'exact' });
+
+      if (deviceCode) {
+        query = query.eq('device_code', deviceCode);
+      }
+
+      const { data, error, count } = await query
         .order('created_at', { ascending: false })
         .range(offset, offset + itemsPerPage - 1);
 

@@ -32,7 +32,7 @@ export interface RiceQualityData {
 }
 
 export interface DeviceHistoryTableProps {
-  deviceCode: string;
+  deviceCode?: string;
 }
 
 export interface DataCategory {

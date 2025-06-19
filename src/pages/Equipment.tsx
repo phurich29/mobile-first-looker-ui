@@ -3,6 +3,7 @@ import { AddDeviceForm } from "@/components/device-management/AddDeviceForm";
 import { DatabaseTable } from "@/components/DatabaseTable";
 import { useDeviceData, DevicesHeader, DevicesGrid } from "@/features/equipment";
 import { AppLayout } from "@/components/layouts";
+import { DeviceHistoryTable } from "@/features/device-details/components/DeviceHistoryTable";
 
 export default function Equipment() {
   const {
@@ -46,11 +47,11 @@ export default function Equipment() {
             isSuperAdmin={isSuperAdmin}
             onDeviceUpdated={handleRefresh}
           />
-          
-          {/* All Devices Table - Show to all users at the bottom */}
+
+          {/* Device History Table - Show to all users at the bottom */}
           <div className="mt-8 bg-white/70 dark:bg-gray-800/40 p-5 rounded-xl border border-gray-100 dark:border-gray-800/30 shadow-md backdrop-blur-sm">
-            <h2 className="text-lg font-semibold text-emerald-800 dark:text-emerald-400 mb-4">ตารางรวมทุกอุปกรณ์</h2>
-            <DatabaseTable />
+            <h2 className="text-lg font-semibold text-emerald-800 dark:text-emerald-400 mb-4">ประวัติข้อมูลอุปกรณ์ทั้งหมด</h2>
+            <DeviceHistoryTable />
           </div>
           
           {/* Database Table Section - Only visible to admins and superadmins */}
