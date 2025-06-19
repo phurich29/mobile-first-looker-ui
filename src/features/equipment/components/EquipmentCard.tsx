@@ -47,17 +47,23 @@ export function EquipmentCard({
   const isRecentUpdate = (() => {
     if (!lastUpdated) return false;
     try {
-      const lastUpdateDate = new Date(lastUpdated);
-      if (isNaN(lastUpdateDate.getTime())) {
-        console.warn("Invalid lastUpdated date string:", lastUpdated);
+      // สร้าง Date object จาก lastUpdated และปรับเขตเวลา +7 ชั่วโมง
+      const adjustedLastUpdateDate = new Date(lastUpdated);
+      adjustedLastUpdateDate.setHours(adjustedLastUpdateDate.getHours() + 7);
+
+      if (isNaN(adjustedLastUpdateDate.getTime())) {
+        console.warn("Invalid adjustedLastUpdateDate date string:", lastUpdated);
         return false;
       }
-      const now = new Date();
-      const twentyFourHoursInMs = 24 * 60 * 60 * 1000;
-      const diffMs = now.getTime() - lastUpdateDate.getTime();
-      return diffMs >= 0 && diffMs < twentyFourHoursInMs;
+      const now = new Date(); // เวลาปัจจุบัน (ควรจะเป็น GMT+7 หากเครื่องผู้ใช้ตั้งค่าถูกต้อง)
+      // คำนวณ 30 นาทีในหน่วยมิลลิวินาที
+      const thirtyMinutesInMs = 30 * 60 * 1000;
+      // คำนวณส่วนต่างเวลาระหว่างเวลาปัจจุบันกับเวลาที่ปรับเขตเวลาแล้ว
+      const diffMs = now.getTime() - adjustedLastUpdateDate.getTime();
+      // ตรวจสอบว่าส่วนต่างเวลาอยู่ในช่วง 30 นาทีล่าสุดหรือไม่
+      return diffMs >= 0 && diffMs < thirtyMinutesInMs;
     } catch (error) {
-      console.error("Error processing lastUpdated date:", lastUpdated, error);
+      console.error("Error processing adjustedLastUpdateDate:", lastUpdated, error);
       return false;
     }
   })();
@@ -154,14 +160,16 @@ export function EquipmentCard({
             <div className="flex items-center">
               <Clock className="h-3.5 w-3.5 mr-1.5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
               <span className={timeClasses}>{formattedTime}</span>
-              {isRecentUpdate ? (
+              {isRecentUpdate ? ( // isRecentUpdate ตอนนี้อ้างอิงตามเงื่อนไข 30 นาที
                 <>
-                  <span className="text-xs text-red-600 dark:text-red-400 ml-1">
-                    (ใน 24 ชม.)
+                  {/* ข้อความสถานะอัปเดตล่าสุด แสดงเมื่ออยู่ในช่วง 30 นาที */}
+                  <span className="text-xs text-green-600 dark:text-green-400 ml-1">
+                    (ใน 30 นาที)
                   </span>
                   <Circle className="h-4 w-4 ml-1.5 text-green-500 fill-green-500" />
                 </>
               ) : (
+                // แสดงวงกลมสีแดงหากอัปเดตนานกว่า 30 นาที
                 <Circle className="h-4 w-4 ml-1.5 text-red-500 fill-red-500" />
               )}
             </div>

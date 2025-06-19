@@ -22,13 +22,19 @@ export const ClockDisplay: React.FC = () => {
     hour12: false, // This ensures 24-hour format
   });
 
+  const formattedDate = currentTime.toLocaleDateString(navigator.language, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+
   return (
     <Button 
       variant="ghost" 
       className="text-gray-500 hover:bg-gray-100 px-1 md:px-2 flex items-center h-auto md:h-10"
     >
       <Clock className="h-3 w-3 md:h-5 md:w-5 mr-1 md:mr-1.5" /> 
-      <span className="text-xs md:text-sm">{formattedTime}</span>
+      <span className="text-xs md:text-sm">{formattedDate} {formattedTime}</span>
     </Button>
   );
 };
