@@ -159,17 +159,17 @@ export function EquipmentCard({
           <div className="text-xs text-gray-600 dark:text-slate-400">
             <div className="flex items-center">
               <Clock className="h-3.5 w-3.5 mr-1.5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-              <span className={timeClasses}>{formattedTime}</span>
-              {isRecentUpdate ? ( // isRecentUpdate ตอนนี้อ้างอิงตามเงื่อนไข 30 นาที
-                <>
-                  {/* ข้อความสถานะอัปเดตล่าสุด แสดงเมื่ออยู่ในช่วง 30 นาที */}
-                  <span className="text-xs text-green-600 dark:text-green-400 ml-1">
+              <div className="flex flex-col">
+                <span className={timeClasses}>{formattedTime}</span>
+                {isRecentUpdate ? ( // isRecentUpdate ตอนนี้อ้างอิงตามเงื่อนไข 30 นาที
+                  <span className="text-xs text-green-600 dark:text-green-400">
                     (ใน 30 นาที)
                   </span>
-                  <Circle className="h-4 w-4 ml-1.5 text-green-500 fill-green-500" />
-                </>
+                ) : null}
+              </div>
+              {isRecentUpdate ? (
+                <Circle className="h-4 w-4 ml-1.5 text-green-500 fill-green-500" />
               ) : (
-                // แสดงวงกลมสีแดงหากอัปเดตนานกว่า 30 นาที
                 <Circle className="h-4 w-4 ml-1.5 text-red-500 fill-red-500" />
               )}
             </div>
