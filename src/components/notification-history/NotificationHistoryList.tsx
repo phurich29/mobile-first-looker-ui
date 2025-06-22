@@ -3,11 +3,11 @@ import React, { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { NotificationHeader } from "./components/NotificationHeader";
-import { NotificationTable } from "./components/NotificationTable";
-import { NotificationPagination } from "./components/NotificationPagination";
 import { NotificationFilters } from "./components/NotificationFilters";
 import { EmptyState } from "./components/EmptyState";
 import { LoadingState } from "./components/LoadingState";
+import { MinimalNotificationCard } from "./components/MinimalNotificationCard";
+import { NotificationPagination } from "./components/NotificationPagination";
 import { useNotificationHistory } from "./hooks/useNotificationHistory";
 import { useQueryClient } from "@tanstack/react-query";
 import { RealtimePayload } from "./types";
@@ -49,7 +49,7 @@ export const NotificationHistoryList = () => {
             event: payload.eventType,
             table: 'notifications',
             timestamp: new Date().toISOString(),
-            record_id: (payload.new as any)?.id || (payload.old as any)?.id || 'unknown'
+            record_id: payload.new?.id || payload.old?.id || 'unknown'
           });
           
           // Invalidate queries to trigger refetch
@@ -100,7 +100,7 @@ export const NotificationHistoryList = () => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6 max-w-4xl mx-auto">
       <NotificationHeader 
         totalCount={totalCount}
         handleManualCheck={handleManualCheck}
@@ -117,12 +117,19 @@ export const NotificationHistoryList = () => {
       {notifications.length === 0 ? (
         <EmptyState />
       ) : (
-        <>
-          <NotificationTable 
-            notifications={notifications}
-            handleViewDetails={handleViewDetails}
-          />
+        <div className="space-y-4">
+          {/* Notification Cards */}
+          <div className="space-y-3">
+            {notifications.map((notification) => (
+              <MinimalNotificationCard
+                key={notification.id}
+                notification={notification}
+                onViewDetails={handleViewDetails}
+              />
+            ))}
+          </div>
 
+          {/* Pagination */}
           {totalPages > 1 && (
             <NotificationPagination 
               currentPage={currentPage}
@@ -131,7 +138,7 @@ export const NotificationHistoryList = () => {
               onPageChange={handlePageChange}
             />
           )}
-        </>
+        </div>
       )}
     </div>
   );

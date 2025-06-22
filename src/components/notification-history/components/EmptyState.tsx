@@ -1,17 +1,21 @@
 
 import React from "react";
-import { Bell } from "lucide-react";
+import { Bell, Search } from "lucide-react";
 
 export function EmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center py-16 bg-white rounded-lg shadow-sm">
-      <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center">
-        <Bell className="h-6 w-6 text-gray-400" />
+    <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
+      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <Bell className="h-8 w-8 text-gray-400" />
       </div>
-      <h3 className="mt-4 text-lg font-medium text-gray-900">ไม่พบประวัติการแจ้งเตือน</h3>
-      <p className="mt-1 text-sm text-gray-500 text-center max-w-sm">
-        ยังไม่มีประวัติการแจ้งเตือนในระบบ หรือการแจ้งเตือนทั้งหมดถูกลบไปแล้ว
+      <h3 className="text-lg font-medium text-gray-900 mb-2">ไม่พบการแจ้งเตือน</h3>
+      <p className="text-gray-600 mb-6 max-w-sm mx-auto">
+        ยังไม่มีประวัติการแจ้งเตือนที่ตรงกับเงื่อนไขที่กำหนด
       </p>
+      <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
+        <Search className="h-4 w-4" />
+        <span>ลองปรับเงื่อนไขการค้นหาหรือตรวจสอบการแจ้งเตือนใหม่</span>
+      </div>
     </div>
   );
 }
