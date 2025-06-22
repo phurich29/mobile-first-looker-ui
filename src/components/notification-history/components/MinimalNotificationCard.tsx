@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -70,29 +71,29 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
   const getThresholdColor = (type: string) => {
     switch (type.toLowerCase()) {
       case 'max':
-        return 'bg-red-50 text-red-700 border-red-200';
+        return 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-800';
       case 'min':
-        return 'bg-orange-50 text-orange-700 border-orange-200';
+        return 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950 dark:text-orange-300 dark:border-orange-800';
       default:
-        return 'bg-gray-50 text-gray-700 border-gray-200';
+        return 'bg-muted text-muted-foreground border-muted-foreground/20';
     }
   };
 
   const getValueColor = (type: string) => {
     switch (type.toLowerCase()) {
       case 'max':
-        return 'text-red-600 font-semibold';
+        return 'text-red-600 font-semibold dark:text-red-400';
       case 'min':
-        return 'text-orange-600 font-semibold';
+        return 'text-orange-600 font-semibold dark:text-orange-400';
       default:
-        return 'text-gray-600 font-semibold';
+        return 'text-muted-foreground font-semibold';
     }
   };
 
   const iconColor = getIconColor(notification.threshold_type);
 
   return (
-    <Card className="p-4 hover:shadow-md transition-all duration-200 bg-white">
+    <Card className="p-4 hover:shadow-md transition-all duration-200 bg-card border-border hover:bg-accent/5 dark:hover:bg-accent/10">
       <div className="flex items-start justify-between">
         <div className="flex items-start space-x-3 flex-1">
           {/* Icon with same style as NotificationIcon */}
@@ -110,7 +111,7 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
           {/* Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-2 mb-1">
-              <h3 className="text-sm font-medium text-gray-900 truncate">
+              <h3 className="text-sm font-medium text-foreground truncate">
                 {notification.rice_type_id}
               </h3>
               <Badge 
@@ -121,13 +122,13 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
               </Badge>
             </div>
             
-            <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+            <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
               {notification.notification_message}
             </p>
             
-            <div className="flex items-center space-x-4 text-xs text-gray-500">
+            <div className="flex items-center space-x-4 text-xs text-muted-foreground">
               <div className="flex items-center space-x-1">
-                <span className="font-mono text-gray-700">{notification.device_code}</span>
+                <span className="font-mono text-foreground">{notification.device_code}</span>
               </div>
               <div className="flex items-center space-x-1">
                 <Clock className="h-3 w-3" />
@@ -135,7 +136,7 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
               </div>
               {notification.notification_count > 1 && (
                 <div className="flex items-center space-x-1">
-                  <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs">
+                  <span className="bg-muted text-muted-foreground px-2 py-0.5 rounded-full text-xs">
                     {notification.notification_count} ครั้ง
                   </span>
                 </div>
@@ -153,7 +154,7 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
             variant="ghost"
             size="sm"
             onClick={() => onViewDetails(notification.device_code, notification.rice_type_id)}
-            className="text-xs text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+            className="text-xs text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:text-purple-400 dark:hover:text-purple-300 dark:hover:bg-purple-950"
           >
             <Eye className="h-3 w-3 mr-1" />
             ดูข้อมูล
