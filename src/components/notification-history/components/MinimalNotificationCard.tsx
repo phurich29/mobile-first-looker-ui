@@ -1,4 +1,5 @@
 
+
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -60,50 +61,50 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
   const getIconColor = (type: string) => {
     switch (type.toLowerCase()) {
       case 'max':
-        return '#ef4444'; // red-500
+        return '#10b981'; // emerald-500 - green tone
       case 'min':
-        return '#f97316'; // orange-500
+        return '#059669'; // emerald-600 - darker green
       default:
-        return '#8b5cf6'; // purple-500
+        return '#16a34a'; // green-600 - balanced green
     }
   };
 
   const getThresholdColor = (type: string) => {
     switch (type.toLowerCase()) {
       case 'max':
-        return 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-800';
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800';
       case 'min':
-        return 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950 dark:text-orange-300 dark:border-orange-800';
+        return 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-800';
       default:
-        return 'bg-muted text-muted-foreground border-muted-foreground/20';
+        return 'bg-lime-50 text-lime-700 border-lime-200 dark:bg-lime-950 dark:text-lime-300 dark:border-lime-800';
     }
   };
 
   const getValueColor = (type: string) => {
     switch (type.toLowerCase()) {
       case 'max':
-        return 'text-red-600 font-semibold dark:text-red-400';
+        return 'text-emerald-600 font-semibold dark:text-emerald-400';
       case 'min':
-        return 'text-orange-600 font-semibold dark:text-orange-400';
+        return 'text-green-600 font-semibold dark:text-green-400';
       default:
-        return 'text-muted-foreground font-semibold';
+        return 'text-lime-600 font-semibold dark:text-lime-400';
     }
   };
 
   const iconColor = getIconColor(notification.threshold_type);
 
   return (
-    <Card className="p-4 hover:shadow-md transition-all duration-200 bg-card border-border hover:bg-accent/5 dark:hover:bg-accent/10">
+    <Card className="p-4 hover:shadow-md transition-all duration-200 bg-green-50/30 border-green-100 hover:bg-green-50/50 dark:bg-green-950/20 dark:border-green-800/30 dark:hover:bg-green-950/40">
       <div className="flex items-start justify-between">
         <div className="flex items-start space-x-3 flex-1">
-          {/* Icon with same style as NotificationIcon */}
+          {/* Icon with rice-themed green colors */}
           <div className="relative flex-shrink-0">
             <div 
               className="w-12 h-12 rounded-full flex items-center justify-center shadow-md relative overflow-hidden"
               style={{ background: `linear-gradient(135deg, ${iconColor}, ${iconColor}cc)` }}
             >
-              <div className="absolute inset-0 bg-white/10"></div>
-              <div className="absolute top-0 left-0 w-3 h-3 bg-white/30 rounded-full blur-sm"></div>
+              <div className="absolute inset-0 bg-green-100/20"></div>
+              <div className="absolute top-0 left-0 w-3 h-3 bg-green-200/40 rounded-full blur-sm"></div>
               {getThresholdIcon(notification.threshold_type, notification.rice_type_id)}
             </div>
           </div>
@@ -111,7 +112,7 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
           {/* Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-2 mb-1">
-              <h3 className="text-sm font-medium text-foreground truncate">
+              <h3 className="text-sm font-medium text-green-800 dark:text-green-200 truncate">
                 {notification.rice_type_id}
               </h3>
               <Badge 
@@ -122,13 +123,13 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
               </Badge>
             </div>
             
-            <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
+            <p className="text-xs text-green-600 dark:text-green-400 mb-2 line-clamp-2">
               {notification.notification_message}
             </p>
             
-            <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+            <div className="flex items-center space-x-4 text-xs text-green-500 dark:text-green-400">
               <div className="flex items-center space-x-1">
-                <span className="font-mono text-foreground">{notification.device_code}</span>
+                <span className="font-mono text-green-700 dark:text-green-300">{notification.device_code}</span>
               </div>
               <div className="flex items-center space-x-1">
                 <Clock className="h-3 w-3" />
@@ -136,7 +137,7 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
               </div>
               {notification.notification_count > 1 && (
                 <div className="flex items-center space-x-1">
-                  <span className="bg-muted text-muted-foreground px-2 py-0.5 rounded-full text-xs">
+                  <span className="bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-200 px-2 py-0.5 rounded-full text-xs">
                     {notification.notification_count} ครั้ง
                   </span>
                 </div>
@@ -154,7 +155,7 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
             variant="ghost"
             size="sm"
             onClick={() => onViewDetails(notification.device_code, notification.rice_type_id)}
-            className="text-xs text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:text-purple-400 dark:hover:text-purple-300 dark:hover:bg-purple-950"
+            className="text-xs text-green-600 hover:text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:text-green-300 dark:hover:bg-green-950"
           >
             <Eye className="h-3 w-3 mr-1" />
             ดูข้อมูล
@@ -164,3 +165,4 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
     </Card>
   );
 };
+
