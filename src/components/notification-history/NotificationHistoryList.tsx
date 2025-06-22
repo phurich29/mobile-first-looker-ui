@@ -45,7 +45,7 @@ export const NotificationHistoryList = () => {
             event: payload.eventType,
             table: payload.table,
             timestamp: new Date().toISOString(),
-            record_id: payload.new?.id || payload.old?.id
+            record_id: payload.new?.id || payload.old?.id || 'unknown'
           });
           
           // Invalidate queries to trigger refetch
