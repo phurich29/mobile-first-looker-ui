@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -92,17 +93,17 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
   const iconColor = getIconColor(notification.threshold_type);
 
   return (
-    <Card className="p-4 hover:shadow-md transition-all duration-200 bg-white border-green-100 hover:bg-green-50/20 dark:bg-gray-900 dark:border-green-800/30 dark:hover:bg-green-950/20">
+    <Card className="p-4 transition-all duration-200 bg-white/80 backdrop-blur-sm border border-emerald-200/50 shadow-sm hover:shadow-md hover:bg-white/90 hover:border-emerald-300/60 dark:bg-slate-900/80 dark:border-emerald-800/30 dark:hover:bg-slate-900/90 dark:hover:border-emerald-700/40">
       <div className="flex items-start justify-between">
         <div className="flex items-start space-x-3 flex-1">
           {/* Icon with rice-themed green colors */}
           <div className="relative flex-shrink-0">
             <div 
-              className="w-12 h-12 rounded-full flex items-center justify-center shadow-md relative overflow-hidden"
+              className="w-12 h-12 rounded-full flex items-center justify-center shadow-md relative overflow-hidden backdrop-blur-sm"
               style={{ background: `linear-gradient(135deg, ${iconColor}, ${iconColor}cc)` }}
             >
-              <div className="absolute inset-0 bg-green-100/20"></div>
-              <div className="absolute top-0 left-0 w-3 h-3 bg-green-200/40 rounded-full blur-sm"></div>
+              <div className="absolute inset-0 bg-white/10"></div>
+              <div className="absolute top-0 left-0 w-3 h-3 bg-white/30 rounded-full blur-sm"></div>
               {getThresholdIcon(notification.threshold_type, notification.rice_type_id)}
             </div>
           </div>
@@ -110,24 +111,24 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
           {/* Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-2 mb-1">
-              <h3 className="text-sm font-medium text-green-800 dark:text-green-200 truncate">
+              <h3 className="text-sm font-medium text-emerald-800 dark:text-emerald-200 truncate">
                 {notification.rice_type_id}
               </h3>
               <Badge 
                 variant="outline" 
-                className={cn("text-xs", getThresholdColor(notification.threshold_type))}
+                className={cn("text-xs backdrop-blur-sm", getThresholdColor(notification.threshold_type))}
               >
                 {notification.threshold_type === 'max' ? 'เกินค่าสูงสุด' : 'ต่ำกว่าค่าต่ำสุด'}
               </Badge>
             </div>
             
-            <p className="text-xs text-green-600 dark:text-green-400 mb-2 line-clamp-2">
+            <p className="text-xs text-emerald-600 dark:text-emerald-400 mb-2 line-clamp-2">
               {notification.notification_message}
             </p>
             
-            <div className="flex items-center space-x-4 text-xs text-green-500 dark:text-green-400">
+            <div className="flex items-center space-x-4 text-xs text-emerald-500 dark:text-emerald-400">
               <div className="flex items-center space-x-1">
-                <span className="font-mono text-green-700 dark:text-green-300">{notification.device_code}</span>
+                <span className="font-mono text-emerald-700 dark:text-emerald-300">{notification.device_code}</span>
               </div>
               <div className="flex items-center space-x-1">
                 <Clock className="h-3 w-3" />
@@ -135,7 +136,7 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
               </div>
               {notification.notification_count > 1 && (
                 <div className="flex items-center space-x-1">
-                  <span className="bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-200 px-2 py-0.5 rounded-full text-xs">
+                  <span className="bg-emerald-100 text-emerald-700 dark:bg-emerald-800 dark:text-emerald-200 px-2 py-0.5 rounded-full text-xs backdrop-blur-sm">
                     {notification.notification_count} ครั้ง
                   </span>
                 </div>
@@ -153,7 +154,7 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
             variant="ghost"
             size="sm"
             onClick={() => onViewDetails(notification.device_code, notification.rice_type_id)}
-            className="text-xs text-green-600 hover:text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:text-green-300 dark:hover:bg-green-950"
+            className="text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50/60 dark:text-emerald-400 dark:hover:text-emerald-300 dark:hover:bg-emerald-950/40 backdrop-blur-sm"
           >
             <Eye className="h-3 w-3 mr-1" />
             ดูข้อมูล
