@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -93,7 +92,7 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
   const iconColor = getIconColor(notification.threshold_type);
 
   return (
-    <Card className="p-4 hover:shadow-md transition-all duration-200 border-l-4 border-l-purple-200 bg-white">
+    <Card className="p-4 hover:shadow-md transition-all duration-200 bg-white">
       <div className="flex items-start justify-between">
         <div className="flex items-start space-x-3 flex-1">
           {/* Icon with same style as NotificationIcon */}
