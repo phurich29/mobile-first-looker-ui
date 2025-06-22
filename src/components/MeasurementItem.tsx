@@ -50,13 +50,20 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
     enabled
   });
   
+  // กำหนดสีพื้นหลังตามประเภทของการวัด
+  const bgColor = symbol.includes('BTC') ? 'bg-amber-50' : 
+                symbol.includes('ETH') ? 'bg-blue-50' : 
+                symbol.includes('BNB') ? 'bg-yellow-50' :
+                symbol.includes('XRP') ? 'bg-indigo-50' :
+                symbol.includes('LTC') ? 'bg-gray-50' : 'bg-purple-50';
+
   return (
     <>
       <div 
-        className={`flex items-center justify-between p-4 border-b border-emerald-200/50 bg-white/80 backdrop-blur-sm dark:bg-slate-900/80 dark:border-emerald-800/30 hover:bg-white/90 hover:border-emerald-300/60 dark:hover:bg-slate-900/90 dark:hover:border-emerald-700/40 transition-all duration-300 relative overflow-hidden ${deviceCode ? 'cursor-pointer active:bg-emerald-50/50 dark:active:bg-emerald-950/30' : ''} ${isAlertActive ? 'bg-red-50/90 dark:bg-red-900/50' : ''}`}
+        className={`flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700 ${bgColor} dark:bg-gray-800 hover:brightness-95 dark:hover:brightness-110 transition-all duration-300 relative overflow-hidden ${deviceCode ? 'cursor-pointer active:bg-gray-100 dark:active:bg-gray-700' : ''} ${isAlertActive ? 'bg-red-50/90 dark:bg-red-900/50' : ''}`}
       >
         {/* เพิ่มองค์ประกอบด้านหลังเพื่อความมีมิติ */}
-        <div className="absolute inset-0 w-full h-full bg-white/10 backdrop-blur-sm dark:bg-slate-800/10"></div>
+        <div className="absolute inset-0 w-full h-full bg-white dark:bg-gray-800 opacity-80 dark:opacity-50"></div>
         
         <div className="flex items-center relative z-10">
           <NotificationIcon 
@@ -69,9 +76,9 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
           <div className="px-3 py-2 flex-1">
             <div className="flex flex-col">
               <div className="flex flex-col">
-                <h3 className="font-bold text-base text-black dark:text-white">{name}</h3>
+                <h3 className="font-bold text-base text-gray-800 dark:text-gray-200">{name}</h3>
                 <div className="flex items-center">
-                  <span className="text-xs text-black dark:text-gray-300">{symbol}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{symbol}</span>
                   <NotificationText 
                     enabled={enabled}
                     notificationType={notificationType}
@@ -80,7 +87,7 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
                 </div>
               </div>
               {deviceName && (
-                <span className="text-xs text-black dark:text-gray-300 mt-0.5">{deviceName}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{deviceName}</span>
               )}
             </div>
           </div>
