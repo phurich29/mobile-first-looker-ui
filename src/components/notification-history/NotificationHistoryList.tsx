@@ -8,13 +8,16 @@ import { NotificationPagination } from "./components/NotificationPagination";
 import { EmptyState } from "./components/EmptyState";
 import { LoadingState } from "./components/LoadingState";
 import { useNotificationHistory } from "./hooks/useNotificationHistory";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const NotificationHistoryList = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const {
     notifications,
     isLoading,
     isFetching,
+    error,
     totalCount,
     totalPages,
     currentPage,
@@ -25,11 +28,12 @@ export const NotificationHistoryList = () => {
     refetch
   } = useNotificationHistory();
 
-  // Subscribe to real-time notification changes
+  // Enhanced real-time subscription
   useEffect(() => {
-    // Set up subscription to notifications table
+    console.log("🔗 Setting up real-time subscription");
+    
     const channel = supabase
-      .channel('notification_updates')
+      .channel('notification_updates_main')
       .on('postgres_changes', 
         { 
           event: '*', 
@@ -37,22 +41,59 @@ export const NotificationHistoryList = () => {
           table: 'notifications' 
         }, 
         (payload) => {
-          console.log('Real-time notification update:', payload);
-          // Trigger a refetch when notifications change
-          refetch();
+          console.log('🔔 Real-time notification update received:', {
+            event: payload.eventType,
+            table: payload.table,
+            timestamp: new Date().toISOString(),
+            record_id: payload.new?.id || payload.old?.id
+          });
+          
+          // Invalidate queries to trigger refetch
+          queryClient.invalidateQueries({ queryKey: ['notification_history'] });
+          queryClient.invalidateQueries({ queryKey: ['notifications'] });
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('📡 Realtime subscription status:', status);
+      });
       
-    // Clean up subscription on component unmount
     return () => {
+      console.log("🔗 Cleaning up real-time subscription");
       supabase.removeChannel(channel);
     };
-  }, [refetch]);
+  }, [queryClient]);
+
+  // Error logging
+  useEffect(() => {
+    if (error) {
+      console.error("🚨 NotificationHistoryList error:", error);
+    }
+  }, [error]);
 
   const handleViewDetails = (deviceCode: string, riceTypeId: string) => {
+    console.log("📱 Navigate to device details:", deviceCode);
     navigate(`/device/${deviceCode}`);
   };
+
+  if (isLoading) {
+    return <LoadingState />;
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <div className="text-red-600 mb-4">
+          เกิดข้อผิดพลาดในการโหลดข้อมูล
+        </div>
+        <button 
+          onClick={handleRefresh}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          ลองใหม่
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -64,9 +105,7 @@ export const NotificationHistoryList = () => {
         isFetching={isFetching}
       />
 
-      {isLoading ? (
-        <LoadingState />
-      ) : notifications.length === 0 ? (
+      {notifications.length === 0 ? (
         <EmptyState />
       ) : (
         <>
@@ -75,12 +114,14 @@ export const NotificationHistoryList = () => {
             handleViewDetails={handleViewDetails}
           />
 
-          <NotificationPagination 
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalCount={totalCount}
-            onPageChange={handlePageChange}
-          />
+          {totalPages > 1 && (
+            <NotificationPagination 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalCount={totalCount}
+              onPageChange={handlePageChange}
+            />
+          )}
         </>
       )}
     </div>
