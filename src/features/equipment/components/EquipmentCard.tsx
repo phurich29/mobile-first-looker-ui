@@ -13,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-
 interface EquipmentCardProps {
   deviceCode: string;
   lastUpdated: string | null;
@@ -21,36 +20,35 @@ interface EquipmentCardProps {
   displayName?: string;
   onDeviceUpdated?: () => void;
 }
-
-export function EquipmentCard({ 
-  deviceCode, 
-  lastUpdated, 
-  isAdmin = false, 
+export function EquipmentCard({
+  deviceCode,
+  lastUpdated,
+  isAdmin = false,
   displayName,
   onDeviceUpdated
 }: EquipmentCardProps) {
   const [isUsersDialogOpen, setIsUsersDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [newDisplayName, setNewDisplayName] = useState(displayName || deviceCode);
-  const { toast } = useToast();
-  
-  // Format the last updated time to show exact date and time with +7 hours
-  const formattedTime = lastUpdated 
-    ? (() => {
-        const date = new Date(lastUpdated);
-        // เพิ่มเวลาอีก 7 ชั่วโมง
-        date.setHours(date.getHours() + 7);
-        return format(date, "dd MMM yy HH:mm น.", { locale: th });
-      })()
-    : "ไม่มีข้อมูล";
+  const {
+    toast
+  } = useToast();
 
+  // Format the last updated time to show exact date and time with +7 hours
+  const formattedTime = lastUpdated ? (() => {
+    const date = new Date(lastUpdated);
+    // เพิ่มเวลาอีก 7 ชั่วโมง
+    date.setHours(date.getHours() + 7);
+    return format(date, "dd MMM yy HH:mm น.", {
+      locale: th
+    });
+  })() : "ไม่มีข้อมูล";
   const isRecentUpdate = (() => {
     if (!lastUpdated) return false;
     try {
       // สร้าง Date object จาก lastUpdated และปรับเขตเวลา +7 ชั่วโมง
       const adjustedLastUpdateDate = new Date(lastUpdated);
       adjustedLastUpdateDate.setHours(adjustedLastUpdateDate.getHours() + 7);
-
       if (isNaN(adjustedLastUpdateDate.getTime())) {
         console.warn("Invalid adjustedLastUpdateDate date string:", lastUpdated);
         return false;
@@ -67,47 +65,37 @@ export function EquipmentCard({
       return false;
     }
   })();
-
-  const timeClasses = isRecentUpdate
-    ? "font-bold text-green-700 bg-yellow-200 dark:text-green-300 dark:bg-yellow-600/40 px-1.5 py-0.5 rounded-md"
-    : "font-medium text-gray-800 dark:text-teal-200";
-
+  const timeClasses = isRecentUpdate ? "font-bold text-green-700 bg-yellow-200 dark:text-green-300 dark:bg-yellow-600/40 px-1.5 py-0.5 rounded-md" : "font-medium text-gray-800 dark:text-teal-200";
   const handleSaveDisplayName = async () => {
     try {
       // Check if there is already a record for this device
-      const { data: existingSettings } = await supabase
-        .from('device_settings')
-        .select('*')
-        .eq('device_code', deviceCode)
-        .maybeSingle();
-      
+      const {
+        data: existingSettings
+      } = await supabase.from('device_settings').select('*').eq('device_code', deviceCode).maybeSingle();
       if (existingSettings) {
         // Update existing record
-        const { error } = await supabase
-          .from('device_settings')
-          .update({ display_name: newDisplayName })
-          .eq('device_code', deviceCode);
-        
+        const {
+          error
+        } = await supabase.from('device_settings').update({
+          display_name: newDisplayName
+        }).eq('device_code', deviceCode);
         if (error) throw error;
       } else {
         // Create new record
-        const { error } = await supabase
-          .from('device_settings')
-          .insert({ 
-            device_code: deviceCode, 
-            display_name: newDisplayName 
-          });
-        
+        const {
+          error
+        } = await supabase.from('device_settings').insert({
+          device_code: deviceCode,
+          display_name: newDisplayName
+        });
         if (error) throw error;
       }
-      
       toast({
         title: "บันทึกสำเร็จ",
         description: "ชื่ออุปกรณ์ถูกอัพเดทเรียบร้อยแล้ว"
       });
-      
       setIsEditDialogOpen(false);
-      
+
       // Trigger refresh if callback is provided
       if (onDeviceUpdated) {
         onDeviceUpdated();
@@ -121,9 +109,7 @@ export function EquipmentCard({
       });
     }
   };
-  
-  return (
-    <>
+  return <>
       <Card className="duration-300 border border-gray-200 dark:border-gray-700 bg-emerald-100 dark:bg-emerald-800 bg-[linear-gradient(rgba(255,255,255,0.98),rgba(255,255,255,0.98)),url('/lovable-uploads/6b12828f-a844-4f45-be72-ca664963430d.png')] bg-repeat shadow-none">
         <CardHeader className="pb-1 p-2 sm:p-4">
           <div className="flex flex-row items-start gap-2 sm:gap-3">
@@ -138,16 +124,9 @@ export function EquipmentCard({
                 <CardTitle className="text-sm font-bold text-gray-900 dark:text-white truncate pr-1">
                   {displayName || deviceCode}
                 </CardTitle>
-                {isAdmin && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className="h-6 w-6 p-0 ml-1 flex-shrink-0 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                    onClick={() => setIsUsersDialogOpen(true)}
-                  >
+                {isAdmin && <Button variant="ghost" size="sm" className="h-6 w-6 p-0 ml-1 flex-shrink-0 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" onClick={() => setIsUsersDialogOpen(true)}>
                     <Users className="h-4 w-4" />
-                  </Button>
-                )}
+                  </Button>}
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400 mt-0 sm:mt-0.5 truncate">
                 รหัส: {deviceCode}
@@ -161,53 +140,35 @@ export function EquipmentCard({
               <Clock className="h-3.5 w-3.5 mr-1.5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
               <div className="flex flex-col">
                 <span className={timeClasses}>{formattedTime}</span>
-                {isRecentUpdate ? ( // isRecentUpdate ตอนนี้อ้างอิงตามเงื่อนไข 30 นาที
-                  <span className="text-xs text-green-600 dark:text-green-400">
+                {isRecentUpdate ?
+              // isRecentUpdate ตอนนี้อ้างอิงตามเงื่อนไข 30 นาที
+              <span className="text-xs text-green-600 dark:text-green-400">
                     (ใน 30 นาที)
-                  </span>
-                ) : null}
+                  </span> : null}
               </div>
-              {isRecentUpdate ? (
-                <Circle className="h-4 w-4 ml-1.5 text-green-500 fill-green-500" />
-              ) : (
-                <Circle className="h-4 w-4 ml-1.5 text-red-500 fill-red-500" />
-              )}
+              {isRecentUpdate ? <Circle className="h-4 w-4 ml-1.5 text-green-500 fill-green-500" /> : <Circle className="h-4 w-4 ml-1.5 text-red-500 fill-red-500" />}
             </div>
           </div>
           
           <div className="flex flex-row gap-2 mt-2 sm:mt-3">
-            <Button 
-              variant="outline" 
-              className="flex-1 text-xs border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 h-8 px-2 rounded-md sm:h-9 sm:px-3"
-              asChild
-            >
-              <Link to={`/device/${deviceCode}`} onClick={() => { localStorage.setItem('lastViewedDeviceCode', deviceCode); }}>
+            <Button variant="outline" className="flex-1 text-xs border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 h-8 px-2 rounded-md sm:h-9 sm:px-3" asChild>
+              <Link to={`/device/${deviceCode}`} onClick={() => {
+              localStorage.setItem('lastViewedDeviceCode', deviceCode);
+            }}>
                 <BarChart className="h-3 w-3 mr-1" />
                 ดูข้อมูล
               </Link>
             </Button>
             
-            {isAdmin && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8 p-0 flex items-center justify-center rounded-md sm:h-9 sm:w-9 flex-shrink-0 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
-                onClick={() => setIsEditDialogOpen(true)}
-              >
+            {isAdmin && <Button variant="outline" size="icon" className="h-8 w-8 p-0 flex items-center justify-center rounded-md sm:h-9 sm:w-9 flex-shrink-0 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700" onClick={() => setIsEditDialogOpen(true)}>
                 <Settings className="h-3.5 w-3.5" />
-              </Button>
-            )}
+              </Button>}
           </div>
         </CardContent>
       </Card>
       
-      {isAdmin && (
-        <>
-          <UserAccessDialog
-            deviceCode={deviceCode}
-            isOpen={isUsersDialogOpen}
-            onOpenChange={setIsUsersDialogOpen}
-          />
+      {isAdmin && <>
+          <UserAccessDialog deviceCode={deviceCode} isOpen={isUsersDialogOpen} onOpenChange={setIsUsersDialogOpen} />
           
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
             <DialogContent className="sm:max-w-md">
@@ -218,38 +179,23 @@ export function EquipmentCard({
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
                   <Label htmlFor="device-code">รหัสอุปกรณ์</Label>
-                  <Input 
-                    id="device-code" 
-                    value={deviceCode} 
-                    readOnly
-                    className="bg-muted"
-                  />
+                  <Input id="device-code" value={deviceCode} readOnly className="bg-muted" />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="display-name">ชื่อที่แสดง</Label>
-                  <Input 
-                    id="display-name" 
-                    value={newDisplayName}
-                    onChange={(e) => setNewDisplayName(e.target.value)}
-                    placeholder="ระบุชื่อที่ต้องการแสดง"
-                  />
+                  <Input id="display-name" value={newDisplayName} onChange={e => setNewDisplayName(e.target.value)} placeholder="ระบุชื่อที่ต้องการแสดง" />
                 </div>
               </div>
               
               <DialogFooter>
-                <Button 
-                  variant="outline"
-                  onClick={() => setIsEditDialogOpen(false)}
-                >
+                <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
                   ยกเลิก
                 </Button>
                 <Button onClick={handleSaveDisplayName}>บันทึก</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
-        </>
-      )}
-    </>
-  );
+        </>}
+    </>;
 }
