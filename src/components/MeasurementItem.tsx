@@ -69,9 +69,9 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
           <div className="px-3 py-2 flex-1">
             <div className="flex flex-col">
               <div className="flex flex-col">
-                <h3 className="font-bold text-base text-emerald-800 dark:text-emerald-200">{name}</h3>
+                <h3 className="font-bold text-base text-black dark:text-white">{name}</h3>
                 <div className="flex items-center">
-                  <span className="text-xs text-emerald-500 dark:text-emerald-400">{symbol}</span>
+                  <span className="text-xs text-black dark:text-gray-300">{symbol}</span>
                   <NotificationText 
                     enabled={enabled}
                     notificationType={notificationType}
@@ -80,7 +80,7 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
                 </div>
               </div>
               {deviceName && (
-                <span className="text-xs text-emerald-500 dark:text-emerald-400 mt-0.5">{deviceName}</span>
+                <span className="text-xs text-black dark:text-gray-300 mt-0.5">{deviceName}</span>
               )}
             </div>
           </div>
