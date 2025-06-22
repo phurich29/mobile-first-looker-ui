@@ -5,10 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { NotificationHeader } from "./components/NotificationHeader";
 import { NotificationTable } from "./components/NotificationTable";
 import { NotificationPagination } from "./components/NotificationPagination";
+import { NotificationFilters } from "./components/NotificationFilters";
 import { EmptyState } from "./components/EmptyState";
 import { LoadingState } from "./components/LoadingState";
 import { useNotificationHistory } from "./hooks/useNotificationHistory";
 import { useQueryClient } from "@tanstack/react-query";
+import { RealtimePayload } from "./types";
 
 export const NotificationHistoryList = () => {
   const navigate = useNavigate();
@@ -21,14 +23,16 @@ export const NotificationHistoryList = () => {
     totalCount,
     totalPages,
     currentPage,
+    filters,
     isCheckingNotifications,
     handleManualCheck,
     handleRefresh,
     handlePageChange,
+    handleFiltersChange,
     refetch
   } = useNotificationHistory();
 
-  // Enhanced real-time subscription
+  // Enhanced real-time subscription with proper typing
   useEffect(() => {
     console.log("🔗 Setting up real-time subscription");
     
@@ -40,12 +44,12 @@ export const NotificationHistoryList = () => {
           schema: 'public', 
           table: 'notifications' 
         }, 
-        (payload) => {
+        (payload: RealtimePayload) => {
           console.log('🔔 Real-time notification update received:', {
             event: payload.eventType,
-            table: payload.table,
+            table: 'notifications',
             timestamp: new Date().toISOString(),
-            record_id: payload.new?.id || payload.old?.id || 'unknown'
+            record_id: (payload.new as any)?.id || (payload.old as any)?.id || 'unknown'
           });
           
           // Invalidate queries to trigger refetch
@@ -103,6 +107,11 @@ export const NotificationHistoryList = () => {
         handleRefresh={handleRefresh}
         isCheckingNotifications={isCheckingNotifications}
         isFetching={isFetching}
+      />
+
+      <NotificationFilters 
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
       />
 
       {notifications.length === 0 ? (

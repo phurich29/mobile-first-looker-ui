@@ -3,29 +3,56 @@ import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Notification } from "../types";
+import { Notification, NotificationFilters } from "../types";
 
 export function useNotificationHistory() {
   const [currentPage, setCurrentPage] = useState(1);
+  const [filters, setFilters] = useState<NotificationFilters>({});
   const [isCheckingNotifications, setIsCheckingNotifications] = useState(false);
   const rowsPerPage = 10;
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Function to fetch notifications with proper error handling
+  // Function to fetch notifications with filters
   const fetchNotifications = useCallback(async (): Promise<{
     notifications: Notification[];
     totalCount: number;
     totalPages: number;
   }> => {
     try {
-      console.log("📊 Fetching notifications - Page:", currentPage, "Limit:", rowsPerPage);
+      console.log("📊 Fetching notifications - Page:", currentPage, "Filters:", filters);
       
-      // Fetch total count first
-      const { count, error: countError } = await supabase
+      // Build query with filters
+      let query = supabase
         .from("notifications")
-        .select("*", { count: "exact", head: true });
-        
+        .select("*", { count: "exact" });
+
+      // Apply filters
+      if (filters.deviceCode) {
+        query = query.ilike("device_code", `%${filters.deviceCode}%`);
+      }
+
+      if (filters.searchTerm) {
+        query = query.ilike("notification_message", `%${filters.searchTerm}%`);
+      }
+
+      if (filters.dateFrom) {
+        query = query.gte("timestamp", filters.dateFrom);
+      }
+
+      if (filters.dateTo) {
+        const dateTo = new Date(filters.dateTo);
+        dateTo.setHours(23, 59, 59, 999);
+        query = query.lte("timestamp", dateTo.toISOString());
+      }
+
+      if (filters.onlyUnread) {
+        query = query.eq("read", false);
+      }
+
+      // Get count first
+      const { count, error: countError } = await query;
+      
       if (countError) {
         console.error("❌ Count error:", countError);
         throw countError;
@@ -34,16 +61,12 @@ export function useNotificationHistory() {
       const totalCount = count || 0;
       const totalPages = Math.ceil(totalCount / rowsPerPage);
       
-      console.log("📈 Total notifications:", totalCount, "Total pages:", totalPages);
-      
-      // Calculate pagination range
+      // Calculate pagination
       const from = (currentPage - 1) * rowsPerPage;
       const to = from + rowsPerPage - 1;
       
-      // Fetch notifications with pagination
-      const { data, error } = await supabase
-        .from("notifications")
-        .select("*")
+      // Fetch actual data
+      const { data, error } = await query
         .order("timestamp", { ascending: false })
         .range(from, to);
         
@@ -72,7 +95,7 @@ export function useNotificationHistory() {
         totalPages: 0
       };
     }
-  }, [currentPage, rowsPerPage, toast]);
+  }, [currentPage, filters, rowsPerPage, toast]);
 
   // Use React Query for data management
   const { 
@@ -82,10 +105,10 @@ export function useNotificationHistory() {
     isFetching,
     error
   } = useQuery({
-    queryKey: ['notification_history', currentPage],
+    queryKey: ['notification_history', currentPage, filters],
     queryFn: fetchNotifications,
-    staleTime: 10000, // 10 seconds
-    refetchInterval: 30000, // 30 seconds
+    staleTime: 10000,
+    refetchInterval: 30000,
     refetchOnWindowFocus: true,
     retry: 2,
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
@@ -164,6 +187,13 @@ export function useNotificationHistory() {
     setCurrentPage(page);
   }, [totalPages, currentPage]);
 
+  // Filters change handler
+  const handleFiltersChange = useCallback((newFilters: NotificationFilters) => {
+    console.log("🔍 Filters changed:", newFilters);
+    setFilters(newFilters);
+    setCurrentPage(1); // Reset to first page when filters change
+  }, []);
+
   return {
     notifications,
     isLoading,
@@ -172,10 +202,12 @@ export function useNotificationHistory() {
     totalCount,
     totalPages,
     currentPage,
+    filters,
     isCheckingNotifications,
     handleManualCheck,
     handleRefresh,
     handlePageChange,
+    handleFiltersChange,
     refetch
   };
 }

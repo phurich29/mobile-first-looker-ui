@@ -13,3 +13,18 @@ export interface Notification {
   analysis_id?: number;
   user_id?: string;
 }
+
+export interface NotificationFilters {
+  deviceCode?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  searchTerm?: string;
+  onlyUnread?: boolean;
+}
+
+export interface RealtimePayload {
+  eventType: 'INSERT' | 'UPDATE' | 'DELETE';
+  table: string;
+  new?: Record<string, any>;
+  old?: Record<string, any>;
+}

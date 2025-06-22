@@ -1,9 +1,8 @@
 
 import React from "react";
-import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
-import { useIsMobile } from "@/hooks/use-mobile"; // Retained as it's used in JSX if needed, though AppLayout handles main responsive logic
-// Header and FooterNav are handled by AppLayout
-import { NotificationDebugger } from "@/components/notification-history/components/NotificationDebugger";
+import { AppLayout } from "@/components/layouts/app-layout";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { NotificationHistoryList } from "@/components/notification-history/NotificationHistoryList";
 import { BackgroundImage } from "@/components/graph-monitor/BackgroundImage";
 import { cn } from "@/lib/utils";
 
@@ -13,8 +12,7 @@ const NotificationHistory: React.FC = () => {
   return (
     <AppLayout showFooterNav={true}>
       <BackgroundImage />
-      {/* Main content container with original padding and max-width. Dynamic margins/paddings are now handled by AppLayout. */}
-      <div className={cn("relative z-10", /* overflow-x-hidden might be needed if content overflows */ )}>
+      <div className={cn("relative z-10")}>
         <div className="mx-auto max-w-7xl">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">ประวัติการแจ้งเตือน</h1>
@@ -24,7 +22,7 @@ const NotificationHistory: React.FC = () => {
           </div>
 
           <div className="mt-0">
-            <NotificationDebugger />
+            <NotificationHistoryList />
           </div>
         </div>
       </div>
