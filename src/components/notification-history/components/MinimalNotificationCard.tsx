@@ -1,5 +1,3 @@
-
-
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -94,7 +92,7 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
   const iconColor = getIconColor(notification.threshold_type);
 
   return (
-    <Card className="p-4 hover:shadow-md transition-all duration-200 bg-green-50/30 border-green-100 hover:bg-green-50/50 dark:bg-green-950/20 dark:border-green-800/30 dark:hover:bg-green-950/40">
+    <Card className="p-4 hover:shadow-md transition-all duration-200 bg-white border-green-100 hover:bg-green-50/20 dark:bg-gray-900 dark:border-green-800/30 dark:hover:bg-green-950/20">
       <div className="flex items-start justify-between">
         <div className="flex items-start space-x-3 flex-1">
           {/* Icon with rice-themed green colors */}
@@ -165,4 +163,3 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
     </Card>
   );
 };
-
