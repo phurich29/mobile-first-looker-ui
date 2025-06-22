@@ -3,7 +3,7 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Eye, Clock, AlertTriangle } from "lucide-react";
+import { Eye, Clock, AlertTriangle, Blend, Circle, Wheat } from "lucide-react";
 import { formatBangkokTime } from "@/components/measurement-history/api";
 import { Notification } from "../types";
 import { cn } from "@/lib/utils";
@@ -19,14 +19,52 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
 }) => {
   const { thaiDate, thaiTime } = formatBangkokTime(notification.timestamp);
   
-  const getThresholdIcon = (type: string) => {
+  const getThresholdIcon = (type: string, symbol: string) => {
+    // Get icon based on rice type symbol (same logic as NotificationIcon)
+    if (symbol === 'whole_kernels' ||
+        symbol === 'head_rice' ||
+        symbol === 'total_brokens' ||
+        symbol === 'small_brokens' ||
+        symbol === 'small_brokens_c1') {
+      return <Blend className="w-5 h-5 text-white" />;
+    }
+    
+    if (symbol === 'red_line_rate' ||
+        symbol === 'parboiled_red_line' ||
+        symbol === 'parboiled_white_rice' ||
+        symbol === 'honey_rice' ||
+        symbol === 'yellow_rice_rate' ||
+        symbol === 'black_kernel' ||
+        symbol === 'partly_black_peck' ||
+        symbol === 'partly_black' ||
+        symbol === 'imperfection_rate' ||
+        symbol === 'sticky_rice_rate' ||
+        symbol === 'impurity_num' ||
+        symbol === 'paddy_rate' ||
+        symbol === 'whiteness' ||
+        symbol === 'process_precision') {
+      return <Circle className="w-5 h-5 text-white" />;
+    }
+    
+    if (symbol.includes('class') || 
+        symbol === 'short_grain' || 
+        symbol === 'slender_kernel' ||
+        symbol.includes('ข้าว')) {
+      return <Wheat className="w-5 h-5 text-white" />;
+    }
+    
+    // Default for threshold alerts
+    return <AlertTriangle className="w-5 h-5 text-white" />;
+  };
+
+  const getIconColor = (type: string) => {
     switch (type.toLowerCase()) {
       case 'max':
-        return <AlertTriangle className="h-4 w-4 text-red-500" />;
+        return '#ef4444'; // red-500
       case 'min':
-        return <AlertTriangle className="h-4 w-4 text-orange-500" />;
+        return '#f97316'; // orange-500
       default:
-        return <AlertTriangle className="h-4 w-4 text-gray-500" />;
+        return '#8b5cf6'; // purple-500
     }
   };
 
@@ -52,13 +90,22 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
     }
   };
 
+  const iconColor = getIconColor(notification.threshold_type);
+
   return (
     <Card className="p-4 hover:shadow-md transition-all duration-200 border-l-4 border-l-purple-200 bg-white">
       <div className="flex items-start justify-between">
         <div className="flex items-start space-x-3 flex-1">
-          {/* Icon */}
-          <div className="flex-shrink-0 w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center">
-            {getThresholdIcon(notification.threshold_type)}
+          {/* Icon with same style as NotificationIcon */}
+          <div className="relative flex-shrink-0">
+            <div 
+              className="w-12 h-12 rounded-full flex items-center justify-center shadow-md relative overflow-hidden"
+              style={{ background: `linear-gradient(135deg, ${iconColor}, ${iconColor}cc)` }}
+            >
+              <div className="absolute inset-0 bg-white/10"></div>
+              <div className="absolute top-0 left-0 w-3 h-3 bg-white/30 rounded-full blur-sm"></div>
+              {getThresholdIcon(notification.threshold_type, notification.rice_type_id)}
+            </div>
           </div>
           
           {/* Content */}
