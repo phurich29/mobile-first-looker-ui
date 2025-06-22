@@ -6,67 +6,46 @@ import { Eye, Clock, AlertTriangle, Blend, Circle, Wheat } from "lucide-react";
 import { formatBangkokTime } from "@/components/measurement-history/api";
 import { Notification } from "../types";
 import { cn } from "@/lib/utils";
-
 interface MinimalNotificationCardProps {
   notification: Notification;
   onViewDetails: (deviceCode: string, riceTypeId: string) => void;
 }
-
 export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = ({
   notification,
   onViewDetails
 }) => {
-  const { thaiDate, thaiTime } = formatBangkokTime(notification.timestamp);
-  
+  const {
+    thaiDate,
+    thaiTime
+  } = formatBangkokTime(notification.timestamp);
   const getThresholdIcon = (type: string, symbol: string) => {
     // Get icon based on rice type symbol (same logic as NotificationIcon)
-    if (symbol === 'whole_kernels' ||
-        symbol === 'head_rice' ||
-        symbol === 'total_brokens' ||
-        symbol === 'small_brokens' ||
-        symbol === 'small_brokens_c1') {
+    if (symbol === 'whole_kernels' || symbol === 'head_rice' || symbol === 'total_brokens' || symbol === 'small_brokens' || symbol === 'small_brokens_c1') {
       return <Blend className="w-5 h-5 text-white" />;
     }
-    
-    if (symbol === 'red_line_rate' ||
-        symbol === 'parboiled_red_line' ||
-        symbol === 'parboiled_white_rice' ||
-        symbol === 'honey_rice' ||
-        symbol === 'yellow_rice_rate' ||
-        symbol === 'black_kernel' ||
-        symbol === 'partly_black_peck' ||
-        symbol === 'partly_black' ||
-        symbol === 'imperfection_rate' ||
-        symbol === 'sticky_rice_rate' ||
-        symbol === 'impurity_num' ||
-        symbol === 'paddy_rate' ||
-        symbol === 'whiteness' ||
-        symbol === 'process_precision') {
+    if (symbol === 'red_line_rate' || symbol === 'parboiled_red_line' || symbol === 'parboiled_white_rice' || symbol === 'honey_rice' || symbol === 'yellow_rice_rate' || symbol === 'black_kernel' || symbol === 'partly_black_peck' || symbol === 'partly_black' || symbol === 'imperfection_rate' || symbol === 'sticky_rice_rate' || symbol === 'impurity_num' || symbol === 'paddy_rate' || symbol === 'whiteness' || symbol === 'process_precision') {
       return <Circle className="w-5 h-5 text-white" />;
     }
-    
-    if (symbol.includes('class') || 
-        symbol === 'short_grain' || 
-        symbol === 'slender_kernel' ||
-        symbol.includes('ข้าว')) {
+    if (symbol.includes('class') || symbol === 'short_grain' || symbol === 'slender_kernel' || symbol.includes('ข้าว')) {
       return <Wheat className="w-5 h-5 text-white" />;
     }
-    
+
     // Default for threshold alerts
     return <AlertTriangle className="w-5 h-5 text-white" />;
   };
-
   const getIconColor = (type: string) => {
     switch (type.toLowerCase()) {
       case 'max':
-        return '#ef4444'; // red-500
+        return '#ef4444';
+      // red-500
       case 'min':
-        return '#f97316'; // orange-500
+        return '#f97316';
+      // orange-500
       default:
-        return '#8b5cf6'; // purple-500
+        return '#8b5cf6';
+      // purple-500
     }
   };
-
   const getThresholdColor = (type: string) => {
     switch (type.toLowerCase()) {
       case 'max':
@@ -77,7 +56,6 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
         return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
-
   const getValueColor = (type: string) => {
     switch (type.toLowerCase()) {
       case 'max':
@@ -88,19 +66,15 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
         return 'text-gray-600 font-semibold';
     }
   };
-
   const iconColor = getIconColor(notification.threshold_type);
-
-  return (
-    <Card className="p-4 hover:shadow-md transition-all duration-200 bg-white">
+  return <Card className="p-4 hover:shadow-md transition-all duration-200 bg-white">
       <div className="flex items-start justify-between">
         <div className="flex items-start space-x-3 flex-1">
           {/* Icon with same style as NotificationIcon */}
           <div className="relative flex-shrink-0">
-            <div 
-              className="w-12 h-12 rounded-full flex items-center justify-center shadow-md relative overflow-hidden"
-              style={{ background: `linear-gradient(135deg, ${iconColor}, ${iconColor}cc)` }}
-            >
+            <div className="w-12 h-12 rounded-full flex items-center justify-center shadow-md relative overflow-hidden" style={{
+            background: `linear-gradient(135deg, ${iconColor}, ${iconColor}cc)`
+          }}>
               <div className="absolute inset-0 bg-white/10"></div>
               <div className="absolute top-0 left-0 w-3 h-3 bg-white/30 rounded-full blur-sm"></div>
               {getThresholdIcon(notification.threshold_type, notification.rice_type_id)}
@@ -113,10 +87,7 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
               <h3 className="text-sm font-medium text-gray-900 truncate">
                 {notification.rice_type_id}
               </h3>
-              <Badge 
-                variant="outline" 
-                className={cn("text-xs", getThresholdColor(notification.threshold_type))}
-              >
+              <Badge variant="outline" className={cn("text-xs", getThresholdColor(notification.threshold_type))}>
                 {notification.threshold_type === 'max' ? 'เกินค่าสูงสุด' : 'ต่ำกว่าค่าต่ำสุด'}
               </Badge>
             </div>
@@ -133,13 +104,11 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
                 <Clock className="h-3 w-3" />
                 <span>{thaiDate} {thaiTime}</span>
               </div>
-              {notification.notification_count > 1 && (
-                <div className="flex items-center space-x-1">
+              {notification.notification_count > 1 && <div className="flex items-center space-x-1">
                   <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs">
                     {notification.notification_count} ครั้ง
                   </span>
-                </div>
-              )}
+                </div>}
             </div>
           </div>
         </div>
@@ -149,17 +118,11 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
           <div className={cn("text-lg font-mono", getValueColor(notification.threshold_type))}>
             {notification.value?.toFixed(2) || 'N/A'}%
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onViewDetails(notification.device_code, notification.rice_type_id)}
-            className="text-xs text-purple-600 hover:text-purple-700 hover:bg-purple-50"
-          >
+          <Button variant="ghost" size="sm" onClick={() => onViewDetails(notification.device_code, notification.rice_type_id)} className="text-xs hover:bg-purple-50 text-slate-950">
             <Eye className="h-3 w-3 mr-1" />
             ดูข้อมูล
           </Button>
         </div>
       </div>
-    </Card>
-  );
+    </Card>;
 };
