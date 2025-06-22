@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+
 interface EquipmentCardProps {
   deviceCode: string;
   lastUpdated: string | null;
@@ -20,6 +22,7 @@ interface EquipmentCardProps {
   displayName?: string;
   onDeviceUpdated?: () => void;
 }
+
 export function EquipmentCard({
   deviceCode,
   lastUpdated,
@@ -140,11 +143,6 @@ export function EquipmentCard({
               <Clock className="h-3.5 w-3.5 mr-1.5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
               <div className="flex flex-col">
                 <span className={timeClasses}>{formattedTime}</span>
-                {isRecentUpdate ?
-              // isRecentUpdate ตอนนี้อ้างอิงตามเงื่อนไข 30 นาที
-              <span className="text-xs text-green-600 dark:text-green-400">
-                    (ใน 30 นาที)
-                  </span> : null}
               </div>
               {isRecentUpdate ? <Circle className="h-4 w-4 ml-1.5 text-green-500 fill-green-500" /> : <Circle className="h-4 w-4 ml-1.5 text-red-500 fill-red-500" />}
             </div>
