@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye, EyeOff, Settings, Search, X } from "lucide-react";
+import { Eye, EyeOff, Settings, Search } from "lucide-react";
 import { Label } from "@/components/ui/label";
 
 interface Device {
@@ -192,21 +192,6 @@ export const GuestDeviceManagement = () => {
     });
   };
 
-  const handleRemoveDevice = (deviceCode: string) => {
-    // Remove device from the main list
-    const newDevices = devices.filter(d => d.device_code !== deviceCode);
-    setDevices(newDevices);
-
-    // Remove from guest access list
-    const newGuestAccess = guestAccess.filter(access => access.device_code !== deviceCode);
-    setGuestAccess(newGuestAccess);
-
-    toast({
-      title: "ลบอุปกรณ์สำเร็จ",
-      description: `ลบอุปกรณ์ ${deviceCode} แล้ว`,
-    });
-  };
-
   const handleToggleAccess = (deviceCode: string) => {
     setGuestAccess(prev =>
       prev.map(access =>
@@ -386,22 +371,12 @@ export const GuestDeviceManagement = () => {
                     </p>
                   )}
                 </div>
-                <div className="flex items-center space-x-2">
-                  <div className="flex-shrink-0">
-                    {isEnabled ? (
-                      <Eye className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                    ) : (
-                      <EyeOff className="h-4 w-4 text-gray-400" />
-                    )}
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleRemoveDevice(device.device_code)}
-                    className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                <div className="flex-shrink-0">
+                  {isEnabled ? (
+                    <Eye className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  ) : (
+                    <EyeOff className="h-4 w-4 text-gray-400" />
+                  )}
                 </div>
               </div>
             );
