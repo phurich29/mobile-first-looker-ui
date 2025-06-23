@@ -7,7 +7,6 @@ export const ROUTES = {
   
   // Public pages
   NEWS: '/news',
-  RICE_PRICES: '/rice-prices',
   
   // Equipment & Measurements
   EQUIPMENT: '/equipment',
@@ -35,7 +34,6 @@ export const ROUTES = {
   ADMIN: '/admin',
   USER_MANAGEMENT: '/user-management',
   DEVICE_MANAGEMENT: '/device-management',
-  RICE_PRICE_MANAGEMENT: '/rice-price-management',
   NEWS_MANAGEMENT: '/news-management',
   
   // Error pages

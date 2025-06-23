@@ -3,18 +3,34 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useEmblaCarousel from 'embla-carousel-react';
 import { AssetCard } from "@/components/AssetCard";
-import { RicePrice } from "@/features/user-management/types";
-import { formatPrice } from "@/features/rice-price/utils";
 import { useToast } from "@/components/ui/use-toast";
 
+// Define a simple rice price interface for sample data
+interface SampleRicePrice {
+  id: string;
+  name: string;
+  price: string;
+  document_date: string;
+  priceColor: string;
+  category: string;
+  created_at: string;
+  updated_at: string;
+}
+
 interface RicePriceCarouselProps {
-  ricePrices: RicePrice[] | undefined;
+  ricePrices?: SampleRicePrice[];
   isLoading: boolean;
   error: Error | null;
 }
 
-// Sample rice price data to display when no real data is available
-const SAMPLE_RICE_PRICES = [
+// Format price utility function
+const formatPrice = (price: string): string => {
+  if (!price || price === "-") return "-";
+  return price;
+};
+
+// Sample rice price data to display
+const SAMPLE_RICE_PRICES: SampleRicePrice[] = [
   {
     id: 'sample-1',
     name: 'ข้าวหอมมะลิ 100% ชั้น 2 (66/67)',
@@ -69,8 +85,7 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
-  const [hasData, setHasData] = useState(false);
-  const [displayData, setDisplayData] = useState<RicePrice[]>([]);
+  const [displayData, setDisplayData] = useState<SampleRicePrice[]>([]);
 
   // Format date for display in Thai format
   const formatThaiDate = (dateString: string) => {
@@ -87,29 +102,14 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
   };
 
   useEffect(() => {
-    // Log component render state for debugging
-    console.log("RicePriceCarousel rendered with:", {
-      hasRicePrices: ricePrices && ricePrices.length > 0,
-      ricePricesCount: ricePrices?.length,
-      isLoading,
-      error
-    });
-
-    // Check if we have data to display, if not use sample data
-    if (ricePrices && ricePrices.length > 0) {
-      setHasData(true);
-      setDisplayData(ricePrices);
-    } else {
-      // Use sample data when real data isn't available
-      setDisplayData(SAMPLE_RICE_PRICES as unknown as RicePrice[]);
-      setHasData(false);
-    }
+    // Always use sample data since rice price system is removed
+    setDisplayData(SAMPLE_RICE_PRICES);
 
     // Display a toast for error, only once per error
     if (error) {
       toast({
-        title: "ไม่สามารถโหลดข้อมูลราคาข้าวได้",
-        description: "กำลังแสดงข้อมูลตัวอย่างแทน",
+        title: "ระบบราคาข้าวถูกลบออกแล้ว",
+        description: "กำลังแสดงข้อมูลตัวอย่างเท่านั้น",
         variant: "default"
       });
     }
@@ -144,11 +144,10 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
   return (
     <>
       <div className="px-[5%] mb-3 flex justify-between items-center" style={{ width: '100%', boxSizing: 'border-box' }}>
-        <h2 className="font-semibold text-gray-700">ราคาข้าว จากสมาคมโรงสีข้าวไทย</h2>
-        <Link to="/rice-prices" className="text-sm text-green-600 font-medium">ดูทั้งหมด</Link>
+        <h2 className="font-semibold text-gray-700">ราคาข้าว (ข้อมูลตัวอย่าง)</h2>
+        <span className="text-sm text-gray-500">ระบบถูกลบออกแล้ว</span>
       </div>
       <div className="mb-3 relative" style={{ width: '100%' }}>
-        {/* กรอบบังคับขอบการเลื่อน */}
         <div className="overflow-hidden px-[5%] pt-3 pb-3" ref={emblaRef} style={{ width: '100%', boxSizing: 'border-box' }}>
           <div className="flex">
             {isLoading ? (
@@ -167,27 +166,17 @@ export const RicePriceCarousel = ({ ricePrices, isLoading, error }: RicePriceCar
                     iconColor={'#10b981'}
                     date={rice.document_date ? formatThaiDate(rice.document_date) : undefined}
                     priceColor={rice.priceColor}
-                    clickable={true}
-                    onClick={() => navigate('/rice-prices')}
+                    clickable={false}
                   />
                 </div>
               ))
             ) : (
-              // This state should no longer show as we'll always have sample data
               <div className="min-w-[190px] mr-3 p-4 bg-amber-50 rounded-xl text-center">
-                <p className="text-sm text-amber-700">ยังไม่มีข้อมูลราคาข้าว</p>
-                <button 
-                  className="mt-2 text-xs bg-emerald-500 text-white px-3 py-1 rounded-md hover:bg-emerald-600"
-                  onClick={() => window.location.reload()}
-                >
-                  รีเฟรช
-                </button>
+                <p className="text-sm text-amber-700">ระบบราคาข้าวถูกลบออกแล้ว</p>
               </div>
             )}
           </div>
         </div>
-        
-        {/* Scrollbar has been removed as requested */}
       </div>
     </>
   );

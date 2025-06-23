@@ -15,8 +15,6 @@ import NotFound from "./pages/NotFound";
 import Waiting from "./pages/Waiting";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
-import RicePrices from "./pages/RicePrices";
-import RicePriceManagement from "./pages/RicePriceManagement";
 import News from "./pages/News";
 import NewsManagement from "./pages/NewsManagement";
 import UserManagement from "./pages/UserManagement";
@@ -106,10 +104,6 @@ export const router = createBrowserRouter([
       {
         path: "news",
         element: <News />,
-      },
-      {
-        path: "rice-prices",
-        element: <RicePrices />,
       },
       // Logout route
       {
@@ -252,14 +246,6 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute requiredRoles={["admin"]}>
             <DeviceManagement />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "rice-price-management",
-        element: (
-          <ProtectedRoute requiredRoles={["admin"]}>
-            <RicePriceManagement />
           </ProtectedRoute>
         ),
       },
