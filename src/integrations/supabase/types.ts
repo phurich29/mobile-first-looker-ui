@@ -194,63 +194,6 @@ export type Database = {
         }
         Relationships: []
       }
-      rice_price_documents: {
-        Row: {
-          created_at: string | null
-          document_date: string
-          file_url: string
-          id: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          document_date: string
-          file_url: string
-          id?: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          document_date?: string
-          file_url?: string
-          id?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      rice_prices: {
-        Row: {
-          category: string
-          created_at: string | null
-          document_date: string | null
-          id: string
-          name: string
-          price: string | null
-          priceColor: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          category: string
-          created_at?: string | null
-          document_date?: string | null
-          id?: string
-          name: string
-          price?: string | null
-          priceColor?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          category?: string
-          created_at?: string | null
-          document_date?: string | null
-          id?: string
-          name?: string
-          price?: string | null
-          priceColor?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       rice_quality_analysis: {
         Row: {
           black_kernel: number | null

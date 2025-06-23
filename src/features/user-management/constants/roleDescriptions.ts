@@ -76,11 +76,6 @@ export const ROLE_DESCRIPTIONS: Record<string, RoleDescription> = {
         icon: Shield,
         description: "จัดการผู้ใช้ Superadmin",
         allowed: false
-      },
-      {
-        icon: TrendingUp,
-        description: "จัดการราคาข้าว",
-        allowed: false
       }
     ]
   },
@@ -102,11 +97,6 @@ export const ROLE_DESCRIPTIONS: Record<string, RoleDescription> = {
       {
         icon: Settings,
         description: "เปลี่ยนสิทธิ์ผู้ใช้ (รวมถึง Admin และ Superadmin)",
-        allowed: true
-      },
-      {
-        icon: TrendingUp,
-        description: "จัดการราคาข้าว",
         allowed: true
       },
       {
