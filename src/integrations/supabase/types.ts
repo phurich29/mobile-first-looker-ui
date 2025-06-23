@@ -42,6 +42,30 @@ export type Database = {
         }
         Relationships: []
       }
+      guest_device_access: {
+        Row: {
+          created_at: string
+          device_code: string
+          enabled: boolean
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          device_code: string
+          enabled?: boolean
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          device_code?: string
+          enabled?: boolean
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       news: {
         Row: {
           content: string

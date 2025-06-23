@@ -61,10 +61,15 @@ export const GuestDeviceManagement = () => {
 
       setDevices(devicesWithNames);
 
-      // Fetch guest access settings (we'll create this table)
-      const { data: guestData } = await supabase
+      // Fetch guest access settings
+      const { data: guestData, error: guestError } = await supabase
         .from('guest_device_access')
         .select('device_code, enabled');
+
+      if (guestError) {
+        console.error('Error fetching guest access data:', guestError);
+        // Don't throw here, just log and continue with empty guest data
+      }
 
       const guestAccessMap = new Map(
         guestData?.map(g => [g.device_code, g.enabled]) || []
@@ -103,10 +108,12 @@ export const GuestDeviceManagement = () => {
       setIsSaving(true);
 
       // Delete existing guest access settings
-      await supabase
+      const { error: deleteError } = await supabase
         .from('guest_device_access')
         .delete()
         .neq('device_code', '');
+
+      if (deleteError) throw deleteError;
 
       // Insert new settings
       const accessData = guestAccess
