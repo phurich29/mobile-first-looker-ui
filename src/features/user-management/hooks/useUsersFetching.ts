@@ -14,40 +14,41 @@ export function useUsersFetching() {
   // Check if current user is superadmin
   const isSuperAdmin = userRoles.includes('superadmin');
 
+  // Add fetchUsers function for external use
+  const fetchUsers = async () => {
+    if (!user || (!userRoles.includes('admin') && !userRoles.includes('superadmin'))) {
+      return;
+    }
+
+    try {
+      setIsLoadingUsers(true);
+      
+      // Use the service to fetch users
+      const usersWithRoles = await userService.fetchUsers();
+      
+      // Filter users based on current user's role
+      let filteredUsers = usersWithRoles;
+      
+      // If user is not a superadmin, filter out superadmins from the list
+      if (!isSuperAdmin) {
+        filteredUsers = usersWithRoles.filter(user => !user.roles.includes('superadmin'));
+      }
+      
+      setUsers(filteredUsers);
+    } catch (error: any) {
+      console.error('Error fetching users:', error.message);
+      toast({
+        title: "การโหลดข้อมูลผิดพลาด",
+        description: "ไม่สามารถโหลดข้อมูลผู้ใช้ได้",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
   // Fetch users and their roles
   useEffect(() => {
-    const fetchUsers = async () => {
-      if (!user || (!userRoles.includes('admin') && !userRoles.includes('superadmin'))) {
-        return;
-      }
-
-      try {
-        setIsLoadingUsers(true);
-        
-        // Use the service to fetch users
-        const usersWithRoles = await userService.fetchUsers();
-        
-        // Filter users based on current user's role
-        let filteredUsers = usersWithRoles;
-        
-        // If user is not a superadmin, filter out superadmins from the list
-        if (!isSuperAdmin) {
-          filteredUsers = usersWithRoles.filter(user => !user.roles.includes('superadmin'));
-        }
-        
-        setUsers(filteredUsers);
-      } catch (error: any) {
-        console.error('Error fetching users:', error.message);
-        toast({
-          title: "การโหลดข้อมูลผิดพลาด",
-          description: "ไม่สามารถโหลดข้อมูลผู้ใช้ได้",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoadingUsers(false);
-      }
-    };
-
     fetchUsers();
   }, [user, userRoles, toast, isSuperAdmin]);
 
@@ -56,5 +57,6 @@ export function useUsersFetching() {
     setUsers,
     isLoadingUsers,
     isSuperAdmin,
+    fetchUsers
   };
 }

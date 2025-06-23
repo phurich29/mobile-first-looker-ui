@@ -89,24 +89,6 @@ export async function removeUserRole(userId: string, role: UserRole) {
 }
 
 /**
- * Approve a user (add 'user' role and remove 'waiting_list' role)
- */
-export async function approveUser(userId: string) {
-  // First, add the 'user' role
-  try {
-    await addUserRole(userId, 'user');
-  } catch (error: any) {
-    // Ignore if role already exists
-    if (!error.message?.includes('already has role')) {
-      throw error;
-    }
-  }
-  
-  // Then remove the 'waiting_list' role
-  await removeUserRole(userId, 'waiting_list');
-}
-
-/**
  * Create a new user
  */
 export async function createUser(email: string, password: string) {
@@ -156,16 +138,4 @@ export async function deleteUser(userId: string) {
   const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
   
   if (error) throw error;
-}
-
-/**
- * Get users not in waiting list
- * Note: This is a placeholder for the edge function that will be created
- */
-export async function getUsersNotInWaitingList() {
-  // This would call the edge function
-  const { data, error } = await supabase.functions.invoke('get_users_not_in_waiting_list');
-  
-  if (error) throw error;
-  return data;
 }

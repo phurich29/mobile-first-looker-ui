@@ -49,7 +49,7 @@ export function useUserCrudOperations({
         title: "สร้างผู้ใช้สำเร็จ",
         description: isAdminOrSuperAdmin 
           ? "ผู้ใช้ใหม่ถูกสร้างและเพิ่มเข้าสู่ระบบพร้อมใช้งานทันที" 
-          : "ผู้ใช้ใหม่ถูกสร้างและเพิ่มเข้าสู่ waiting list รอการอนุมัติ",
+          : "ผู้ใช้ใหม่ถูกสร้างเรียบร้อยแล้ว",
       });
       
       // Close dialog

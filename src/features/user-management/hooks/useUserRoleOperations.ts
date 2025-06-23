@@ -93,7 +93,8 @@ export function useUserRoleOperations({
     }
   };
 
-  // Approve a user from waiting list (add 'user' role and remove 'waiting_list')
+  // Since waiting_list role is removed, we can simplify the approveUser function
+  // This function will just add 'user' role if the user doesn't have it
   const approveUser = async (userId: string) => {
     // Prevent approval of users with superadmin role by non-superadmins
     const targetUser = users.find(u => u.id === userId);
@@ -108,32 +109,39 @@ export function useUserRoleOperations({
 
     setIsProcessing(true);
     try {
-      // Use the service to approve the user
-      await userService.approveUser(userId);
-      
-      toast({
-        title: "อนุมัติผู้ใช้สำเร็จ",
-        description: "ผู้ใช้ได้รับการอนุมัติและสามารถใช้งานระบบได้แล้ว",
-      });
-      
-      // Refresh the users list
-      const updatedUsers = await Promise.all(
-        users.map(async (user) => {
-          if (user.id === userId) {
-            const roles = await userService.getUserRoles(userId);
-            return { ...user, roles: roles || [] };
-          }
-          return user;
-        })
-      );
-      
-      // Re-apply filtering for non-superadmins
-      let filteredUsers = updatedUsers;
-      if (!isSuperAdmin) {
-        filteredUsers = updatedUsers.filter(user => !user.roles.includes('superadmin'));
+      // Add 'user' role if not already present
+      if (!targetUser?.roles.includes('user')) {
+        await userService.addUserRole(userId, 'user');
+        
+        toast({
+          title: "อนุมัติผู้ใช้สำเร็จ",
+          description: "ผู้ใช้ได้รับการอนุมัติและสามารถใช้งานระบบได้แล้ว",
+        });
+        
+        // Refresh the users list
+        const updatedUsers = await Promise.all(
+          users.map(async (user) => {
+            if (user.id === userId) {
+              const roles = await userService.getUserRoles(userId);
+              return { ...user, roles: roles || [] };
+            }
+            return user;
+          })
+        );
+        
+        // Re-apply filtering for non-superadmins
+        let filteredUsers = updatedUsers;
+        if (!isSuperAdmin) {
+          filteredUsers = updatedUsers.filter(user => !user.roles.includes('superadmin'));
+        }
+        
+        setUsers(filteredUsers);
+      } else {
+        toast({
+          title: "ผู้ใช้ได้รับการอนุมัติแล้ว",
+          description: "ผู้ใช้นี้มีสิทธิ์ในการใช้งานระบบอยู่แล้ว",
+        });
       }
-      
-      setUsers(filteredUsers);
     } catch (error: any) {
       console.error('Error approving user:', error.message);
       toast({
