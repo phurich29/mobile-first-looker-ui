@@ -8,6 +8,7 @@ interface ProtectedRouteProps {
   requiredRoles?: string[];
   redirectTo?: string;
   allowUnauthenticated?: boolean;
+  allowGuest?: boolean; // New prop for guest access
   path?: string;
 }
 
@@ -16,6 +17,7 @@ export const ProtectedRoute = ({
   requiredRoles = [],
   redirectTo = "/login",
   allowUnauthenticated = false,
+  allowGuest = false, // Default false for backward compatibility
   path = window.location.pathname,
 }: ProtectedRouteProps) => {
   const { user, userRoles, isLoading } = useAuth();
@@ -26,6 +28,7 @@ export const ProtectedRoute = ({
   console.log("- User authenticated:", !!user);
   console.log("- Is still loading auth:", isLoading);
   console.log("- Allow unauthenticated:", allowUnauthenticated);
+  console.log("- Allow guest:", allowGuest);
 
   // If auth is still loading, show loading indicator
   if (isLoading) {
@@ -36,8 +39,14 @@ export const ProtectedRoute = ({
     );
   }
 
+  // If user not logged in and guest access is allowed, show page with guest permissions
+  if (!user && allowGuest) {
+    console.log("User not logged in but guest access allowed");
+    return <>{children}</>;
+  }
+
   // If user not logged in and not allowed unauthenticated access, redirect to login
-  if (!user && !allowUnauthenticated) {
+  if (!user && !allowUnauthenticated && !allowGuest) {
     console.log("User not logged in, redirecting to", redirectTo);
     return <Navigate to={redirectTo} replace />;
   }

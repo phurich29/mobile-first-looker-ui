@@ -25,9 +25,17 @@ export const DeviceList = () => {
   
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
+  const isGuest = !user; // Check if user is a guest
   
   useEffect(() => {
     const fetchDevices = async () => {
+      // For guest users, show empty state immediately
+      if (isGuest) {
+        setDevices([]);
+        setLoading(false);
+        return;
+      }
+
       if (!user) {
         setDevices([]);
         setLoading(false);
@@ -69,7 +77,7 @@ export const DeviceList = () => {
     };
     
     fetchDevices();
-  }, [user, isAdmin, isSuperAdmin, toast]);
+  }, [user, isAdmin, isSuperAdmin, isGuest, toast]);
   
   // Format the date to be more readable
   const formatUpdatedAt = (dateString: string) => {
@@ -116,7 +124,14 @@ export const DeviceList = () => {
       {devices.length === 0 ? (
         <Card className="bg-gray-50 border-dashed">
           <CardContent className="p-6 text-center">
-            <p className="text-gray-500">ไม่พบข้อมูลอุปกรณ์</p>
+            {isGuest ? (
+              <div>
+                <p className="text-gray-500 mb-2">คุณกำลังใช้งานในโหมด Guest</p>
+                <p className="text-sm text-gray-400">เข้าสู่ระบบเพื่อดูข้อมูลอุปกรณ์</p>
+              </div>
+            ) : (
+              <p className="text-gray-500">ไม่พบข้อมูลอุปกรณ์</p>
+            )}
           </CardContent>
         </Card>
       ) : (

@@ -99,22 +99,30 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Index />,
+        element: (
+          <ProtectedRoute allowGuest={true}>
+            <Index />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "news",
-        element: <News />,
+        element: (
+          <ProtectedRoute allowGuest={true}>
+            <News />
+          </ProtectedRoute>
+        ),
       },
       // Logout route
       {
         path: "logout",
         element: <Logout />,
       },
-      // Protected routes
+      // Protected routes with guest access
       {
         path: "waiting",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <Waiting />
           </ProtectedRoute>
         ),
@@ -122,7 +130,7 @@ export const router = createBrowserRouter([
       {
         path: "equipment",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <Equipment />
           </ProtectedRoute>
         ),
@@ -130,7 +138,7 @@ export const router = createBrowserRouter([
       {
         path: "measurements",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <div>Measurements Page - To be implemented</div>
           </ProtectedRoute>
         ),
@@ -138,7 +146,7 @@ export const router = createBrowserRouter([
       {
         path: "device/:deviceCode",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <DeviceDetails />
           </ProtectedRoute>
         ),
@@ -146,7 +154,7 @@ export const router = createBrowserRouter([
       {
         path: "device/:deviceCode/:symbol",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <MeasurementHistory />
           </ProtectedRoute>
         ),
@@ -155,7 +163,7 @@ export const router = createBrowserRouter([
       {
         path: "device/:deviceCode/graph-monitor",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <DeviceGraphMonitor />
           </ProtectedRoute>
         ),
@@ -163,7 +171,7 @@ export const router = createBrowserRouter([
       {
         path: "device/:deviceCode/graph-summary",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <DeviceGraphSummary />
           </ProtectedRoute>
         ),
@@ -179,7 +187,7 @@ export const router = createBrowserRouter([
       {
         path: "graph-monitor",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <GraphMonitor />
           </ProtectedRoute>
         ),
@@ -187,7 +195,7 @@ export const router = createBrowserRouter([
       {
         path: "graph-summary",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <GraphSummary />
           </ProtectedRoute>
         ),
@@ -195,7 +203,7 @@ export const router = createBrowserRouter([
       {
         path: "graph-summary-detail",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <GraphSummaryDetail />
           </ProtectedRoute>
         ),
@@ -203,7 +211,7 @@ export const router = createBrowserRouter([
       {
         path: "new-quality-measurements",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <NewQualityMeasurements />
           </ProtectedRoute>
         ),
@@ -211,7 +219,7 @@ export const router = createBrowserRouter([
       {
         path: "measurement-detail/:measurementSymbol",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <MeasurementDetail />
           </ProtectedRoute>
         ),
@@ -219,12 +227,12 @@ export const router = createBrowserRouter([
       {
         path: "measurement-history/:deviceCode/:symbol",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <MeasurementHistory />
           </ProtectedRoute>
         ),
       },
-      // Admin routes
+      // Admin routes - no guest access
       {
         path: "admin",
         element: (
@@ -257,7 +265,7 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-      // Notification routes
+      // Notification routes - require login
       {
         path: "notifications",
         element: (

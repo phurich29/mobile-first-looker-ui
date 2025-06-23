@@ -31,7 +31,7 @@ export default function Equipment() {
             />
           </div>
           
-          {/* Add Device Form - Only for admin and superadmin */}
+          {/* Add Device Form - Only for admin and superadmin (not guests) */}
           {isAdmin && (
             <div className="mb-8 bg-white/70 dark:bg-gray-800/40 p-5 rounded-xl border border-gray-100 dark:border-gray-800/30 shadow-md backdrop-blur-sm">
               <h2 className="text-lg font-semibold text-emerald-800 dark:text-emerald-400 mb-4">เพิ่มอุปกรณ์ใหม่</h2>
@@ -48,11 +48,13 @@ export default function Equipment() {
             onDeviceUpdated={handleRefresh}
           />
 
-          {/* Device History Table - Show to all users at the bottom */}
-          <div className="mt-8 bg-white/70 dark:bg-gray-800/40 p-5 rounded-xl border border-gray-100 dark:border-gray-800/30 shadow-md backdrop-blur-sm">
-            <h2 className="text-lg font-semibold text-emerald-800 dark:text-emerald-400 mb-4">ประวัติข้อมูลอุปกรณ์ทั้งหมด</h2>
-            <DeviceHistoryTable />
-          </div>
+          {/* Device History Table - Show to logged-in users only */}
+          {isAdmin && (
+            <div className="mt-8 bg-white/70 dark:bg-gray-800/40 p-5 rounded-xl border border-gray-100 dark:border-gray-800/30 shadow-md backdrop-blur-sm">
+              <h2 className="text-lg font-semibold text-emerald-800 dark:text-emerald-400 mb-4">ประวัติข้อมูลอุปกรณ์ทั้งหมด</h2>
+              <DeviceHistoryTable />
+            </div>
+          )}
           
           {/* Database Table Section - Only visible to admins and superadmins */}
           {isAdmin && (

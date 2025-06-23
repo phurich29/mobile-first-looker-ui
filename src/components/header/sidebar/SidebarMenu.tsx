@@ -17,6 +17,7 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
   
   // ตรวจสอบว่าผู้ใช้มีสิทธิ์ในการเข้าถึงหน้าจัดการผู้ใช้งานหรือไม่
   const canAccessUserManagement = userRoles.includes('admin') || userRoles.includes('superadmin');
+  const isGuest = !user; // Check if user is a guest
   
   return (
     <ScrollArea className={cn(
@@ -40,6 +41,7 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
           isCollapsed={isCollapsed}
         />
         
+        {/* Guest users can't access notification history */}
         {user && (
           <SidebarMenuItem 
             path="/notification-history" 
@@ -50,6 +52,7 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
           />
         )}
         
+        {/* Profile only for logged-in users */}
         {user && (
           <SidebarMenuItem 
             path="/profile" 
@@ -60,6 +63,7 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
           />
         )}
         
+        {/* Admin features only for authenticated admin users */}
         {user && canAccessUserManagement && (
           <SidebarMenuItem 
             path="/user-management" 
@@ -76,6 +80,17 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
             icon={FileText}
             label="จัดการข่าวสาร"
             isActive={isActive("/news-management")}
+            isCollapsed={isCollapsed}
+          />
+        )}
+        
+        {/* Show login option for guests */}
+        {isGuest && (
+          <SidebarMenuItem 
+            path="/auth/login" 
+            icon={User}
+            label="เข้าสู่ระบบ"
+            isActive={isActive("/auth/login")}
             isCollapsed={isCollapsed}
           />
         )}
