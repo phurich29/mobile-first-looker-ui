@@ -27,23 +27,23 @@ export const searchUsersByEmail = async (searchEmail: string, deviceCode: string
     return [];
   }
   
-  // Check if users are on waiting list
+  // Check if users have proper roles (user, admin, or superadmin) - no more waiting_list checking
   const userIds = userData.map(u => u.id);
-  const { data: waitingListUsers, error: waitingListError } = await supabase
+  const { data: userRoleUsers, error: userRoleError } = await supabase
     .from('user_roles')
     .select('user_id, role')
     .in('user_id', userIds)
-    .eq('role', 'waiting_list');
+    .in('role', ['user', 'admin', 'superadmin']);
     
-  if (waitingListError) {
-    console.error("Error checking user roles:", waitingListError);
+  if (userRoleError) {
+    console.error("Error checking user roles:", userRoleError);
   }
   
-  // Create a set of waiting list user IDs
-  const waitingListUserIds = new Set(waitingListUsers?.map(u => u.user_id) || []);
+  // Create a set of user IDs with proper roles
+  const userRoleUserIds = new Set(userRoleUsers?.map(u => u.user_id) || []);
   
-  // Filter out waiting list users
-  const filteredUsers = userData.filter(u => !waitingListUserIds.has(u.id));
+  // Filter to only include users with proper roles
+  const filteredUsers = userData.filter(u => userRoleUserIds.has(u.id));
   
   if (filteredUsers.length === 0) {
     return [];
@@ -130,7 +130,7 @@ export const loadUsersWithAccess = async (deviceCode: string): Promise<User[]> =
   }
   
   try {
-    // Fetch all users who are not on waiting list
+    // Fetch all users who are not on waiting list (since we removed waiting_list, get users with proper roles)
     const { data: usersData, error: usersError } = await supabase
       .from('profiles')
       .select('id, email')
@@ -141,19 +141,19 @@ export const loadUsersWithAccess = async (deviceCode: string): Promise<User[]> =
       throw new Error("Cannot fetch users");
     }
     
-    // Filter out users on waiting list
-    const { data: waitingListUsers, error: waitingListError } = await supabase
+    // Filter to only include users with proper roles (user, admin, or superadmin)
+    const { data: userRoleUsers, error: userRoleError } = await supabase
       .from('user_roles')
       .select('user_id')
-      .eq('role', 'waiting_list');
+      .in('role', ['user', 'admin', 'superadmin']);
       
-    if (waitingListError) {
-      console.error("Error fetching waiting list users:", waitingListError);
-      throw new Error("Cannot fetch waiting list users");
+    if (userRoleError) {
+      console.error("Error fetching user roles:", userRoleError);
+      throw new Error("Cannot fetch user roles");
     }
     
-    const waitingListUserIds = new Set(waitingListUsers?.map(u => u.user_id) || []);
-    const filteredUsers = usersData?.filter(u => !waitingListUserIds.has(u.id)) || [];
+    const userRoleUserIds = new Set(userRoleUsers?.map(u => u.user_id) || []);
+    const filteredUsers = usersData?.filter(u => userRoleUserIds.has(u.id)) || [];
     
     // Fetch device access records for this device
     const { data: accessData, error: accessError } = await supabase
