@@ -1,3 +1,4 @@
+
 import { Navigate } from "react-router-dom";
 import { AppLayout } from "@/components/layouts/app-layout";
 import { BackgroundImage } from "@/components/graph-monitor/BackgroundImage";
@@ -13,6 +14,7 @@ import { AddUserDialog } from "@/features/user-management/components/AddUserDial
 import { ResetPasswordDialog } from "@/features/user-management/components/ResetPasswordDialog";
 import { DeleteUserDialog } from "@/features/user-management/components/DeleteUserDialog";
 import { CurrentUserRoleCard } from "@/features/user-management/components/CurrentUserRoleCard";
+import { GuestDeviceManagement } from "@/features/user-management/components/GuestDeviceManagement";
 
 export default function UserManagement() {
   const { user, userRoles, isLoading } = useAuth();
@@ -59,7 +61,7 @@ export default function UserManagement() {
       <BackgroundImage /> {/* Moved inside AppLayout */}
       {/* The main tag and its specific classes are now handled by AppLayout's main tag. */}
       {/* Retaining inner content padding & max-width for now */}
-      <div className="flex-1 w-full pb-24">
+      <div className="flex-1 w-full pb-24 space-y-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold dark:text-gray-100">จัดการผู้ใช้งาน</h1>
@@ -77,6 +79,9 @@ export default function UserManagement() {
 
         {/* Current User Role Card */}
         <CurrentUserRoleCard />
+
+        {/* Guest Device Management Section */}
+        <GuestDeviceManagement />
 
         <Card className="overflow-hidden dark:bg-slate-800 dark:border-slate-700 px-3">
           <CardContent className="p-0 overflow-x-auto">
