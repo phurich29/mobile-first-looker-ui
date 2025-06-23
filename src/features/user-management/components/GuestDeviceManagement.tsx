@@ -2,10 +2,12 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye, EyeOff, Settings } from "lucide-react";
+import { Eye, EyeOff, Settings, Search } from "lucide-react";
+import { Label } from "@/components/ui/label";
 
 interface Device {
   device_code: string;
@@ -20,7 +22,10 @@ interface GuestDeviceAccess {
 export const GuestDeviceManagement = () => {
   const [devices, setDevices] = useState<Device[]>([]);
   const [guestAccess, setGuestAccess] = useState<GuestDeviceAccess[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Device[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
@@ -91,6 +96,100 @@ export const GuestDeviceManagement = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      toast({
+        title: "กรุณากรอกข้อมูล",
+        description: "กรุณากรอกรหัสอุปกรณ์ที่ต้องการค้นหา",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsSearching(true);
+      
+      // Search for devices that contain the search query
+      const { data: searchData, error: searchError } = await supabase
+        .from('rice_quality_analysis')
+        .select('device_code')
+        .ilike('device_code', `%${searchQuery}%`)
+        .not('device_code', 'is', null);
+
+      if (searchError) throw searchError;
+
+      // Get unique device codes from search results
+      const uniqueSearchDevices = Array.from(
+        new Set(searchData?.map(d => d.device_code))
+      ).map(code => ({ device_code: code }));
+
+      // Fetch display names for search results
+      const { data: settingsData } = await supabase
+        .from('device_settings')
+        .select('device_code, display_name')
+        .in('device_code', uniqueSearchDevices.map(d => d.device_code));
+
+      const searchResultsWithNames = uniqueSearchDevices.map(device => {
+        const setting = settingsData?.find(s => s.device_code === device.device_code);
+        return {
+          device_code: device.device_code,
+          display_name: setting?.display_name
+        };
+      });
+
+      setSearchResults(searchResultsWithNames);
+
+      if (searchResultsWithNames.length === 0) {
+        toast({
+          title: "ไม่พบผลลัพธ์",
+          description: "ไม่พบอุปกรณ์ที่ตรงกับคำค้นหา",
+        });
+      } else {
+        toast({
+          title: "ค้นหาสำเร็จ",
+          description: `พบอุปกรณ์ ${searchResultsWithNames.length} รายการ`,
+        });
+      }
+    } catch (error) {
+      console.error('Error searching devices:', error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถค้นหาอุปกรณ์ได้",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleAddDeviceFromSearch = (device: Device) => {
+    // Check if device already exists in the list
+    const existingDevice = devices.find(d => d.device_code === device.device_code);
+    if (existingDevice) {
+      toast({
+        title: "อุปกรณ์มีอยู่แล้ว",
+        description: "อุปกรณ์นี้อยู่ในรายการแล้ว",
+      });
+      return;
+    }
+
+    // Add device to the main list
+    const newDevices = [...devices, device];
+    setDevices(newDevices);
+
+    // Add to guest access list (disabled by default)
+    const newGuestAccess = [...guestAccess, { device_code: device.device_code, enabled: false }];
+    setGuestAccess(newGuestAccess);
+
+    // Remove from search results
+    setSearchResults(prev => prev.filter(d => d.device_code !== device.device_code));
+
+    toast({
+      title: "เพิ่มอุปกรณ์สำเร็จ",
+      description: `เพิ่มอุปกรณ์ ${device.device_code} แล้ว`,
+    });
   };
 
   const handleToggleAccess = (deviceCode: string) => {
@@ -181,7 +280,65 @@ export const GuestDeviceManagement = () => {
           เลือกแล้ว: {enabledCount} จาก {devices.length} อุปกรณ์
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
+        {/* Search Form */}
+        <div className="space-y-4 p-4 border rounded-lg bg-gray-50 dark:bg-gray-800/50 dark:border-gray-700">
+          <div className="space-y-2">
+            <Label htmlFor="search-device" className="text-sm font-medium">
+              ค้นหาอุปกรณ์เพิ่มเติม
+            </Label>
+            <div className="flex gap-2">
+              <Input
+                id="search-device"
+                type="text"
+                placeholder="กรอกรหัสอุปกรณ์..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                className="flex-1"
+              />
+              <Button 
+                onClick={handleSearch}
+                disabled={isSearching}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-700 dark:hover:bg-emerald-800"
+              >
+                <Search className="h-4 w-4 mr-2" />
+                {isSearching ? "กำลังค้นหา..." : "ค้นหา"}
+              </Button>
+            </div>
+          </div>
+
+          {/* Search Results */}
+          {searchResults.length > 0 && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">ผลลัพธ์การค้นหา</Label>
+              <div className="space-y-2 max-h-40 overflow-y-auto">
+                {searchResults.map((device) => (
+                  <div
+                    key={device.device_code}
+                    className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 border rounded"
+                  >
+                    <div>
+                      <div className="font-medium">{device.display_name || device.device_code}</div>
+                      {device.display_name && device.display_name !== device.device_code && (
+                        <div className="text-xs text-gray-500">{device.device_code}</div>
+                      )}
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => handleAddDeviceFromSearch(device)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      เพิ่ม
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Device List */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-60 overflow-y-auto">
           {devices.map((device) => {
             const access = guestAccess.find(a => a.device_code === device.device_code);
