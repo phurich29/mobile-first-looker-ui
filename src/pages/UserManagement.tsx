@@ -1,6 +1,5 @@
-
 import { Navigate } from "react-router-dom";
-import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
+import { AppLayout } from "@/components/layouts/app-layout";
 import { BackgroundImage } from "@/components/graph-monitor/BackgroundImage";
 // Header will be handled by AppLayout
 import { Button } from "@/components/ui/button";
@@ -13,6 +12,7 @@ import { UserTable } from "@/features/user-management/components/UserTable";
 import { AddUserDialog } from "@/features/user-management/components/AddUserDialog";
 import { ResetPasswordDialog } from "@/features/user-management/components/ResetPasswordDialog";
 import { DeleteUserDialog } from "@/features/user-management/components/DeleteUserDialog";
+import { CurrentUserRoleCard } from "@/features/user-management/components/CurrentUserRoleCard";
 
 export default function UserManagement() {
   const { user, userRoles, isLoading } = useAuth();
@@ -74,6 +74,9 @@ export default function UserManagement() {
             เพิ่มผู้ใช้ใหม่
           </Button>
         </div>
+
+        {/* Current User Role Card */}
+        <CurrentUserRoleCard />
 
         <Card className="overflow-hidden dark:bg-slate-800 dark:border-slate-700 px-3">
           <CardContent className="p-0 overflow-x-auto">
