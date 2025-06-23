@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -119,11 +118,11 @@ export default function Login() {
       
       toast({
         title: "ลงทะเบียนสำเร็จ",
-        description: "คุณถูกเพิ่มในรายชื่อรอการอนุมัติแล้ว กรุณารอการตรวจสอบ",
+        description: "ยินดีต้อนรับสู่ระบบ คุณสามารถใช้งานได้ทันที",
       });
       
-      // Navigate to waiting page - the ProtectedRoute component will handle the redirection
-      navigate("/waiting");
+      // Navigate to home page - users now get 'user' role automatically
+      navigate("/");
     } catch (error: any) {
       console.error("Registration error:", error);
       toast({
@@ -136,7 +135,7 @@ export default function Login() {
     }
   };
   
-  // Helper function to initialize a user role if none exists
+  // Helper function to initialize a user role if none exists (no longer needed as the trigger handles this)
   const checkAndInitializeUserRole = async (userId: string) => {
     try {
       // Check if the user has any roles
@@ -146,19 +145,9 @@ export default function Login() {
       
       console.log("Checked roles for user:", userId, roles);
       
-      // If no roles or error, try to add a default 'waiting_list' role
+      // If no roles or error, the trigger should have already added the 'user' role
       if (rolesError || !roles || roles.length === 0) {
-        console.log("No roles found, adding waiting_list role");
-        const { error } = await supabase.from('user_roles').insert({
-          user_id: userId,
-          role: 'waiting_list'
-        });
-        
-        if (error && error.code !== '23505') { // Ignore duplicate key errors
-          console.error("Error adding waiting_list role:", error);
-        } else {
-          console.log("Added waiting_list role successfully");
-        }
+        console.log("No roles found, but trigger should have handled this");
       }
     } catch (error) {
       console.error("Error in checkAndInitializeUserRole:", error);

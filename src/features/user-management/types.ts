@@ -16,3 +16,23 @@ export interface NewUserFormValues {
 export interface ResetPasswordFormValues {
   password: string;
 }
+
+// Rice price related types
+export interface RicePrice {
+  id: string;
+  name: string;
+  price: string | null;
+  document_date: string | null;
+  priceColor: string;
+  category: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RicePriceDocument {
+  id: string;
+  document_date: string;
+  file_url: string;
+  created_at: string;
+  updated_at: string;
+}

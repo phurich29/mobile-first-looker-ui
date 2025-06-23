@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
@@ -109,7 +108,7 @@ export function UserRow({
 
   return (
     <>
-      <TableRow className={`${user.roles.includes('waiting_list') ? 'bg-amber-50 dark:bg-amber-900/30' : ''} dark:border-slate-700 ${isEditing ? 'border-b-0 dark:border-b-0' : ''}`}>
+      <TableRow className={`${!user.roles.includes('user') ? 'bg-amber-50 dark:bg-amber-900/30' : ''} dark:border-slate-700 ${isEditing ? 'border-b-0 dark:border-b-0' : ''}`}>
       <TableCell className="py-1">
         <div className="space-y-1 py-3">
           <div className="flex flex-col">
@@ -125,7 +124,6 @@ export function UserRow({
                 className={`text-[10px] px-1 py-0 dark:border-transparent ${
                   role === 'superadmin' ? 'bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-700/30 dark:text-red-300 dark:hover:bg-red-600/40' : 
                   role === 'admin' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-700/30 dark:text-blue-300 dark:hover:bg-blue-600/40' : 
-                  role === 'waiting_list' ? 'bg-amber-100 text-amber-800 hover:bg-amber-200 dark:bg-amber-700/30 dark:text-amber-300 dark:hover:bg-amber-600/40' :
                   'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-700/30 dark:text-green-300 dark:hover:bg-green-600/40'
                 }`}
                 variant="outline"
@@ -140,7 +138,7 @@ export function UserRow({
       </TableCell>
       <TableCell className="py-1 text-right">
         <div className="flex items-center justify-end space-x-1">
-          {user.roles.includes('waiting_list') && !user.roles.includes('user') && (
+          {!user.roles.includes('user') && (
             <Button 
               variant="default" 
               size="sm"
@@ -168,7 +166,7 @@ export function UserRow({
       </TableCell>
     </TableRow>
     {/* Collapsible Row for Editing Form */}
-    <TableRow className={`${!isEditing ? 'hidden' : ''} ${user.roles.includes('waiting_list') ? 'bg-amber-50 dark:bg-amber-900/30' : ''} dark:border-slate-700`}>
+    <TableRow className={`${!isEditing ? 'hidden' : ''} ${!user.roles.includes('user') ? 'bg-amber-50 dark:bg-amber-900/30' : ''} dark:border-slate-700`}>
       <TableCell colSpan={2} className="p-0">
         <Collapsible
           open={isEditing}
@@ -187,7 +185,7 @@ export function UserRow({
                 className="mt-1 w-full border rounded-md p-2 text-xs dark:bg-slate-700 dark:text-white dark:border-slate-600 focus:ring-emerald-500 focus:border-emerald-500" 
               />
             </div>
-            {/* Role Management Dropdown Moved Here */}
+            {/* Role Management Dropdown */}
             <div className="mt-4 pt-4 border-t dark:border-slate-600">
               <h5 className="text-xs font-semibold mb-2 dark:text-gray-300">จัดการสิทธิ์ผู้ใช้:</h5>
               <DropdownMenu>
@@ -227,16 +225,6 @@ export function UserRow({
                       ลบสิทธิ์ Superadmin
                     </DropdownMenuItem>
                   ) : null}
-                  
-                  {!user.roles.includes('waiting_list') ? (
-                    <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'waiting_list', true)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
-                      เพิ่มสถานะ Waiting List
-                    </DropdownMenuItem>
-                  ) : (
-                    <DropdownMenuItem onClick={() => onChangeUserRole(user.id, 'waiting_list', false)} className="text-[11px] dark:text-gray-300 dark:focus:bg-slate-700 dark:focus:text-gray-100">
-                      ลบสถานะ Waiting List
-                    </DropdownMenuItem>
-                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

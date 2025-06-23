@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button"; 
@@ -57,7 +56,7 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
     
     setIsLoading(true);
     try {
-      // Fetch all users who are not on waiting list using direct query instead of RPC
+      // Fetch all users who have the 'user' role (not just any role)
       const { data: usersData, error: usersError } = await supabase
         .from('profiles')
         .select('id, email')
@@ -73,18 +72,18 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
         return;
       }
       
-      // Filter out users on waiting list
-      const { data: waitingListUsers, error: waitingListError } = await supabase
+      // Filter to only include users who have 'user' role or higher
+      const { data: userRoleUsers, error: userRoleError } = await supabase
         .from('user_roles')
         .select('user_id')
-        .eq('role', 'waiting_list');
+        .in('role', ['user', 'admin', 'superadmin']);
         
-      if (waitingListError) {
-        console.error("Error fetching waiting list users:", waitingListError);
+      if (userRoleError) {
+        console.error("Error fetching user roles:", userRoleError);
       }
       
-      const waitingListUserIds = new Set(waitingListUsers?.map(u => u.user_id) || []);
-      const filteredUsers = usersData?.filter(u => !waitingListUserIds.has(u.id)) || [];
+      const userRoleUserIds = new Set(userRoleUsers?.map(u => u.user_id) || []);
+      const filteredUsers = usersData?.filter(u => userRoleUserIds.has(u.id)) || [];
       
       // Fetch device access records for this device
       const { data: accessData, error: accessError } = await supabase
@@ -157,28 +156,28 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
         return;
       }
       
-      // Check if users are on waiting list
+      // Check if users have proper roles (user, admin, or superadmin)
       const userIds = userData.map(u => u.id);
-      const { data: waitingListUsers, error: waitingListError } = await supabase
+      const { data: userRoleUsers, error: userRoleError } = await supabase
         .from('user_roles')
         .select('user_id, role')
         .in('user_id', userIds)
-        .eq('role', 'waiting_list');
+        .in('role', ['user', 'admin', 'superadmin']);
         
-      if (waitingListError) {
-        console.error("Error checking user roles:", waitingListError);
+      if (userRoleError) {
+        console.error("Error checking user roles:", userRoleError);
       }
       
-      // Create a set of waiting list user IDs
-      const waitingListUserIds = new Set(waitingListUsers?.map(u => u.user_id) || []);
+      // Create a set of user IDs with proper roles
+      const userRoleUserIds = new Set(userRoleUsers?.map(u => u.user_id) || []);
       
-      // Filter out waiting list users
-      const filteredUsers = userData.filter(u => !waitingListUserIds.has(u.id));
+      // Filter out users without proper roles
+      const filteredUsers = userData.filter(u => userRoleUserIds.has(u.id));
       
       if (filteredUsers.length === 0) {
         toast({
           title: "ไม่พบผู้ใช้",
-          description: "ผู้ใช้ที่ค้นพบยังอยู่ในรายชื่อรอสิทธิ์การใช้งาน",
+          description: "ผู้ใช้ที่ค้นพบยังไม่มีสิทธิ์การใช้งาน",
           variant: "destructive",
         });
         return;
