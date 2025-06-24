@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye, EyeOff, Settings, Search } from "lucide-react";
+import { Eye, EyeOff, Settings, Search, Trash2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 
 interface Device {
@@ -26,7 +26,6 @@ export const GuestDeviceManagement = () => {
   const [searchResults, setSearchResults] = useState<Device[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -36,56 +35,38 @@ export const GuestDeviceManagement = () => {
   const fetchDevicesAndGuestAccess = async () => {
     try {
       setIsLoading(true);
-      
-      // Fetch all devices
-      const { data: deviceData, error: deviceError } = await supabase
-        .from('rice_quality_analysis')
-        .select('device_code')
-        .not('device_code', 'is', null)
-        .order('device_code');
 
-      if (deviceError) throw deviceError;
-
-      // Get unique device codes
-      const uniqueDevices = Array.from(
-        new Set(deviceData?.map(d => d.device_code))
-      ).map(code => ({ device_code: code }));
-
-      // Fetch display names from device_settings
-      const { data: settingsData } = await supabase
-        .from('device_settings')
-        .select('device_code, display_name');
-
-      const devicesWithNames = uniqueDevices.map(device => {
-        const setting = settingsData?.find(s => s.device_code === device.device_code);
-        return {
-          device_code: device.device_code,
-          display_name: setting?.display_name
-        };
-      });
-
-      setDevices(devicesWithNames);
-
-      // Fetch guest access settings
+      // 1. Fetch managed devices from guest_device_access
       const { data: guestData, error: guestError } = await supabase
         .from('guest_device_access')
         .select('device_code, enabled');
 
-      if (guestError) {
-        console.error('Error fetching guest access data:', guestError);
-        // Don't throw here, just log and continue with empty guest data
+      if (guestError) throw guestError;
+
+      const managedDeviceCodes = guestData.map(g => g.device_code);
+      setGuestAccess(guestData); // Set guest access state directly
+
+      if (managedDeviceCodes.length > 0) {
+        // 2. Fetch display names for these managed devices
+        const { data: settingsData, error: settingsError } = await supabase
+          .from('device_settings')
+          .select('device_code, display_name')
+          .in('device_code', managedDeviceCodes);
+
+        if (settingsError) throw settingsError;
+
+        const devicesWithNames = managedDeviceCodes.map(code => {
+          const setting = settingsData?.find(s => s.device_code === code);
+          return {
+            device_code: code,
+            display_name: setting?.display_name || code, // Fallback to code
+          };
+        });
+        setDevices(devicesWithNames);
+      } else {
+        // No devices are being managed yet
+        setDevices([]);
       }
-
-      const guestAccessMap = new Map(
-        guestData?.map(g => [g.device_code, g.enabled]) || []
-      );
-
-      const guestAccessList = devicesWithNames.map(device => ({
-        device_code: device.device_code,
-        enabled: guestAccessMap.get(device.device_code) || false
-      }));
-
-      setGuestAccess(guestAccessList);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
@@ -164,7 +145,7 @@ export const GuestDeviceManagement = () => {
     }
   };
 
-  const handleAddDeviceFromSearch = (device: Device) => {
+  const handleAddDeviceFromSearch = async (device: Device) => {
     // Check if device already exists in the list
     const existingDevice = devices.find(d => d.device_code === device.device_code);
     if (existingDevice) {
@@ -175,74 +156,111 @@ export const GuestDeviceManagement = () => {
       return;
     }
 
-    // Add device to the main list
-    const newDevices = [...devices, device];
-    setDevices(newDevices);
+    const newDeviceAccess = { device_code: device.device_code, enabled: false };
 
-    // Add to guest access list (disabled by default)
-    const newGuestAccess = [...guestAccess, { device_code: device.device_code, enabled: false }];
-    setGuestAccess(newGuestAccess);
-
-    // Remove from search results
+    // Optimistic UI update
+    setDevices(prev => [...prev, device]);
+    setGuestAccess(prev => [...prev, newDeviceAccess]);
     setSearchResults(prev => prev.filter(d => d.device_code !== device.device_code));
 
-    toast({
-      title: "เพิ่มอุปกรณ์สำเร็จ",
-      description: `เพิ่มอุปกรณ์ ${device.device_code} แล้ว`,
-    });
+    try {
+      // Persist to DB
+      const { error } = await supabase
+        .from('guest_device_access')
+        .upsert(newDeviceAccess, { onConflict: 'device_code' });
+
+      if (error) throw error;
+
+      toast({
+        title: "เพิ่มอุปกรณ์สำเร็จ",
+        description: `เพิ่มอุปกรณ์ ${device.device_code} แล้ว`,
+      });
+    } catch (error) {
+      // Revert UI on error
+      setDevices(prev => prev.filter(d => d.device_code !== device.device_code));
+      setGuestAccess(prev => prev.filter(a => a.device_code !== device.device_code));
+      setSearchResults(prev => [...prev, device]); // Add back to search results
+
+      console.error('Error adding device to guest access:', error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถเพิ่มอุปกรณ์ได้",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleToggleAccess = (deviceCode: string) => {
+  const handleToggleAccess = async (deviceCode: string) => {
+    const currentAccess = guestAccess.find(a => a.device_code === deviceCode);
+    const newEnabledState = !currentAccess?.enabled;
+
+    const originalGuestAccess = [...guestAccess];
+
+    // Optimistic UI update
     setGuestAccess(prev =>
       prev.map(access =>
         access.device_code === deviceCode
-          ? { ...access, enabled: !access.enabled }
+          ? { ...access, enabled: newEnabledState }
           : access
       )
     );
-  };
 
-  const handleSaveChanges = async () => {
     try {
-      setIsSaving(true);
-
-      // Delete existing guest access settings
-      const { error: deleteError } = await supabase
+      const { error } = await supabase
         .from('guest_device_access')
-        .delete()
-        .neq('device_code', '');
+        .upsert({ device_code: deviceCode, enabled: newEnabledState }, { onConflict: 'device_code' });
 
-      if (deleteError) throw deleteError;
-
-      // Insert new settings
-      const accessData = guestAccess
-        .filter(access => access.enabled)
-        .map(access => ({
-          device_code: access.device_code,
-          enabled: access.enabled
-        }));
-
-      if (accessData.length > 0) {
-        const { error } = await supabase
-          .from('guest_device_access')
-          .insert(accessData);
-
-        if (error) throw error;
-      }
+      if (error) throw error;
 
       toast({
-        title: "บันทึกสำเร็จ",
-        description: "การตั้งค่าสิทธิ์ Guest ได้รับการอัพเดทแล้ว",
+        title: "อัพเดทสำเร็จ",
+        description: `สิทธิ์การเข้าถึงของอุปกรณ์ ${deviceCode} ถูกปรับปรุงแล้ว`,
       });
+
     } catch (error) {
-      console.error('Error saving guest access:', error);
+      // Revert UI on error
+      setGuestAccess(originalGuestAccess);
+      console.error('Error updating guest access:', error);
       toast({
         title: "เกิดข้อผิดพลาด",
         description: "ไม่สามารถบันทึกการตั้งค่าได้",
         variant: "destructive",
       });
-    } finally {
-      setIsSaving(false);
+    }
+  };
+
+  const handleRemoveDevice = async (deviceCode: string) => {
+    const oldDevices = [...devices];
+    const oldGuestAccess = [...guestAccess];
+
+    // Optimistic UI update
+    setDevices(prev => prev.filter(d => d.device_code !== deviceCode));
+    setGuestAccess(prev => prev.filter(a => a.device_code !== deviceCode));
+
+    try {
+      const { error } = await supabase
+        .from('guest_device_access')
+        .delete()
+        .eq('device_code', deviceCode);
+
+      if (error) throw error;
+
+      toast({
+        title: "ลบอุปกรณ์สำเร็จ",
+        description: `อุปกรณ์รหัส ${deviceCode} ถูกนำออกจากรายการแล้ว`,
+      });
+
+    } catch (error) {
+      // Revert UI on error
+      setDevices(oldDevices);
+      setGuestAccess(oldGuestAccess);
+
+      console.error('Error removing device:', error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถลบอุปกรณ์ได้",
+        variant: "destructive",
+      });
     }
   };
 
@@ -339,7 +357,7 @@ export const GuestDeviceManagement = () => {
         </div>
 
         {/* Device List */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-60 overflow-y-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 max-h-60 overflow-y-auto">
           {devices.map((device) => {
             const access = guestAccess.find(a => a.device_code === device.device_code);
             const isEnabled = access?.enabled || false;
@@ -347,7 +365,7 @@ export const GuestDeviceManagement = () => {
             return (
               <div
                 key={device.device_code}
-                className={`flex items-center space-x-3 p-3 rounded-lg border ${
+                className={`flex items-center space-x-2 p-2 rounded-lg border ${
                   isEnabled 
                     ? 'bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800' 
                     : 'bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-gray-700'
@@ -371,12 +389,20 @@ export const GuestDeviceManagement = () => {
                     </p>
                   )}
                 </div>
-                <div className="flex-shrink-0">
+                <div className="flex-shrink-0 flex items-center space-x-1">
                   {isEnabled ? (
                     <Eye className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                   ) : (
                     <EyeOff className="h-4 w-4 text-gray-400" />
                   )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-red-500 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900/50"
+                    onClick={() => handleRemoveDevice(device.device_code)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             );
@@ -389,15 +415,7 @@ export const GuestDeviceManagement = () => {
           </div>
         )}
 
-        <div className="flex justify-end pt-4 border-t dark:border-gray-700">
-          <Button
-            onClick={handleSaveChanges}
-            disabled={isSaving}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-700 dark:hover:bg-emerald-800"
-          >
-            {isSaving ? "กำลังบันทึก..." : "บันทึกการเปลี่ยนแปลง"}
-          </Button>
-        </div>
+
       </CardContent>
     </Card>
   );
