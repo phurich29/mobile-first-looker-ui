@@ -24,7 +24,7 @@ export const MeyerAndTimeBar: React.FC<MeyerAndTimeBarProps> = ({
     <div className={`${marginBottom} ${!isMobile ? 'mb-8' : 'mb-6'}`}>
       <div className="flex justify-between items-center mb-3">
         <div className="flex flex-col items-start gap-0">
-          <span className="text-xs text-black font-semibold">Analyzed by</span>
+          <span className="text-xs text-black dark:text-white font-semibold">Analyzed by</span>
           <img 
             src="/lovable-uploads/fc76df49-4e12-4223-86ca-ad5600f8840b.png" 
             alt="Meyer Logo" 

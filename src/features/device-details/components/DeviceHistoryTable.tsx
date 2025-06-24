@@ -56,10 +56,10 @@ export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCo
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow-sm py-6 px-5 mb-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900 py-6 px-5 mb-4 dark:text-white">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">ประวัติข้อมูลทั้งหมด</h3>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-gray-500 dark:text-gray-300">
             แสดง {columnKeys.length} คอลัมน์
           </span>
         </div>

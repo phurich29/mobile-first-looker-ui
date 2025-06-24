@@ -95,7 +95,7 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
   console.log("Chart data:", chartData);
 
   return (
-    <div className="flex-1 bg-white rounded-lg shadow-lg border border-gray-200 p-2 hover:shadow-xl transition-shadow duration-300">
+    <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-2 hover:shadow-xl transition-shadow duration-300 dark:text-white">
       <div className="h-[300px] sm:h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
           {graphStyle === 'area' ? (
@@ -133,7 +133,7 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
                     return (
-                      <div className="bg-white p-2 border border-gray-200 rounded-md shadow-lg">
+                      <div className="bg-white dark:bg-gray-800 p-2 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg dark:text-white">
                         <p className="text-xs font-medium">{`เวลา: ${payload[0].payload.time} น.`}</p>
                         <p className="text-xs font-medium" style={{ color: barColor }}>{`ค่า: ${payload[0].value}%`}</p>
                         <p className="text-xs text-gray-500">{payload[0].payload.date}</p>
@@ -197,7 +197,7 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
                     return (
-                      <div className="bg-white p-2 border border-gray-200 rounded-md shadow-lg">
+                      <div className="bg-white dark:bg-gray-800 p-2 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg dark:text-white">
                         <p className="text-xs font-medium">{`เวลา: ${payload[0].payload.time} น.`}</p>
                         <p className="text-xs font-medium" style={{ color: barColor }}>{`ค่า: ${payload[0].value}%`}</p>
                         <p className="text-xs text-gray-500">{payload[0].payload.date}</p>

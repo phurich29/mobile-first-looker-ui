@@ -37,7 +37,7 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
 
   if (!historyData || historyData.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-gray-500 dark:text-gray-300">
         ไม่พบข้อมูลประวัติสำหรับอุปกรณ์นี้
       </div>
     );

@@ -57,7 +57,7 @@ const MeasurementHistoryContent: React.FC<MeasurementHistoryContentProps> = ({
         </div>
       </div>
       
-      <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden mt-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mt-4 dark:text-white">
         <HistoryHeader 
           name={name}
           unit={unit}
@@ -87,7 +87,7 @@ const MeasurementHistoryContent: React.FC<MeasurementHistoryContentProps> = ({
           />
           
           {/* ตารางประวัติข้อมูล */}
-          <div className="bg-white rounded-lg shadow-sm p-4 -mt-2">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 -mt-2 dark:text-white">
             <DeviceHistoryTable deviceCode={deviceCode} />
           </div>
         </div>
