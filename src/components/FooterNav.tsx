@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import { Home, User, PackageOpen, Bell, Info, LogIn } from "lucide-react";
+import { Home, User, PackageOpen, Bell, Wheat, LogIn } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "./AuthProvider";
 import { useGuestMode } from "@/hooks/useGuestMode";
@@ -49,7 +49,7 @@ export const FooterNav = () => {
             </NavLink>
             
             <NavLink to="/about-riceflow" className={({ isActive }) => cn("flex flex-col items-center justify-center w-1/4 h-full", isActive && "font-bold")}>
-              <Info className="h-5 w-5 text-white mb-1" />
+              <Wheat className="h-5 w-5 text-white mb-1" />
               <span className="text-xs text-white font-medium">รู้จัก Riceflow</span>
             </NavLink>
             
@@ -88,12 +88,12 @@ export const FooterNav = () => {
           ) : (
             <>
               <NavLink to="/rice-prices" className={({ isActive }) => cn("flex flex-col items-center justify-center w-1/4 h-full", isActive && "font-bold")}>
-                <Info className="h-5 w-5 text-white mb-1" />
+                <Wheat className="h-5 w-5 text-white mb-1" />
                 <span className="text-xs text-white font-medium">ราคาข้าว</span>
               </NavLink>
               
               <NavLink to="/news" className={({ isActive }) => cn("flex flex-col items-center justify-center w-1/4 h-full", isActive && "font-bold")}>
-                <Info className="h-5 w-5 text-white mb-1" />
+                <Wheat className="h-5 w-5 text-white mb-1" />
                 <span className="text-xs text-white font-medium">ข่าวสาร</span>
               </NavLink>
             </>
