@@ -4,6 +4,7 @@ import { DatabaseTable } from "@/components/DatabaseTable";
 import { useDeviceData, DevicesHeader, DevicesGrid } from "@/features/equipment";
 import { AppLayout } from "@/components/layouts";
 import { DeviceHistoryTable } from "@/features/device-details/components/DeviceHistoryTable";
+import { useGuestMode } from "@/hooks/useGuestMode";
 
 export default function Equipment() {
   const {
@@ -15,6 +16,8 @@ export default function Equipment() {
     isAdmin,
     isSuperAdmin
   } = useDeviceData();
+
+  const { isGuest } = useGuestMode();
 
   return (
     <AppLayout wideContent showFooterNav contentPaddingBottom="pb-32 md:pb-16">
@@ -32,32 +35,32 @@ export default function Equipment() {
           </div>
           
           {/* Add Device Form - Only for admin and superadmin (not guests) */}
-          {isAdmin && (
+          {isAdmin && !isGuest && (
             <div className="mb-8 bg-white/70 dark:bg-gray-800/40 p-5 rounded-xl border border-gray-100 dark:border-gray-800/30 shadow-md backdrop-blur-sm">
               <h2 className="text-lg font-semibold text-emerald-800 dark:text-emerald-400 mb-4">เพิ่มอุปกรณ์ใหม่</h2>
               <AddDeviceForm onDeviceAdded={handleRefresh} />
             </div>
           )}
           
-          {/* Devices Grid - Remove container wrapper */}
+          {/* Devices Grid - Show for both authenticated users and guests */}
           <DevicesGrid 
             devices={devices} 
-            isAdmin={isAdmin} 
+            isAdmin={isAdmin && !isGuest} 
             isLoading={isLoading}
-            isSuperAdmin={isSuperAdmin}
+            isSuperAdmin={isSuperAdmin && !isGuest}
             onDeviceUpdated={handleRefresh}
           />
 
-          {/* Device History Table - Show to logged-in users only */}
-          {isAdmin && (
+          {/* Device History Table - Show to logged-in users only (not guests) */}
+          {isAdmin && !isGuest && (
             <div className="mt-8 bg-white/70 dark:bg-gray-800/40 p-5 rounded-xl border border-gray-100 dark:border-gray-800/30 shadow-md backdrop-blur-sm">
               <h2 className="text-lg font-semibold text-emerald-800 dark:text-emerald-400 mb-4">ประวัติข้อมูลอุปกรณ์ทั้งหมด</h2>
               <DeviceHistoryTable />
             </div>
           )}
           
-          {/* Database Table Section - Only visible to admins and superadmins */}
-          {isAdmin && (
+          {/* Database Table Section - Only visible to admins and superadmins (not guests) */}
+          {isAdmin && !isGuest && (
             <div className="mb-8 bg-white/70 dark:bg-gray-800/40 p-5 rounded-xl border border-gray-100 dark:border-gray-800/30 shadow-md backdrop-blur-sm">
               <h2 className="text-lg font-semibold text-emerald-800 dark:text-emerald-400 mb-4">ข้อมูลฐานข้อมูล</h2>
               <DatabaseTable />

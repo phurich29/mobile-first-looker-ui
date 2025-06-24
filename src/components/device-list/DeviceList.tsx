@@ -5,10 +5,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { ActivitySquare, Clock } from 'lucide-react';
 import { useAuth } from '@/components/AuthProvider';
+import { useGuestMode } from '@/hooks/useGuestMode';
 import { formatDistanceToNow } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
 import { fetchDevicesWithDetails } from '@/features/equipment/services';
+import { supabase } from '@/integrations/supabase/client';
 
 interface DeviceData {
   device_code: string;
@@ -22,47 +24,87 @@ export const DeviceList = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, userRoles } = useAuth();
+  const { isGuest } = useGuestMode();
   
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
-  const isGuest = !user; // Check if user is a guest
   
   useEffect(() => {
     const fetchDevices = async () => {
-      // For guest users, show empty state immediately
-      if (isGuest) {
-        setDevices([]);
-        setLoading(false);
-        return;
-      }
-
-      if (!user) {
-        setDevices([]);
-        setLoading(false);
-        return;
-      }
-
       try {
         setLoading(true);
         
-        console.log('DeviceList: Fetching devices using optimized function...');
-        
-        // Use the new optimized function
-        const deviceList = await fetchDevicesWithDetails(
-          user.id,
-          isAdmin,
-          isSuperAdmin
-        );
-        
-        // Transform to match expected interface
-        const transformedDevices = deviceList.map(device => ({
-          device_code: device.device_code,
-          updated_at: device.updated_at || new Date().toISOString(),
-          display_name: device.display_name
-        }));
-        
-        console.log(`DeviceList: Fetched ${transformedDevices.length} devices in single query`);
-        setDevices(transformedDevices);
+        if (isGuest) {
+          // สำหรับ Guest: ดึงอุปกรณ์ที่เปิดให้ Guest ดู
+          console.log('DeviceList: Fetching guest devices...');
+          
+          const { data: guestAccessData, error: guestError } = await supabase
+            .from('guest_device_access')
+            .select('device_code')
+            .eq('enabled', true);
+
+          if (guestError) throw guestError;
+
+          if (guestAccessData && guestAccessData.length > 0) {
+            const deviceCodes = guestAccessData.map(item => item.device_code);
+            
+            // ดึงข้อมูล display name
+            const { data: settingsData } = await supabase
+              .from('device_settings')
+              .select('device_code, display_name')
+              .in('device_code', deviceCodes);
+
+            // ดึงข้อมูล updated_at
+            const { data: analysisData } = await supabase
+              .from('rice_quality_analysis')
+              .select('device_code, created_at')
+              .in('device_code', deviceCodes)
+              .order('created_at', { ascending: false });
+
+            // สร้าง map ของ updated_at ล่าสุด
+            const latestTimestamps: Record<string, string> = {};
+            analysisData?.forEach(record => {
+              if (!latestTimestamps[record.device_code]) {
+                latestTimestamps[record.device_code] = record.created_at;
+              }
+            });
+
+            const transformedDevices = deviceCodes.map(code => {
+              const setting = settingsData?.find(s => s.device_code === code);
+              return {
+                device_code: code,
+                updated_at: latestTimestamps[code] || new Date().toISOString(),
+                display_name: setting?.display_name
+              };
+            });
+
+            console.log(`DeviceList: Fetched ${transformedDevices.length} guest devices`);
+            setDevices(transformedDevices);
+          } else {
+            setDevices([]);
+          }
+        } else if (user) {
+          // สำหรับ User ที่ login แล้ว
+          console.log('DeviceList: Fetching devices using optimized function...');
+          
+          const deviceList = await fetchDevicesWithDetails(
+            user.id,
+            isAdmin,
+            isSuperAdmin
+          );
+          
+          // Transform to match expected interface
+          const transformedDevices = deviceList.map(device => ({
+            device_code: device.device_code,
+            updated_at: device.updated_at || new Date().toISOString(),
+            display_name: device.display_name
+          }));
+          
+          console.log(`DeviceList: Fetched ${transformedDevices.length} devices in single query`);
+          setDevices(transformedDevices);
+        } else {
+          setDevices([]);
+        }
         
       } catch (error) {
         console.error('DeviceList: Error fetching devices:', error);
@@ -126,8 +168,8 @@ export const DeviceList = () => {
           <CardContent className="p-6 text-center">
             {isGuest ? (
               <div>
-                <p className="text-gray-500 mb-2">คุณกำลังใช้งานในโหมด Guest</p>
-                <p className="text-sm text-gray-400">เข้าสู่ระบบเพื่อดูข้อมูลอุปกรณ์</p>
+                <p className="text-gray-500 mb-2">ไม่มีอุปกรณ์ที่เปิดให้ Guest เข้าถึงได้</p>
+                <p className="text-sm text-gray-400">กรุณาติดต่อผู้ดูแลระบบเพื่อขออนุญาตเข้าถึงอุปกรณ์</p>
               </div>
             ) : (
               <p className="text-gray-500">ไม่พบข้อมูลอุปกรณ์</p>
