@@ -8,18 +8,18 @@ const Index = () => {
 
   useEffect(() => {
     const lastViewedDeviceCode = localStorage.getItem('lastViewedDeviceCode');
+    
     if (lastViewedDeviceCode) {
+      console.log('Found lastViewedDeviceCode:', lastViewedDeviceCode);
       navigate(`/device/${lastViewedDeviceCode}`, { replace: true });
     } else {
-      // Optional: If no device is saved, navigate to the equipment list or show a different UI.
-      // For now, it will just show LoadingScreen if no redirect happens.
-      // Consider navigating to '/equipment' if that's preferred:
-      // navigate('/equipment', { replace: true });
+      console.log('No lastViewedDeviceCode found, redirecting to equipment page');
+      // Navigate to equipment page when no device is saved
+      navigate('/equipment', { replace: true });
     }
   }, [navigate]);
 
-  // Show a loading screen while checking localStorage and potentially redirecting.
-  // If no redirect happens, this screen will persist unless further logic is added.
+  // Show loading screen briefly while checking localStorage and redirecting
   return <LoadingScreen />;
 };
 
