@@ -24,7 +24,7 @@ const HistoryFooter: React.FC<HistoryFooterProps> = ({
   const timeFrames: TimeFrame[] = ['1h', '24h', '7d', '30d'];
 
   return (
-    <div className="flex items-center justify-center p-2 bg-gray-50 border-t border-gray-100">
+    <div className="flex items-center justify-center p-2 bg-gray-50 border-t border-gray-100 dark:bg-gray-800 dark:border-gray-700">
       <div className="flex space-x-2">
         {timeFrames.map(frame => (
           <button
@@ -32,7 +32,7 @@ const HistoryFooter: React.FC<HistoryFooterProps> = ({
             className={`px-3 py-1.5 text-xs rounded-full transition-colors ${
               timeFrame === frame
                 ? 'bg-emerald-500 text-white'
-                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600'
             }`}
             onClick={() => onTimeFrameChange(frame)}
           >

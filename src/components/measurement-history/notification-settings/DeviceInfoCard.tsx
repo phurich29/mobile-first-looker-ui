@@ -39,7 +39,7 @@ export const DeviceInfoCard = ({ deviceCode }: DeviceInfoCardProps) => {
   }, [deviceCode]);
 
   return (
-    <div className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-md">
+    <div className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-md dark:bg-gray-700 dark:text-gray-300">
       <div className="flex items-center gap-2">
         <Smartphone className="h-5 w-5 text-gray-500" />
         <div>
