@@ -68,6 +68,9 @@ export const DeviceHeader: React.FC<DeviceHeaderProps> = ({
             </Button>
           )}
           <div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+              ชื่ออุปกรณ์
+            </p>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {deviceDisplayName || 'รายละเอียดอุปกรณ์'}
             </h1>
