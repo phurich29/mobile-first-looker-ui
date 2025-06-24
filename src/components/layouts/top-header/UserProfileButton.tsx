@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { User, LogIn } from 'lucide-react';
@@ -33,19 +32,9 @@ export const UserProfileButton: React.FC = () => {
     navigate('/profile');
   };
 
-  // สำหรับ Guest แสดงปุ่ม "เข้าสู่ระบบ"
+  // สำหรับ Guest ไม่ต้องแสดงอะไร
   if (isGuest) {
-    return (
-      <Button 
-        variant="ghost" 
-        size="icon" 
-        className="text-white hover:bg-emerald-700/50"
-        onClick={handleLoginClick}
-        title="เข้าสู่ระบบ"
-      >
-        <LogIn className="h-5 w-5" />
-      </Button>
-    );
+    return null;
   }
 
   // สำหรับผู้ใช้ที่ login แล้ว แสดง dropdown menu
