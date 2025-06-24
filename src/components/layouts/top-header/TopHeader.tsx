@@ -5,9 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/AuthProvider';
+import { useGuestMode } from '@/hooks/useGuestMode';
 import { MobileMenuButton } from './MobileMenuButton';
 import { HeaderLogo } from './HeaderLogo';
 import { DeviceDropdown } from './DeviceDropdown';
+import { UserProfileButton } from './UserProfileButton';
 import { useDeviceData } from './useDeviceData';
 
 interface TopHeaderProps {
@@ -30,6 +32,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   appName = "RiceFlow",
 }) => {
   const { user } = useAuth();
+  const { isGuest } = useGuestMode();
   const { devices, isLoadingDevices } = useDeviceData();
   const navigate = useNavigate();
 
@@ -66,22 +69,28 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 
       {/* Right Section */}
       <div className="flex flex-row items-center gap-3">
-        {/* Device Dropdown */}
-        {user && (
+        {/* Device Dropdown - แสดงสำหรับทั้ง user ที่ login และ guest */}
+        {(user || isGuest) && (
           <DeviceDropdown 
             devices={devices}
             isLoadingDevices={isLoadingDevices}
           />
         )}
         
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="text-white hover:bg-emerald-700/50 dark:hover:bg-emerald-700/50"
-          onClick={() => navigate('/notifications')}
-        >
-          <Bell className="h-5 w-5" />
-        </Button>
+        {/* Notification Bell - แสดงเฉพาะ user ที่ login แล้ว */}
+        {user && (
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-white hover:bg-emerald-700/50 dark:hover:bg-emerald-700/50"
+            onClick={() => navigate('/notifications')}
+          >
+            <Bell className="h-5 w-5" />
+          </Button>
+        )}
+
+        {/* User Profile Button - แสดงสำหรับทั้ง user และ guest */}
+        <UserProfileButton />
       </div>
     </header>
   );

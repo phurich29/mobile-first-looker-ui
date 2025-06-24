@@ -1,6 +1,7 @@
 
 import { Navigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
+import { useGuestMode } from "@/hooks/useGuestMode";
 import React from "react";
 
 interface ProtectedRouteProps {
@@ -8,7 +9,7 @@ interface ProtectedRouteProps {
   requiredRoles?: string[];
   redirectTo?: string;
   allowUnauthenticated?: boolean;
-  allowGuest?: boolean; // New prop for guest access
+  allowGuest?: boolean;
   path?: string;
 }
 
@@ -17,15 +18,17 @@ export const ProtectedRoute = ({
   requiredRoles = [],
   redirectTo = "/login",
   allowUnauthenticated = false,
-  allowGuest = false, // Default false for backward compatibility
+  allowGuest = false,
   path = window.location.pathname,
 }: ProtectedRouteProps) => {
   const { user, userRoles, isLoading } = useAuth();
+  const { isGuest } = useGuestMode();
 
   console.log("Protected route checking access:");
   console.log("- Required roles:", requiredRoles);
   console.log("- Current user roles:", userRoles);
   console.log("- User authenticated:", !!user);
+  console.log("- Is guest:", isGuest);
   console.log("- Is still loading auth:", isLoading);
   console.log("- Allow unauthenticated:", allowUnauthenticated);
   console.log("- Allow guest:", allowGuest);
@@ -39,13 +42,13 @@ export const ProtectedRoute = ({
     );
   }
 
-  // If user not logged in and guest access is allowed, show page with guest permissions
-  if (!user && allowGuest) {
-    console.log("User not logged in but guest access allowed");
+  // If user is guest and guest access is allowed, show page with guest permissions
+  if (isGuest && allowGuest) {
+    console.log("Guest access allowed, showing page");
     return <>{children}</>;
   }
 
-  // If user not logged in and not allowed unauthenticated access, redirect to login
+  // If user not logged in and not allowed unauthenticated access and not guest allowed, redirect to login
   if (!user && !allowUnauthenticated && !allowGuest) {
     console.log("User not logged in, redirecting to", redirectTo);
     return <Navigate to={redirectTo} replace />;
