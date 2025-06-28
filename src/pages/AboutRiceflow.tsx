@@ -1,7 +1,8 @@
 
 import { AppLayout } from "@/components/layouts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Leaf, BarChart3, Shield, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Leaf, BarChart3, Shield, Users, ExternalLink } from "lucide-react";
 
 export default function AboutRiceflow() {
   return (
@@ -135,6 +136,20 @@ export default function AboutRiceflow() {
           <p className="text-gray-600 dark:text-gray-300 mb-6">
             สมัครสมาชิกเพื่อเข้าถึงฟีเจอร์ครบครันของ Riceflow
           </p>
+          <Button 
+            asChild
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 text-lg"
+          >
+            <a 
+              href="https://c2tech.app/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2"
+            >
+              เข้าสู่เว็บไซต์
+              <ExternalLink className="h-5 w-5" />
+            </a>
+          </Button>
         </div>
       </div>
     </AppLayout>
