@@ -1,5 +1,5 @@
 
-import { Home, Settings, AlertCircle, History, User, Users, FileText, Info } from "lucide-react";
+import { Home, Settings, AlertCircle, History, User, Users, FileText, Wheat } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useActivePath } from "./sidebar-utils";
@@ -45,7 +45,7 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
         {isGuest && (
           <SidebarMenuItem 
             path="/about-riceflow" 
-            icon={Info}
+            icon={Wheat}
             label="รู้จัก Riceflow"
             isActive={isActive("/about-riceflow")}
             isCollapsed={isCollapsed}
