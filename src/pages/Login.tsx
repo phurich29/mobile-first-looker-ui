@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,11 +9,14 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
+import { FooterNav } from "@/components/FooterNav";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function Login() {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -176,117 +180,122 @@ export default function Login() {
   }
   
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md mx-auto">
-        <CardHeader>
-          <CardTitle className="text-2xl text-center">Riceflow Login</CardTitle>
-          <CardDescription className="text-center">เข้าสู่ระบบหรือลงทะเบียนเพื่อใช้งาน</CardDescription>
-        </CardHeader>
-        
-        <Tabs 
-          defaultValue="login" 
-          value={activeTab} 
-          onValueChange={setActiveTab}
-          className="w-full"
-        >
-          <TabsList className="grid grid-cols-2 mb-4 mx-4">
-            <TabsTrigger value="login">เข้าสู่ระบบ</TabsTrigger>
-            <TabsTrigger value="register">ลงทะเบียน</TabsTrigger>
-          </TabsList>
+    <>
+      <div className={`min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4 ${isMobile ? 'pb-20' : ''}`}>
+        <Card className="w-full max-w-md mx-auto">
+          <CardHeader>
+            <CardTitle className="text-2xl text-center">Riceflow Login</CardTitle>
+            <CardDescription className="text-center">เข้าสู่ระบบหรือลงทะเบียนเพื่อใช้งาน</CardDescription>
+          </CardHeader>
           
-          <TabsContent value="login">
-            <form onSubmit={handleSignIn}>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="login-email">อีเมล</Label>
-                  <Input 
-                    id="login-email"
-                    type="email"
-                    placeholder="อีเมลของคุณ"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
+          <Tabs 
+            defaultValue="login" 
+            value={activeTab} 
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
+            <TabsList className="grid grid-cols-2 mb-4 mx-4">
+              <TabsTrigger value="login">เข้าสู่ระบบ</TabsTrigger>
+              <TabsTrigger value="register">ลงทะเบียน</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="login">
+              <form onSubmit={handleSignIn}>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="login-email">อีเมล</Label>
+                    <Input 
+                      id="login-email"
+                      type="email"
+                      placeholder="อีเมลของคุณ"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="login-password">รหัสผ่าน</Label>
+                    <Input 
+                      id="login-password"
+                      type="password"
+                      placeholder="รหัสผ่านของคุณ"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                </CardContent>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="login-password">รหัสผ่าน</Label>
-                  <Input 
-                    id="login-password"
-                    type="password"
-                    placeholder="รหัสผ่านของคุณ"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-              </CardContent>
-              
-              <CardFooter>
-                <Button 
-                  type="submit" 
-                  className="w-full bg-emerald-600 hover:bg-emerald-700"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
-                </Button>
-              </CardFooter>
-            </form>
-          </TabsContent>
-          
-          <TabsContent value="register">
-            <form onSubmit={handleSignUp}>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="register-email">อีเมล</Label>
-                  <Input 
-                    id="register-email"
-                    type="email"
-                    placeholder="อีเมลของคุณ"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
+                <CardFooter>
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-emerald-600 hover:bg-emerald-700"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
+                  </Button>
+                </CardFooter>
+              </form>
+            </TabsContent>
+            
+            <TabsContent value="register">
+              <form onSubmit={handleSignUp}>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="register-email">อีเมล</Label>
+                    <Input 
+                      id="register-email"
+                      type="email"
+                      placeholder="อีเมลของคุณ"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="register-password">รหัสผ่าน</Label>
+                    <Input 
+                      id="register-password"
+                      type="password"
+                      placeholder="รหัสผ่านของคุณ"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password">ยืนยันรหัสผ่าน</Label>
+                    <Input 
+                      id="confirm-password"
+                      type="password"
+                      placeholder="ยืนยันรหัสผ่านของคุณ"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                </CardContent>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="register-password">รหัสผ่าน</Label>
-                  <Input 
-                    id="register-password"
-                    type="password"
-                    placeholder="รหัสผ่านของคุณ"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="confirm-password">ยืนยันรหัสผ่าน</Label>
-                  <Input 
-                    id="confirm-password"
-                    type="password"
-                    placeholder="ยืนยันรหัสผ่านของคุณ"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                  />
-                </div>
-              </CardContent>
-              
-              <CardFooter>
-                <Button 
-                  type="submit" 
-                  className="w-full bg-emerald-600 hover:bg-emerald-700"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "กำลังลงทะเบียน..." : "ลงทะเบียน"}
-                </Button>
-              </CardFooter>
-            </form>
-          </TabsContent>
-        </Tabs>
-      </Card>
-    </div>
+                <CardFooter>
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-emerald-600 hover:bg-emerald-700"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "กำลังลงทะเบียน..." : "ลงทะเบียน"}
+                  </Button>
+                </CardFooter>
+              </form>
+            </TabsContent>
+          </Tabs>
+        </Card>
+      </div>
+      
+      {/* Mobile Footer Navigation */}
+      {isMobile && <FooterNav />}
+    </>
   );
 }
