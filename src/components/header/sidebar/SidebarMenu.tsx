@@ -1,5 +1,5 @@
 
-import { Home, Settings, AlertCircle, History, User, Users, FileText } from "lucide-react";
+import { Home, Settings, AlertCircle, History, User, Users, FileText, Info } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useActivePath } from "./sidebar-utils";
@@ -40,6 +40,17 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
           isActive={isActive("/equipment")}
           isCollapsed={isCollapsed}
         />
+        
+        {/* Show "รู้จัก Riceflow" only for guests */}
+        {isGuest && (
+          <SidebarMenuItem 
+            path="/about-riceflow" 
+            icon={Info}
+            label="รู้จัก Riceflow"
+            isActive={isActive("/about-riceflow")}
+            isCollapsed={isCollapsed}
+          />
+        )}
         
         {/* Guest users can't access notification history */}
         {user && (
