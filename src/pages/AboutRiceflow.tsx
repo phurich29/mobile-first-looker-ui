@@ -2,7 +2,7 @@
 import { AppLayout } from "@/components/layouts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Leaf, BarChart3, Shield, Users, ExternalLink } from "lucide-react";
+import { Leaf, BarChart3, Shield, Users, ExternalLink, Phone } from "lucide-react";
 
 export default function AboutRiceflow() {
   return (
@@ -134,22 +134,39 @@ export default function AboutRiceflow() {
             พร้อมเริ่มต้นแล้วหรือยัง?
           </h3>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
-            สมัครสมาชิกเพื่อเข้าถึงฟีเจอร์ครบครันของ Riceflow
+            ติดต่อเราเพื่อสอบถามข้อมูลเพิ่มเติมและเริ่มใช้งาน Riceflow
           </p>
-          <Button 
-            asChild
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 text-lg"
-          >
-            <a 
-              href="https://c2tech.app/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2"
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button 
+              asChild
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 text-lg"
             >
-              เข้าสู่เว็บไซต์
-              <ExternalLink className="h-5 w-5" />
-            </a>
-          </Button>
+              <a 
+                href="tel:064-6545636"
+                className="inline-flex items-center gap-2"
+              >
+                <Phone className="h-5 w-5" />
+                โทร 064-6545636
+              </a>
+            </Button>
+            
+            <Button 
+              asChild
+              variant="outline"
+              className="border-emerald-600 text-emerald-600 hover:bg-emerald-50 px-6 py-3"
+            >
+              <a 
+                href="https://c2tech.app/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2"
+              >
+                เข้าสู่เว็บไซต์
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </Button>
+          </div>
         </div>
       </div>
     </AppLayout>
