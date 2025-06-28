@@ -96,6 +96,15 @@ export default function AboutRiceflow() {
           </Card>
         </div>
 
+        {/* Equipment Image Section */}
+        <div className="mb-12">
+          <img 
+            src="/lovable-uploads/49e4e3a9-d748-4edf-bd4f-726dd0b9fde9.png" 
+            alt="เครื่องวิเคราะห์คุณภาพข้าว Panolyzer Rice Quality Analyzer" 
+            className="w-full h-auto rounded-lg shadow-lg border border-gray-200 dark:border-gray-700"
+          />
+        </div>
+
         {/* About Section */}
         <Card className="bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-900/20 dark:to-blue-900/20 border border-emerald-200 dark:border-emerald-800/30">
           <CardContent className="p-8">
