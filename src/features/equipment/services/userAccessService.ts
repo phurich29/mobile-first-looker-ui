@@ -146,7 +146,7 @@ export const loadUsersWithAccess = async (deviceCode: string): Promise<User[]> =
   
   try {
     // Determine which roles the current user can see based on strict rules
-    let allowedRoles: ('user' | 'admin' | 'superadmin')[] = [];
+    let allowedRoles: string[] = [];
     if (isSuperAdmin) {
       // Super admin sees all: user, admin, superadmin
       allowedRoles = ['user', 'admin', 'superadmin'];
