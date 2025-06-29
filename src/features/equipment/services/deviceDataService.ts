@@ -2,39 +2,48 @@
 import { supabase } from "@/integrations/supabase/client";
 import { DeviceInfo } from "../types";
 
-export const fetchDevicesWithDetails = async (): Promise<DeviceInfo[]> => {
+export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean, isSuperAdmin?: boolean): Promise<DeviceInfo[]> => {
   console.log("Fetching devices with details using optimized database function...");
   
   try {
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      console.log("No authenticated user found");
-      return [];
+    // Get current user if not provided
+    let currentUserId = userId;
+    if (!currentUserId) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.log("No authenticated user found");
+        return [];
+      }
+      currentUserId = user.id;
     }
 
-    // Check user role
-    const { data: userRoles } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id);
+    // Check user role if not provided
+    let userIsSuperAdmin = isSuperAdmin;
+    let userIsAdmin = isAdmin;
+    
+    if (userIsSuperAdmin === undefined || userIsAdmin === undefined) {
+      const { data: userRoles } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', currentUserId);
 
-    const isSuperAdmin = userRoles?.some(role => role.role === 'superadmin');
-    const isAdmin = userRoles?.some(role => role.role === 'admin');
+      userIsSuperAdmin = userRoles?.some(role => role.role === 'superadmin') || false;
+      userIsAdmin = userRoles?.some(role => role.role === 'admin') || false;
+    }
 
     let devices: DeviceInfo[] = [];
 
-    if (isSuperAdmin) {
+    if (userIsSuperAdmin) {
       // Super admin sees all devices
       const { data, error } = await supabase.rpc('get_devices_with_details');
       if (error) throw error;
       devices = data || [];
-    } else if (isAdmin) {
+    } else if (userIsAdmin) {
       // Regular admin sees devices they have access to OR devices in guest_device_access
       const { data: accessibleDevices, error: accessError } = await supabase
         .from('user_device_access')
         .select('device_code')
-        .eq('user_id', user.id);
+        .eq('user_id', currentUserId);
 
       if (accessError) throw accessError;
 
@@ -66,7 +75,7 @@ export const fetchDevicesWithDetails = async (): Promise<DeviceInfo[]> => {
       const { data: accessibleDevices, error: accessError } = await supabase
         .from('user_device_access')
         .select('device_code')
-        .eq('user_id', user.id);
+        .eq('user_id', currentUserId);
 
       if (accessError) throw accessError;
 
