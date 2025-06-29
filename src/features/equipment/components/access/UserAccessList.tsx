@@ -9,6 +9,7 @@ interface UserAccessListProps {
   deviceCode: string;
   users: User[];
   setUsers: React.Dispatch<React.SetStateAction<User[]>>;
+  setAllUsers: React.Dispatch<React.SetStateAction<User[]>>;
   isLoading: boolean;
 }
 
@@ -16,6 +17,7 @@ export function UserAccessList({
   deviceCode,
   users,
   setUsers,
+  setAllUsers,
   isLoading
 }: UserAccessListProps) {
   const { toast } = useToast();
@@ -26,12 +28,14 @@ export function UserAccessList({
       const success = await toggleUserDeviceAccess(userId, deviceCode, currentAccess);
       
       if (success) {
-        // Update local state
-        setUsers(prevUsers => 
+        // Update both filtered and all users lists
+        const updateUser = (prevUsers: User[]) => 
           prevUsers.map(u => 
             u.id === userId ? { ...u, hasAccess: !currentAccess } : u
-          )
-        );
+          );
+        
+        setUsers(updateUser);
+        setAllUsers(updateUser);
         
         toast({
           title: "อัพเดทสิทธิ์สำเร็จ",
@@ -61,7 +65,7 @@ export function UserAccessList({
           </div>
         ) : users.length === 0 ? (
           <div className="p-4 text-center text-sm text-gray-500">
-            ไม่พบข้อมูลผู้ใช้ กรุณาค้นหาผู้ใช้ที่ต้องการให้สิทธิ์
+            ไม่พบข้อมูลผู้ใช้ในระบบ
           </div>
         ) : (
           users.map((user) => (

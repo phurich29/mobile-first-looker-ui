@@ -17,17 +17,19 @@ export function UserAccessDialog({
   isOpen,
   onOpenChange
 }: UserAccessDialogProps) {
-  const [users, setUsers] = useState<User[]>([]);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   
-  // Load users when dialog opens
+  // Load all users when dialog opens
   useEffect(() => {
     if (isOpen) {
       const loadUsers = async () => {
         setIsLoading(true);
         try {
           const usersData = await loadUsersWithAccess(deviceCode);
-          setUsers(usersData);
+          setAllUsers(usersData);
+          setFilteredUsers(usersData);
         } catch (error) {
           console.error("Error loading users:", error);
         } finally {
@@ -49,15 +51,18 @@ export function UserAccessDialog({
         <div className="space-y-4 mt-2">
           <UserSearchForm
             deviceCode={deviceCode}
-            users={users}
-            setUsers={setUsers}
+            allUsers={allUsers}
+            setAllUsers={setAllUsers}
+            filteredUsers={filteredUsers}
+            setFilteredUsers={setFilteredUsers}
             setIsLoading={setIsLoading}
           />
           
           <UserAccessList
             deviceCode={deviceCode}
-            users={users}
-            setUsers={setUsers}
+            users={filteredUsers}
+            setUsers={setFilteredUsers}
+            setAllUsers={setAllUsers}
             isLoading={isLoading}
           />
         </div>
