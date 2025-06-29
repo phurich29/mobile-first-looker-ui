@@ -7,14 +7,14 @@ import equipmentIcon from "@/assets/equipment-icon.svg";
 interface EquipmentCardHeaderProps {
   deviceCode: string;
   displayName?: string;
-  isAdmin: boolean;
+  isSuperAdmin: boolean;
   onUsersClick: () => void;
 }
 
 export function EquipmentCardHeader({
   deviceCode,
   displayName,
-  isAdmin,
+  isSuperAdmin,
   onUsersClick
 }: EquipmentCardHeaderProps) {
   return (
@@ -31,7 +31,7 @@ export function EquipmentCardHeader({
             <CardTitle className="text-sm font-bold text-gray-900 dark:text-white truncate pr-1">
               {displayName || deviceCode}
             </CardTitle>
-            {isAdmin && (
+            {isSuperAdmin && (
               <Button
                 variant="ghost"
                 size="sm"
