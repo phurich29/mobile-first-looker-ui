@@ -38,61 +38,20 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
 
     let devices: DeviceInfo[] = [];
 
-    if (userIsSuperAdmin) {
-      // Super admin sees all devices using database function
-      console.log("Fetching devices for SuperAdmin using database function...");
+    // Both SuperAdmin and Admin now see all devices
+    if (userIsSuperAdmin || userIsAdmin) {
+      console.log("Fetching devices for Admin/SuperAdmin using database function...");
       const { data, error } = await supabase.rpc('get_devices_with_details', {
         user_id_param: currentUserId,
         is_admin_param: true,
-        is_superadmin_param: true
+        is_superadmin_param: userIsSuperAdmin
       });
       if (error) {
         console.error("Error from database function:", error);
         throw error;
       }
       devices = data || [];
-      console.log(`SuperAdmin: Found ${devices.length} devices from database function`);
-    } else if (userIsAdmin) {
-      // Regular admin sees devices they have access to OR devices in guest_device_access
-      console.log("Fetching devices for Admin...");
-      
-      const { data: accessibleDevices, error: accessError } = await supabase
-        .from('user_device_access')
-        .select('device_code')
-        .eq('user_id', currentUserId);
-
-      if (accessError) throw accessError;
-
-      const { data: guestDevices, error: guestError } = await supabase
-        .from('guest_device_access')
-        .select('device_code');
-
-      if (guestError) throw guestError;
-
-      // Combine accessible devices and guest devices
-      const allAccessibleDeviceCodes = [
-        ...(accessibleDevices?.map(d => d.device_code) || []),
-        ...(guestDevices?.map(d => d.device_code) || [])
-      ];
-
-      const uniqueDeviceCodes = [...new Set(allAccessibleDeviceCodes)];
-      console.log(`Admin: Found ${uniqueDeviceCodes.length} accessible device codes`);
-
-      if (uniqueDeviceCodes.length > 0) {
-        // Use database function and filter results
-        const { data, error } = await supabase.rpc('get_devices_with_details', {
-          user_id_param: currentUserId,
-          is_admin_param: true,
-          is_superadmin_param: false
-        });
-        if (error) throw error;
-        
-        // Filter to only show devices they have access to
-        devices = (data || []).filter(device => 
-          uniqueDeviceCodes.includes(device.device_code)
-        );
-      }
-      console.log(`Admin: Filtered to ${devices.length} devices`);
+      console.log(`Admin/SuperAdmin: Found ${devices.length} devices from database function`);
     } else {
       // Regular users see devices they have access to OR devices in guest_device_access that are enabled
       console.log("Fetching devices for regular user...");
@@ -169,33 +128,11 @@ export const fetchDeviceCount = async (): Promise<number> => {
 
     let count = 0;
 
-    if (isSuperAdmin) {
-      // Super admin sees all devices
+    // Both SuperAdmin and Admin now see all devices
+    if (isSuperAdmin || isAdmin) {
       const { data, error } = await supabase.rpc('get_devices_with_details');
       if (error) throw error;
       count = data?.length || 0;
-    } else if (isAdmin) {
-      // Regular admin sees devices they have access to OR devices in guest_device_access
-      const { data: accessibleDevices, error: accessError } = await supabase
-        .from('user_device_access')
-        .select('device_code')
-        .eq('user_id', user.id);
-
-      if (accessError) throw accessError;
-
-      const { data: guestDevices, error: guestError } = await supabase
-        .from('guest_device_access')
-        .select('device_code');
-
-      if (guestError) throw guestError;
-
-      // Combine accessible devices and guest devices
-      const allAccessibleDeviceCodes = [
-        ...(accessibleDevices?.map(d => d.device_code) || []),
-        ...(guestDevices?.map(d => d.device_code) || [])
-      ];
-
-      count = new Set(allAccessibleDeviceCodes).size;
     } else {
       // Regular users see devices they have access to OR devices in guest_device_access that are enabled
       const { data: accessibleDevices, error: accessError } = await supabase
