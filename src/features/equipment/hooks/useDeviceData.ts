@@ -22,7 +22,7 @@ export function useDeviceData() {
   // Fetch guest devices
   const fetchGuestDevices = useCallback(async (): Promise<DeviceInfo[]> => {
     try {
-      console.log('Fetching guest devices...');
+      console.log('📱 Fetching guest devices...');
       
       // ดึงรายการอุปกรณ์ที่เปิดให้ guest ดู
       const { data: guestAccessData, error: guestError } = await supabase
@@ -41,39 +41,44 @@ export function useDeviceData() {
       }
 
       const deviceCodes = guestAccessData.map(item => item.device_code);
-      console.log('Guest device codes:', deviceCodes);
+      console.log('📱 Guest device codes:', deviceCodes);
       
-      // ดึงข้อมูล display name และ updated_at
+      // ดึงข้อมูล display name
       const { data: settingsData } = await supabase
         .from('device_settings')
         .select('device_code, display_name')
         .in('device_code', deviceCodes);
 
-      // ดึงข้อมูล updated_at จาก rice_quality_analysis
+      // ดึงข้อมูลล่าสุดจาก rice_quality_analysis พร้อมข้อมูลทั้งหมด
       const { data: analysisData } = await supabase
         .from('rice_quality_analysis')
-        .select('device_code, created_at')
+        .select('*')
         .in('device_code', deviceCodes)
         .order('created_at', { ascending: false });
 
-      // สร้าง map ของ updated_at ล่าสุดสำหรับแต่ละ device
-      const latestTimestamps: Record<string, string> = {};
+      // สร้าง map ของข้อมูลล่าสุดสำหรับแต่ละ device
+      const latestDeviceData: Record<string, any> = {};
       analysisData?.forEach(record => {
-        if (!latestTimestamps[record.device_code]) {
-          latestTimestamps[record.device_code] = record.created_at;
+        if (!latestDeviceData[record.device_code]) {
+          latestDeviceData[record.device_code] = record;
         }
       });
 
       const devicesWithDetails = deviceCodes.map(code => {
         const setting = settingsData?.find(s => s.device_code === code);
+        const deviceAnalysisData = latestDeviceData[code];
+        
+        console.log(`📱 Guest device ${code} data:`, deviceAnalysisData);
+        
         return {
           device_code: code,
           display_name: setting?.display_name || code,
-          updated_at: latestTimestamps[code] || new Date().toISOString()
+          updated_at: deviceAnalysisData?.created_at || new Date().toISOString(),
+          deviceData: deviceAnalysisData || null
         };
       });
 
-      console.log(`Fetched ${devicesWithDetails.length} guest devices`);
+      console.log(`📱 Fetched ${devicesWithDetails.length} guest devices with data`);
       return devicesWithDetails;
     } catch (error) {
       console.error('Error fetching guest devices:', error);
@@ -93,17 +98,54 @@ export function useDeviceData() {
         deviceList = await fetchGuestDevices();
       } else if (user) {
         // สำหรับ User ที่ login แล้ว
-        console.log('Fetching devices using optimized database function...');
+        console.log('🔐 Fetching devices for authenticated user...');
         
-        // Use the new single-query function
+        // Use the existing optimized function but enhance with device data
         deviceList = await fetchDevicesWithDetails(
           user.id,
           isAdmin,
           isSuperAdmin
         );
         
-        console.log(`Fetched ${deviceList.length} devices in single query`);
+        // เพิ่มข้อมูล deviceData สำหรับ authenticated users
+        if (deviceList.length > 0) {
+          const deviceCodes = deviceList.map(d => d.device_code);
+          
+          // ดึงข้อมูลล่าสุดจาก rice_quality_analysis
+          const { data: analysisData } = await supabase
+            .from('rice_quality_analysis')
+            .select('*')
+            .in('device_code', deviceCodes)
+            .order('created_at', { ascending: false });
+
+          // สร้าง map ของข้อมูลล่าสุด
+          const latestDeviceData: Record<string, any> = {};
+          analysisData?.forEach(record => {
+            if (!latestDeviceData[record.device_code]) {
+              latestDeviceData[record.device_code] = record;
+            }
+          });
+
+          // เพิ่ม deviceData เข้าไปในแต่ละ device
+          deviceList = deviceList.map(device => {
+            const deviceAnalysisData = latestDeviceData[device.device_code];
+            console.log(`🔐 User device ${device.device_code} data:`, deviceAnalysisData);
+            
+            return {
+              ...device,
+              deviceData: deviceAnalysisData || null
+            };
+          });
+        }
+        
+        console.log(`🔐 Fetched ${deviceList.length} devices with data for authenticated user`);
       }
+      
+      console.log('🎯 Final device list with data:', deviceList.map(d => ({
+        code: d.device_code,
+        hasData: !!d.deviceData,
+        timestamp: d.updated_at
+      })));
       
       setDevices(deviceList);
       
