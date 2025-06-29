@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { th } from "date-fns/locale";
 
 export const formatEquipmentTime = (lastUpdated: string | null) => {
-  if (!lastUpdated) return "ไม่มีข้อมูล";
+  if (!lastUpdated || lastUpdated === "-") return "ไม่มีข้อมูล";
   
   const date = new Date(lastUpdated);
   // เพิ่มเวลาอีก 7 ชั่วโมง
@@ -12,7 +12,7 @@ export const formatEquipmentTime = (lastUpdated: string | null) => {
 };
 
 export const isRecentUpdate = (lastUpdated: string | null): boolean => {
-  if (!lastUpdated) return false;
+  if (!lastUpdated || lastUpdated === "-") return false;
   
   try {
     // สร้าง Date object จาก lastUpdated และปรับเขตเวลา +7 ชั่วโมง
