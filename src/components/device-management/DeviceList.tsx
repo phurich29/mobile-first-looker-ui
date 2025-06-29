@@ -9,6 +9,7 @@ import { RefreshCw, Search, Settings } from "lucide-react";
 
 interface Device {
   device_code: string;
+  display_name?: string;
 }
 
 interface DeviceListProps {
@@ -28,9 +29,10 @@ export function DeviceList({
 }: DeviceListProps) {
   const [deviceFilter, setDeviceFilter] = useState("");
   
-  // Filter devices based on search input
+  // Filter devices based on search input (search both device code and display name)
   const filteredDevices = devices.filter(device => 
-    device.device_code.toLowerCase().includes(deviceFilter.toLowerCase())
+    device.device_code.toLowerCase().includes(deviceFilter.toLowerCase()) ||
+    (device.display_name && device.display_name.toLowerCase().includes(deviceFilter.toLowerCase()))
   );
   
   return (
@@ -73,6 +75,7 @@ export function DeviceList({
           <ResponsiveTable>
             <TableHeader>
               <TableRow>
+                <TableHead>ชื่ออุปกรณ์</TableHead>
                 <TableHead>รหัสอุปกรณ์</TableHead>
                 <TableHead>จำนวนผู้ใช้ที่มีสิทธิ์เข้าถึง</TableHead>
                 <TableHead className="text-right">การจัดการ</TableHead>
@@ -81,14 +84,19 @@ export function DeviceList({
             <TableBody>
               {filteredDevices.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
                     {devices.length === 0 ? "ไม่พบข้อมูลอุปกรณ์" : "ไม่พบอุปกรณ์ที่ตรงกับการค้นหา"}
                   </TableCell>
                 </TableRow>
               ) : (
                 filteredDevices.map((device) => (
                   <TableRow key={device.device_code}>
-                    <TableCell className="font-medium">{device.device_code}</TableCell>
+                    <TableCell className="font-medium">
+                      {device.display_name || device.device_code}
+                    </TableCell>
+                    <TableCell className="text-gray-600">
+                      {device.device_code}
+                    </TableCell>
                     <TableCell>
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
                         {(deviceUserMap[device.device_code] || []).length} คน

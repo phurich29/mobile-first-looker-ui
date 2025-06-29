@@ -7,6 +7,7 @@ import { DeviceList } from "./DeviceList";
 
 interface Device {
   device_code: string;
+  display_name?: string;
 }
 
 interface User {
@@ -37,9 +38,10 @@ export const AccessMapping = () => {
 
       if (devicesError) throw devicesError;
 
-      // Transform to match Device interface
+      // Transform to match Device interface with display names
       const devicesList = (devicesData || []).map(device => ({
-        device_code: device.device_code
+        device_code: device.device_code,
+        display_name: device.display_name
       }));
 
       setDevices(devicesList);
