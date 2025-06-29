@@ -1,14 +1,7 @@
 
-
 import { DataCategory } from './types';
 
 export const DATA_CATEGORIES: Record<string, DataCategory> = {
-  general: {
-    title: "ข้อมูลทั่วไป",
-    icon: "📋",
-    color: "bg-blue-50 border-blue-200",
-    fields: ['device_code', 'thai_datetime']
-  },
   wholeGrain: {
     title: "พื้นข้าวเต็มเมล็ด",
     icon: "🌾",
@@ -33,4 +26,3 @@ export const DATA_CATEGORIES: Record<string, DataCategory> = {
     ]
   }
 };
-
