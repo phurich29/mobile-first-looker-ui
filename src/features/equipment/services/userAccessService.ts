@@ -9,6 +9,8 @@ export const searchUsersByEmail = async (searchEmail: string, deviceCode: string
     throw new Error("User not authenticated");
   }
 
+  console.log("Searching for email:", searchEmail);
+
   // Search for the user by email
   const { data: userData, error: userError } = await supabase
     .from('profiles')
@@ -21,29 +23,36 @@ export const searchUsersByEmail = async (searchEmail: string, deviceCode: string
     throw new Error("Cannot search for users");
   }
   
+  console.log("Found users in profiles:", userData);
+  
   if (!userData || userData.length === 0) {
+    console.log("No users found in profiles table");
     return [];
   }
   
-  // Check if users have proper roles (user, admin, or superadmin)
+  // Check if users have any roles (including waiting_list)
   const userIds = userData.map(u => u.id);
   const { data: userRoleUsers, error: userRoleError } = await supabase
     .from('user_roles')
     .select('user_id, role')
-    .in('user_id', userIds)
-    .in('role', ['user', 'admin', 'superadmin']);
+    .in('user_id', userIds);
     
   if (userRoleError) {
     console.error("Error checking user roles:", userRoleError);
   }
   
-  // Create a set of user IDs with proper roles
+  console.log("User roles found:", userRoleUsers);
+  
+  // Create a set of user IDs with any roles (including waiting_list)
   const userRoleUserIds = new Set(userRoleUsers?.map(u => u.user_id) || []);
   
-  // Filter to only include users with proper roles
+  // Include users who have any role (including waiting_list)
   const filteredUsers = userData.filter(u => userRoleUserIds.has(u.id));
   
+  console.log("Filtered users with roles:", filteredUsers);
+  
   if (filteredUsers.length === 0) {
+    console.log("No users found with any roles");
     return [];
   }
   
@@ -64,11 +73,14 @@ export const searchUsersByEmail = async (searchEmail: string, deviceCode: string
   const userIdsWithAccess = new Set(accessData?.map(record => record.user_id) || []);
   
   // Combine the data
-  return filteredUsers.map(u => ({
+  const result = filteredUsers.map(u => ({
     id: u.id,
     email: u.email || "ไม่มีอีเมล",
     hasAccess: userIdsWithAccess.has(u.id)
   }));
+  
+  console.log("Final search result:", result);
+  return result;
 };
 
 // Toggle device access for a user
