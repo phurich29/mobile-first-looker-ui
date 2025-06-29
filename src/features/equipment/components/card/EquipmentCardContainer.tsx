@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { EquipmentCardHeader } from "./EquipmentCardHeader";
 import { EquipmentCardContent } from "./EquipmentCardContent";
 import { EquipmentCardDialogs } from "./EquipmentCardDialogs";
-import { UserAccessDialog } from "../../access/UserAccessDialog";
+import { UserAccessDialog } from "../access/UserAccessDialog";
 import { useEquipmentCard } from "./hooks/useEquipmentCard";
 import { useState } from "react";
 
