@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -63,20 +63,57 @@ export const AccessMapping = () => {
       });
       setUserDetailsMap(userMap);
 
-      // Fetch device-user mappings
+      // Fetch user roles to determine implicit access
+      const { data: userRolesData, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (rolesError) throw rolesError;
+
+      // Create role mapping
+      const userRoleMap: Record<string, string[]> = {};
+      (userRolesData || []).forEach(roleData => {
+        if (!userRoleMap[roleData.user_id]) {
+          userRoleMap[roleData.user_id] = [];
+        }
+        userRoleMap[roleData.user_id].push(roleData.role);
+      });
+
+      // Fetch explicit device-user mappings
       const { data: accessData, error: accessError } = await supabase
         .from('user_device_access')
         .select('user_id, device_code');
 
       if (accessError) throw accessError;
 
-      // Create device-user mapping
+      // Create device-user mapping including both explicit and implicit access
       const deviceMap: Record<string, string[]> = {};
+      
+      // Initialize all devices with empty arrays
+      devicesList.forEach(device => {
+        deviceMap[device.device_code] = [];
+      });
+
+      // Add users with explicit access
       (accessData || []).forEach(access => {
         if (!deviceMap[access.device_code]) {
           deviceMap[access.device_code] = [];
         }
-        deviceMap[access.device_code].push(access.user_id);
+        if (!deviceMap[access.device_code].includes(access.user_id)) {
+          deviceMap[access.device_code].push(access.user_id);
+        }
+      });
+
+      // Add users with implicit access (admins and superadmins have access to all devices)
+      Object.keys(userRoleMap).forEach(userId => {
+        const roles = userRoleMap[userId];
+        if (roles.includes('admin') || roles.includes('superadmin')) {
+          devicesList.forEach(device => {
+            if (!deviceMap[device.device_code].includes(userId)) {
+              deviceMap[device.device_code].push(userId);
+            }
+          });
+        }
       });
 
       setDeviceUserMap(deviceMap);
