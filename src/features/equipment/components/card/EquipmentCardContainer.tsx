@@ -9,7 +9,6 @@ interface EquipmentCardContainerProps {
   deviceCode: string;
   lastUpdated: string | null;
   isAdmin?: boolean;
-  isSuperAdmin?: boolean;
   displayName?: string;
   onDeviceUpdated?: () => void;
 }
@@ -18,7 +17,6 @@ export function EquipmentCardContainer({
   deviceCode,
   lastUpdated,
   isAdmin = false,
-  isSuperAdmin = false,
   displayName,
   onDeviceUpdated
 }: EquipmentCardContainerProps) {
@@ -38,7 +36,7 @@ export function EquipmentCardContainer({
         <EquipmentCardHeader
           deviceCode={deviceCode}
           displayName={displayName}
-          isSuperAdmin={isSuperAdmin}
+          isAdmin={isAdmin}
           onUsersClick={() => setIsUsersDialogOpen(true)}
         />
         

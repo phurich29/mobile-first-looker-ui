@@ -1,64 +1,53 @@
 
-import { useIsMobile } from "@/hooks/use-mobile";
+import { DeviceInfo } from "../types";
 import { EquipmentCard } from "./EquipmentCard";
-
-interface Device {
-  device_code: string;
-  display_name?: string;
-  updated_at: string | null;
-}
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface DevicesGridProps {
-  devices: Device[];
-  isAdmin: boolean;
-  isSuperAdmin: boolean;
+  devices: DeviceInfo[];
   isLoading: boolean;
-  onDeviceUpdated: () => void;
+  isAdmin?: boolean;
+  isSuperAdmin?: boolean;
+  onDeviceUpdated?: () => void;
 }
 
 export function DevicesGrid({ 
   devices, 
-  isAdmin, 
-  isSuperAdmin,
   isLoading, 
-  onDeviceUpdated 
+  isAdmin = false,
+  isSuperAdmin = false,
+  onDeviceUpdated
 }: DevicesGridProps) {
-  const isMobile = useIsMobile();
-
+  // If loading, show skeleton cards
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-        {[...Array(8)].map((_, i) => (
-          <div key={i} className="bg-white/70 dark:bg-gray-800/40 p-5 rounded-xl border border-gray-100 dark:border-gray-800/30 shadow-md backdrop-blur-sm animate-pulse">
-            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
-            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} className="h-64 rounded-lg" />
         ))}
       </div>
     );
   }
 
-  if (devices.length === 0) {
+  // If no devices, show message
+  if (!devices || devices.length === 0) {
     return (
-      <div className="text-center py-8">
-        <div className="text-6xl mb-4">📱</div>
-        <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">ไม่พบอุปกรณ์</h3>
-        <p className="text-gray-500 dark:text-gray-400">ยังไม่มีอุปกรณ์ที่ลงทะเบียนในระบบ</p>
+      <div className="p-8 text-center bg-gray-50 rounded-lg border border-gray-200">
+        <p className="text-gray-500">ไม่พบอุปกรณ์ที่คุณมีสิทธิ์เข้าถึง</p>
       </div>
     );
   }
 
+  // Show devices grid
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {devices.map((device) => (
         <EquipmentCard
           key={device.device_code}
           deviceCode={device.device_code}
-          displayName={device.display_name}
           lastUpdated={device.updated_at}
-          isAdmin={isAdmin}
-          isSuperAdmin={isSuperAdmin}
+          displayName={device.display_name}
+          isAdmin={isAdmin || isSuperAdmin}
           onDeviceUpdated={onDeviceUpdated}
         />
       ))}
