@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -49,7 +48,7 @@ export const PWAInstallBanner: React.FC = () => {
 
   const getInstallMessage = () => {
     if (isIOS) {
-      return 'เพิ่ม Riceflow ลงหน้าจอหลักของ iPhone/iPad';
+      return 'เพิ่ม Riceflow ไปยังหน้าจอโฮมของ iPhone/iPad';
     } else if (isMobile) {
       return 'ติดตั้ง Riceflow เป็นแอปบนมือถือของคุณ';
     } else if (isTablet) {
@@ -92,8 +91,8 @@ export const PWAInstallBanner: React.FC = () => {
                   <Plus className="h-4 w-4 text-emerald-600" />
                 </div>
                 <div>
-                  <div className="font-medium">2. เลือก "เพิ่มสู่หน้าจอหลัก"</div>
-                  <div className="text-gray-600">เลื่อนลงและแตะ "เพิ่มสู่หน้าจอหลัก"</div>
+                  <div className="font-medium">2. เลือก "เพิ่มไปยังหน้าจอโฮม"</div>
+                  <div className="text-gray-600">เลื่อนลงและแตะ "เพิ่มไปยังหน้าจอโฮม"</div>
                 </div>
               </div>
               
