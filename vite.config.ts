@@ -65,14 +65,6 @@ export default defineConfig(({ mode }) => ({
               expiration: {
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 // 1 hour only
-              },
-              cacheKeyWillBeUsed: async ({ request }) => {
-                // Add timestamp to prevent auth cache issues
-                const url = new URL(request.url);
-                if (url.pathname.includes('auth') || url.pathname.includes('token')) {
-                  url.searchParams.set('_t', Date.now().toString());
-                }
-                return url.toString();
               }
             }
           },
