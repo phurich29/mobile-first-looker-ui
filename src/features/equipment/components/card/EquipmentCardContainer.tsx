@@ -3,12 +3,15 @@ import { Card } from "@/components/ui/card";
 import { EquipmentCardHeader } from "./EquipmentCardHeader";
 import { EquipmentCardContent } from "./EquipmentCardContent";
 import { EquipmentCardDialogs } from "./EquipmentCardDialogs";
+import { UserAccessDialog } from "../../access/UserAccessDialog";
 import { useEquipmentCard } from "./hooks/useEquipmentCard";
+import { useState } from "react";
 
 interface EquipmentCardContainerProps {
   deviceCode: string;
   lastUpdated: string | null;
   isAdmin?: boolean;
+  isSuperAdmin?: boolean;
   displayName?: string;
   onDeviceUpdated?: () => void;
 }
@@ -17,12 +20,13 @@ export function EquipmentCardContainer({
   deviceCode,
   lastUpdated,
   isAdmin = false,
+  isSuperAdmin = false,
   displayName,
   onDeviceUpdated
 }: EquipmentCardContainerProps) {
+  const [isUsersDialogOpen, setIsUsersDialogOpen] = useState(false);
+  
   const {
-    isUsersDialogOpen,
-    setIsUsersDialogOpen,
     isEditDialogOpen,
     setIsEditDialogOpen,
     newDisplayName,
@@ -36,23 +40,33 @@ export function EquipmentCardContainer({
         <EquipmentCardHeader
           deviceCode={deviceCode}
           displayName={displayName}
-          isAdmin={isAdmin}
+          isSuperAdmin={isSuperAdmin}
           onUsersClick={() => setIsUsersDialogOpen(true)}
         />
         
         <EquipmentCardContent
           deviceCode={deviceCode}
           lastUpdated={lastUpdated}
-          isAdmin={isAdmin}
+          isAdmin={isAdmin || isSuperAdmin}
           onEditClick={() => setIsEditDialogOpen(true)}
         />
       </Card>
       
-      {isAdmin && (
+      {/* User Access Dialog for Super Admin */}
+      {isSuperAdmin && (
+        <UserAccessDialog
+          deviceCode={deviceCode}
+          isOpen={isUsersDialogOpen}
+          onOpenChange={setIsUsersDialogOpen}
+        />
+      )}
+      
+      {/* Edit Dialog for Admin/Super Admin */}
+      {(isAdmin || isSuperAdmin) && (
         <EquipmentCardDialogs
           deviceCode={deviceCode}
-          isUsersDialogOpen={isUsersDialogOpen}
-          onUsersDialogChange={setIsUsersDialogOpen}
+          isUsersDialogOpen={false}
+          onUsersDialogChange={() => {}}
           isEditDialogOpen={isEditDialogOpen}
           onEditDialogChange={setIsEditDialogOpen}
           newDisplayName={newDisplayName}

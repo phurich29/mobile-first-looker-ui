@@ -5,6 +5,7 @@ interface EquipmentCardProps {
   deviceCode: string;
   lastUpdated: string | null;
   isAdmin?: boolean;
+  isSuperAdmin?: boolean;
   displayName?: string;
   onDeviceUpdated?: () => void;
 }

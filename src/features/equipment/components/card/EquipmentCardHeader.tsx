@@ -7,14 +7,14 @@ import equipmentIcon from "@/assets/equipment-icon.svg";
 interface EquipmentCardHeaderProps {
   deviceCode: string;
   displayName?: string;
-  isAdmin: boolean;
+  isSuperAdmin: boolean;
   onUsersClick: () => void;
 }
 
 export function EquipmentCardHeader({
   deviceCode,
   displayName,
-  isAdmin,
+  isSuperAdmin,
   onUsersClick
 }: EquipmentCardHeaderProps) {
   return (
@@ -31,12 +31,13 @@ export function EquipmentCardHeader({
             <CardTitle className="text-sm font-bold text-gray-900 dark:text-white truncate pr-1">
               {displayName || deviceCode}
             </CardTitle>
-            {isAdmin && (
+            {isSuperAdmin && (
               <Button
                 variant="ghost"
                 size="sm"
                 className="h-6 w-6 p-0 ml-1 flex-shrink-0 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                 onClick={onUsersClick}
+                title="จัดการสิทธิ์การเข้าถึงอุปกรณ์"
               >
                 <Users className="h-4 w-4" />
               </Button>

@@ -47,7 +47,8 @@ export function DevicesGrid({
           deviceCode={device.device_code}
           lastUpdated={device.updated_at}
           displayName={device.display_name}
-          isAdmin={isAdmin || isSuperAdmin}
+          isAdmin={isAdmin}
+          isSuperAdmin={isSuperAdmin}
           onDeviceUpdated={onDeviceUpdated}
         />
       ))}
