@@ -129,31 +129,60 @@ export const loadUsersWithAccess = async (deviceCode: string): Promise<User[]> =
     throw new Error("User not authenticated");
   }
   
+  // Get current user's roles to determine what users they can see
+  const { data: currentUserRoles, error: currentUserRolesError } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', user.id);
+    
+  if (currentUserRolesError) {
+    console.error("Error fetching current user roles:", currentUserRolesError);
+    throw new Error("Cannot fetch current user roles");
+  }
+  
+  const userRoles = currentUserRoles?.map(r => r.role) || [];
+  const isSuperAdmin = userRoles.includes('superadmin');
+  const isAdmin = userRoles.includes('admin');
+  
   try {
-    // Fetch all users who are not on waiting list (since we removed waiting_list, get users with proper roles)
-    const { data: usersData, error: usersError } = await supabase
-      .from('profiles')
-      .select('id, email')
-      .order('email');
-      
-    if (usersError) {
-      console.error("Error fetching users:", usersError);
-      throw new Error("Cannot fetch users");
+    // Determine which roles the current user can see
+    let allowedRoles = ['user'];
+    if (isSuperAdmin) {
+      allowedRoles = ['user', 'admin', 'superadmin']; // Super admin sees all
+    } else if (isAdmin) {
+      allowedRoles = ['user', 'admin']; // Admin sees user and admin, but not superadmin
+    } else {
+      allowedRoles = ['user']; // Regular user sees only other users
     }
     
-    // Filter to only include users with proper roles (user, admin, or superadmin)
+    // Fetch all users with allowed roles
     const { data: userRoleUsers, error: userRoleError } = await supabase
       .from('user_roles')
-      .select('user_id')
-      .in('role', ['user', 'admin', 'superadmin']);
+      .select('user_id, role')
+      .in('role', allowedRoles);
       
     if (userRoleError) {
       console.error("Error fetching user roles:", userRoleError);
       throw new Error("Cannot fetch user roles");
     }
     
-    const userRoleUserIds = new Set(userRoleUsers?.map(u => u.user_id) || []);
-    const filteredUsers = usersData?.filter(u => userRoleUserIds.has(u.id)) || [];
+    const userRoleUserIds = userRoleUsers?.map(u => u.user_id) || [];
+    
+    if (userRoleUserIds.length === 0) {
+      return [];
+    }
+    
+    // Fetch profile data for these users
+    const { data: usersData, error: usersError } = await supabase
+      .from('profiles')
+      .select('id, email')
+      .in('id', userRoleUserIds)
+      .order('email');
+      
+    if (usersError) {
+      console.error("Error fetching users:", usersError);
+      throw new Error("Cannot fetch users");
+    }
     
     // Fetch device access records for this device
     const { data: accessData, error: accessError } = await supabase
@@ -166,15 +195,34 @@ export const loadUsersWithAccess = async (deviceCode: string): Promise<User[]> =
       throw new Error("Cannot fetch device access");
     }
     
-    // Create a set of user IDs with access
-    const userIdsWithAccess = new Set(accessData?.map(record => record.user_id) || []);
+    // Create a set of user IDs with explicit access
+    const userIdsWithExplicitAccess = new Set(accessData?.map(record => record.user_id) || []);
     
-    // Combine the data
-    return filteredUsers.map(userData => ({
-      id: userData.id,
-      email: userData.email || "ไม่มีอีเมล",
-      hasAccess: userIdsWithAccess.has(userData.id)
-    }));
+    // Create a map of user roles for quick lookup
+    const userRoleMap = new Map();
+    userRoleUsers?.forEach(ur => {
+      if (!userRoleMap.has(ur.user_id)) {
+        userRoleMap.set(ur.user_id, []);
+      }
+      userRoleMap.get(ur.user_id).push(ur.role);
+    });
+    
+    // Combine the data and determine access
+    return usersData?.map(userData => {
+      const roles = userRoleMap.get(userData.id) || [];
+      const isUserAdmin = roles.includes('admin');
+      const isUserSuperAdmin = roles.includes('superadmin');
+      
+      // Admin and Super Admin have implicit access to all devices
+      const hasImplicitAccess = isUserAdmin || isUserSuperAdmin;
+      const hasExplicitAccess = userIdsWithExplicitAccess.has(userData.id);
+      
+      return {
+        id: userData.id,
+        email: userData.email || "ไม่มีอีเมล",
+        hasAccess: hasImplicitAccess || hasExplicitAccess
+      };
+    }) || [];
   } catch (error) {
     console.error("Unexpected error:", error);
     throw error;
