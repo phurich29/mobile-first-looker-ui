@@ -63,21 +63,26 @@ export const AccessMapping = () => {
       });
       setUserDetailsMap(userMap);
 
-      // Fetch user roles to determine implicit access
-      const { data: userRolesData, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
-
-      if (rolesError) throw rolesError;
-
-      // Create role mapping
+      // Get user roles for all users using RPC function
       const userRoleMap: Record<string, string[]> = {};
-      (userRolesData || []).forEach(roleData => {
-        if (!userRoleMap[roleData.user_id]) {
-          userRoleMap[roleData.user_id] = [];
+      
+      // Fetch roles for each user
+      for (const userData of (usersData || [])) {
+        try {
+          const { data: rolesData, error: roleError } = await supabase.rpc('get_user_roles', {
+            user_id: userData.id
+          });
+          
+          if (!roleError && rolesData) {
+            userRoleMap[userData.id] = rolesData;
+          } else {
+            userRoleMap[userData.id] = [];
+          }
+        } catch (error) {
+          console.error(`Error fetching roles for user ${userData.id}:`, error);
+          userRoleMap[userData.id] = [];
         }
-        userRoleMap[roleData.user_id].push(roleData.role);
-      });
+      }
 
       // Fetch explicit device-user mappings
       const { data: accessData, error: accessError } = await supabase
