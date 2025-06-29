@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layouts/app-layout";
@@ -25,10 +24,9 @@ import { LoadingScreen } from "@/features/device-details/components/LoadingScree
 import { lazy, Suspense } from "react";
 
 // Lazy load the DeviceHistoryTable component with named export
-const DeviceHistoryTable = lazy(() => 
-  import("@/features/device-details/components/DeviceHistoryTable")
-    .then(module => ({ default: module.DeviceHistoryTable }))
-);
+const DeviceHistoryTable = lazy(() => import("@/features/device-details/components/DeviceHistoryTable").then(module => ({
+  default: module.DeviceHistoryTable
+})));
 
 // Helper function to convert URL symbol back to measurement symbol
 const convertUrlSymbolToMeasurementSymbol = (urlSymbol: string): string => {
@@ -62,7 +60,6 @@ const convertUrlSymbolToMeasurementSymbol = (urlSymbol: string): string => {
   };
   return symbolMap[urlSymbol.toLowerCase()] || urlSymbol;
 };
-
 export default function DeviceDetails() {
   const {
     deviceCode,
@@ -75,8 +72,10 @@ export default function DeviceDetails() {
     symbol: string;
     name: string;
   } | null>(null);
-  const { user, userRoles } = useAuth();
-
+  const {
+    user,
+    userRoles
+  } = useAuth();
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
 
@@ -85,13 +84,16 @@ export default function DeviceDetails() {
   const measurementName = measurementSymbol ? getColumnThaiName(measurementSymbol) : null;
 
   // Check device access permissions
-  const { data: accessibleDevices, isLoading: isCheckingAccess } = useQuery({
+  const {
+    data: accessibleDevices,
+    isLoading: isCheckingAccess
+  } = useQuery({
     queryKey: ['deviceAccess', user?.id, userRoles],
     queryFn: async () => {
       if (!user) return [];
       return await fetchDevicesWithDetails(user.id, isAdmin, isSuperAdmin);
     },
-    enabled: !!user,
+    enabled: !!user
   });
 
   // Use custom hooks
@@ -147,23 +149,18 @@ export default function DeviceDetails() {
 
   // If user doesn't have access to this device, show unauthorized message
   if (deviceCode && deviceCode !== 'default' && !hasDeviceAccess) {
-    return (
-      <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-4'}>
+    return <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-4'}>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center p-8">
             <div className="text-6xl mb-4">🔒</div>
             <h2 className="text-2xl font-bold text-gray-800 mb-2">ไม่พบอุปกรณ์ที่คุณมีสิทธิ์เข้าถึง</h2>
-            <p className="text-gray-600 mb-4">ขออภัย คุณไม่สามารถเข้าถึงอุปกรณ์นี้ได้</p>
-            <button
-              onClick={() => navigate('/equipment')}
-              className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
-            >
+            
+            <button onClick={() => navigate('/equipment')} className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors">
               กลับไปหน้าอุปกรณ์
             </button>
           </div>
         </div>
-      </AppLayout>
-    );
+      </AppLayout>;
   }
 
   // Show measurement history if a measurement symbol is present in URL
@@ -192,20 +189,16 @@ export default function DeviceDetails() {
           </div>
 
           {/* Add Device History Table at the bottom with Suspense for lazy loading */}
-          {deviceCode && deviceCode !== 'default' && (
-            <div className="px-0">
-              <Suspense fallback={
-                <div className="bg-white rounded-lg shadow-sm p-6 mb-4">
+          {deviceCode && deviceCode !== 'default' && <div className="px-0">
+              <Suspense fallback={<div className="bg-white rounded-lg shadow-sm p-6 mb-4">
                   <h3 className="text-lg font-semibold mb-4">ประวัติข้อมูลทั้งหมด</h3>
                   <div className="flex justify-center items-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
                   </div>
-                </div>
-              }>
+                </div>}>
                 <DeviceHistoryTable deviceCode={deviceCode} />
               </Suspense>
-            </div>
-          )}
+            </div>}
         </div>
       </AppLayout>
     </CountdownProvider>;
