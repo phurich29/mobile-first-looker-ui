@@ -9,6 +9,9 @@ import { CountdownProvider } from "@/contexts/CountdownContext";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { Wheat } from "lucide-react";
 import { getColumnThaiName } from "@/lib/columnTranslations";
+import { useAuth } from "@/components/AuthProvider";
+import { useQuery } from "@tanstack/react-query";
+import { fetchDevicesWithDetails } from "@/features/equipment/services";
 
 // Import custom hooks
 import { useDeviceData } from "@/features/device-details/hooks/useDeviceData";
@@ -72,10 +75,24 @@ export default function DeviceDetails() {
     symbol: string;
     name: string;
   } | null>(null);
+  const { user, userRoles } = useAuth();
+
+  const isAdmin = userRoles.includes('admin');
+  const isSuperAdmin = userRoles.includes('superadmin');
 
   // Convert URL symbol to measurement symbol if present
   const measurementSymbol = urlSymbol ? convertUrlSymbolToMeasurementSymbol(urlSymbol) : null;
   const measurementName = measurementSymbol ? getColumnThaiName(measurementSymbol) : null;
+
+  // Check device access permissions
+  const { data: accessibleDevices, isLoading: isCheckingAccess } = useQuery({
+    queryKey: ['deviceAccess', user?.id, userRoles],
+    queryFn: async () => {
+      if (!user) return [];
+      return await fetchDevicesWithDetails(user.id, isAdmin, isSuperAdmin);
+    },
+    enabled: !!user,
+  });
 
   // Use custom hooks
   useDefaultDeviceRedirect(deviceCode);
@@ -91,6 +108,9 @@ export default function DeviceDetails() {
     isLoadingAllData,
     refreshData
   } = useDeviceData(deviceCode);
+
+  // Check if user has access to the current device
+  const hasDeviceAccess = accessibleDevices?.some(device => device.device_code === deviceCode) ?? false;
 
   // Handle measurement item click - now navigates to device-specific URL
   const handleMeasurementClick = (symbol: string, name: string) => {
@@ -115,9 +135,35 @@ export default function DeviceDetails() {
     refreshData();
   };
 
+  // If still checking access permissions, show loading
+  if (isCheckingAccess) {
+    return <LoadingScreen />;
+  }
+
   // If deviceCode is 'default', show loading screen
   if (deviceCode === 'default') {
     return <LoadingScreen />;
+  }
+
+  // If user doesn't have access to this device, show unauthorized message
+  if (deviceCode && deviceCode !== 'default' && !hasDeviceAccess) {
+    return (
+      <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-4'}>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center p-8">
+            <div className="text-6xl mb-4">🔒</div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">ไม่มีสิทธิ์เข้าถึง</h2>
+            <p className="text-gray-600 mb-4">คุณไม่มีสิทธิ์เข้าถึงอุปกรณ์นี้</p>
+            <button
+              onClick={() => navigate('/equipment')}
+              className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+            >
+              กลับไปหน้าอุปกรณ์
+            </button>
+          </div>
+        </div>
+      </AppLayout>
+    );
   }
 
   // Show measurement history if a measurement symbol is present in URL
