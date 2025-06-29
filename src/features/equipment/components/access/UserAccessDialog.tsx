@@ -4,6 +4,7 @@ import { User } from "../../types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { UserAccessList } from "./UserAccessList";
 import { UserSearchForm } from "./UserSearchForm";
+import { loadUsersWithAccess } from "../../services/userAccessService";
 
 interface UserAccessDialogProps {
   deviceCode: string;
@@ -19,9 +20,28 @@ export function UserAccessDialog({
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   
+  // Load users when dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      const loadUsers = async () => {
+        setIsLoading(true);
+        try {
+          const usersData = await loadUsersWithAccess(deviceCode);
+          setUsers(usersData);
+        } catch (error) {
+          console.error("Error loading users:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      loadUsers();
+    }
+  }, [isOpen, deviceCode]);
+  
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>จัดการสิทธิ์การเข้าถึงอุปกรณ์ {deviceCode}</DialogTitle>
         </DialogHeader>
