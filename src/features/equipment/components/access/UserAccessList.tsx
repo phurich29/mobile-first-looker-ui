@@ -54,44 +54,41 @@ export function UserAccessList({
     }
   };
   
+  // Filter only users who have access to this device
+  const usersWithAccess = users.filter(user => user.hasAccess);
+  
   return (
     <div className="space-y-1">
-      <h3 className="text-sm font-medium">รายชื่อผู้ใช้</h3>
+      <h3 className="text-sm font-medium">ผู้ใช้ที่มีสิทธิ์เข้าถึงอุปกรณ์นี้</h3>
       
       <div className="border rounded-md divide-y max-h-[300px] overflow-y-auto">
         {isLoading ? (
           <div className="p-4 text-center text-sm text-gray-500">
             กำลังโหลดข้อมูลผู้ใช้...
           </div>
-        ) : users.length === 0 ? (
+        ) : usersWithAccess.length === 0 ? (
           <div className="p-4 text-center text-sm text-gray-500">
-            ไม่พบข้อมูลผู้ใช้ในระบบ
+            ยังไม่มีผู้ใช้ที่มีสิทธิ์เข้าถึงอุปกรณ์นี้
           </div>
         ) : (
-          users.map((user) => (
+          usersWithAccess.map((user) => (
             <div key={user.id} className="p-3 flex justify-between items-center">
               <div className="truncate flex-1">
                 <div className="text-sm font-medium truncate">
                   {user.email}
                 </div>
+                <div className="text-xs text-green-600 mt-1">
+                  มีสิทธิ์เข้าถึง
+                </div>
               </div>
               <Button
-                variant={user.hasAccess ? "destructive" : "outline"}
+                variant="destructive"
                 size="sm"
                 onClick={() => toggleAccess(user.id, user.hasAccess)}
                 className="ml-2 flex items-center"
               >
-                {user.hasAccess ? (
-                  <>
-                    <X className="h-3 w-3 mr-1" />
-                    <span className="text-xs">ลบสิทธิ์</span>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    <span className="text-xs">ให้สิทธิ์</span>
-                  </>
-                )}
+                <X className="h-3 w-3 mr-1" />
+                <span className="text-xs">ลบสิทธิ์</span>
               </Button>
             </div>
           ))
