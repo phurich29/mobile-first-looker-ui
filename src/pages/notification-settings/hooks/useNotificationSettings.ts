@@ -1,23 +1,54 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { NotificationSetting } from "../types";
+import { fetchDevicesWithDetails } from "@/features/equipment/services";
+import { useAuth } from "@/components/AuthProvider";
 
 export const useNotificationSettings = () => {
   const { toast } = useToast();
   const [settings, setSettings] = useState<NotificationSetting[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user, userRoles } = useAuth();
+
+  const isAdmin = userRoles.includes('admin');
+  const isSuperAdmin = userRoles.includes('superadmin');
+
+  // Function to fetch accessible device codes for the current user
+  const fetchAccessibleDeviceCodes = useCallback(async (): Promise<string[]> => {
+    if (!user) return [];
+
+    try {
+      // Use the same device access logic as other pages
+      const devices = await fetchDevicesWithDetails(user.id, isAdmin, isSuperAdmin);
+      return devices.map(device => device.device_code);
+    } catch (error) {
+      console.error("Error fetching accessible devices:", error);
+      return [];
+    }
+  }, [user, isAdmin, isSuperAdmin]);
 
   const fetchSettings = async () => {
     try {
       setLoading(true);
       
-      // Fetch ALL notification settings (not just enabled ones)
+      // Get accessible device codes first
+      const accessibleDeviceCodes = await fetchAccessibleDeviceCodes();
+      console.log("🔐 User has access to devices:", accessibleDeviceCodes);
+      
+      if (accessibleDeviceCodes.length === 0) {
+        console.log("❌ No accessible devices found for notification settings");
+        setSettings([]);
+        return;
+      }
+      
+      // Fetch notification settings only for accessible devices
       const { data: notificationSettings, error: settingsError } = await supabase
         .from('notification_settings')
         .select('*')
+        .in('device_code', accessibleDeviceCodes) // Filter by accessible devices
         .order('id', { ascending: true });
         
       if (settingsError) throw settingsError;
@@ -43,6 +74,7 @@ export const useNotificationSettings = () => {
           };
         });
         
+        console.log("✅ Fetched notification settings for accessible devices:", enrichedSettings.length);
         setSettings(enrichedSettings);
       } else {
         setSettings(notificationSettings);
@@ -61,8 +93,10 @@ export const useNotificationSettings = () => {
   };
 
   useEffect(() => {
-    fetchSettings();
-  }, [toast]);
+    if (user) {
+      fetchSettings();
+    }
+  }, [user, userRoles]);
 
   return { settings, loading, error, fetchSettings };
 };
