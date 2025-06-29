@@ -1,16 +1,12 @@
 
-import React, { Suspense, useState } from "react";
+import React, { Suspense } from "react";
 import { AppLayout } from "@/components/layouts/app-layout";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Wheat, BarChart3 } from "lucide-react";
+import { Wheat } from "lucide-react";
 import { DeviceHeader } from "./DeviceHeader";
 import { MeasurementTabs } from "./MeasurementTabs";
 import { NotificationSetting } from "../types";
 import { lazy } from "react";
-import { Button } from "@/components/ui/button";
-import { GraphSelector } from "@/components/graph-monitor/GraphSelector";
-import { SelectedGraph } from "@/components/graph-monitor/types";
-import { useToast } from "@/components/ui/use-toast";
 
 // Lazy load the DeviceHistoryTable component
 const DeviceHistoryTable = lazy(() => import("./DeviceHistoryTable").then(module => ({
@@ -49,59 +45,19 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
   onMeasurementClick
 }) => {
   const isMobile = useIsMobile();
-  const { toast } = useToast();
-  const [graphSelectorOpen, setGraphSelectorOpen] = useState(false);
-
-  const handleAddGraph = (deviceCode: string, symbol: string, name: string, deviceName?: string) => {
-    // Navigate to the device-specific graph monitor page
-    const url = `/device/${deviceCode}/graphs`;
-    
-    // Store the selected graph info in sessionStorage for the graph monitor page to pick up
-    const graphInfo = {
-      deviceCode,
-      symbol,
-      name,
-      deviceName
-    };
-    sessionStorage.setItem('pendingGraph', JSON.stringify(graphInfo));
-    
-    // Open in new tab/window
-    window.open(url, '_blank');
-    
-    // Close the selector
-    setGraphSelectorOpen(false);
-    
-    toast({
-      title: "เปิดหน้า Graph Monitor",
-      description: `กำลังเปิดหน้า Graph Monitor สำหรับ ${name} ในแท็บใหม่`,
-    });
-  };
 
   return (
     <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-4'}>
       <div className="flex-1">
         <div className="px-[5%] mb-3 flex justify-between items-center md:px-0">
           <DeviceHeader deviceCode={deviceCode} />
-          <div className="flex items-center gap-3">
-            {/* Add Graph Button - Show for all users including guests */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setGraphSelectorOpen(true)}
-              className="flex items-center gap-2 bg-white/80 hover:bg-white/90 backdrop-blur-sm border-emerald-200 text-emerald-700 hover:text-emerald-800"
-            >
-              <BarChart3 className="h-4 w-4" />
-              <span className="hidden sm:inline">เพิ่มกราฟ</span>
-            </Button>
-            
+          <div className="flex items-center relative">
             {/* Wheat icon group with varied sizes and positions */}
-            <div className="flex items-center relative">
-              <Wheat className="text-amber-400 absolute -top-3 -left-8" size={16} strokeWidth={2.5} />
-              <Wheat className="text-amber-500 mr-1" size={20} strokeWidth={2.5} />
-              <Wheat className="text-amber-600" size={18} strokeWidth={2.5} />
-              <Wheat className="text-amber-700 ml-1" size={14} strokeWidth={2.5} />
-              <Wheat className="text-yellow-600 absolute -bottom-2 -right-3" size={12} strokeWidth={2.5} />
-            </div>
+            <Wheat className="text-amber-400 absolute -top-3 -left-8" size={16} strokeWidth={2.5} />
+            <Wheat className="text-amber-500 mr-1" size={20} strokeWidth={2.5} />
+            <Wheat className="text-amber-600" size={18} strokeWidth={2.5} />
+            <Wheat className="text-amber-700 ml-1" size={14} strokeWidth={2.5} />
+            <Wheat className="text-yellow-600 absolute -bottom-2 -right-3" size={12} strokeWidth={2.5} />
           </div>
         </div>
         
@@ -140,14 +96,6 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
           </div>
         )}
       </div>
-
-      {/* Graph Selector Dialog - Filter to only show this device */}
-      <GraphSelector 
-        open={graphSelectorOpen} 
-        onOpenChange={setGraphSelectorOpen} 
-        onSelectGraph={handleAddGraph}
-        deviceFilter={deviceCode}
-      />
     </AppLayout>
   );
 };

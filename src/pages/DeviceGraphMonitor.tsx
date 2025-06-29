@@ -17,29 +17,24 @@ import { SelectedGraph } from "@/components/graph-monitor/types";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAppNavigation } from "@/hooks/useAppNavigation";
-import { ArrowLeft, Plus, Save, Loader2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useGuestMode } from "@/hooks/useGuestMode";
 
 const DeviceGraphMonitor = () => {
   const { deviceCode } = useParams<{ deviceCode: string }>();
   const isMobile = useIsMobile();
   const { user } = useAuth();
-  const { isGuest } = useGuestMode();
   const { goBack } = useAppNavigation();
   const [deviceDisplayName, setDeviceDisplayName] = useState<string | null>(null);
-  const [localGraphs, setLocalGraphs] = useState<SelectedGraph[]>([]);
-  const [showSaveIndicator, setShowSaveIndicator] = useState(false);
-  const [saving, setSaving] = useState(false);
   
-  // Use device-specific preferences for authenticated users, local state for guests
+  // Use device-specific preferences
   const {
     selectedGraphs,
     selectorOpen,
     setSelectorOpen,
-    showSaveIndicator: authShowSaveIndicator,
+    showSaveIndicator,
     preferencesLoading,
-    saving: authSaving,
+    saving,
     presets,
     activePreset,
     handleAddGraph,
@@ -49,40 +44,6 @@ const DeviceGraphMonitor = () => {
     handleChangePreset,
     handleResetGraphs,
   } = useGraphMonitor();
-
-  // Use different graph state based on user type
-  const currentGraphs = isGuest ? localGraphs : selectedGraphs;
-  const currentShowSaveIndicator = isGuest ? showSaveIndicator : authShowSaveIndicator;
-  const currentSaving = isGuest ? saving : authSaving;
-
-  // Check for pending graph from sessionStorage and add it automatically
-  useEffect(() => {
-    const pendingGraphStr = sessionStorage.getItem('pendingGraph');
-    if (pendingGraphStr) {
-      try {
-        const pendingGraph = JSON.parse(pendingGraphStr);
-        if (pendingGraph.deviceCode === deviceCode) {
-          const graph: SelectedGraph = {
-            deviceCode: pendingGraph.deviceCode,
-            symbol: pendingGraph.symbol,
-            name: pendingGraph.name,
-            deviceName: pendingGraph.deviceName || deviceDisplayName || `อุปกรณ์วัด ${pendingGraph.deviceCode}`
-          };
-          
-          if (isGuest) {
-            setLocalGraphs([...localGraphs, graph]);
-          } else {
-            handleAddGraph(graph);
-          }
-        }
-      } catch (error) {
-        console.error('Error parsing pending graph:', error);
-      } finally {
-        // Clear the pending graph from sessionStorage
-        sessionStorage.removeItem('pendingGraph');
-      }
-    }
-  }, [deviceCode, deviceDisplayName, isGuest, localGraphs, handleAddGraph]);
 
   // Fetch device display name
   useEffect(() => {
@@ -112,9 +73,9 @@ const DeviceGraphMonitor = () => {
   }, [deviceCode]);
 
   // Filter graphs to only show ones for this device
-  const deviceSpecificGraphs = currentGraphs.filter(graph => graph.deviceCode === deviceCode);
+  const deviceSpecificGraphs = selectedGraphs.filter(graph => graph.deviceCode === deviceCode);
 
-  // Modified handler for guest mode
+  // Modified handler to ensure only this device's graphs are added
   const handleAddGraphWithDeviceName = (selectedDeviceCode: string, symbol: string, name: string, deviceName?: string) => {
     // Only allow adding graphs for the current device
     if (selectedDeviceCode !== deviceCode) {
@@ -131,53 +92,8 @@ const DeviceGraphMonitor = () => {
       deviceName: deviceName || deviceDisplayName || `อุปกรณ์วัด ${selectedDeviceCode}`
     };
     
-    if (isGuest) {
-      setLocalGraphs([...localGraphs, graph]);
-      setShowSaveIndicator(true);
-    } else {
-      handleAddGraph(graph);
-    }
+    handleAddGraph(graph);
   };
-
-  // Handle graph removal for guests
-  const handleRemoveGraphForGuest = (index: number) => {
-    if (isGuest) {
-      const newGraphs = localGraphs.filter((_, i) => i !== index);
-      setLocalGraphs(newGraphs);
-      setShowSaveIndicator(newGraphs.length > 0);
-    } else {
-      handleRemoveGraph(index);
-    }
-  };
-
-  // Handle save for guests (save to localStorage)
-  const handleSaveForGuest = () => {
-    if (isGuest) {
-      setSaving(true);
-      setTimeout(() => {
-        localStorage.setItem(`graphs_${deviceCode}`, JSON.stringify(localGraphs));
-        setShowSaveIndicator(false);
-        setSaving(false);
-      }, 1000);
-    } else {
-      handleSaveGraphs();
-    }
-  };
-
-  // Load saved graphs from localStorage for guests
-  useEffect(() => {
-    if (isGuest && deviceCode) {
-      const savedGraphs = localStorage.getItem(`graphs_${deviceCode}`);
-      if (savedGraphs) {
-        try {
-          const parsedGraphs = JSON.parse(savedGraphs);
-          setLocalGraphs(parsedGraphs);
-        } catch (error) {
-          console.error('Error parsing saved graphs:', error);
-        }
-      }
-    }
-  }, [isGuest, deviceCode]);
 
   if (!deviceCode) {
     return <div>Device code not found</div>;
@@ -192,7 +108,7 @@ const DeviceGraphMonitor = () => {
         "transition-all duration-300"
       )}>
         <div className="max-w-7xl mx-auto">
-          {/* Device-specific header with controls */}
+          {/* Device-specific header with minimal back button */}
           <div className="mb-4">
             <div className="flex items-center gap-3 mb-2">
               <Button
@@ -212,49 +128,7 @@ const DeviceGraphMonitor = () => {
             </p>
           </div>
 
-          {/* Controls for guests and authenticated users */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
-            <div className="flex items-center gap-2 mb-2 md:mb-0">
-              {(currentShowSaveIndicator || currentSaving) && (
-                <div className="flex items-center text-sm text-purple-600 mr-2 dark:text-purple-400">
-                  {currentSaving ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                      <span>กำลังบันทึก...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>มีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก</span>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Button 
-                onClick={handleSaveForGuest} 
-                variant="outline"
-                size="sm"
-                disabled={currentSaving || (!currentShowSaveIndicator)}
-                className="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white dark:border-gray-700"
-              >
-                <Save className="h-4 w-4 mr-2" />
-                บันทึก
-              </Button>
-
-              <Button 
-                onClick={() => setSelectorOpen(true)} 
-                className="bg-blue-600 hover:bg-blue-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white dark:text-white"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                เพิ่มกราฟ
-              </Button>
-            </div>
-          </div>
-
-          {/* Show presets only for authenticated users, not guests */}
-          {user && !isGuest && (
+          {user && (
             <GraphPresets 
               presets={presets}
               activePreset={activePreset}
@@ -262,11 +136,11 @@ const DeviceGraphMonitor = () => {
               onCreatePreset={handleCreatePreset}
               onDeletePreset={handleResetGraphs}
               onResetGraphs={handleResetGraphs}
-              saving={currentSaving}
+              saving={saving}
             />
           )}
 
-          {preferencesLoading && !isGuest ? (
+          {preferencesLoading ? (
             <LoadingGraphState />
           ) : deviceSpecificGraphs.length === 0 ? (
             <EmptyGraphState onAddGraph={() => setSelectorOpen(true)} />
@@ -274,7 +148,7 @@ const DeviceGraphMonitor = () => {
             <div className="h-[calc(100vh-240px)]">
               <GraphDisplay 
                 selectedGraphs={deviceSpecificGraphs} 
-                onRemoveGraph={handleRemoveGraphForGuest} 
+                onRemoveGraph={handleRemoveGraph} 
               />
             </div>
           )}
