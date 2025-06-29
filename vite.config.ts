@@ -1,4 +1,3 @@
-
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -46,15 +45,34 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB limit
+        // Exclude Supabase auth endpoints from caching
+        navigateFallbackDenylist: [/^\/auth\//],
         runtimeCaching: [
           {
+            // Supabase auth endpoints - always use network first, no caching
+            urlPattern: /^https:\/\/.*\.supabase\.co\/auth\/.*/i,
+            handler: 'NetworkOnly',
+            options: {
+              cacheName: 'supabase-auth-no-cache'
+            }
+          },
+          {
+            // Other Supabase endpoints - network first with limited cache
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'supabase-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 // 24 hours
+                maxAgeSeconds: 60 * 60 // 1 hour only
+              },
+              cacheKeyWillBeUsed: async ({ request }) => {
+                // Add timestamp to prevent auth cache issues
+                const url = new URL(request.url);
+                if (url.pathname.includes('auth') || url.pathname.includes('token')) {
+                  url.searchParams.set('_t', Date.now().toString());
+                }
+                return url.toString();
               }
             }
           },

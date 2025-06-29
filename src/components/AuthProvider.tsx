@@ -52,25 +52,69 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  // Function to check if session is potentially stale/invalid
+  const isSessionStale = (session: Session | null): boolean => {
+    if (!session) return false;
+    
+    // Check if session is expired
+    const now = Math.floor(Date.now() / 1000);
+    const expiresAt = session.expires_at || 0;
+    
+    // Consider session stale if it expires in less than 5 minutes
+    const isExpiringSoon = (expiresAt - now) < 300;
+    
+    return isExpiringSoon;
+  };
+
+  // Enhanced session validation
+  const validateAndRefreshSession = async (currentSession: Session | null) => {
+    if (!currentSession) return null;
+    
+    try {
+      // If session is stale, try to refresh it
+      if (isSessionStale(currentSession)) {
+        console.log("Session is stale, attempting refresh...");
+        const { data: { session: refreshedSession }, error } = await supabase.auth.refreshSession();
+        
+        if (error) {
+          console.error("Session refresh failed:", error);
+          // Clear invalid session
+          await supabase.auth.signOut();
+          return null;
+        }
+        
+        return refreshedSession;
+      }
+      
+      return currentSession;
+    } catch (error) {
+      console.error("Error validating session:", error);
+      return null;
+    }
+  };
+
   useEffect(() => {
     console.log("Setting up AuthProvider");
     setIsLoading(true);
 
     // Set up auth state listener first - critical to avoid race conditions
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, currentSession) => {
-        console.log("Auth state changed, event:", _event);
+      async (event, currentSession) => {
+        console.log("Auth state changed, event:", event);
+        
+        // Validate session before using it
+        const validSession = await validateAndRefreshSession(currentSession);
         
         // Update session and user state
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
+        setSession(validSession);
+        setUser(validSession?.user ?? null);
         
         // If user is logged in, fetch roles from database
-        if (currentSession?.user) {
+        if (validSession?.user) {
           try {
             // Using setTimeout to avoid deadlocks with Supabase client
             setTimeout(async () => {
-              const roles = await fetchUserRoles(currentSession.user.id);
+              const roles = await fetchUserRoles(validSession.user.id);
               console.log("Setting user roles after auth change:", roles);
               setUserRoles(roles);
               setIsLoading(false);
@@ -113,14 +157,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
         
         console.log("Initial session retrieved:", !!initialSession);
         
+        // Validate initial session
+        const validSession = await validateAndRefreshSession(initialSession);
+        
         // Update session and user state immediately
-        setSession(initialSession);
-        setUser(initialSession?.user ?? null);
+        setSession(validSession);
+        setUser(validSession?.user ?? null);
         
         // If user is logged in, fetch roles from database
-        if (initialSession?.user) {
+        if (validSession?.user) {
           console.log("User is logged in, fetching roles");
-          const roles = await fetchUserRoles(initialSession.user.id);
+          const roles = await fetchUserRoles(validSession.user.id);
           console.log("Setting initial user roles:", roles);
           setUserRoles(roles);
         }
@@ -156,6 +203,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser(null);
       setSession(null);
       setUserRoles([]);
+      
+      // Clear any cached data in localStorage/sessionStorage
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.includes('supabase') || key.includes('auth-token'))) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+      
     } catch (error) {
       console.error('Error signing out:', error);
     }

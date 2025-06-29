@@ -2,12 +2,14 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { toast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PWAContextValue {
   isOnline: boolean;
   needRefresh: boolean;
   offlineReady: boolean;
   updateServiceWorker: () => void;
+  appVersion: string;
 }
 
 const PWAContext = createContext<PWAContextValue | undefined>(undefined);
@@ -26,6 +28,10 @@ interface PWAProviderProps {
 
 export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [appVersion] = useState(() => {
+    // Generate app version based on build time or use a fixed version
+    return `${Date.now()}`;
+  });
   
   const {
     needRefresh: [needRefresh, setNeedRefresh],
@@ -43,14 +49,14 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
       setNeedRefresh(true);
       toast({
         title: 'อัปเดตใหม่พร้อมใช้งาน',
-        description: 'คลิกเพื่อรีเฟรชและใช้เวอร์ชันล่าสุด',
+        description: 'การอัปเดตนี้จะทำให้คุณต้องเข้าสู่ระบบใหม่',
         duration: 0, // Don't auto-dismiss
         action: (
           <button
-            onClick={() => updateServiceWorker(true)}
+            onClick={() => handleUpdate()}
             className="bg-emerald-600 text-white px-3 py-1 rounded text-sm hover:bg-emerald-700"
           >
-            อัปเดต
+            อัปเดตเลย
           </button>
         ),
       });
@@ -65,6 +71,84 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
       });
     },
   });
+
+  const clearAuthCache = async () => {
+    try {
+      console.log('Clearing authentication cache...');
+      
+      // Clear all localStorage items related to auth
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.includes('supabase') || key.includes('auth') || key.includes('session'))) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+      
+      // Clear sessionStorage as well
+      const sessionKeysToRemove = [];
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        if (key && (key.includes('supabase') || key.includes('auth') || key.includes('session'))) {
+          sessionKeysToRemove.push(key);
+        }
+      }
+      sessionKeysToRemove.forEach(key => sessionStorage.removeItem(key));
+      
+      // Sign out from Supabase to clear any cached sessions
+      await supabase.auth.signOut();
+      
+      // Clear service worker caches related to auth
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        for (const cacheName of cacheNames) {
+          if (cacheName.includes('supabase') || cacheName.includes('auth')) {
+            await caches.delete(cacheName);
+            console.log(`Cleared cache: ${cacheName}`);
+          }
+        }
+      }
+      
+      console.log('Authentication cache cleared successfully');
+    } catch (error) {
+      console.error('Error clearing auth cache:', error);
+    }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      console.log('Starting PWA update process...');
+      
+      // Show loading toast
+      toast({
+        title: 'กำลังอัปเดต...',
+        description: 'กรุณารอสักครู่',
+        duration: 2000,
+      });
+      
+      // Clear authentication cache before update
+      await clearAuthCache();
+      
+      // Update service worker
+      updateServiceWorker(true);
+      
+      // Force a hard reload after a short delay
+      setTimeout(() => {
+        console.log('Force reloading application...');
+        window.location.reload();
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Error during update process:', error);
+      toast({
+        title: 'เกิดข้อผิดพลาดในการอัปเดต',
+        description: 'กรุณารีเฟรชหน้าเว็บด้วยตนเอง',
+        variant: 'destructive',
+        duration: 5000,
+      });
+    }
+  };
 
   useEffect(() => {
     const handleOnline = () => {
@@ -86,6 +170,18 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
       });
     };
 
+    // Check for app version changes (simple version check)
+    const checkAppVersion = () => {
+      const storedVersion = localStorage.getItem('app-version');
+      if (storedVersion && storedVersion !== appVersion) {
+        console.log('App version changed, clearing cache...');
+        clearAuthCache();
+      }
+      localStorage.setItem('app-version', appVersion);
+    };
+
+    checkAppVersion();
+    
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
@@ -93,13 +189,14 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [appVersion]);
 
   const contextValue: PWAContextValue = {
     isOnline,
     needRefresh,
     offlineReady,
-    updateServiceWorker: () => updateServiceWorker(true),
+    updateServiceWorker: handleUpdate,
+    appVersion,
   };
 
   return (

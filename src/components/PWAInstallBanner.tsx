@@ -1,26 +1,29 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { X, Download, Smartphone, Share, Plus } from 'lucide-react';
+import { X, Download, Smartphone, Share, Plus, AlertTriangle } from 'lucide-react';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { useDeviceDetection } from '@/hooks/useDeviceDetection';
+import { usePWAContext } from '@/contexts/PWAContext';
 import { cn } from '@/lib/utils';
 
 export const PWAInstallBanner: React.FC = () => {
   const { canInstall, installApp, dismissInstallPrompt, isInstalling, isIOS } = usePWAInstall();
   const { isMobile, isTablet, isDesktop } = useDeviceDetection();
+  const { needRefresh, updateServiceWorker } = usePWAContext();
   const [isVisible, setIsVisible] = useState(false);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
 
   useEffect(() => {
-    if (canInstall) {
+    if (canInstall || needRefresh) {
       const timer = setTimeout(() => {
         setIsVisible(true);
       }, 2000);
       
       return () => clearTimeout(timer);
     }
-  }, [canInstall]);
+  }, [canInstall, needRefresh]);
 
   const handleInstall = async () => {
     if (isIOS) {
@@ -36,18 +39,25 @@ export const PWAInstallBanner: React.FC = () => {
     }
   };
 
+  const handleUpdate = () => {
+    updateServiceWorker();
+    setIsVisible(false);
+  };
+
   const handleDismiss = () => {
     dismissInstallPrompt();
     setIsVisible(false);
     setShowIOSInstructions(false);
   };
 
-  if (!isVisible || !canInstall) {
+  if (!isVisible || (!canInstall && !needRefresh)) {
     return null;
   }
 
   const getInstallMessage = () => {
-    if (isIOS) {
+    if (needRefresh) {
+      return 'มีการอัปเดตใหม่สำหรับ Riceflow - จะต้องเข้าสู่ระบบใหม่หลังอัปเดต';
+    } else if (isIOS) {
       return 'เพิ่ม Riceflow ไปยังหน้าจอโฮมของ iPhone/iPad';
     } else if (isMobile) {
       return 'ติดตั้ง Riceflow เป็นแอปบนมือถือของคุณ';
@@ -59,6 +69,7 @@ export const PWAInstallBanner: React.FC = () => {
   };
 
   const getInstallButtonText = () => {
+    if (needRefresh) return 'อัปเดตเลย';
     if (isInstalling) return 'กำลังติดตั้ง...';
     if (isIOS) return 'ดูวิธีติดตั้ง';
     return 'ติดตั้งแอป';
@@ -122,6 +133,10 @@ export const PWAInstallBanner: React.FC = () => {
     );
   }
 
+  const cardClassName = needRefresh 
+    ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg border-0"
+    : "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg border-0";
+
   return (
     <div className={cn(
       "fixed z-50 transition-all duration-300 ease-in-out",
@@ -129,29 +144,42 @@ export const PWAInstallBanner: React.FC = () => {
         ? "bottom-20 left-4 right-4"
         : "bottom-4 right-4 max-w-sm"
     )}>
-      <Card className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg border-0">
+      <Card className={cardClassName}>
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0 mt-1">
-              <Smartphone className="h-5 w-5" />
+              {needRefresh ? (
+                <AlertTriangle className="h-5 w-5" />
+              ) : (
+                <Smartphone className="h-5 w-5" />
+              )}
             </div>
             
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-sm mb-1">
-                ติดตั้ง Riceflow
+                {needRefresh ? 'อัปเดต Riceflow' : 'ติดตั้ง Riceflow'}
               </h3>
-              <p className="text-xs text-emerald-50 mb-3 leading-relaxed">
+              <p className="text-xs text-white/90 mb-3 leading-relaxed">
                 {getInstallMessage()}
               </p>
               
               <div className="flex gap-2">
                 <Button
-                  onClick={handleInstall}
-                  disabled={isInstalling && !isIOS}
+                  onClick={needRefresh ? handleUpdate : handleInstall}
+                  disabled={isInstalling && !isIOS && !needRefresh}
                   size="sm"
-                  className="bg-white text-emerald-600 hover:bg-emerald-50 text-xs px-3 py-1.5 h-auto font-medium"
+                  className={needRefresh 
+                    ? "bg-white text-orange-600 hover:bg-orange-50 text-xs px-3 py-1.5 h-auto font-medium"
+                    : "bg-white text-emerald-600 hover:bg-emerald-50 text-xs px-3 py-1.5 h-auto font-medium"
+                  }
                 >
-                  {isIOS ? <Share className="h-3 w-3 mr-1" /> : <Download className="h-3 w-3 mr-1" />}
+                  {needRefresh ? (
+                    <AlertTriangle className="h-3 w-3 mr-1" />
+                  ) : isIOS ? (
+                    <Share className="h-3 w-3 mr-1" />
+                  ) : (
+                    <Download className="h-3 w-3 mr-1" />
+                  )}
                   {getInstallButtonText()}
                 </Button>
                 
@@ -159,7 +187,7 @@ export const PWAInstallBanner: React.FC = () => {
                   onClick={handleDismiss}
                   variant="ghost"
                   size="sm"
-                  className="text-white hover:bg-emerald-600 text-xs px-2 py-1.5 h-auto"
+                  className="text-white hover:bg-white/20 text-xs px-2 py-1.5 h-auto"
                 >
                   ไว้ทีหลัง
                 </Button>
@@ -170,7 +198,7 @@ export const PWAInstallBanner: React.FC = () => {
               onClick={handleDismiss}
               variant="ghost"
               size="sm"
-              className="flex-shrink-0 text-white hover:bg-emerald-600 p-1 h-auto"
+              className="flex-shrink-0 text-white hover:bg-white/20 p-1 h-auto"
             >
               <X className="h-4 w-4" />
             </Button>
