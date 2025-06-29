@@ -18,6 +18,7 @@ export const useHistoryData = (deviceCode?: string) => {
         .from('rice_quality_analysis')
         .select('*', { count: 'exact' });
 
+      // Only filter by device_code if it's provided and not 'default'
       if (deviceCode && deviceCode !== 'default') {
         query = query.eq('device_code', deviceCode);
         console.log('Filtering by device_code:', deviceCode);
@@ -35,8 +36,10 @@ export const useHistoryData = (deviceCode?: string) => {
       console.log('Successfully fetched history data:', { count, dataLength: data?.length });
       return { data: data as RiceQualityData[], count: count || 0 };
     },
+    enabled: true, // Always enable the query
     retry: 2,
     retryDelay: 1000,
+    refetchOnWindowFocus: false,
   });
 
   const totalPages = historyData ? Math.ceil(historyData.count / itemsPerPage) : 0;
