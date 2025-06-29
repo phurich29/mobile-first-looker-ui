@@ -90,12 +90,15 @@ export function DeviceAccessConfig({
 
     setIsLoading(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+
       const { error } = await supabase
         .from('user_device_access')
         .insert({
           user_id: userId,
           device_code: deviceCode,
-          created_by: (await supabase.auth.getUser()).data.user?.id
+          created_by: user.id
         });
 
       if (error) throw error;

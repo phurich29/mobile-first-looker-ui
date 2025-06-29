@@ -1,10 +1,8 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ResponsiveTable } from "@/components/ui/responsive-table";
-import { TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { RefreshCw, Search, Settings, ChevronDown, ChevronUp } from "lucide-react";
 import { DeviceAccessConfig } from "./DeviceAccessConfig";
@@ -41,9 +39,9 @@ export function DeviceList({
   const [localDeviceUserMap, setLocalDeviceUserMap] = useState(deviceUserMap);
   
   // Update local state when props change
-  useState(() => {
+  useEffect(() => {
     setLocalDeviceUserMap(deviceUserMap);
-  });
+  }, [deviceUserMap]);
 
   // Filter devices based on search input (search both device code and display name)
   const filteredDevices = devices.filter(device => 
@@ -128,7 +126,7 @@ export function DeviceList({
                   >
                     <div className="border rounded-lg">
                       <CollapsibleTrigger asChild>
-                        <div className="w-full p-4 hover:bg-gray-50 transition-colors">
+                        <div className="w-full p-4 hover:bg-gray-50 transition-colors cursor-pointer">
                           <div className="flex items-center justify-between">
                             <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
                               <div className="font-medium">
