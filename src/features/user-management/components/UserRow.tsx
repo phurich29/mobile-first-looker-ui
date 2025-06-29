@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
@@ -125,8 +126,9 @@ export function UserRow({
   };
 
   const handleEditClick = () => {
-    setIsEditing(true);
-    if (!isEditing) {
+    const newEditingState = !isEditing;
+    setIsEditing(newEditingState);
+    if (newEditingState && !isEditing) {
       fetchDevices();
     }
   };
@@ -321,7 +323,7 @@ export function UserRow({
           </Button>
           
           <Button variant="outline" size="sm" disabled={isProcessing} onClick={handleEditClick} className="h-6 w-6 p-0 dark:text-gray-400 dark:hover:text-gray-200 dark:border-slate-600 dark:hover:border-slate-500">
-            <ChevronDown className="h-3 w-3" />
+            <ChevronDown className={`h-3 w-3 transition-transform ${isEditing ? 'rotate-180' : ''}`} />
           </Button>
         </div>
       </TableCell>
