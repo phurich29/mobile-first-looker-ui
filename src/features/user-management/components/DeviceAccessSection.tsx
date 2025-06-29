@@ -56,8 +56,28 @@ export function DeviceAccessSection({
     availableDevices.filter(device => !userDevices.includes(device.device_code))
   );
 
+  // Calculate device counts
+  const totalDevices = availableDevices.length;
+  const currentUserDevices = userDevices.length;
+  const availableToAdd = availableDevices.filter(device => !userDevices.includes(device.device_code)).length;
+
   return (
     <div className="space-y-2">
+      {/* Device counts summary */}
+      <div className="mb-3 p-2 bg-gray-50 dark:bg-slate-700 rounded-md">
+        <div className="flex flex-wrap gap-4 text-xs">
+          <span className="text-gray-600 dark:text-gray-300">
+            <strong>อุปกรณ์ทั้งหมดในระบบ:</strong> {totalDevices} เครื่อง
+          </span>
+          <span className="text-emerald-600 dark:text-emerald-400">
+            <strong>มีสิทธิ์แล้ว:</strong> {currentUserDevices} เครื่อง
+          </span>
+          <span className="text-blue-600 dark:text-blue-400">
+            <strong>พร้อมให้เพิ่มสิทธิ์:</strong> {availableToAdd} เครื่อง
+          </span>
+        </div>
+      </div>
+
       {/* Search input */}
       <div className="mb-3">
         <div className="relative">
@@ -73,7 +93,9 @@ export function DeviceAccessSection({
 
       {/* Current devices */}
       <div>
-        <label className="text-xs text-gray-600 dark:text-gray-400">อุปกรณ์ที่มีสิทธิ์เข้าถึง:</label>
+        <label className="text-xs text-gray-600 dark:text-gray-400">
+          อุปกรณ์ที่มีสิทธิ์เข้าถึง ({filteredUserDevices.length}/{currentUserDevices}):
+        </label>
         <div className="mt-1 space-y-1 max-h-32 overflow-y-auto">
           {filteredUserDevices.length === 0 ? (
             <div className="text-xs text-gray-500 dark:text-gray-400 italic">
@@ -109,7 +131,9 @@ export function DeviceAccessSection({
 
       {/* Available devices to add */}
       <div>
-        <label className="text-xs text-gray-600 dark:text-gray-400">เพิ่มอุปกรณ์:</label>
+        <label className="text-xs text-gray-600 dark:text-gray-400">
+          เพิ่มอุปกรณ์ ({filteredAvailableDevices.length}/{availableToAdd}):
+        </label>
         <div className="mt-1 space-y-1 max-h-32 overflow-y-auto">
           {filteredAvailableDevices.length === 0 ? (
             <div className="text-xs text-gray-500 dark:text-gray-400 italic">
