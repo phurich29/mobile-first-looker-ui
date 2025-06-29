@@ -1,130 +1,39 @@
 
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { AppLayout } from "@/components/layouts/app-layout";
-import { useIsMobile } from "@/hooks/use-mobile";
 import MeasurementHistory from "@/components/measurement-history/MeasurementHistory";
 import "@/components/notification-item-animation.css";
 import { CountdownProvider } from "@/contexts/CountdownContext";
-import { CountdownTimer } from "@/components/CountdownTimer";
-import { Wheat } from "lucide-react";
 import { getColumnThaiName } from "@/lib/columnTranslations";
-import { useAuth } from "@/components/AuthProvider";
-import { useQuery } from "@tanstack/react-query";
-import { fetchDevicesWithDetails } from "@/features/equipment/services";
-import { useGuestMode } from "@/hooks/useGuestMode";
-import { supabase } from "@/integrations/supabase/client";
 
 // Import custom hooks
 import { useDeviceData } from "@/features/device-details/hooks/useDeviceData";
 import { useDefaultDeviceRedirect } from "@/features/device-details/hooks/useDefaultDeviceRedirect";
+import { useDeviceAccess } from "@/features/device-details/hooks/useDeviceAccess";
 
 // Import components
-import { DeviceHeader } from "@/features/device-details/components/DeviceHeader";
-import { SearchBar } from "@/features/device-details/components/SearchBar";
-import { MeasurementTabs } from "@/features/device-details/components/MeasurementTabs";
 import { LoadingScreen } from "@/features/device-details/components/LoadingScreen";
-import { lazy, Suspense } from "react";
+import { UnauthorizedAccess } from "@/features/device-details/components/UnauthorizedAccess";
+import { DeviceMainContent } from "@/features/device-details/components/DeviceMainContent";
 
-// Lazy load the DeviceHistoryTable component with named export
-const DeviceHistoryTable = lazy(() => import("@/features/device-details/components/DeviceHistoryTable").then(module => ({
-  default: module.DeviceHistoryTable
-})));
-
-// Helper function to convert URL symbol back to measurement symbol
-const convertUrlSymbolToMeasurementSymbol = (urlSymbol: string): string => {
-  // Map common URL symbols back to measurement symbols
-  const symbolMap: Record<string, string> = {
-    '70mm': 'class1',
-    'class1': 'class1',
-    'class2': 'class2',
-    'class3': 'class3',
-    'shortgrain': 'short_grain',
-    'slenderkernel': 'slender_kernel',
-    'wholekernels': 'whole_kernels',
-    'headrice': 'head_rice',
-    'totalbrokens': 'total_brokens',
-    'smallbrokens': 'small_brokens',
-    'smallbrokesc1': 'small_brokens_c1',
-    'redlinerate': 'red_line_rate',
-    'parboiledredline': 'parboiled_red_line',
-    'parboiledwhiterice': 'parboiled_white_rice',
-    'honeyrice': 'honey_rice',
-    'yellowricerate': 'yellow_rice_rate',
-    'blackkernel': 'black_kernel',
-    'partlyblackpeck': 'partly_black_peck',
-    'partlyblack': 'partly_black',
-    'imperfectionrate': 'imperfection_rate',
-    'stickyricerate': 'sticky_rice_rate',
-    'impuritynum': 'impurity_num',
-    'paddyrate': 'paddy_rate',
-    'whiteness': 'whiteness',
-    'processprecision': 'process_precision'
-  };
-  return symbolMap[urlSymbol.toLowerCase()] || urlSymbol;
-};
+// Import utilities
+import { convertUrlSymbolToMeasurementSymbol } from "@/features/device-details/utils/urlSymbolConverter";
 
 export default function DeviceDetails() {
   const {
     deviceCode,
     symbol: urlSymbol
   } = useParams();
-  const isMobile = useIsMobile();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedMeasurement, setSelectedMeasurement] = useState<{
-    symbol: string;
-    name: string;
-  } | null>(null);
-  const {
-    user,
-    userRoles
-  } = useAuth();
-  const { isGuest } = useGuestMode();
-  const isAdmin = userRoles.includes('admin');
-  const isSuperAdmin = userRoles.includes('superadmin');
 
   // Convert URL symbol to measurement symbol if present
   const measurementSymbol = urlSymbol ? convertUrlSymbolToMeasurementSymbol(urlSymbol) : null;
   const measurementName = measurementSymbol ? getColumnThaiName(measurementSymbol) : null;
 
-  // Check device access permissions for authenticated users
-  const {
-    data: accessibleDevices,
-    isLoading: isCheckingAccess
-  } = useQuery({
-    queryKey: ['deviceAccess', user?.id, userRoles],
-    queryFn: async () => {
-      if (!user) return [];
-      return await fetchDevicesWithDetails(user.id, isAdmin, isSuperAdmin);
-    },
-    enabled: !!user && !isGuest
-  });
-
-  // Check guest device access
-  const {
-    data: guestAccessibleDevices,
-    isLoading: isCheckingGuestAccess
-  } = useQuery({
-    queryKey: ['guestDeviceAccess'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('guest_device_access')
-        .select('device_code')
-        .eq('enabled', true);
-      
-      if (error) {
-        console.error('Error fetching guest device access:', error);
-        return [];
-      }
-      
-      return data?.map(item => ({ device_code: item.device_code })) || [];
-    },
-    enabled: isGuest
-  });
-
   // Use custom hooks
   useDefaultDeviceRedirect(deviceCode);
+  const { hasDeviceAccess, isLoading: isCheckingAccess, isGuest } = useDeviceAccess(deviceCode);
   const {
     wholeGrainData,
     ingredientsData,
@@ -137,17 +46,6 @@ export default function DeviceDetails() {
     isLoadingAllData,
     refreshData
   } = useDeviceData(deviceCode);
-
-  // Check if user has access to the current device
-  let hasDeviceAccess = false;
-  
-  if (isGuest) {
-    // For guests, check guest_device_access
-    hasDeviceAccess = guestAccessibleDevices?.some(device => device.device_code === deviceCode) ?? false;
-  } else {
-    // For authenticated users, check their device access
-    hasDeviceAccess = accessibleDevices?.some(device => device.device_code === deviceCode) ?? false;
-  }
 
   // Handle measurement item click - now navigates to device-specific URL
   const handleMeasurementClick = (symbol: string, name: string) => {
@@ -173,7 +71,7 @@ export default function DeviceDetails() {
   };
 
   // If still checking access permissions, show loading
-  if ((isGuest && isCheckingGuestAccess) || (!isGuest && isCheckingAccess)) {
+  if (isCheckingAccess) {
     return <LoadingScreen />;
   }
 
@@ -184,65 +82,39 @@ export default function DeviceDetails() {
 
   // If user doesn't have access to this device, show unauthorized message
   if (deviceCode && deviceCode !== 'default' && !hasDeviceAccess) {
-    return <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-4'}>
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center p-8">
-            <div className="text-6xl mb-4">🔒</div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              {isGuest ? 'ไม่พบอุปกรณ์ที่เปิดให้ Guest เข้าถึง' : 'ไม่พบอุปกรณ์ที่คุณมีสิทธิ์เข้าถึง'}
-            </h2>
-            <p className="text-gray-600 mb-4">
-              {isGuest 
-                ? 'อุปกรณ์นี้ไม่ได้เปิดให้ผู้เยี่ยมชมเข้าถึง กรุณาติดต่อผู้ดูแลระบบ' 
-                : 'กรุณาติดต่อผู้ดูแลระบบเพื่อขอสิทธิ์เข้าถึงอุปกรณ์นี้'
-              }
-            </p>
-            
-            <button onClick={() => navigate('/equipment')} className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors">
-              กลับไปหน้าอุปกรณ์
-            </button>
-          </div>
-        </div>
-      </AppLayout>;
+    return <UnauthorizedAccess isGuest={isGuest} />;
   }
 
   // Show measurement history if a measurement symbol is present in URL
   if (measurementSymbol && measurementName && deviceCode && deviceCode !== 'default') {
-    return <MeasurementHistory symbol={measurementSymbol} name={measurementName} deviceCode={deviceCode} onClose={handleCloseHistory} />;
+    return (
+      <MeasurementHistory 
+        symbol={measurementSymbol} 
+        name={measurementName} 
+        deviceCode={deviceCode} 
+        onClose={handleCloseHistory} 
+      />
+    );
   }
 
   // Main device details view with AppLayout
-  return <CountdownProvider initialSeconds={60} onComplete={handleCountdownComplete}>
-      <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-4'}>
-        <div className="flex-1">
-          <div className="px-[5%] mb-3 flex justify-between items-center md:px-0">
-            <DeviceHeader deviceCode={deviceCode} />
-            <div className="flex items-center relative">
-              {/* Wheat icon group with varied sizes and positions */}
-              <Wheat className="text-amber-400 absolute -top-3 -left-8" size={16} strokeWidth={2.5} />
-              <Wheat className="text-amber-500 mr-1" size={20} strokeWidth={2.5} />
-              <Wheat className="text-amber-600" size={18} strokeWidth={2.5} />
-              <Wheat className="text-amber-700 ml-1" size={14} strokeWidth={2.5} />
-              <Wheat className="text-yellow-600 absolute -bottom-2 -right-3" size={12} strokeWidth={2.5} />
-            </div>
-          </div>
-          
-          <div className="mb-4">
-            <MeasurementTabs deviceCode={deviceCode} searchTerm={searchTerm} wholeGrainData={wholeGrainData} ingredientsData={ingredientsData} impuritiesData={impuritiesData} allData={allData} notificationSettings={notificationSettings || []} isLoadingWholeGrain={isLoadingWholeGrain} isLoadingIngredients={isLoadingIngredients} isLoadingImpurities={isLoadingImpurities} isLoadingAllData={isLoadingAllData} onMeasurementClick={handleMeasurementClick} />
-          </div>
-
-          {/* Add Device History Table at the bottom with Suspense for lazy loading - Show to authenticated users only */}
-          {deviceCode && deviceCode !== 'default' && !isGuest && <div className="px-0">
-              <Suspense fallback={<div className="bg-white rounded-lg shadow-sm p-6 mb-4">
-                  <h3 className="text-lg font-semibold mb-4">ประวัติข้อมูลทั้งหมด</h3>
-                  <div className="flex justify-center items-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
-                  </div>
-                </div>}>
-                <DeviceHistoryTable deviceCode={deviceCode} />
-              </Suspense>
-            </div>}
-        </div>
-      </AppLayout>
-    </CountdownProvider>;
+  return (
+    <CountdownProvider initialSeconds={60} onComplete={handleCountdownComplete}>
+      <DeviceMainContent
+        deviceCode={deviceCode!}
+        searchTerm={searchTerm}
+        wholeGrainData={wholeGrainData}
+        ingredientsData={ingredientsData}
+        impuritiesData={impuritiesData}
+        allData={allData}
+        notificationSettings={notificationSettings || []}
+        isLoadingWholeGrain={isLoadingWholeGrain}
+        isLoadingIngredients={isLoadingIngredients}
+        isLoadingImpurities={isLoadingImpurities}
+        isLoadingAllData={isLoadingAllData}
+        isGuest={isGuest}
+        onMeasurementClick={handleMeasurementClick}
+      />
+    </CountdownProvider>
+  );
 }
