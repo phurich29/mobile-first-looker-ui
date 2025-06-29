@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Notification, NotificationFilters } from "../types";
+import { fetchDevicesWithDetails } from "@/features/equipment/services";
+import { useAuth } from "@/components/AuthProvider";
 
 export function useNotificationHistory() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -12,8 +14,26 @@ export function useNotificationHistory() {
   const rowsPerPage = 10;
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user, userRoles } = useAuth();
 
-  // Function to fetch notifications with filters
+  const isAdmin = userRoles.includes('admin');
+  const isSuperAdmin = userRoles.includes('superadmin');
+
+  // Function to fetch accessible device codes for the current user
+  const fetchAccessibleDeviceCodes = useCallback(async (): Promise<string[]> => {
+    if (!user) return [];
+
+    try {
+      // Use the same device access logic as the equipment page
+      const devices = await fetchDevicesWithDetails(user.id, isAdmin, isSuperAdmin);
+      return devices.map(device => device.device_code);
+    } catch (error) {
+      console.error("Error fetching accessible devices:", error);
+      return [];
+    }
+  }, [user, isAdmin, isSuperAdmin]);
+
+  // Function to fetch notifications with filters and device access restrictions
   const fetchNotifications = useCallback(async (): Promise<{
     notifications: Notification[];
     totalCount: number;
@@ -22,12 +42,26 @@ export function useNotificationHistory() {
     try {
       console.log("📊 Fetching notifications - Page:", currentPage, "Filters:", filters);
       
-      // Build query with filters
+      // Get accessible device codes first
+      const accessibleDeviceCodes = await fetchAccessibleDeviceCodes();
+      console.log("🔐 User has access to devices:", accessibleDeviceCodes);
+      
+      if (accessibleDeviceCodes.length === 0) {
+        console.log("❌ No accessible devices found, returning empty result");
+        return {
+          notifications: [],
+          totalCount: 0,
+          totalPages: 0
+        };
+      }
+
+      // Build query with filters and device access restrictions
       let query = supabase
         .from("notifications")
-        .select("*", { count: "exact" });
+        .select("*", { count: "exact" })
+        .in("device_code", accessibleDeviceCodes); // Only show notifications from accessible devices
 
-      // Apply filters
+      // Apply additional filters
       if (filters.deviceCode) {
         query = query.ilike("device_code", `%${filters.deviceCode}%`);
       }
@@ -75,7 +109,7 @@ export function useNotificationHistory() {
         throw error;
       }
       
-      console.log("✅ Fetched notifications:", data?.length || 0);
+      console.log("✅ Fetched notifications:", data?.length || 0, "from accessible devices");
       
       return {
         notifications: (data as Notification[]) || [],
@@ -95,7 +129,7 @@ export function useNotificationHistory() {
         totalPages: 0
       };
     }
-  }, [currentPage, filters, rowsPerPage, toast]);
+  }, [currentPage, filters, rowsPerPage, toast, fetchAccessibleDeviceCodes]);
 
   // Use React Query for data management
   const { 
@@ -105,13 +139,14 @@ export function useNotificationHistory() {
     isFetching,
     error
   } = useQuery({
-    queryKey: ['notification_history', currentPage, filters],
+    queryKey: ['notification_history', currentPage, filters, user?.id, userRoles],
     queryFn: fetchNotifications,
     staleTime: 10000,
     refetchInterval: 30000,
     refetchOnWindowFocus: true,
     retry: 2,
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+    enabled: !!user, // Only run query if user is authenticated
   });
 
   const { notifications, totalCount, totalPages } = queryResult;
