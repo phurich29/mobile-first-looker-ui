@@ -1,3 +1,4 @@
+
 import { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -29,6 +30,7 @@ import NewQualityMeasurements from "./pages/NewQualityMeasurements";
 import MeasurementDetail from "./pages/MeasurementDetail";
 import DeviceManagement from "./pages/DeviceManagement";
 import AboutRiceflow from "./pages/AboutRiceflow";
+import DeviceAccessManagement from "./pages/DeviceAccessManagement";
 
 // Device-specific graph pages
 import DeviceGraphMonitor from "./pages/DeviceGraphMonitor";
@@ -262,6 +264,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute requiredRoles={["admin"]}>
             <DeviceManagement />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "device-access-management",
+        element: (
+          <ProtectedRoute requiredRoles={["superadmin"]}>
+            <DeviceAccessManagement />
           </ProtectedRoute>
         ),
       },

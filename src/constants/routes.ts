@@ -35,6 +35,7 @@ export const ROUTES = {
   ADMIN: '/admin',
   USER_MANAGEMENT: '/user-management',
   DEVICE_MANAGEMENT: '/device-management',
+  DEVICE_ACCESS_MANAGEMENT: '/device-access-management',
   NEWS_MANAGEMENT: '/news-management',
   
   // Error pages
