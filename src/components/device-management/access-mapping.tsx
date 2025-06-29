@@ -8,15 +8,22 @@ interface Device {
   device_code: string;
 }
 
+interface User {
+  id: string;
+  email: string;
+}
+
 interface DeviceUserMapping {
   [key: string]: string[]; // key: device_code, value: array of user IDs
 }
 
 export function AccessMapping() {
   const [devices, setDevices] = useState<Device[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [deviceUserMap, setDeviceUserMap] = useState<DeviceUserMapping>({});
+  const [userDetailsMap, setUserDetailsMap] = useState<Record<string, User>>({});
   
   // Fetch all devices from rice_quality_analysis
   const fetchAllDevices = async () => {
@@ -48,6 +55,25 @@ export function AccessMapping() {
       
       console.log(`Fetched ${deviceList.length} unique devices for access mapping`);
       setDevices(deviceList);
+
+      // Fetch all users
+      const { data: usersData, error: usersError } = await supabaseAdmin
+        .from('profiles')
+        .select('id, email')
+        .order('email');
+
+      if (usersError) {
+        console.error("Error fetching users:", usersError);
+      } else {
+        setUsers(usersData || []);
+        
+        // Create user details map for quick lookup
+        const userMap: Record<string, User> = {};
+        (usersData || []).forEach(userData => {
+          userMap[userData.id] = userData;
+        });
+        setUserDetailsMap(userMap);
+      }
       
       // Also build the device-user mapping
       await fetchDeviceUserMapping(deviceList);
@@ -120,6 +146,7 @@ export function AccessMapping() {
         <DeviceList 
           devices={devices} 
           deviceUserMap={deviceUserMap}
+          userDetailsMap={userDetailsMap}
           isLoading={isLoading} 
           onRefresh={fetchAllDevices}
           onSelectDevice={handleSelectDevice}

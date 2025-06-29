@@ -14,6 +14,7 @@ interface User {
 
 interface Device {
   device_code: string;
+  display_name?: string;
 }
 
 interface DeviceManagementViewProps {
@@ -36,6 +37,12 @@ export function DeviceManagementView({
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const isMobile = useIsMobile();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  
+  // Create user details map from users array
+  const userDetailsMap: Record<string, User> = {};
+  users.forEach(user => {
+    userDetailsMap[user.id] = user;
+  });
   
   useEffect(() => {
     // Listen for sidebar state changes using custom event
@@ -91,6 +98,7 @@ export function DeviceManagementView({
         <DeviceList 
           devices={devices}
           deviceUserMap={localDeviceUserMap}
+          userDetailsMap={userDetailsMap}
           isLoading={isLoading}
           onRefresh={onRefresh}
           onSelectDevice={handleSelectDevice}
