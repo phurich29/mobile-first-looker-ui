@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "../types";
 
@@ -145,7 +144,7 @@ export const loadUsersWithAccess = async (deviceCode: string): Promise<User[]> =
   
   try {
     // Determine which roles the current user can see
-    let allowedRoles: string[] = [];
+    let allowedRoles: ('user' | 'admin' | 'superadmin')[] = [];
     if (isSuperAdmin) {
       // Super admin sees all roles
       allowedRoles = ['user', 'admin', 'superadmin'];

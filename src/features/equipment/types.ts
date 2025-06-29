@@ -13,6 +13,12 @@ export interface Device {
   displayName?: string;
 }
 
+export interface DeviceInfo {
+  device_code: string;
+  display_name?: string;
+  updated_at: string;
+}
+
 export interface DeviceData {
   devices: Device[];
   isLoading: boolean;
