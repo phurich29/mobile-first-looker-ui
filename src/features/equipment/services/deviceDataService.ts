@@ -1,93 +1,189 @@
 
-import { supabaseAdmin } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 import { DeviceInfo } from "../types";
-import { fetchSuperAdminDevices, fetchUserDevices } from "./legacyDeviceService";
 
-/**
- * Fetches devices with all details using the optimized database function
- */
-export const fetchDevicesWithDetails = async (
-  userId: string,
-  isAdmin: boolean,
-  isSuperAdmin: boolean
-): Promise<DeviceInfo[]> => {
-  console.log('Fetching devices with details using optimized database function...');
-  console.time('fetchDevicesWithDetails');
+export const fetchDevicesWithDetails = async (): Promise<DeviceInfo[]> => {
+  console.log("Fetching devices with details using optimized database function...");
   
   try {
-    // Use the corrected database function
-    const { data, error } = await supabaseAdmin.rpc('get_devices_with_details', {
-      user_id_param: userId,
-      is_admin_param: isAdmin,
-      is_superadmin_param: isSuperAdmin
-    });
-
-    if (error) {
-      console.error("Error calling get_devices_with_details:", error);
-      console.log('Falling back to legacy approach due to error');
-      return await fallbackToLegacyApproach(userId, isAdmin, isSuperAdmin);
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.log("No authenticated user found");
+      return [];
     }
 
-    if (!data || !Array.isArray(data)) {
-      console.log("No devices returned from function, using fallback");
-      return await fallbackToLegacyApproach(userId, isAdmin, isSuperAdmin);
+    // Check user role
+    const { data: userRoles } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+
+    const isSuperAdmin = userRoles?.some(role => role.role === 'superadmin');
+    const isAdmin = userRoles?.some(role => role.role === 'admin');
+
+    let devices: DeviceInfo[] = [];
+
+    if (isSuperAdmin) {
+      // Super admin sees all devices
+      const { data, error } = await supabase.rpc('get_devices_with_details');
+      if (error) throw error;
+      devices = data || [];
+    } else if (isAdmin) {
+      // Regular admin sees devices they have access to OR devices in guest_device_access
+      const { data: accessibleDevices, error: accessError } = await supabase
+        .from('user_device_access')
+        .select('device_code')
+        .eq('user_id', user.id);
+
+      if (accessError) throw accessError;
+
+      const { data: guestDevices, error: guestError } = await supabase
+        .from('guest_device_access')
+        .select('device_code');
+
+      if (guestError) throw guestError;
+
+      // Combine accessible devices and guest devices
+      const allAccessibleDeviceCodes = [
+        ...(accessibleDevices?.map(d => d.device_code) || []),
+        ...(guestDevices?.map(d => d.device_code) || [])
+      ];
+
+      const uniqueDeviceCodes = [...new Set(allAccessibleDeviceCodes)];
+
+      if (uniqueDeviceCodes.length > 0) {
+        const { data, error } = await supabase.rpc('get_devices_with_details');
+        if (error) throw error;
+        
+        // Filter to only show devices they have access to
+        devices = (data || []).filter(device => 
+          uniqueDeviceCodes.includes(device.device_code)
+        );
+      }
+    } else {
+      // Regular users see devices they have access to OR devices in guest_device_access that are enabled
+      const { data: accessibleDevices, error: accessError } = await supabase
+        .from('user_device_access')
+        .select('device_code')
+        .eq('user_id', user.id);
+
+      if (accessError) throw accessError;
+
+      const { data: guestDevices, error: guestError } = await supabase
+        .from('guest_device_access')
+        .select('device_code')
+        .eq('enabled', true);
+
+      if (guestError) throw guestError;
+
+      // Combine accessible devices and enabled guest devices
+      const allAccessibleDeviceCodes = [
+        ...(accessibleDevices?.map(d => d.device_code) || []),
+        ...(guestDevices?.map(d => d.device_code) || [])
+      ];
+
+      const uniqueDeviceCodes = [...new Set(allAccessibleDeviceCodes)];
+
+      if (uniqueDeviceCodes.length > 0) {
+        const { data, error } = await supabase.rpc('get_devices_with_details');
+        if (error) throw error;
+        
+        // Filter to only show devices they have access to
+        devices = (data || []).filter(device => 
+          uniqueDeviceCodes.includes(device.device_code)
+        );
+      }
     }
 
-    // Transform the data to match DeviceInfo interface
-    const devices: DeviceInfo[] = data.map((item: any) => ({
-      device_code: item.device_code,
-      updated_at: item.updated_at,
-      display_name: item.display_name || item.device_code
-    }));
-
-    console.timeEnd('fetchDevicesWithDetails');
     console.log(`✅ Successfully fetched ${devices.length} devices with details in single optimized query`);
-    console.log('📊 Performance: Single database call vs multiple calls - significant improvement!');
+    console.log("📊 Performance: Single database call vs multiple calls - significant improvement!");
     
     return devices;
-
   } catch (error) {
-    console.error('Error in fetchDevicesWithDetails:', error);
-    console.log('Falling back to legacy approach due to exception');
-    return await fallbackToLegacyApproach(userId, isAdmin, isSuperAdmin);
+    console.error("❌ Error fetching devices with details:", error);
+    return [];
   }
 };
 
-/**
- * Fallback function that uses legacy approach when database function fails
- */
-const fallbackToLegacyApproach = async (
-  userId: string,
-  isAdmin: boolean,
-  isSuperAdmin: boolean
-): Promise<DeviceInfo[]> => {
-  console.log('Using fallback legacy approach...');
-  console.time('fallbackToLegacyApproach');
+export const fetchDeviceCount = async (): Promise<number> => {
+  console.log("Counting unique devices using optimized function...");
   
   try {
-    if (isSuperAdmin) {
-      const legacyDevices = await fetchSuperAdminDevices();
-      const devices = legacyDevices.map(device => ({
-        device_code: device.device_code,
-        updated_at: device.updated_at,
-        display_name: device.device_code
-      }));
-      console.timeEnd('fallbackToLegacyApproach');
-      console.log('⚠️ Used legacy approach (multiple queries)');
-      return devices;
-    } else {
-      const legacyDevices = await fetchUserDevices(userId, isAdmin);
-      const devices = legacyDevices.map(device => ({
-        device_code: device.device_code,
-        updated_at: device.updated_at,
-        display_name: device.device_code
-      }));
-      console.timeEnd('fallbackToLegacyApproach');
-      console.log('⚠️ Used legacy approach (multiple queries)');
-      return devices;
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.log("No authenticated user found");
+      return 0;
     }
-  } catch (fallbackError) {
-    console.error('Even fallback approach failed:', fallbackError);
-    return [];
+
+    // Check user role
+    const { data: userRoles } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+
+    const isSuperAdmin = userRoles?.some(role => role.role === 'superadmin');
+    const isAdmin = userRoles?.some(role => role.role === 'admin');
+
+    let count = 0;
+
+    if (isSuperAdmin) {
+      // Super admin sees all devices
+      const { data, error } = await supabase.rpc('get_devices_with_details');
+      if (error) throw error;
+      count = data?.length || 0;
+    } else if (isAdmin) {
+      // Regular admin sees devices they have access to OR devices in guest_device_access
+      const { data: accessibleDevices, error: accessError } = await supabase
+        .from('user_device_access')
+        .select('device_code')
+        .eq('user_id', user.id);
+
+      if (accessError) throw accessError;
+
+      const { data: guestDevices, error: guestError } = await supabase
+        .from('guest_device_access')
+        .select('device_code');
+
+      if (guestError) throw guestError;
+
+      // Combine accessible devices and guest devices
+      const allAccessibleDeviceCodes = [
+        ...(accessibleDevices?.map(d => d.device_code) || []),
+        ...(guestDevices?.map(d => d.device_code) || [])
+      ];
+
+      count = new Set(allAccessibleDeviceCodes).size;
+    } else {
+      // Regular users see devices they have access to OR devices in guest_device_access that are enabled
+      const { data: accessibleDevices, error: accessError } = await supabase
+        .from('user_device_access')
+        .select('device_code')
+        .eq('user_id', user.id);
+
+      if (accessError) throw accessError;
+
+      const { data: guestDevices, error: guestError } = await supabase
+        .from('guest_device_access')
+        .select('device_code')
+        .eq('enabled', true);
+
+      if (guestError) throw guestError;
+
+      // Combine accessible devices and enabled guest devices
+      const allAccessibleDeviceCodes = [
+        ...(accessibleDevices?.map(d => d.device_code) || []),
+        ...(guestDevices?.map(d => d.device_code) || [])
+      ];
+
+      count = new Set(allAccessibleDeviceCodes).size;
+    }
+
+    console.log(`Found ${count} unique devices using optimized function`);
+    return count;
+  } catch (error) {
+    console.error("❌ Error counting devices:", error);
+    return 0;
   }
 };

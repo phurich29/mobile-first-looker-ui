@@ -34,8 +34,8 @@ export default function Equipment() {
             />
           </div>
           
-          {/* Add Device Form - Only for admin and superadmin (not guests) */}
-          {isAdmin && !isGuest && (
+          {/* Add Device Form - Only for superadmin (not guests and not regular admins) */}
+          {isSuperAdmin && !isGuest && (
             <div className="mb-8 bg-white/70 dark:bg-gray-800/40 p-5 rounded-xl border border-gray-100 dark:border-gray-800/30 shadow-md backdrop-blur-sm">
               <h2 className="text-lg font-semibold text-emerald-800 dark:text-emerald-400 mb-4">เพิ่มอุปกรณ์ใหม่</h2>
               <AddDeviceForm onDeviceAdded={handleRefresh} />
