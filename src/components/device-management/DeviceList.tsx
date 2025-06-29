@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveTable } from "@/components/ui/responsive-table";
 import { TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { RefreshCw, Search } from "lucide-react";
+import { RefreshCw, Search, Settings } from "lucide-react";
 
 interface Device {
   device_code: string;
@@ -36,7 +36,10 @@ export function DeviceList({
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>รายการอุปกรณ์ทั้งหมด</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <Settings className="h-5 w-5" />
+          รายการอุปกรณ์ทั้งหมด
+        </CardTitle>
         <div className="flex items-center gap-2">
           <Button 
             variant="outline" 
@@ -79,7 +82,7 @@ export function DeviceList({
               {filteredDevices.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
-                    ไม่พบข้อมูลอุปกรณ์
+                    {devices.length === 0 ? "ไม่พบข้อมูลอุปกรณ์" : "ไม่พบอุปกรณ์ที่ตรงกับการค้นหา"}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -87,13 +90,16 @@ export function DeviceList({
                   <TableRow key={device.device_code}>
                     <TableCell className="font-medium">{device.device_code}</TableCell>
                     <TableCell>
-                      {(deviceUserMap[device.device_code] || []).length} คน
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                        {(deviceUserMap[device.device_code] || []).length} คน
+                      </span>
                     </TableCell>
                     <TableCell className="text-right">
                       <Button 
                         variant="outline" 
                         size="sm"
                         onClick={() => onSelectDevice(device.device_code)}
+                        className="hover:bg-emerald-50 hover:border-emerald-300"
                       >
                         จัดการสิทธิ์
                       </Button>
@@ -103,6 +109,12 @@ export function DeviceList({
               )}
             </TableBody>
           </ResponsiveTable>
+        )}
+        
+        {!isLoading && devices.length > 0 && (
+          <div className="mt-4 text-sm text-gray-500 text-center">
+            แสดง {filteredDevices.length} จาก {devices.length} อุปกรณ์
+          </div>
         )}
       </CardContent>
     </Card>
