@@ -458,6 +458,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      check_user_role_for_data_access: {
+        Args: { user_id_param: string }
+        Returns: boolean
+      }
       get_device_data: {
         Args: Record<PropertyKey, never>
         Returns: {
