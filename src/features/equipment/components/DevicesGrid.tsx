@@ -51,7 +51,7 @@ export function DevicesGrid({
         <div className="mb-4 flex justify-end">
           <DevicesSortDropdown value={sortBy} onChange={setSortBy} />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {[...Array(8)].map((_, i) => (
             <div key={i} className="h-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
           ))}
@@ -73,7 +73,7 @@ export function DevicesGrid({
       <div className="mb-4 flex justify-end">
         <DevicesSortDropdown value={sortBy} onChange={setSortBy} />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {sortedDevices.map((device) => {
           console.log(`🎯 Rendering card for ${device.device_code} with deviceData:`, device.deviceData);
           
