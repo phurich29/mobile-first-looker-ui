@@ -14,6 +14,7 @@ export interface DeviceInfo {
   isSafari: boolean;
   isChrome: boolean;
   supportsInstallPrompt: boolean;
+  isIOSPWACapable: boolean;
 }
 
 export function useDeviceDetection(): DeviceInfo {
@@ -29,6 +30,7 @@ export function useDeviceDetection(): DeviceInfo {
         isSafari: false,
         isChrome: false,
         supportsInstallPrompt: false,
+        isIOSPWACapable: false,
       };
     }
 
@@ -46,6 +48,9 @@ export function useDeviceDetection(): DeviceInfo {
     
     // Check if browser supports install prompt
     const supportsInstallPrompt = 'serviceWorker' in navigator && 'PushManager' in window;
+    
+    // Check iOS PWA capabilities
+    const isIOSPWACapable = isIOS && isSafari && 'standalone' in navigator;
 
     return {
       isMobile,
@@ -57,6 +62,7 @@ export function useDeviceDetection(): DeviceInfo {
       isSafari,
       isChrome,
       supportsInstallPrompt,
+      isIOSPWACapable,
     };
   });
 
@@ -75,6 +81,7 @@ export function useDeviceDetection(): DeviceInfo {
       const isChrome = /Chrome/.test(userAgent);
       
       const supportsInstallPrompt = 'serviceWorker' in navigator && 'PushManager' in window;
+      const isIOSPWACapable = isIOS && isSafari && 'standalone' in navigator;
 
       setDeviceInfo({
         isMobile,
@@ -86,6 +93,7 @@ export function useDeviceDetection(): DeviceInfo {
         isSafari,
         isChrome,
         supportsInstallPrompt,
+        isIOSPWACapable,
       });
     };
 

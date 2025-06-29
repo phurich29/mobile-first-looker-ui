@@ -14,6 +14,8 @@ export interface PWAInstallState {
   canInstall: boolean;
   isInstalled: boolean;
   isInstalling: boolean;
+  isIOS: boolean;
+  isIOSPWACompatible: boolean;
   installApp: () => Promise<void>;
   dismissInstallPrompt: () => void;
   hasBeenDismissed: boolean;
@@ -25,8 +27,26 @@ export function usePWAInstall(): PWAInstallState {
   const [isInstalled, setIsInstalled] = useState(false);
   const [isInstalling, setIsInstalling] = useState(false);
   const [hasBeenDismissed, setHasBeenDismissed] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
+  const [isIOSPWACompatible, setIsIOSPWACompatible] = useState(false);
 
   useEffect(() => {
+    // Detect iOS
+    const detectIOS = () => {
+      const userAgent = window.navigator.userAgent.toLowerCase();
+      const isIOSDevice = /ipad|iphone|ipod/.test(userAgent);
+      setIsIOS(isIOSDevice);
+      
+      // Check iOS PWA compatibility (iOS 11.3+)
+      if (isIOSDevice) {
+        const isInStandaloneMode = ('standalone' in window.navigator) && (window.navigator as any).standalone;
+        const isIOSSafari = /safari/.test(userAgent) && !/chrome|crios|fxios/.test(userAgent);
+        const hasAddToHomeScreen = 'BeforeInstallPromptEvent' in window || isIOSSafari;
+        
+        setIsIOSPWACompatible(hasAddToHomeScreen && !isInStandaloneMode);
+      }
+    };
+
     // Check if app is already installed
     const checkIfInstalled = () => {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
@@ -40,8 +60,8 @@ export function usePWAInstall(): PWAInstallState {
       if (dismissed) {
         const dismissedDate = new Date(dismissed);
         const daysSinceDismissed = (Date.now() - dismissedDate.getTime()) / (1000 * 60 * 60 * 24);
-        // Show prompt again after 7 days
-        if (daysSinceDismissed < 7) {
+        // Show prompt again after 3 days for iOS (shorter than Android)
+        if (daysSinceDismissed < (isIOS ? 3 : 7)) {
           setHasBeenDismissed(true);
         } else {
           localStorage.removeItem('pwa-install-dismissed');
@@ -49,10 +69,11 @@ export function usePWAInstall(): PWAInstallState {
       }
     };
 
+    detectIOS();
     checkIfInstalled();
     checkDismissedStatus();
 
-    // Listen for beforeinstallprompt event
+    // Listen for beforeinstallprompt event (Android/Desktop only)
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       const installEvent = e as BeforeInstallPromptEvent;
@@ -70,16 +91,45 @@ export function usePWAInstall(): PWAInstallState {
       localStorage.removeItem('pwa-install-dismissed');
     };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    // Only add beforeinstallprompt listener for non-iOS devices
+    if (!isIOS) {
+      window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    }
+    
     window.addEventListener('appinstalled', handleAppInstalled);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      if (!isIOS) {
+        window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      }
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
-  }, []);
+  }, [isIOS]);
+
+  // Set canInstall based on platform
+  useEffect(() => {
+    if (isInstalled || hasBeenDismissed) {
+      setCanInstall(false);
+      return;
+    }
+
+    if (isIOS) {
+      // For iOS, show install prompt if PWA compatible and not in standalone mode
+      setCanInstall(isIOSPWACompatible);
+    } else {
+      // For other platforms, use deferredPrompt
+      setCanInstall(!!deferredPrompt);
+    }
+  }, [isIOS, isIOSPWACompatible, isInstalled, hasBeenDismissed, deferredPrompt]);
 
   const installApp = async (): Promise<void> => {
+    if (isIOS) {
+      // For iOS, we can't programmatically trigger install
+      // The banner will show instructions instead
+      console.log('iOS install instructions will be shown');
+      return;
+    }
+
     if (!deferredPrompt) {
       console.log('No install prompt available');
       return;
@@ -116,9 +166,11 @@ export function usePWAInstall(): PWAInstallState {
   };
 
   return {
-    canInstall: canInstall && !hasBeenDismissed && !isInstalled,
+    canInstall,
     isInstalled,
     isInstalling,
+    isIOS,
+    isIOSPWACompatible,
     installApp,
     dismissInstallPrompt,
     hasBeenDismissed,
