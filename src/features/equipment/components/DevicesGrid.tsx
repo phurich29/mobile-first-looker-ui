@@ -1,6 +1,8 @@
 
+import { useState } from "react";
 import { EquipmentCard } from "./EquipmentCard";
 import { DeviceInfo } from "../types";
+import { DevicesSortDropdown, SortOption } from "./DevicesSortDropdown";
 
 interface DevicesGridProps {
   devices: DeviceInfo[];
@@ -17,18 +19,43 @@ export function DevicesGrid({
   isSuperAdmin = false,
   onDeviceUpdated 
 }: DevicesGridProps) {
+  const [sortBy, setSortBy] = useState<SortOption>("device_code");
+
   console.log("🏗️ DevicesGrid rendering with devices:", devices.map(d => ({
     code: d.device_code,
     hasDeviceData: !!d.deviceData,
     deviceData: d.deviceData
   })));
 
+  // Sort devices based on selected option
+  const sortedDevices = [...devices].sort((a, b) => {
+    switch (sortBy) {
+      case "device_code":
+        return a.device_code.localeCompare(b.device_code);
+      case "display_name":
+        const nameA = a.display_name || a.device_code;
+        const nameB = b.display_name || b.device_code;
+        return nameA.localeCompare(nameB);
+      case "updated_at":
+        const dateA = new Date(a.updated_at).getTime();
+        const dateB = new Date(b.updated_at).getTime();
+        return dateB - dateA; // Most recent first
+      default:
+        return 0;
+    }
+  });
+
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-        {[...Array(8)].map((_, i) => (
-          <div key={i} className="h-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
-        ))}
+      <div>
+        <div className="mb-4 flex justify-end">
+          <DevicesSortDropdown value={sortBy} onChange={setSortBy} />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="h-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+          ))}
+        </div>
       </div>
     );
   }
@@ -42,23 +69,28 @@ export function DevicesGrid({
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-      {devices.map((device) => {
-        console.log(`🎯 Rendering card for ${device.device_code} with deviceData:`, device.deviceData);
-        
-        return (
-          <EquipmentCard
-            key={device.device_code}
-            deviceCode={device.device_code}
-            lastUpdated={device.updated_at}
-            isAdmin={isAdmin}
-            isSuperAdmin={isSuperAdmin}
-            displayName={device.display_name}
-            onDeviceUpdated={onDeviceUpdated}
-            deviceData={device.deviceData}
-          />
-        );
-      })}
+    <div>
+      <div className="mb-4 flex justify-end">
+        <DevicesSortDropdown value={sortBy} onChange={setSortBy} />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        {sortedDevices.map((device) => {
+          console.log(`🎯 Rendering card for ${device.device_code} with deviceData:`, device.deviceData);
+          
+          return (
+            <EquipmentCard
+              key={device.device_code}
+              deviceCode={device.device_code}
+              lastUpdated={device.updated_at}
+              isAdmin={isAdmin}
+              isSuperAdmin={isSuperAdmin}
+              displayName={device.display_name}
+              onDeviceUpdated={onDeviceUpdated}
+              deviceData={device.deviceData}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }
