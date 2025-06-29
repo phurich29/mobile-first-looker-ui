@@ -11,24 +11,32 @@ export const useHistoryData = (deviceCode?: string) => {
   const { data: historyData, isLoading, error } = useQuery({
     queryKey: ['deviceHistory', deviceCode || 'all', currentPage, itemsPerPage],
     queryFn: async () => {
+      console.log('Fetching history data for device:', deviceCode);
       const offset = (currentPage - 1) * itemsPerPage;
       
       let query = supabase
         .from('rice_quality_analysis')
         .select('*', { count: 'exact' });
 
-      if (deviceCode) {
+      if (deviceCode && deviceCode !== 'default') {
         query = query.eq('device_code', deviceCode);
+        console.log('Filtering by device_code:', deviceCode);
       }
 
       const { data, error, count } = await query
         .order('created_at', { ascending: false })
         .range(offset, offset + itemsPerPage - 1);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching history data:', error);
+        throw error;
+      }
       
+      console.log('Successfully fetched history data:', { count, dataLength: data?.length });
       return { data: data as RiceQualityData[], count: count || 0 };
     },
+    retry: 2,
+    retryDelay: 1000,
   });
 
   const totalPages = historyData ? Math.ceil(historyData.count / itemsPerPage) : 0;
