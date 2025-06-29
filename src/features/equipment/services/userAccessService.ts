@@ -145,17 +145,14 @@ export const loadUsersWithAccess = async (deviceCode: string): Promise<User[]> =
   const isAdmin = userRoles.includes('admin');
   
   try {
-    // Determine which roles the current user can see based on strict rules
-    let allowedRoles: string[] = [];
+    // Determine which roles the current user can see
+    let allowedRoles = ['user'];
     if (isSuperAdmin) {
-      // Super admin sees all: user, admin, superadmin
-      allowedRoles = ['user', 'admin', 'superadmin'];
+      allowedRoles = ['user', 'admin', 'superadmin']; // Super admin sees all
     } else if (isAdmin) {
-      // Admin sees all except superadmin: user, admin only
-      allowedRoles = ['user', 'admin'];
+      allowedRoles = ['user', 'admin']; // Admin sees user and admin, but not superadmin
     } else {
-      // Regular user sees only other users
-      allowedRoles = ['user'];
+      allowedRoles = ['user']; // Regular user sees only other users
     }
     
     // Fetch all users with allowed roles

@@ -126,7 +126,7 @@ export function UserAccessList({
           </div>
         ) : usersWithAccess.length === 0 ? (
           <div className="p-4 text-center text-sm text-gray-500">
-            ยังไม่มีผู้ใช้ที่มีสิทธิ์เข้าถึงอุปกรณ์นี้ (แสดงตามสิทธิ์ของคุณ)
+            ยังไม่มีผู้ใช้ที่มีสิทธิ์เข้าถึงอุปกรณ์นี้
           </div>
         ) : (
           usersWithAccess.map((user) => (
