@@ -1,5 +1,5 @@
 
-import { Home, Settings, AlertCircle, History, User, Users, FileText, Wheat } from "lucide-react";
+import { Home, Settings, AlertCircle, History, User, Users, FileText, Wheat, Shield } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useActivePath } from "./sidebar-utils";
@@ -17,6 +17,7 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
   
   // ตรวจสอบว่าผู้ใช้มีสิทธิ์ในการเข้าถึงหน้าจัดการผู้ใช้งานหรือไม่
   const canAccessUserManagement = userRoles.includes('admin') || userRoles.includes('superadmin');
+  const isSuperAdmin = userRoles.includes('superadmin');
   const isGuest = !user; // Check if user is a guest
   
   return (
@@ -81,6 +82,17 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
             icon={Users}
             label="จัดการผู้ใช้งาน"
             isActive={isActive("/user-management")}
+            isCollapsed={isCollapsed}
+          />
+        )}
+        
+        {/* Super Admin only - Device Access Management */}
+        {user && isSuperAdmin && (
+          <SidebarMenuItem 
+            path="/device-access-management" 
+            icon={Shield}
+            label="จัดการการเข้าถึงอุปกรณ์"
+            isActive={isActive("/device-access-management")}
             isCollapsed={isCollapsed}
           />
         )}
