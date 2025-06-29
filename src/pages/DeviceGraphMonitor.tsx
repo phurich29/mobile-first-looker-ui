@@ -19,11 +19,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAppNavigation } from "@/hooks/useAppNavigation";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useGuestMode } from "@/hooks/useGuestMode";
 
 const DeviceGraphMonitor = () => {
   const { deviceCode } = useParams<{ deviceCode: string }>();
   const isMobile = useIsMobile();
   const { user } = useAuth();
+  const { isGuest } = useGuestMode();
   const { goBack } = useAppNavigation();
   const [deviceDisplayName, setDeviceDisplayName] = useState<string | null>(null);
   
@@ -44,6 +46,30 @@ const DeviceGraphMonitor = () => {
     handleChangePreset,
     handleResetGraphs,
   } = useGraphMonitor();
+
+  // Check for pending graph from sessionStorage and add it automatically
+  useEffect(() => {
+    const pendingGraphStr = sessionStorage.getItem('pendingGraph');
+    if (pendingGraphStr) {
+      try {
+        const pendingGraph = JSON.parse(pendingGraphStr);
+        if (pendingGraph.deviceCode === deviceCode) {
+          const graph: SelectedGraph = {
+            deviceCode: pendingGraph.deviceCode,
+            symbol: pendingGraph.symbol,
+            name: pendingGraph.name,
+            deviceName: pendingGraph.deviceName || deviceDisplayName || `อุปกรณ์วัด ${pendingGraph.deviceCode}`
+          };
+          handleAddGraph(graph);
+        }
+      } catch (error) {
+        console.error('Error parsing pending graph:', error);
+      } finally {
+        // Clear the pending graph from sessionStorage
+        sessionStorage.removeItem('pendingGraph');
+      }
+    }
+  }, [deviceCode, deviceDisplayName, handleAddGraph]);
 
   // Fetch device display name
   useEffect(() => {
@@ -128,7 +154,8 @@ const DeviceGraphMonitor = () => {
             </p>
           </div>
 
-          {user && (
+          {/* Show presets only for authenticated users, not guests */}
+          {user && !isGuest && (
             <GraphPresets 
               presets={presets}
               activePreset={activePreset}
