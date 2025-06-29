@@ -2,7 +2,6 @@
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users } from "lucide-react";
-import equipmentIcon from "@/assets/equipment-icon.svg";
 
 interface EquipmentCardHeaderProps {
   deviceCode: string;
@@ -22,7 +21,7 @@ export function EquipmentCardHeader({
       <div className="flex flex-row items-start gap-2 sm:gap-3">
         {/* Column 1: Icon */}
         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0 mt-1 sm:mt-0">
-          <img src={equipmentIcon} alt="อุปกรณ์" className="w-full h-full" />
+          <img src="/lovable-uploads/62fc5c00-ac5d-4eed-b226-0a5cb16781f6.png" alt="อุปกรณ์" className="w-full h-full object-contain" />
         </div>
 
         {/* Column 2: Text details and Badge */}
