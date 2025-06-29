@@ -10,16 +10,18 @@ interface EquipmentCardContentProps {
   lastUpdated: string | null;
   isAdmin: boolean;
   onEditClick: () => void;
+  deviceData?: any; // เพิ่ม prop สำหรับข้อมูลอุปกรณ์
 }
 
 export function EquipmentCardContent({
   deviceCode,
   lastUpdated,
   isAdmin,
-  onEditClick
+  onEditClick,
+  deviceData
 }: EquipmentCardContentProps) {
   const formattedTime = formatEquipmentTime(lastUpdated);
-  const isRecent = isRecentUpdate(lastUpdated);
+  const isRecent = isRecentUpdate(lastUpdated, deviceData);
   const timeClasses = getTimeClasses(isRecent);
 
   return (

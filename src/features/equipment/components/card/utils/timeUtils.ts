@@ -11,8 +11,24 @@ export const formatEquipmentTime = (lastUpdated: string | null) => {
   return format(date, "dd MMM yy HH:mm น.", { locale: th });
 };
 
-export const isRecentUpdate = (lastUpdated: string | null): boolean => {
+export const isRecentUpdate = (lastUpdated: string | null, deviceData?: any): boolean => {
   if (!lastUpdated || lastUpdated === "-") return false;
+  
+  // ตรวจสอบค่า "-" ในคอลัมน์อื่นๆ ของข้อมูลอุปกรณ์
+  if (deviceData) {
+    // ตรวจสอบคอลัมน์ที่สำคัญในข้อมูลการวิเคราะห์คุณภาพข้าว
+    const importantFields = [
+      'class1', 'class2', 'class3', 'whole_kernels', 'head_rice', 
+      'total_brokens', 'small_brokens', 'whiteness', 'process_precision'
+    ];
+    
+    // ถ้าพบค่า "-" ในฟิลด์ใดฟิลด์หนึ่ง ให้ถือว่าไม่ใช่การอัพเดทที่สมบูรณ์
+    for (const field of importantFields) {
+      if (deviceData[field] === "-" || deviceData[field] === null || deviceData[field] === undefined) {
+        return false;
+      }
+    }
+  }
   
   try {
     // สร้าง Date object จาก lastUpdated และปรับเขตเวลา +7 ชั่วโมง
