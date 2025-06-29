@@ -14,6 +14,7 @@ interface EquipmentCardContainerProps {
   isSuperAdmin?: boolean;
   displayName?: string;
   onDeviceUpdated?: () => void;
+  deviceData?: any; // เพิ่ม prop สำหรับข้อมูลอุปกรณ์
 }
 
 export function EquipmentCardContainer({
@@ -22,7 +23,8 @@ export function EquipmentCardContainer({
   isAdmin = false,
   isSuperAdmin = false,
   displayName,
-  onDeviceUpdated
+  onDeviceUpdated,
+  deviceData
 }: EquipmentCardContainerProps) {
   const [isUsersDialogOpen, setIsUsersDialogOpen] = useState(false);
   
@@ -49,6 +51,7 @@ export function EquipmentCardContainer({
           lastUpdated={lastUpdated}
           isAdmin={isAdmin || isSuperAdmin}
           onEditClick={() => setIsEditDialogOpen(true)}
+          deviceData={deviceData}
         />
       </Card>
       

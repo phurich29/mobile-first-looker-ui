@@ -12,10 +12,16 @@ export const formatEquipmentTime = (lastUpdated: string | null) => {
 };
 
 export const isRecentUpdate = (lastUpdated: string | null, deviceData?: any): boolean => {
-  if (!lastUpdated || lastUpdated === "-") return false;
+  console.log("isRecentUpdate called with:", { lastUpdated, deviceData });
+  
+  if (!lastUpdated || lastUpdated === "-") {
+    console.log("No lastUpdated or lastUpdated is '-', returning false");
+    return false;
+  }
   
   // ตรวจสอบค่า "-" ในคอลัมน์อื่นๆ ของข้อมูลอุปกรณ์
   if (deviceData) {
+    console.log("Checking deviceData for '-' values:", deviceData);
     // ตรวจสอบคอลัมน์ที่สำคัญในข้อมูลการวิเคราะห์คุณภาพข้าว
     const importantFields = [
       'class1', 'class2', 'class3', 'whole_kernels', 'head_rice', 
@@ -24,10 +30,16 @@ export const isRecentUpdate = (lastUpdated: string | null, deviceData?: any): bo
     
     // ถ้าพบค่า "-" ในฟิลด์ใดฟิลด์หนึ่ง ให้ถือว่าไม่ใช่การอัพเดทที่สมบูรณ์
     for (const field of importantFields) {
-      if (deviceData[field] === "-" || deviceData[field] === null || deviceData[field] === undefined) {
+      const fieldValue = deviceData[field];
+      console.log(`Checking field ${field}:`, fieldValue);
+      if (fieldValue === "-" || fieldValue === null || fieldValue === undefined) {
+        console.log(`Found '-' or null/undefined in field ${field}, returning false`);
         return false;
       }
     }
+    console.log("All important fields have valid values");
+  } else {
+    console.log("No deviceData provided, cannot check for '-' values in other fields");
   }
   
   try {
@@ -46,7 +58,15 @@ export const isRecentUpdate = (lastUpdated: string | null, deviceData?: any): bo
     // คำนวณส่วนต่างเวลาระหว่างเวลาปัจจุบันกับเวลาที่ปรับเขตเวลาแล้ว
     const diffMs = now.getTime() - adjustedLastUpdateDate.getTime();
     // ตรวจสอบว่าส่วนต่างเวลาอยู่ในช่วง 30 นาทีล่าสุดหรือไม่
-    return diffMs >= 0 && diffMs < thirtyMinutesInMs;
+    const isWithin30Minutes = diffMs >= 0 && diffMs < thirtyMinutesInMs;
+    console.log("Time check result:", { 
+      now: now.toISOString(), 
+      adjustedTime: adjustedLastUpdateDate.toISOString(), 
+      diffMs, 
+      thirtyMinutesInMs, 
+      isWithin30Minutes 
+    });
+    return isWithin30Minutes;
   } catch (error) {
     console.error("Error processing adjustedLastUpdateDate:", lastUpdated, error);
     return false;

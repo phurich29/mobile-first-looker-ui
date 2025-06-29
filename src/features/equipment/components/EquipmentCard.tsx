@@ -8,6 +8,7 @@ interface EquipmentCardProps {
   isSuperAdmin?: boolean;
   displayName?: string;
   onDeviceUpdated?: () => void;
+  deviceData?: any; // เพิ่ม prop สำหรับข้อมูลอุปกรณ์
 }
 
 export function EquipmentCard(props: EquipmentCardProps) {
