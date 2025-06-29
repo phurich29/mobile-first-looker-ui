@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layouts/app-layout";
@@ -12,8 +11,6 @@ import { getColumnThaiName } from "@/lib/columnTranslations";
 import { useAuth } from "@/components/AuthProvider";
 import { useQuery } from "@tanstack/react-query";
 import { fetchDevicesWithDetails } from "@/features/equipment/services";
-import { useGuestMode } from "@/hooks/useGuestMode";
-import { useGuestDeviceAccess } from "@/hooks/useGuestDeviceAccess";
 
 // Import custom hooks
 import { useDeviceData } from "@/features/device-details/hooks/useDeviceData";
@@ -63,7 +60,6 @@ const convertUrlSymbolToMeasurementSymbol = (urlSymbol: string): string => {
   };
   return symbolMap[urlSymbol.toLowerCase()] || urlSymbol;
 };
-
 export default function DeviceDetails() {
   const {
     deviceCode,
@@ -80,18 +76,14 @@ export default function DeviceDetails() {
     user,
     userRoles
   } = useAuth();
-  const { isGuest } = useGuestMode();
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
-
-  // Check guest device access
-  const { data: guestAccess, isLoading: isLoadingGuestAccess } = useGuestDeviceAccess(deviceCode);
 
   // Convert URL symbol to measurement symbol if present
   const measurementSymbol = urlSymbol ? convertUrlSymbolToMeasurementSymbol(urlSymbol) : null;
   const measurementName = measurementSymbol ? getColumnThaiName(measurementSymbol) : null;
 
-  // Check device access permissions for authenticated users
+  // Check device access permissions
   const {
     data: accessibleDevices,
     isLoading: isCheckingAccess
@@ -101,7 +93,7 @@ export default function DeviceDetails() {
       if (!user) return [];
       return await fetchDevicesWithDetails(user.id, isAdmin, isSuperAdmin);
     },
-    enabled: !!user && !isGuest
+    enabled: !!user
   });
 
   // Use custom hooks
@@ -120,15 +112,7 @@ export default function DeviceDetails() {
   } = useDeviceData(deviceCode);
 
   // Check if user has access to the current device
-  let hasDeviceAccess = false;
-  
-  if (isGuest) {
-    // For guests, check guest device access
-    hasDeviceAccess = guestAccess?.hasAccess || false;
-  } else if (user) {
-    // For authenticated users, check their device access
-    hasDeviceAccess = accessibleDevices?.some(device => device.device_code === deviceCode) ?? false;
-  }
+  const hasDeviceAccess = accessibleDevices?.some(device => device.device_code === deviceCode) ?? false;
 
   // Handle measurement item click - now navigates to device-specific URL
   const handleMeasurementClick = (symbol: string, name: string) => {
@@ -154,7 +138,7 @@ export default function DeviceDetails() {
   };
 
   // If still checking access permissions, show loading
-  if (isCheckingAccess || (isGuest && isLoadingGuestAccess)) {
+  if (isCheckingAccess) {
     return <LoadingScreen />;
   }
 
@@ -169,15 +153,7 @@ export default function DeviceDetails() {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center p-8">
             <div className="text-6xl mb-4">🔒</div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              {isGuest ? "ไม่พบอุปกรณ์ที่เปิดให้ Guest เข้าถึง" : "ไม่พบอุปกรณ์ที่คุณมีสิทธิ์เข้าถึง"}
-            </h2>
-            <p className="text-gray-600 mb-4">
-              {isGuest 
-                ? "อุปกรณ์นี้ไม่ได้เปิดให้ Guest เข้าถึง กรุณาติดต่อผู้ดูแลระบบ" 
-                : "คุณไม่มีสิทธิ์เข้าถึงอุปกรณ์นี้"
-              }
-            </p>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">ไม่พบอุปกรณ์ที่คุณมีสิทธิ์เข้าถึง</h2>
             
             <button onClick={() => navigate('/equipment')} className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors">
               กลับไปหน้าอุปกรณ์
@@ -212,8 +188,8 @@ export default function DeviceDetails() {
             <MeasurementTabs deviceCode={deviceCode} searchTerm={searchTerm} wholeGrainData={wholeGrainData} ingredientsData={ingredientsData} impuritiesData={impuritiesData} allData={allData} notificationSettings={notificationSettings || []} isLoadingWholeGrain={isLoadingWholeGrain} isLoadingIngredients={isLoadingIngredients} isLoadingImpurities={isLoadingImpurities} isLoadingAllData={isLoadingAllData} onMeasurementClick={handleMeasurementClick} />
           </div>
 
-          {/* Add Device History Table at the bottom with Suspense for lazy loading - Only for authenticated users */}
-          {deviceCode && deviceCode !== 'default' && !isGuest && <div className="px-0">
+          {/* Add Device History Table at the bottom with Suspense for lazy loading */}
+          {deviceCode && deviceCode !== 'default' && <div className="px-0">
               <Suspense fallback={<div className="bg-white rounded-lg shadow-sm p-6 mb-4">
                   <h3 className="text-lg font-semibold mb-4">ประวัติข้อมูลทั้งหมด</h3>
                   <div className="flex justify-center items-center py-8">
