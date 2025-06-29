@@ -4,6 +4,7 @@ import { User } from "../../types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { UserAccessList } from "./UserAccessList";
 import { UserSearchForm } from "./UserSearchForm";
+import { UserSearchDebug } from "./UserSearchDebug";
 import { loadUsersWithAccess } from "../../services/userAccessService";
 
 interface UserAccessDialogProps {
@@ -43,12 +44,14 @@ export function UserAccessDialog({
   
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>จัดการสิทธิ์การเข้าถึงอุปกรณ์ {deviceCode}</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4 mt-2">
+          <UserSearchDebug />
+          
           <UserSearchForm
             deviceCode={deviceCode}
             allUsers={allUsers}
