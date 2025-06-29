@@ -1,4 +1,3 @@
-
 import { Navigate } from "react-router-dom";
 import { AppLayout } from "@/components/layouts/app-layout";
 import { BackgroundImage } from "@/components/graph-monitor/BackgroundImage";
@@ -20,6 +19,7 @@ export default function UserManagement() {
   const { user, userRoles, isLoading } = useAuth();
   const {
     users,
+    setUsers,
     isLoadingUsers,
     isProcessing,
     isSuperAdmin,
@@ -93,6 +93,7 @@ export default function UserManagement() {
             ) : users.length > 0 ? (
               <UserTable
                 users={users}
+                setUsers={setUsers}
                 isProcessing={isProcessing}
                 isSuperAdmin={isSuperAdmin}
                 onApproveUser={approveUser}

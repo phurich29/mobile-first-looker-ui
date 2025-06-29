@@ -1,10 +1,11 @@
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { User, UserRole } from "../types";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { UserRow } from "./UserRow";
+import { User, UserRole } from "../types";
 
 interface UserTableProps {
   users: User[];
+  setUsers: React.Dispatch<React.SetStateAction<User[]>>;
   isProcessing: boolean;
   isSuperAdmin: boolean;
   onApproveUser: (userId: string) => void;
@@ -15,6 +16,7 @@ interface UserTableProps {
 
 export function UserTable({
   users,
+  setUsers,
   isProcessing,
   isSuperAdmin,
   onApproveUser,
@@ -23,29 +25,27 @@ export function UserTable({
   onChangeUserRole
 }: UserTableProps) {
   return (
-    <div className="overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-2/3 py-1 text-xs text-muted-foreground dark:text-slate-400">ข้อมูลผู้ใช้</TableHead>
-            <TableHead className="w-1/3 text-right py-1 text-xs text-muted-foreground dark:text-slate-400">จัดการ</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody className="dark:border-slate-700">
-          {users.map((user) => (
-            <UserRow
-              key={user.id}
-              user={user}
-              isSuperAdmin={isSuperAdmin}
-              isProcessing={isProcessing}
-              onApproveUser={onApproveUser}
-              onOpenResetDialog={onOpenResetDialog}
-              onOpenDeleteDialog={onOpenDeleteDialog}
-              onChangeUserRole={onChangeUserRole}
-            />
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+    <Table>
+      <TableHeader>
+        <TableRow className="dark:border-slate-700">
+          <TableHead className="text-xs font-medium text-gray-900 dark:text-gray-200">ผู้ใช้งาน</TableHead>
+          <TableHead className="text-xs font-medium text-gray-900 dark:text-gray-200 text-right">การดำเนินการ</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {users.map((user) => (
+          <UserRow
+            key={user.id}
+            user={user}
+            users={users}
+            setUsers={setUsers}
+            isSuperAdmin={isSuperAdmin}
+            onApproveUser={onApproveUser}
+            onOpenResetDialog={onOpenResetDialog}
+            onOpenDeleteDialog={onOpenDeleteDialog}
+          />
+        ))}
+      </TableBody>
+    </Table>
   );
 }

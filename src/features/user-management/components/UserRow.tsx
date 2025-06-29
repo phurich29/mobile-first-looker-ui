@@ -7,6 +7,8 @@ import { TableRow, TableCell } from "@/components/ui/table";
 import { ChevronDown, Trash2 } from "lucide-react";
 import { User, UserRole } from "../types";
 import { formatDate } from "../utils";
+import { useAuth } from "@/components/AuthProvider";
+import { useUserRoleOperations } from "../hooks/useUserRoleOperations";
 import { useDeviceManagement } from "./hooks/useDeviceManagement";
 import { DeviceAccessSection } from "./DeviceAccessSection";
 import { PasswordChangeSection } from "./PasswordChangeSection";
@@ -14,24 +16,38 @@ import { RoleManagementSection } from "./RoleManagementSection";
 
 interface UserRowProps {
   user: User;
+  users: User[];
+  setUsers: React.Dispatch<React.SetStateAction<User[]>>;
   isSuperAdmin: boolean;
-  isProcessing: boolean;
   onApproveUser: (userId: string) => void;
   onOpenResetDialog: (userId: string, email: string) => void;
   onOpenDeleteDialog: (userId: string, email: string) => void;
-  onChangeUserRole: (userId: string, role: UserRole, isAdding: boolean) => void;
 }
 
 export function UserRow({
   user,
+  users,
+  setUsers,
   isSuperAdmin,
-  isProcessing,
   onApproveUser,
   onOpenResetDialog,
-  onOpenDeleteDialog,
-  onChangeUserRole
+  onOpenDeleteDialog
 }: UserRowProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const { userRoles } = useAuth();
+  
+  // Use the dedicated role operations hook
+  const {
+    isProcessing,
+    changeUserRole,
+    approveUser
+  } = useUserRoleOperations({
+    users,
+    setUsers,
+    isSuperAdmin,
+    userRoles
+  });
+
   const {
     availableDevices,
     userDevices,
@@ -62,7 +78,11 @@ export function UserRow({
   };
 
   const handleRoleChange = (role: UserRole, isAdding: boolean) => {
-    onChangeUserRole(user.id, role, isAdding);
+    changeUserRole(user.id, role, isAdding);
+  };
+
+  const handleApproveUser = () => {
+    approveUser(user.id);
   };
 
   return (
@@ -101,7 +121,7 @@ export function UserRow({
               <Button 
                 variant="default" 
                 size="sm"
-                onClick={() => onApproveUser(user.id)}
+                onClick={handleApproveUser}
                 disabled={isProcessing}
                 className="bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-700 dark:hover:bg-emerald-800 text-[10px] h-6 px-1"
               >

@@ -467,6 +467,7 @@ export function useUserManagement() {
 
   return {
     users,
+    setUsers, // Expose setUsers
     isLoadingUsers,
     isProcessing,
     isSuperAdmin,
