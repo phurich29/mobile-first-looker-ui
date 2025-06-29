@@ -152,8 +152,8 @@ export default function DeviceDetails() {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center p-8">
             <div className="text-6xl mb-4">🔒</div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">ไม่มีสิทธิ์เข้าถึง</h2>
-            <p className="text-gray-600 mb-4">คุณไม่มีสิทธิ์เข้าถึงอุปกรณ์นี้</p>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">ไม่พบอุปกรณ์ที่คุณมีสิทธิ์เข้าถึง</h2>
+            <p className="text-gray-600 mb-4">ขออภัย คุณไม่สามารถเข้าถึงอุปกรณ์นี้ได้</p>
             <button
               onClick={() => navigate('/equipment')}
               className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
