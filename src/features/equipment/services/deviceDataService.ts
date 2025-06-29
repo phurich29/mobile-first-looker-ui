@@ -8,6 +8,8 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
   try {
     // Get current user if not provided
     let currentUserId = userId;
+    let currentUser = null;
+    
     if (!currentUserId) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -15,6 +17,7 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
         return [];
       }
       currentUserId = user.id;
+      currentUser = user;
     }
 
     // Check user role if not provided
@@ -31,15 +34,28 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
       userIsAdmin = userRoles?.some(role => role.role === 'admin') || false;
     }
 
+    console.log(`User roles - isSuperAdmin: ${userIsSuperAdmin}, isAdmin: ${userIsAdmin}`);
+
     let devices: DeviceInfo[] = [];
 
     if (userIsSuperAdmin) {
-      // Super admin sees all devices
-      const { data, error } = await supabase.rpc('get_devices_with_details');
-      if (error) throw error;
+      // Super admin sees all devices using database function
+      console.log("Fetching devices for SuperAdmin using database function...");
+      const { data, error } = await supabase.rpc('get_devices_with_details', {
+        user_id_param: currentUserId,
+        is_admin_param: true,
+        is_superadmin_param: true
+      });
+      if (error) {
+        console.error("Error from database function:", error);
+        throw error;
+      }
       devices = data || [];
+      console.log(`SuperAdmin: Found ${devices.length} devices from database function`);
     } else if (userIsAdmin) {
       // Regular admin sees devices they have access to OR devices in guest_device_access
+      console.log("Fetching devices for Admin...");
+      
       const { data: accessibleDevices, error: accessError } = await supabase
         .from('user_device_access')
         .select('device_code')
@@ -60,9 +76,15 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
       ];
 
       const uniqueDeviceCodes = [...new Set(allAccessibleDeviceCodes)];
+      console.log(`Admin: Found ${uniqueDeviceCodes.length} accessible device codes`);
 
       if (uniqueDeviceCodes.length > 0) {
-        const { data, error } = await supabase.rpc('get_devices_with_details');
+        // Use database function and filter results
+        const { data, error } = await supabase.rpc('get_devices_with_details', {
+          user_id_param: currentUserId,
+          is_admin_param: true,
+          is_superadmin_param: false
+        });
         if (error) throw error;
         
         // Filter to only show devices they have access to
@@ -70,8 +92,11 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
           uniqueDeviceCodes.includes(device.device_code)
         );
       }
+      console.log(`Admin: Filtered to ${devices.length} devices`);
     } else {
       // Regular users see devices they have access to OR devices in guest_device_access that are enabled
+      console.log("Fetching devices for regular user...");
+      
       const { data: accessibleDevices, error: accessError } = await supabase
         .from('user_device_access')
         .select('device_code')
@@ -93,9 +118,15 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
       ];
 
       const uniqueDeviceCodes = [...new Set(allAccessibleDeviceCodes)];
+      console.log(`Regular user: Found ${uniqueDeviceCodes.length} accessible device codes`);
 
       if (uniqueDeviceCodes.length > 0) {
-        const { data, error } = await supabase.rpc('get_devices_with_details');
+        // Use database function and filter results
+        const { data, error } = await supabase.rpc('get_devices_with_details', {
+          user_id_param: currentUserId,
+          is_admin_param: false,
+          is_superadmin_param: false
+        });
         if (error) throw error;
         
         // Filter to only show devices they have access to
@@ -103,10 +134,11 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
           uniqueDeviceCodes.includes(device.device_code)
         );
       }
+      console.log(`Regular user: Filtered to ${devices.length} devices`);
     }
 
-    console.log(`✅ Successfully fetched ${devices.length} devices with details in single optimized query`);
-    console.log("📊 Performance: Single database call vs multiple calls - significant improvement!");
+    console.log(`✅ Successfully fetched ${devices.length} devices with details`);
+    console.log("Device codes found:", devices.map(d => d.device_code));
     
     return devices;
   } catch (error) {
