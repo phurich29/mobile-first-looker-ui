@@ -61,6 +61,10 @@ export function UserRow({
     setIsEditing(false);
   };
 
+  const handleRoleChange = (role: UserRole, isAdding: boolean) => {
+    onChangeUserRole(user.id, role, isAdding);
+  };
+
   return (
     <>
       <TableRow className={`${!user.roles.includes('user') ? 'bg-amber-50 dark:bg-amber-900/30' : ''} dark:border-slate-700 ${isEditing ? 'border-b-0 dark:border-b-0' : ''}`}>
@@ -160,7 +164,7 @@ export function UserRow({
                   userRoles={user.roles}
                   isSuperAdmin={isSuperAdmin}
                   isProcessing={isProcessing}
-                  onChangeUserRole={onChangeUserRole}
+                  onChangeUserRole={handleRoleChange}
                   userId={user.id}
                 />
               </div>
