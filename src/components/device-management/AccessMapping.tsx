@@ -19,6 +19,7 @@ export const AccessMapping = () => {
   const [devices, setDevices] = useState<Device[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [deviceUserMap, setDeviceUserMap] = useState<Record<string, string[]>>({});
+  const [userDetailsMap, setUserDetailsMap] = useState<Record<string, User>>({});
   const [isLoading, setIsLoading] = useState(true);
   const { user, userRoles } = useAuth();
   const { toast } = useToast();
@@ -54,6 +55,13 @@ export const AccessMapping = () => {
 
       if (usersError) throw usersError;
       setUsers(usersData || []);
+
+      // Create user details map for quick lookup
+      const userMap: Record<string, User> = {};
+      (usersData || []).forEach(userData => {
+        userMap[userData.id] = userData;
+      });
+      setUserDetailsMap(userMap);
 
       // Fetch device-user mappings
       const { data: accessData, error: accessError } = await supabase
@@ -109,6 +117,7 @@ export const AccessMapping = () => {
       <DeviceList 
         devices={devices}
         deviceUserMap={deviceUserMap}
+        userDetailsMap={userDetailsMap}
         isLoading={isLoading}
         onRefresh={fetchData}
         onSelectDevice={handleSelectDevice}

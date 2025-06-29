@@ -12,9 +12,15 @@ interface Device {
   display_name?: string;
 }
 
+interface User {
+  id: string;
+  email: string;
+}
+
 interface DeviceListProps {
   devices: Device[];
   deviceUserMap: Record<string, string[]>;
+  userDetailsMap: Record<string, User>;
   isLoading: boolean;
   onRefresh: () => Promise<void>;
   onSelectDevice: (deviceCode: string) => void;
@@ -23,6 +29,7 @@ interface DeviceListProps {
 export function DeviceList({ 
   devices, 
   deviceUserMap, 
+  userDetailsMap,
   isLoading, 
   onRefresh,
   onSelectDevice 
@@ -34,6 +41,15 @@ export function DeviceList({
     device.device_code.toLowerCase().includes(deviceFilter.toLowerCase()) ||
     (device.display_name && device.display_name.toLowerCase().includes(deviceFilter.toLowerCase()))
   );
+
+  // Get user emails for a device
+  const getUserEmails = (deviceCode: string) => {
+    const userIds = deviceUserMap[deviceCode] || [];
+    return userIds
+      .map(userId => userDetailsMap[userId]?.email || 'Unknown')
+      .filter(email => email !== 'Unknown')
+      .sort();
+  };
   
   return (
     <Card>
@@ -78,42 +94,70 @@ export function DeviceList({
                 <TableHead>ชื่ออุปกรณ์</TableHead>
                 <TableHead>รหัสอุปกรณ์</TableHead>
                 <TableHead>จำนวนผู้ใช้ที่มีสิทธิ์เข้าถึง</TableHead>
+                <TableHead>ผู้ใช้ที่ได้รับสิทธิ์</TableHead>
                 <TableHead className="text-right">การจัดการ</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredDevices.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                     {devices.length === 0 ? "ไม่พบข้อมูลอุปกรณ์" : "ไม่พบอุปกรณ์ที่ตรงกับการค้นหา"}
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredDevices.map((device) => (
-                  <TableRow key={device.device_code}>
-                    <TableCell className="font-medium">
-                      {device.display_name || device.device_code}
-                    </TableCell>
-                    <TableCell className="text-gray-600">
-                      {device.device_code}
-                    </TableCell>
-                    <TableCell>
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                        {(deviceUserMap[device.device_code] || []).length} คน
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => onSelectDevice(device.device_code)}
-                        className="hover:bg-emerald-50 hover:border-emerald-300"
-                      >
-                        จัดการสิทธิ์
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
+                filteredDevices.map((device) => {
+                  const userEmails = getUserEmails(device.device_code);
+                  return (
+                    <TableRow key={device.device_code}>
+                      <TableCell className="font-medium">
+                        {device.display_name || device.device_code}
+                      </TableCell>
+                      <TableCell className="text-gray-600">
+                        {device.device_code}
+                      </TableCell>
+                      <TableCell>
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                          {userEmails.length} คน
+                        </span>
+                      </TableCell>
+                      <TableCell className="max-w-xs">
+                        {userEmails.length > 0 ? (
+                          <div className="text-sm text-gray-600">
+                            {userEmails.length <= 3 ? (
+                              <div className="space-y-1">
+                                {userEmails.map(email => (
+                                  <div key={email} className="truncate">{email}</div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="space-y-1">
+                                {userEmails.slice(0, 2).map(email => (
+                                  <div key={email} className="truncate">{email}</div>
+                                ))}
+                                <div className="text-xs text-gray-500">
+                                  และอีก {userEmails.length - 2} คน
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-gray-400 text-sm">ไม่มีผู้ใช้</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => onSelectDevice(device.device_code)}
+                          className="hover:bg-emerald-50 hover:border-emerald-300"
+                        >
+                          จัดการสิทธิ์
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </ResponsiveTable>
