@@ -68,7 +68,7 @@ export function UserAccessList({
           </div>
         ) : usersWithAccess.length === 0 ? (
           <div className="p-4 text-center text-sm text-gray-500">
-            ยังไม่มีผู้ใช้ที่มีสิทธิ์เข้าถึงอุปกรณ์นี้
+            ไม่พบผู้ใช้ที่มีสิทธิ์เข้าถึงอุปกรณ์นี้
           </div>
         ) : (
           usersWithAccess.map((user) => (
@@ -78,18 +78,24 @@ export function UserAccessList({
                   {user.email}
                 </div>
                 <div className="text-xs text-green-600 mt-1">
-                  มีสิทธิ์เข้าถึง
+                  {user.hasImplicitAccess ? 'สิทธิ์ตามบทบาท' : 'มีสิทธิ์เข้าถึง'}
                 </div>
               </div>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => toggleAccess(user.id, user.hasAccess)}
-                className="ml-2 flex items-center"
-              >
-                <X className="h-3 w-3 mr-1" />
-                <span className="text-xs">ลบสิทธิ์</span>
-              </Button>
+              {user.hasImplicitAccess ? (
+                <div className="ml-2 px-3 py-1 text-xs bg-blue-50 text-blue-700 rounded-full">
+                  สิทธิ์ตามบทบาท
+                </div>
+              ) : (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => toggleAccess(user.id, user.hasAccess)}
+                  className="ml-2 flex items-center"
+                >
+                  <X className="h-3 w-3 mr-1" />
+                  <span className="text-xs">ลบสิทธิ์</span>
+                </Button>
+              )}
             </div>
           ))
         )}
