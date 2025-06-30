@@ -264,10 +264,11 @@ export function useUserManagement() {
   const createUser = async (values: NewUserFormValues) => {
     setIsProcessing(true);
     try {
-      // 1. Create user with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      // 1. Create user with Supabase Admin API (to avoid auto-login)
+      const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
         email: values.email,
-        password: values.password
+        password: values.password,
+        email_confirm: true, // Automatically confirm email since we are admin
       });
       
       if (authError) throw authError;
