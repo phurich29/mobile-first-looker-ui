@@ -8,9 +8,10 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { KeyRound, CheckCircle, AlertCircle } from "lucide-react";
-
 const Profile = () => {
-  const { user } = useAuth();
+  const {
+    user
+  } = useAuth();
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -27,7 +28,7 @@ const Profile = () => {
     hour: '2-digit',
     minute: '2-digit'
   }) : "ไม่พบข้อมูลวันที่";
-  
+
   // Format last sign in time
   const lastSignIn = user?.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString('th-TH', {
     year: 'numeric',
@@ -41,21 +42,17 @@ const Profile = () => {
   const handlePasswordSuccess = () => {
     setShowSuccessDialog(true);
   };
-
   const handlePasswordError = (message: string) => {
     setErrorMessage(message);
     setShowErrorDialog(true);
   };
-
-  return (
-    <AppLayout showFooterNav={true}>
+  return <AppLayout showFooterNav={true}>
       {/* Main content container with original padding and max-width. Dynamic margins are now handled by AppLayout. */}
-      <div className={cn(
-        "max-w-7xl mx-auto"
-        // Removed dynamic margin logic: !isMobile && "ml-0 md:ml-[5rem]", 
-        // Removed dynamic margin logic: !isMobile && !isCollapsed && "md:ml-64"
-        // The 'transition-all duration-300' was for the margin, AppLayout's main has its own.
-      )}>
+      <div className={cn("max-w-7xl mx-auto"
+    // Removed dynamic margin logic: !isMobile && "ml-0 md:ml-[5rem]", 
+    // Removed dynamic margin logic: !isMobile && !isCollapsed && "md:ml-64"
+    // The 'transition-all duration-300' was for the margin, AppLayout's main has its own.
+    )}>
         {/* Standard Page Title */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">ข้อมูลส่วนตัว</h1>
@@ -89,67 +86,23 @@ const Profile = () => {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button 
-                  onClick={() => setShowPasswordDialog(true)}
-                  variant="outline"
-                >
+                <Button onClick={() => setShowPasswordDialog(true)} variant="outline">
                   <KeyRound className="w-4 h-4 mr-2" /> เปลี่ยนรหัสผ่าน
                 </Button>
               </CardFooter>
             </Card>
             
             {/* สถานะบัญชี Card */}
-            <Card className="h-fit">
-              <CardHeader>
-                <CardTitle>สถานะบัญชี</CardTitle>
-                <CardDescription>สถานะการเข้าใช้งานปัจจุบัน</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mr-2" />
-                    <p className="font-medium text-gray-900 dark:text-gray-100">เข้าสู่ระบบแล้ว</p>
-                  </div>
-                  <span className="text-xs font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200 px-2 py-0.5 rounded-full">Active</span>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-1">สถานะการยืนยันอีเมล</p>
-                  {user?.email_confirmed_at ? (
-                    <div className="flex items-center">
-                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mr-2" />
-                      <p className="font-medium text-gray-900 dark:text-gray-100">ยืนยันแล้ว</p>
-                    </div>
-                  ) : (
-                    <div className="flex items-center">
-                      <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 mr-2" />
-                      <p className="font-medium text-gray-900 dark:text-gray-100">ยังไม่ได้ยืนยัน</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            
           </div>
         </div>
 
         {/* Password Change Dialog */}
-        <PasswordDialog 
-          open={showPasswordDialog} 
-          onOpenChange={setShowPasswordDialog} 
-          onSuccess={handlePasswordSuccess}
-          onError={handlePasswordError}
-        />
+        <PasswordDialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog} onSuccess={handlePasswordSuccess} onError={handlePasswordError} />
 
         {/* Feedback Dialogs */}
-        <FeedbackDialogs 
-          showSuccessDialog={showSuccessDialog}
-          setShowSuccessDialog={setShowSuccessDialog}
-          showErrorDialog={showErrorDialog}
-          setShowErrorDialog={setShowErrorDialog}
-          errorMessage={errorMessage}
-        />
+        <FeedbackDialogs showSuccessDialog={showSuccessDialog} setShowSuccessDialog={setShowSuccessDialog} showErrorDialog={showErrorDialog} setShowErrorDialog={setShowErrorDialog} errorMessage={errorMessage} />
       </div>
-    </AppLayout>
-  );
+    </AppLayout>;
 };
-
 export default Profile;
