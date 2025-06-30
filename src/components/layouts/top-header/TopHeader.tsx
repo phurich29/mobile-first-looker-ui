@@ -92,6 +92,11 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         {/* User Profile Button - แสดงสำหรับทั้ง user และ guest */}
         <UserProfileButton />
       </div>
+      {user && !isGuest && (
+        <div className="absolute bottom-0.5 right-4 text-[8px] text-white font-medium pointer-events-none truncate max-w-[150px]">
+          {user.user_metadata?.full_name || user.email}
+        </div>
+      )}
     </header>
   );
 };
