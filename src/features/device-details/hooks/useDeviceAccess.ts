@@ -19,6 +19,7 @@ export const useDeviceAccess = (deviceCode: string | undefined) => {
     queryKey: ['deviceAccess', user?.id, userRoles],
     queryFn: async () => {
       if (!user) return [];
+      // Both admin and superadmin get full access to all devices
       return await fetchDevicesWithDetails(user.id, isAdmin, isSuperAdmin);
     },
     enabled: !!user && !isGuest
@@ -53,8 +54,13 @@ export const useDeviceAccess = (deviceCode: string | undefined) => {
     // For guests, check guest_device_access
     hasDeviceAccess = guestAccessibleDevices?.some(device => device.device_code === deviceCode) ?? false;
   } else {
-    // For authenticated users, check their device access
-    hasDeviceAccess = accessibleDevices?.some(device => device.device_code === deviceCode) ?? false;
+    // For authenticated users, admin and superadmin have access to all devices
+    if (isAdmin || isSuperAdmin) {
+      hasDeviceAccess = true; // Admin and SuperAdmin have access to all devices
+    } else {
+      // Regular users need to check their specific device access
+      hasDeviceAccess = accessibleDevices?.some(device => device.device_code === deviceCode) ?? false;
+    }
   }
 
   const isLoading = (isGuest && isCheckingGuestAccess) || (!isGuest && isCheckingAccess);

@@ -33,7 +33,7 @@ export function useDeviceManagement() {
       const isSuperAdmin = userRoles?.some(role => role.role === 'superadmin');
       const isAdmin = userRoles?.some(role => role.role === 'admin');
 
-      // Use the same service as Equipment page
+      // Use the same service as Equipment page - both admin and superadmin get full access
       const deviceList = await fetchDevicesWithDetails(currentUser.id, isAdmin, isSuperAdmin);
       
       // Convert to the format expected by DeviceAccessSection
@@ -124,7 +124,7 @@ export function useDeviceManagement() {
       console.error('Error revoking device access:', error);
       toast({
         title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถลบสิทธิ์การเข้าถึงอุปกรณ์ได้",
+        description: "ไม่สามารถลบสิทธิ์การเข้าถึงอุปกرณ์ได้",
         variant: "destructive"
       });
     }

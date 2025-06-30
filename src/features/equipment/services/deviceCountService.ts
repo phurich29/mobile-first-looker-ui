@@ -10,10 +10,10 @@ export const countUniqueDevices = async () => {
   console.log('Counting unique devices using optimized function...');
   
   try {
-    // Use the database function to get accurate count
+    // Use the database function to get accurate count - both admin and superadmin get full access
     const { data, error } = await supabaseAdmin.rpc('get_devices_with_details', {
       user_id_param: null,
-      is_admin_param: false,
+      is_admin_param: true,
       is_superadmin_param: true
     });
     

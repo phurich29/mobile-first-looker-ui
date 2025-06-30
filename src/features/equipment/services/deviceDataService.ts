@@ -38,13 +38,13 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
 
     let devices: DeviceInfo[] = [];
 
-    // Both SuperAdmin and Admin now see all devices
+    // Both SuperAdmin and Admin now see all devices with full access
     if (userIsSuperAdmin || userIsAdmin) {
       console.log("Fetching devices for Admin/SuperAdmin using database function...");
       const { data, error } = await supabase.rpc('get_devices_with_details', {
         user_id_param: currentUserId,
         is_admin_param: true,
-        is_superadmin_param: userIsSuperAdmin
+        is_superadmin_param: true // Pass true for both admin and superadmin
       });
       if (error) {
         console.error("Error from database function:", error);
@@ -130,7 +130,11 @@ export const fetchDeviceCount = async (): Promise<number> => {
 
     // Both SuperAdmin and Admin now see all devices
     if (isSuperAdmin || isAdmin) {
-      const { data, error } = await supabase.rpc('get_devices_with_details');
+      const { data, error } = await supabase.rpc('get_devices_with_details', {
+        user_id_param: user.id,
+        is_admin_param: true,
+        is_superadmin_param: true // Pass true for both admin and superadmin
+      });
       if (error) throw error;
       count = data?.length || 0;
     } else {
