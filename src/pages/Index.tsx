@@ -14,7 +14,8 @@ const Index = () => {
       navigate(`/device/${lastViewedDeviceCode}`, { replace: true });
     } else {
       console.log('No lastViewedDeviceCode found, redirecting to equipment page');
-      // Navigate to equipment page when no device is saved
+      // Always redirect to equipment page when no device is saved
+      // This ensures users can see all available devices
       navigate('/equipment', { replace: true });
     }
   }, [navigate]);
