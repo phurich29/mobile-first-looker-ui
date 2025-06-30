@@ -14,10 +14,15 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
   notification,
   onViewDetails
 }) => {
+  // Adjust timestamp by subtracting 7 hours to correct timezone issue
+  const originalDate = new Date(notification.timestamp);
+  originalDate.setHours(originalDate.getHours() - 7);
+  const adjustedTimestamp = originalDate.toISOString();
+
   const {
     thaiDate,
     thaiTime
-  } = formatBangkokTime(notification.timestamp);
+  } = formatBangkokTime(adjustedTimestamp);
   const getThresholdIcon = (type: string, symbol: string) => {
     // Get icon based on rice type symbol (same logic as NotificationIcon)
     if (symbol === 'whole_kernels' || symbol === 'head_rice' || symbol === 'total_brokens' || symbol === 'small_brokens' || symbol === 'small_brokens_c1') {
