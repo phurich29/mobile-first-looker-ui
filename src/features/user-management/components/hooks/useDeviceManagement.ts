@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { fetchDevicesWithDetails } from "@/features/equipment/services/deviceDataService";
 
 interface Device {
   device_code: string;
@@ -19,56 +20,30 @@ export function useDeviceManagement() {
     try {
       console.log('Fetching devices using same method as Equipment page...');
       
-      // Get unique device codes from rice_quality_analysis
-      const { data: analysisData, error: analysisError } = await supabase
-        .from('rice_quality_analysis')
-        .select('device_code, created_at')
-        .not('device_code', 'is', null)
-        .not('device_code', 'eq', '')
-        .order('created_at', { ascending: false });
+      // Get current user
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (!currentUser) throw new Error("User not authenticated");
 
-      if (analysisError) throw analysisError;
+      // Check user role
+      const { data: userRoles } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', currentUser.id);
 
-      // Process device data to get latest entry for each device
-      const deviceMap = new Map<string, { device_code: string; created_at: string }>();
-      analysisData?.forEach(item => {
-        if (item.device_code && !deviceMap.has(item.device_code)) {
-          deviceMap.set(item.device_code, {
-            device_code: item.device_code,
-            created_at: item.created_at
-          });
-        }
-      });
+      const isSuperAdmin = userRoles?.some(role => role.role === 'superadmin');
+      const isAdmin = userRoles?.some(role => role.role === 'admin');
 
-      const uniqueDeviceCodes = Array.from(deviceMap.keys());
-      console.log(`Found ${uniqueDeviceCodes.length} unique devices:`, uniqueDeviceCodes);
-
-      // Get device settings for display names
-      const { data: settingsData, error: settingsError } = await supabase
-        .from('device_settings')
-        .select('device_code, display_name')
-        .in('device_code', uniqueDeviceCodes);
-
-      if (settingsError) {
-        console.error('Error fetching device settings:', settingsError);
-      }
-
-      // Create settings map
-      const settingsMap = new Map<string, string>();
-      settingsData?.forEach(setting => {
-        if (setting.display_name) {
-          settingsMap.set(setting.device_code, setting.display_name);
-        }
-      });
-
-      // Combine device codes with display names
-      const deviceList = uniqueDeviceCodes.map(code => ({
-        device_code: code,
-        display_name: settingsMap.get(code)
+      // Use the same service as Equipment page
+      const deviceList = await fetchDevicesWithDetails(currentUser.id, isAdmin, isSuperAdmin);
+      
+      // Convert to the format expected by DeviceAccessSection
+      const devices = deviceList.map(device => ({
+        device_code: device.device_code,
+        display_name: device.display_name
       }));
 
-      console.log('Device list with display names:', deviceList);
-      setAvailableDevices(deviceList);
+      console.log(`Found ${devices.length} devices using Equipment page method:`, devices.map(d => d.device_code));
+      setAvailableDevices(devices);
 
       // Fetch user's current device access
       const { data: accessData, error: accessError } = await supabase
