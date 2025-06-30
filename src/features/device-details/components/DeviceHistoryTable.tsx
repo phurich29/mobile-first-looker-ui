@@ -7,7 +7,7 @@ import { HistoryDetailDialog } from "./device-history/HistoryDetailDialog";
 import { RiceQualityData } from "./device-history/types";
 import { getColumnKeys } from "./device-history/utils";
 
-export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCode }) => {
+export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceIds }) => {
   const [selectedRow, setSelectedRow] = useState<RiceQualityData | null>(null);
   
   const {
@@ -20,7 +20,7 @@ export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCo
     error,
     setCurrentPage,
     setItemsPerPage
-  } = useHistoryData(deviceCode);
+  } = useHistoryData(deviceIds);
 
   const handleRowClick = (row: RiceQualityData) => {
     setSelectedRow(row);
@@ -87,7 +87,7 @@ export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps> = ({ deviceCo
               ยังไม่มีข้อมูลประวัติ
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              {deviceCode ? `ไม่พบข้อมูลประวัติสำหรับอุปกรณ์ ${deviceCode}` : 'ไม่พบข้อมูลประวัติ'}
+              {'ไม่พบข้อมูลประวัติ'}
             </p>
           </div>
         ) : (

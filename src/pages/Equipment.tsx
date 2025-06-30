@@ -7,7 +7,7 @@ import { DeviceHistoryTable } from "@/features/device-details/components/DeviceH
 import { useGuestMode } from "@/hooks/useGuestMode";
 
 export default function Equipment() {
-  const {
+    const {
     devices,
     isLoading,
     isRefreshing,
@@ -42,7 +42,7 @@ export default function Equipment() {
 
           {/* Device History Table - Show to all users including guests */}
           <div className="mt-8 bg-white/70 dark:bg-gray-800/40 p-5 rounded-xl border border-gray-100 dark:border-gray-800/30 shadow-md backdrop-blur-sm">
-            <DeviceHistoryTable />
+            <DeviceHistoryTable deviceIds={devices.map(d => d.device_code)} />
           </div>
     </AppLayout>;
 }
