@@ -32,7 +32,7 @@ export default function DeviceDetails() {
   const measurementName = measurementSymbol ? getColumnThaiName(measurementSymbol) : null;
 
   // Use custom hooks
-  useDefaultDeviceRedirect(deviceCode);
+  const { isRedirecting } = useDefaultDeviceRedirect(deviceCode);
   const { hasDeviceAccess, isLoading: isCheckingAccess, isGuest } = useDeviceAccess(deviceCode);
   const {
     wholeGrainData,
@@ -70,13 +70,14 @@ export default function DeviceDetails() {
     refreshData();
   };
 
-  // If still checking access permissions, show loading
-  if (isCheckingAccess) {
+  // If the redirect hook is working, show a loading screen.
+  // This is the key fix to prevent the Unauthorized flash.
+  if (isRedirecting) {
     return <LoadingScreen />;
   }
 
-  // If deviceCode is 'default', show loading screen
-  if (deviceCode === 'default') {
+  // If still checking access permissions, show loading
+  if (isCheckingAccess) {
     return <LoadingScreen />;
   }
 
