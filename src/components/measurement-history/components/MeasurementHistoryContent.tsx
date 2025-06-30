@@ -88,7 +88,7 @@ const MeasurementHistoryContent: React.FC<MeasurementHistoryContentProps> = ({
           
           {/* ตารางประวัติข้อมูล */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 -mt-2 dark:text-white">
-            <DeviceHistoryTable deviceCode={deviceCode} />
+                      <DeviceHistoryTable deviceIds={[deviceCode]} />
           </div>
         </div>
         
@@ -105,7 +105,7 @@ const MeasurementHistoryContent: React.FC<MeasurementHistoryContentProps> = ({
       {onClose && (
         <button 
           onClick={onClose}
-          className="mt-4 px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+          className="mt-4 px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors"
         >
           ย้อนกลับ
         </button>

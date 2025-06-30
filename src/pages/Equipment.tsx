@@ -31,8 +31,8 @@ export default function Equipment() {
           </div>
           
           {/* Add Device Form - Only for superadmin (not guests and not regular admins) */}
-          {isSuperAdmin && !isGuest && <div className="mb-8 bg-white/70 dark:bg-gray-800/40 p-5 rounded-xl border border-gray-100 dark:border-gray-800/30 shadow-md backdrop-blur-sm">
-              <h2 className="text-lg font-semibold text-emerald-800 dark:text-emerald-400 mb-4">เพิ่มอุปกรณ์ใหม่</h2>
+          {isSuperAdmin && !isGuest && <div className="mb-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">เพิ่มอุปกรณ์ใหม่</h2>
               <AddDeviceForm onDeviceAdded={handleRefresh} />
             </div>}
           
@@ -41,7 +41,7 @@ export default function Equipment() {
           <DevicesGrid devices={devices} isAdmin={isAdmin && !isGuest} isLoading={isLoading} isSuperAdmin={isSuperAdmin && !isGuest} onDeviceUpdated={handleRefresh} />
 
           {/* Device History Table - Show to all users including guests */}
-          <div className="mt-8 bg-white/70 dark:bg-gray-800/40 p-5 rounded-xl border border-gray-100 dark:border-gray-800/30 shadow-md backdrop-blur-sm">
+                    <div className="mt-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
             <DeviceHistoryTable deviceIds={devices.map(d => d.device_code)} />
           </div>
     </AppLayout>;

@@ -58,19 +58,19 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
       if (categoryData.length === 0) return null;
 
       return (
-        <div key={categoryKey} className="border border-gray-300 rounded-lg overflow-hidden">
-          <div className="bg-slate-200 px-4 py-2 border-b border-gray-300">
-            <h4 className="text-sm font-semibold text-slate-800">{category.title}</h4>
+        <div key={categoryKey} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+          <div className="bg-gray-100 dark:bg-gray-700/50 px-4 py-2 border-b border-gray-200 dark:border-gray-600">
+            <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200">{category.title}</h4>
           </div>
-          <div className="bg-white">
+          <div className="bg-white dark:bg-gray-800">
             {categoryData.map((field, index) => (
-              <div key={field} className={`flex justify-between items-center py-3 px-4 border-b border-gray-100 last:border-b-0 ${
-                index % 2 === 0 ? 'bg-slate-50' : 'bg-white'
+              <div key={field} className={`flex justify-between items-center py-3 px-4 border-b border-gray-100 dark:border-gray-700 last:border-b-0 ${
+                index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-800' : 'bg-white dark:bg-gray-700/60'
               }`}>
-                <span className="text-slate-700 font-medium text-sm">
+                <span className="text-gray-600 dark:text-gray-300 font-medium text-sm">
                   {getColumnThaiName(field)}
                 </span>
-                <span className="font-bold text-slate-900 text-sm">
+                <span className="font-bold text-gray-900 dark:text-gray-100 text-sm">
                   {formatCellValue(field, data[field])}
                   {field !== 'device_code' && field !== 'thai_datetime' && field !== 'paddy_rate' ? '%' : ''}
                 </span>
@@ -84,55 +84,47 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
 
   return (
     <Dialog open={selectedRow !== null} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white border border-gray-400 p-4">
-        <DialogHeader className="pb-1">
-          <DialogTitle className="text-lg font-semibold text-black text-center">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4">
+        <DialogHeader className="pb-2">
+          <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 text-center">
             Rice Quality Analysis Details
           </DialogTitle>
-          <Separator className="bg-gray-300" />
+          <Separator className="bg-gray-200 dark:bg-gray-700" />
         </DialogHeader>
         
         {selectedRow && (
           <>
             {/* Summary Header */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
+            <div className="bg-gray-100 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3 mb-4">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   {deviceDisplayName && (
-                    <div className="text-sm font-medium text-blue-900 mb-1">
+                    <div className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
                       Name : {deviceDisplayName}
                     </div>
                   )}
-                  <div className="text-sm font-medium text-blue-900 mb-1">
+                  <div className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
                     Device Code: {selectedRow.device_code}
                   </div>
-                  <div className="text-xs text-blue-700">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
                     {selectedRow.thai_datetime ? (() => {
                       const dateObj = new Date(selectedRow.thai_datetime);
-                      // ลบ 7 ชั่วโมงแทนการบวก
                       dateObj.setHours(dateObj.getHours() - 7);
                       return dateObj.toLocaleString('th-TH', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit'
+                        year: 'numeric', month: '2-digit', day: '2-digit',
+                        hour: '2-digit', minute: '2-digit'
                       });
                     })() : (() => {
                       const dateObj = new Date(selectedRow.created_at);
-                      // ลบ 7 ชั่วโมงแทนการบวก
                       dateObj.setHours(dateObj.getHours() - 7);
                       return dateObj.toLocaleString('th-TH', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit'
+                        year: 'numeric', month: '2-digit', day: '2-digit',
+                        hour: '2-digit', minute: '2-digit'
                       });
                     })()}
                   </div>
                 </div>
-                <Badge variant="outline" className="bg-white border-blue-300 text-xs text-blue-800">
+                <Badge variant="outline" className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-xs text-gray-800 dark:text-gray-200">
                   ID: {selectedRow.id}
                 </Badge>
               </div>

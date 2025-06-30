@@ -30,7 +30,7 @@ const MeasurementHistoryContainer: React.FC<MeasurementHistoryContainerProps> = 
 
   return (
     <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-8'}>
-      <div className="flex flex-col flex-1 min-h-full bg-gradient-to-b from-emerald-50 to-gray-50 overflow-x-hidden">
+            <div className="flex flex-col flex-1 min-h-full bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-800 overflow-x-hidden">
         <main className="flex-1 overflow-x-hidden">
           <MeasurementHistoryContent
             deviceCode={state.deviceCode!}
