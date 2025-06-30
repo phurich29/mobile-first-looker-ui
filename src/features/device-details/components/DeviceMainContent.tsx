@@ -90,7 +90,7 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
                   </div>
                 </div>
               }>
-                <DeviceHistoryTable deviceCode={deviceCode} />
+                <DeviceHistoryTable deviceIds={[deviceCode]} />
               </Suspense>
             </div>
           </div>
