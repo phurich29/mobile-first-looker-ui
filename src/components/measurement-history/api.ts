@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { TimeFrame } from "./MeasurementHistory";
+import { convertUrlSymbolToMeasurementSymbol } from "./utils/symbolMapping";
 
 // Function to get hours based on timeframe
 export const getTimeFrameHours = (frame: TimeFrame): number => {
@@ -20,10 +21,15 @@ export const fetchMeasurementHistory = async (
   timeFrame: TimeFrame
 ) => {
   if (!deviceCode || !symbol) throw new Error("Missing device code or measurement symbol");
+
+  // Defensively convert the symbol to the correct database column name.
+  // This ensures that even if the calling code passes a URL-style symbol,
+  // the database query will use the correct column name.
+  const dbColumnSymbol = convertUrlSymbolToMeasurementSymbol(symbol);
   
   try {
-    // Dynamic select query
-    const selectQuery = `id, ${symbol}, created_at, thai_datetime`;
+    // Dynamic select query using the corrected symbol
+    const selectQuery = `id, ${dbColumnSymbol}, created_at, thai_datetime`;
     
     // Calculate cutoff date based on timeframe
     const hours = getTimeFrameHours(timeFrame);
@@ -38,7 +44,7 @@ export const fetchMeasurementHistory = async (
       .order('created_at', { ascending: false });
     
     if (error) {
-      console.error(`Error fetching history for ${symbol} on device ${deviceCode}:`, error);
+      console.error(`Error fetching history for ${symbol} (queried as ${dbColumnSymbol}) on device ${deviceCode}:`, error);
       throw new Error(error.message);
     }
     
