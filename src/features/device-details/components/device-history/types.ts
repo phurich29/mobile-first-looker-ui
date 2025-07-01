@@ -2,6 +2,7 @@
 export interface RiceQualityData {
   id: number;
   device_code: string;
+  device_display_name?: string; // Added for device display name
   created_at: string;
   thai_datetime: string;
   class1: number | null;

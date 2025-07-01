@@ -42,7 +42,7 @@ export default function Equipment() {
 
           {/* Device History Table - Show to all users including guests */}
                     <div className="mt-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-            <DeviceHistoryTable deviceIds={devices.map(d => d.device_code)} />
+            <DeviceHistoryTable deviceIds={devices.map(d => d.device_code)} title="ประวัติอุปกรณ์" />
           </div>
     </AppLayout>;
 }

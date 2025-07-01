@@ -33,7 +33,16 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragState, dragHandlers] = useDragScroll(containerRef);
-  const columnKeys = getColumnKeys(historyData);
+  // Get column keys and ensure device_display_name is after created_at
+  const allKeys = getColumnKeys(historyData).filter(k => k !== 'device_display_name');
+  const createdAtIndex = allKeys.findIndex(k => k === 'created_at');
+  
+  // Insert device_display_name after created_at
+  const columnKeys = [
+    ...allKeys.slice(0, createdAtIndex + 1),
+    'device_display_name',
+    ...allKeys.slice(createdAtIndex + 1)
+  ];
 
   if (!historyData || historyData.length === 0) {
     return (
@@ -60,21 +69,45 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
         <ResponsiveTable>
           <TableHeader>
             <TableRow>
-              {columnKeys.map((key) => (
-                <TableHead key={key} className="whitespace-nowrap px-1.5 py-0.5 text-[11px] font-medium">
-                  {getColumnThaiName(key)}
-                </TableHead>
-              ))}
+              {columnKeys.map((key) => {
+                // Custom header for device_display_name
+                const displayName = key === 'device_display_name' 
+                  ? 'ชื่ออุปกรณ์' 
+                  : getColumnThaiName(key);
+                
+                return (
+                  <TableHead 
+                    key={key} 
+                    className={`whitespace-nowrap px-1.5 py-0.5 text-[11px] font-medium ${
+                      key === 'device_display_name' ? 'sticky left-0 bg-white dark:bg-gray-800 z-10' : ''
+                    }`}
+                  >
+                    {displayName}
+                  </TableHead>
+                );
+              })}
             </TableRow>
           </TableHeader>
           <TableBody>
             {historyData.map((row) => (
               <TableRow key={row.id} onClick={() => onRowClick(row)} className="cursor-pointer hover:bg-muted/50">
-                {columnKeys.map((key) => (
-                  <TableCell key={`${row.id}-${key}`} className="whitespace-nowrap px-1.5 py-0.5 text-[11px]">
-                    {formatCellValue(key, row[key])}
-                  </TableCell>
-                ))}
+                {columnKeys.map((key) => {
+                  // Use device_code as fallback if device_display_name is not available
+                  const value = key === 'device_display_name' 
+                    ? row.device_display_name || row.device_code 
+                    : row[key];
+                  
+                  return (
+                    <TableCell 
+                      key={`${row.id}-${key}`} 
+                      className={`whitespace-nowrap px-1.5 py-0.5 text-[11px] ${
+                        key === 'device_display_name' ? 'sticky left-0 bg-white dark:bg-gray-800 z-10 font-medium' : ''
+                      }`}
+                    >
+                      {formatCellValue(key, value)}
+                    </TableCell>
+                  );
+                })}
               </TableRow>
             ))}
           </TableBody>

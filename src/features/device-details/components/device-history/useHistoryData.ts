@@ -34,7 +34,35 @@ export const useHistoryData = (deviceIds?: string[]) => {
       }
       
       console.log('Successfully fetched history data:', { count, dataLength: data?.length });
-      return { data: data as RiceQualityData[], count: count || 0 };
+      
+      // Get unique device codes from the results
+      const deviceCodes = [...new Set(data?.map(item => item.device_code))];
+      
+      // Fetch device display names if we have device codes
+      let deviceNamesMap: Record<string, string> = {};
+      if (deviceCodes.length > 0) {
+        const { data: deviceSettings, error: deviceError } = await supabase
+          .from('device_settings')
+          .select('device_code, display_name')
+          .in('device_code', deviceCodes);
+          
+        if (deviceError) {
+          console.error('Error fetching device settings:', deviceError);
+        } else if (deviceSettings) {
+          deviceNamesMap = deviceSettings.reduce((acc, device) => ({
+            ...acc,
+            [device.device_code]: device.display_name || device.device_code
+          }), {});
+        }
+      }
+      
+      // Add device_display_name to each row
+      const enhancedData = data?.map(item => ({
+        ...item,
+        device_display_name: deviceNamesMap[item.device_code] || item.device_code
+      }));
+      
+      return { data: enhancedData as RiceQualityData[], count: count || 0 };
     },
     enabled: true, // Always enable the query
     retry: 2,
