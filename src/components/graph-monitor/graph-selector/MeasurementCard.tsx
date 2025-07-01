@@ -64,7 +64,7 @@ export const MeasurementCard: React.FC<MeasurementCardProps> = ({
     
     // For ingredient measurement types
     if (symbol === "whole_kernels") return "เต็มเมล็ด";
-    if (symbol === "head_rice") return "ต้นข้าว";
+    if (symbol === "head_rice") return "หัวข้าว";
     if (symbol === "total_brokens") return "ข้าวหักรวม";
     if (symbol === "small_brokens") return "ปลายข้าว";
     if (symbol === "small_brokens_c1") return "ปลายข้าว C1";
