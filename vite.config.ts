@@ -18,8 +18,8 @@ export default defineConfig(({ mode }) => ({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'lovable-uploads/*.png'],
       manifest: {
-        name: 'setup.riceflow.app',
-        short_name: 'setup.riceflow.app',
+        name: 'Riceflow Setup - Rice Quality Analyzer',
+        short_name: 'Riceflow Setup',
         description: 'ระบบตรวจสอบคุณภาพข้าวอัจฉริยะด้วย AI Deep Learning Vision Technology',
         theme_color: '#059669',
         background_color: '#ffffff',
