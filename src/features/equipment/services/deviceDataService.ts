@@ -38,20 +38,20 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
 
     let devices: DeviceInfo[] = [];
 
-    // Both SuperAdmin and Admin now see all devices with full access
+    // SuperAdmin and Admin have different permissions now
     if (userIsSuperAdmin || userIsAdmin) {
-      console.log("Fetching devices for Admin/SuperAdmin using database function...");
+      console.log(`Fetching devices for ${userIsSuperAdmin ? 'SuperAdmin' : 'Admin'} using database function...`);
       const { data, error } = await supabase.rpc('get_devices_with_details', {
         user_id_param: currentUserId,
-        is_admin_param: true,
-        is_superadmin_param: true // Pass true for both admin and superadmin
+        is_admin_param: userIsAdmin && !userIsSuperAdmin, // Only true for admin, not superadmin
+        is_superadmin_param: userIsSuperAdmin // Only true for superadmin
       });
       if (error) {
         console.error("Error from database function:", error);
         throw error;
       }
       devices = data || [];
-      console.log(`Admin/SuperAdmin: Found ${devices.length} devices from database function`);
+      console.log(`${userIsSuperAdmin ? 'SuperAdmin' : 'Admin'}: Found ${devices.length} devices from database function`);
     } else {
       // Regular users see devices they have access to OR devices in guest_device_access that are enabled
       console.log("Fetching devices for regular user...");
@@ -128,12 +128,12 @@ export const fetchDeviceCount = async (): Promise<number> => {
 
     let count = 0;
 
-    // Both SuperAdmin and Admin now see all devices
+    // SuperAdmin and Admin have different permissions
     if (isSuperAdmin || isAdmin) {
       const { data, error } = await supabase.rpc('get_devices_with_details', {
         user_id_param: user.id,
-        is_admin_param: true,
-        is_superadmin_param: true // Pass true for both admin and superadmin
+        is_admin_param: isAdmin && !isSuperAdmin, // Only true for admin, not superadmin
+        is_superadmin_param: isSuperAdmin // Only true for superadmin
       });
       if (error) throw error;
       count = data?.length || 0;
