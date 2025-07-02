@@ -14,7 +14,7 @@ import { ResetPasswordDialog } from "@/features/user-management/components/Reset
 import { DeleteUserDialog } from "@/features/user-management/components/DeleteUserDialog";
 import { CurrentUserRoleCard } from "@/features/user-management/components/CurrentUserRoleCard";
 import { GuestDeviceManagement } from "@/features/user-management/components/GuestDeviceManagement";
-import { DeviceVisibilityManagement } from "@/features/user-management/components/DeviceVisibilityManagement";
+import { DeviceVisibilityManagement } from "@/features/user-management/components/device-visibility";
 
 export default function UserManagement() {
   const { user, userRoles, isLoading } = useAuth();
