@@ -1,144 +1,34 @@
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { User, Session } from "@supabase/supabase-js";
+import { useEffect, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { AuthContext } from "./auth/AuthContext";
+import { useAuthSession } from "@/hooks/useAuthSession";
+import { useUserRoles } from "@/hooks/useUserRoles";
 
-type AuthContextType = {
-  user: User | null;
-  session: Session | null;
-  userRoles: string[];
-  isLoading: boolean;
-  signOut: () => Promise<void>;
-};
-
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  session: null,
-  userRoles: [],
-  isLoading: true,
-  signOut: async () => {},
-});
-
-export const useAuth = () => useContext(AuthContext);
+// Re-export for backward compatibility
+export { useAuth } from "./auth/AuthContext";
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [userRoles, setUserRoles] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const {
+    user,
+    setUser,
+    session,
+    setSession,
+    isLoading,
+    setIsLoading,
+    signOut,
+    validateAndRefreshSession,
+  } = useAuthSession();
 
-  // Function to fetch user roles from the database
-  const fetchUserRoles = async (userId: string) => {
-    try {
-      console.log("Fetching roles for user:", userId);
-      const { data, error } = await supabase.rpc('get_user_roles', {
-        user_id: userId
-      });
-
-      if (error) {
-        console.error('Error fetching user roles:', error);
-        return [];
-      }
-      
-      console.log("Roles retrieved for user:", data);
-      return data || [];
-    } catch (error) {
-      console.error('Error in fetchUserRoles:', error);
-      return [];
-    }
-  };
-
-  // Function to check if session is potentially stale/invalid
-  const isSessionStale = (session: Session | null): boolean => {
-    if (!session) return false;
-    
-    // Check if session is expired
-    const now = Math.floor(Date.now() / 1000);
-    const expiresAt = session.expires_at || 0;
-    
-    // Consider session stale if it expires in less than 1 minute (reduced from 5 minutes)
-    const isExpiringSoon = (expiresAt - now) < 60;
-    
-    return isExpiringSoon;
-  };
-
-  // Enhanced session refresh with retry mechanism
-  const refreshSessionWithRetry = async (currentSession: Session | null, retryCount = 0): Promise<Session | null> => {
-    const maxRetries = 3;
-    
-    if (!currentSession || retryCount >= maxRetries) return null;
-    
-    try {
-      console.log(`Attempting session refresh (attempt ${retryCount + 1}/${maxRetries})`);
-      const { data: { session: refreshedSession }, error } = await supabase.auth.refreshSession();
-      
-      if (error) {
-        console.error(`Session refresh failed (attempt ${retryCount + 1}):`, error);
-        
-        // If it's a network error, retry after delay
-        if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
-          if (retryCount < maxRetries - 1) {
-            const delay = 1000 * (retryCount + 1); // Progressive delay
-            console.log(`Retrying session refresh in ${delay}ms...`);
-            await new Promise(resolve => setTimeout(resolve, delay));
-            return refreshSessionWithRetry(currentSession, retryCount + 1);
-          }
-        }
-        
-        // Only sign out for authentication errors, not network errors
-        if (error.message?.includes('refresh_token_not_found') || 
-            error.message?.includes('invalid_grant') ||
-            error.message?.includes('token_expired')) {
-          console.log('Authentication error detected, signing out...');
-          await supabase.auth.signOut();
-          return null;
-        }
-        
-        // For other errors, return current session to avoid unnecessary logout
-        console.warn('Non-auth error during refresh, keeping current session:', error);
-        return currentSession;
-      }
-      
-      console.log('Session refreshed successfully');
-      return refreshedSession;
-    } catch (error) {
-      console.error('Unexpected error during session refresh:', error);
-      
-      // For network errors, try again if retries available
-      if (retryCount < maxRetries - 1) {
-        const delay = 1000 * (retryCount + 1);
-        console.log(`Retrying session refresh in ${delay}ms due to unexpected error...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-        return refreshSessionWithRetry(currentSession, retryCount + 1);
-      }
-      
-      // Return current session on final failure to avoid logout
-      return currentSession;
-    }
-  };
-
-  // Enhanced session validation using the new retry mechanism
-  const validateAndRefreshSession = async (currentSession: Session | null) => {
-    if (!currentSession) return null;
-    
-    try {
-      // If session is stale, try to refresh it with retry mechanism
-      if (isSessionStale(currentSession)) {
-        console.log("Session is stale, attempting refresh with retry...");
-        return await refreshSessionWithRetry(currentSession);
-      }
-      
-      return currentSession;
-    } catch (error) {
-      console.error("Error validating session:", error);
-      // Return current session instead of null to avoid unnecessary logout
-      return currentSession;
-    }
-  };
+  const {
+    userRoles,
+    setUserRoles,
+    fetchUserRoles,
+  } = useUserRoles();
 
   useEffect(() => {
     console.log("Setting up AuthProvider");
@@ -244,26 +134,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
   }, []);
 
-  const signOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      setUser(null);
-      setSession(null);
-      setUserRoles([]);
-      
-      // Clear any cached data in localStorage/sessionStorage
-      const keysToRemove = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && (key.includes('supabase') || key.includes('auth-token'))) {
-          keysToRemove.push(key);
-        }
-      }
-      keysToRemove.forEach(key => localStorage.removeItem(key));
-      
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
+  const handleSignOut = async () => {
+    await signOut();
+    setUserRoles([]);
   };
 
   const value = {
@@ -271,7 +144,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     session,
     userRoles,
     isLoading,
-    signOut,
+    signOut: handleSignOut,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
