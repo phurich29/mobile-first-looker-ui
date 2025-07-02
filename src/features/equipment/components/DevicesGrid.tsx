@@ -1,8 +1,9 @@
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { EquipmentCard } from "./EquipmentCard";
 import { DeviceInfo } from "../types";
 import { DevicesSortDropdown, SortOption } from "./DevicesSortDropdown";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DevicesGridProps {
   devices: DeviceInfo[];
@@ -21,33 +22,50 @@ export function DevicesGrid({
 }: DevicesGridProps) {
   const [sortBy, setSortBy] = useState<SortOption>("device_code");
 
-  // Get hidden devices from localStorage for admin filtering
-  const hiddenDevices = useMemo(() => {
-    if (!isAdmin || isSuperAdmin) return [];
-    try {
-      const stored = localStorage.getItem('admin_hidden_devices');
-      return stored ? JSON.parse(stored) : [];
-    } catch (error) {
-      console.error('Error loading hidden devices:', error);
-      return [];
-    }
+  // Get hidden devices from database for admin filtering
+  const [hiddenDeviceCodes, setHiddenDeviceCodes] = useState<string[]>([]);
+
+  useEffect(() => {
+    const loadHiddenDevices = async () => {
+      if (!isAdmin || isSuperAdmin) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('admin_device_visibility')
+          .select('device_code')
+          .eq('hidden_for_admin', true);
+
+        if (error) {
+          console.error('Error loading hidden devices:', error);
+          return;
+        }
+
+        const deviceCodes = data?.map(d => d.device_code) || [];
+        setHiddenDeviceCodes(deviceCodes);
+        console.log("🔒 Loaded hidden device codes for admin:", deviceCodes);
+      } catch (error) {
+        console.error('Error loading hidden devices:', error);
+      }
+    };
+
+    loadHiddenDevices();
   }, [isAdmin, isSuperAdmin]);
 
   // Filter out hidden devices for admin users (but not superadmin)
   const filteredDevices = useMemo(() => {
-    if (!isAdmin || isSuperAdmin || hiddenDevices.length === 0) {
+    if (!isAdmin || isSuperAdmin || hiddenDeviceCodes.length === 0) {
       return devices;
     }
     
-    const filtered = devices.filter(device => !hiddenDevices.includes(device.device_code));
+    const filtered = devices.filter(device => !hiddenDeviceCodes.includes(device.device_code));
     console.log("🔒 Admin device filtering:", {
       total: devices.length,
-      hidden: hiddenDevices,
+      hidden: hiddenDeviceCodes,
       filtered: filtered.length,
       hiddenCount: devices.length - filtered.length
     });
     return filtered;
-  }, [devices, isAdmin, isSuperAdmin, hiddenDevices]);
+  }, [devices, isAdmin, isSuperAdmin, hiddenDeviceCodes]);
 
   console.log("🏗️ DevicesGrid rendering with devices:", filteredDevices.map(d => ({
     code: d.device_code,

@@ -12,8 +12,15 @@ interface DeviceVisibilityManagementProps {
   isSuperAdmin: boolean;
 }
 
+interface HiddenDevice {
+  id: string;
+  device_code: string;
+  hidden_for_admin: boolean;
+  created_at: string;
+}
+
 export function DeviceVisibilityManagement({ isAdmin, isSuperAdmin }: DeviceVisibilityManagementProps) {
-  const [hiddenDevices, setHiddenDevices] = useState<string[]>([]);
+  const [hiddenDevices, setHiddenDevices] = useState<HiddenDevice[]>([]);
   const [newDeviceCode, setNewDeviceCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isAddingDevice, setIsAddingDevice] = useState(false);
@@ -31,33 +38,28 @@ export function DeviceVisibilityManagement({ isAdmin, isSuperAdmin }: DeviceVisi
   const loadHiddenDevices = async () => {
     try {
       setIsLoading(true);
-      // For now, we'll store this in localStorage since it's admin-specific settings
-      // In a production app, you might want to store this in a database table
-      const stored = localStorage.getItem('admin_hidden_devices');
-      if (stored) {
-        setHiddenDevices(JSON.parse(stored));
+      
+      const { data, error } = await supabase
+        .from('admin_device_visibility')
+        .select('*')
+        .eq('hidden_for_admin', true)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading hidden devices:', error);
+        toast({
+          title: "เกิดข้อผิดพลาด",
+          description: "ไม่สามารถโหลดข้อมูลได้",
+          variant: "destructive"
+        });
+        return;
       }
+
+      setHiddenDevices(data || []);
     } catch (error) {
       console.error('Error loading hidden devices:', error);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const saveHiddenDevices = async (devices: string[]) => {
-    try {
-      localStorage.setItem('admin_hidden_devices', JSON.stringify(devices));
-      toast({
-        title: "บันทึกสำเร็จ",
-        description: "การตั้งค่าการแสดงผลอุปกรณ์ได้รับการบันทึกแล้ว"
-      });
-    } catch (error) {
-      console.error('Error saving hidden devices:', error);
-      toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถบันทึกการตั้งค่าได้",
-        variant: "destructive"
-      });
     }
   };
 
@@ -71,7 +73,7 @@ export function DeviceVisibilityManagement({ isAdmin, isSuperAdmin }: DeviceVisi
       return;
     }
 
-    if (hiddenDevices.includes(newDeviceCode.trim())) {
+    if (hiddenDevices.some(d => d.device_code === newDeviceCode.trim())) {
       toast({
         title: "รหัสอุปกรณ์ซ้ำ",
         description: "รหัสอุปกรณ์นี้มีอยู่ในรายการแล้ว",
@@ -82,24 +84,83 @@ export function DeviceVisibilityManagement({ isAdmin, isSuperAdmin }: DeviceVisi
 
     setIsAddingDevice(true);
     try {
-      const newHiddenDevices = [...hiddenDevices, newDeviceCode.trim()];
-      setHiddenDevices(newHiddenDevices);
-      await saveHiddenDevices(newHiddenDevices);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "เกิดข้อผิดพลาด",
+          description: "ไม่พบข้อมูลผู้ใช้",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('admin_device_visibility')
+        .upsert({
+          device_code: newDeviceCode.trim(),
+          hidden_for_admin: true,
+          created_by: user.id
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error adding hidden device:', error);
+        toast({
+          title: "เกิดข้อผิดพลาด",
+          description: "ไม่สามารถเพิ่มรหัสอุปกรณ์ได้",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setHiddenDevices(prev => [data, ...prev]);
       setNewDeviceCode("");
+      toast({
+        title: "บันทึกสำเร็จ",
+        description: "เพิ่มรหัสอุปกรณ์ที่ต้องการซ่อนแล้ว"
+      });
     } catch (error) {
       console.error('Error adding hidden device:', error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถเพิ่มรหัสอุปกรณ์ได้",
+        variant: "destructive"
+      });
     } finally {
       setIsAddingDevice(false);
     }
   };
 
-  const removeHiddenDevice = async (deviceCode: string) => {
+  const removeHiddenDevice = async (deviceId: string, deviceCode: string) => {
     try {
-      const newHiddenDevices = hiddenDevices.filter(code => code !== deviceCode);
-      setHiddenDevices(newHiddenDevices);
-      await saveHiddenDevices(newHiddenDevices);
+      const { error } = await supabase
+        .from('admin_device_visibility')
+        .delete()
+        .eq('id', deviceId);
+
+      if (error) {
+        console.error('Error removing hidden device:', error);
+        toast({
+          title: "เกิดข้อผิดพลาด",
+          description: "ไม่สามารถลบรหัสอุปกรณ์ได้",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setHiddenDevices(prev => prev.filter(d => d.id !== deviceId));
+      toast({
+        title: "ลบสำเร็จ",
+        description: `ลบรหัสอุปกรณ์ ${deviceCode} ออกจากรายการแล้ว`
+      });
     } catch (error) {
       console.error('Error removing hidden device:', error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถลบรหัสอุปกรณ์ได้",
+        variant: "destructive"
+      });
     }
   };
 
@@ -171,19 +232,19 @@ export function DeviceVisibilityManagement({ isAdmin, isSuperAdmin }: DeviceVisi
             </div>
           ) : (
             <div className="flex flex-wrap gap-2">
-              {hiddenDevices.map((deviceCode) => (
+              {hiddenDevices.map((device) => (
                 <Badge
-                  key={deviceCode}
+                  key={device.id}
                   variant="secondary"
                   className="flex items-center gap-1 pr-1"
                 >
                   <EyeOff className="h-3 w-3" />
-                  <span className="font-mono text-xs">{deviceCode}</span>
+                  <span className="font-mono text-xs">{device.device_code}</span>
                   <Button
                     variant="ghost"
                     size="sm"
                     className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
-                    onClick={() => removeHiddenDevice(deviceCode)}
+                    onClick={() => removeHiddenDevice(device.id, device.device_code)}
                   >
                     <X className="h-3 w-3" />
                   </Button>
