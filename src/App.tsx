@@ -6,6 +6,7 @@ import { CountdownProvider } from "./contexts/CountdownContext";
 import { PWAProvider } from "./contexts/PWAContext";
 import { PWAInstallBanner } from "./components/PWAInstallBanner";
 import { PWADebugComponent } from "./components/PWADebugComponent";
+import { CountdownDebugger } from "./components/CountdownDebugger";
 import { Toaster } from "@/components/ui/toaster";
 import { toast } from "@/components/ui/use-toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -23,16 +24,27 @@ function App() {
   });
 
   const handleGlobalCountdownComplete = () => {
-    console.log("Global countdown complete - triggering refresh or other actions");
-    // This function will be called every minute (60 seconds) globally
-    // toast({
-    //   title: "ระบบกำลังอัปเดตข้อมูล",
-    //   description: "ระบบได้ทำการอัปเดตข้อมูลล่าสุดจากเซิร์ฟเวอร์",
-    //   duration: 3000,
-    // });
+    const currentTime = new Date().toISOString();
+    console.log("🕐 Global countdown complete at:", currentTime);
+    console.log("🔄 Triggering data refresh across all components");
+    
+    // Log query client state before invalidation
+    const queryCache = queryClient.getQueryCache();
+    const allQueries = queryCache.getAll();
+    console.log("📊 Query cache state before refresh:", {
+      totalQueries: allQueries.length,
+      notificationQueries: allQueries.filter(q => q.queryKey[0] === 'notifications').length,
+      deviceQueries: allQueries.filter(q => q.queryKey[0] === 'devices').length
+    });
     
     // Invalidate queries that should refresh on the global timer
-    queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    const invalidatedQueries = ['notifications', 'devices', 'measurements'];
+    invalidatedQueries.forEach(queryKey => {
+      const result = queryClient.invalidateQueries({ queryKey: [queryKey] });
+      console.log(`🔄 Invalidated ${queryKey} queries:`, result);
+    });
+    
+    console.log("✅ Global countdown refresh completed");
   };
 
   return (
@@ -44,6 +56,7 @@ function App() {
               <RouterProvider router={router} />
               <PWAInstallBanner />
               <PWADebugComponent />
+              <CountdownDebugger />
               <Toaster />
             </AuthProvider>
           </CountdownProvider>

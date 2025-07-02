@@ -52,29 +52,40 @@ export const CountdownProvider: React.FC<CountdownProviderProps> = ({
 
   useEffect(() => {
     if (isActive) {
+      console.log("⏰ Countdown timer started - interval:", initialSeconds, "seconds");
       intervalRef.current = window.setInterval(() => {
         setSeconds(currentSeconds => {
           if (currentSeconds <= 1) {
             // When we reach zero, call onComplete and reset
+            console.log("🔔 Countdown reached zero - executing callback");
             if (onCompleteRef.current) {
               const callback = onCompleteRef.current; // เก็บ reference ของ callback ปัจจุบันไว้
               setTimeout(() => {
+                console.log("🚀 Executing countdown completion callback");
                 callback(); // เรียก callback หลังจาก React update cycle ปัจจุบันเสร็จสิ้น
               }, 0);
             }
-            setLastCompleteTime(Date.now());
+            const completeTime = Date.now();
+            setLastCompleteTime(completeTime);
+            console.log("✅ Countdown cycle completed at:", new Date(completeTime).toISOString());
             return initialSeconds;
+          }
+          // Log every 30 seconds for tracking
+          if (currentSeconds % 30 === 0) {
+            console.log("⏰ Countdown status:", currentSeconds, "seconds remaining");
           }
           return currentSeconds - 1;
         });
       }, 1000);
     } else if (intervalRef.current) {
+      console.log("⏸️ Countdown timer paused");
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
 
     return () => {
       if (intervalRef.current) {
+        console.log("🛑 Countdown timer cleanup");
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }

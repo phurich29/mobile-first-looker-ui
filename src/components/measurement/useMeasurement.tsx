@@ -35,9 +35,17 @@ export const useMeasurement = ({
   useEffect(() => {
     const fetchLatestValue = async () => {
       if (!deviceCode || !symbol || !enabled || !notificationType || !threshold) {
+        console.log("📊 Skipping measurement fetch - missing parameters:", {
+          deviceCode: !!deviceCode,
+          symbol: !!symbol,
+          enabled,
+          notificationType,
+          threshold
+        });
         return;
       }
 
+      console.log(`📊 Fetching latest measurement for ${deviceCode}:${symbol}`);
       const result = await fetchLatestMeasurementValue(
         deviceCode,
         symbol,
@@ -47,10 +55,13 @@ export const useMeasurement = ({
       );
       
       if (result.value !== null) {
+        console.log(`📊 Updated measurement ${symbol}:`, result.value, "at", result.timestamp);
         setLatestValue(result.value);
         setLatestTimestamp(result.timestamp);
         setIsAlertActive(result.isAlertActive);
         setLastUpdated(new Date());
+      } else {
+        console.log(`📊 No data found for measurement ${symbol}`);
       }
     };
 
@@ -59,6 +70,7 @@ export const useMeasurement = ({
     
     // Set up fetch when countdown completes
     if (lastCompleteTime) {
+      console.log(`📊 Countdown triggered measurement refresh for ${symbol} at:`, new Date(lastCompleteTime).toISOString());
       fetchLatestValue();
     }
   }, [deviceCode, symbol, enabled, notificationType, threshold, lastCompleteTime]);

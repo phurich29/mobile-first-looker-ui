@@ -13,6 +13,9 @@ export const useNotifications = () => {
 
   // Function to fetch notification data from the database
   const fetchNotifications = useCallback(async () => {
+    const startTime = Date.now();
+    console.log("📡 Starting notification fetch at:", new Date().toISOString());
+    
     try {
       // Fetch data from notification_settings table
       const { data, error } = await supabase
@@ -30,21 +33,28 @@ export const useNotifications = () => {
         `)
         .order("id", { ascending: true });
 
+      const fetchTime = Date.now() - startTime;
+      console.log(`📡 Notification fetch completed in ${fetchTime}ms`);
+
       if (error) {
-        console.error("Error fetching notification settings:", error);
+        console.error("❌ Error fetching notification settings:", error);
         return [];
       }
 
       if (!data || data.length === 0) {
+        console.log("📡 No notification settings found");
         return [];
       }
 
+      console.log(`📡 Fetched ${data.length} notification settings from DB`);
+
       // Transform the data
       const transformedData = transformNotificationData(data);
-      // setLastRefreshTime removed, will use dataUpdatedAt from useQuery
+      console.log(`📡 Transformed into ${transformedData.length} notification items`);
+      
       return transformedData;
     } catch (error) {
-      console.error("Error in fetchNotifications:", error);
+      console.error("❌ Error in fetchNotifications:", error);
       toast({
         title: "เกิดข้อผิดพลาด",
         description: "ไม่สามารถโหลดรายการการแจ้งเตือนได้",
@@ -62,6 +72,16 @@ export const useNotifications = () => {
     refetchInterval: 45000, // Auto-refetch every 45 seconds
     refetchIntervalInBackground: true, // Refetch even when tab is not active
   });
+
+  // Log success when data changes
+  useEffect(() => {
+    if (notifications.length > 0) {
+      console.log("✅ Notifications query success:", {
+        count: notifications.length,
+        updatedAt: new Date().toISOString()
+      });
+    }
+  }, [notifications]);
 
   // Subscribe to real-time notification updates
   useEffect(() => {

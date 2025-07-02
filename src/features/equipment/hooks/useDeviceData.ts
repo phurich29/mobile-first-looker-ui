@@ -88,6 +88,9 @@ export function useDeviceData() {
   
   // Fetch devices using the new optimized function
   const fetchDevices = useCallback(async () => {
+    const startTime = Date.now();
+    console.log("🔧 Starting device data fetch at:", new Date().toISOString());
+    
     try {
       setIsRefreshing(true);
       
@@ -95,6 +98,7 @@ export function useDeviceData() {
       
       if (isGuest) {
         // สำหรับ Guest ใช้ฟังก์ชันพิเศษ
+        console.log("👤 Fetching devices for guest user");
         deviceList = await fetchGuestDevices();
       } else if (user) {
         // สำหรับ User ที่ login แล้ว
@@ -141,6 +145,8 @@ export function useDeviceData() {
         console.log(`🔐 Fetched ${deviceList.length} devices with data for authenticated user`);
       }
       
+      const fetchTime = Date.now() - startTime;
+      console.log(`🔧 Device fetch completed in ${fetchTime}ms`);
       console.log('🎯 Final device list with data:', deviceList.map(d => ({
         code: d.device_code,
         hasData: !!d.deviceData,
@@ -153,8 +159,10 @@ export function useDeviceData() {
       if (!isGuest && user) {
         const totalCount = await countUniqueDevices();
         setTotalUniqueDevices(totalCount);
+        console.log(`🔧 Total unique devices: ${totalCount}`);
       } else {
         setTotalUniqueDevices(deviceList.length);
+        console.log(`🔧 Guest devices count: ${deviceList.length}`);
       }
       
     } catch (error) {
