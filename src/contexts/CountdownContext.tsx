@@ -25,10 +25,11 @@ export const CountdownProvider: React.FC<CountdownProviderProps> = ({
   children
 }) => {
   const [seconds, setSeconds] = useState(initialSeconds);
-  const [isActive, setIsActive] = useState(true); // กลับไปเริ่มด้วย true
+  const [isActive, setIsActive] = useState(true);
   const [lastCompleteTime, setLastCompleteTime] = useState<number | null>(null);
   const intervalRef = useRef<number | null>(null);
   const onCompleteRef = useRef(onComplete);
+  const isMountedRef = useRef(true);
 
   // Update the ref when onComplete changes
   useEffect(() => {
@@ -55,22 +56,26 @@ export const CountdownProvider: React.FC<CountdownProviderProps> = ({
       console.log("⏰ Countdown timer started - interval:", initialSeconds, "seconds");
       intervalRef.current = window.setInterval(() => {
         setSeconds(currentSeconds => {
+          if (!isMountedRef.current) return currentSeconds;
+          
           if (currentSeconds <= 1) {
-            // When we reach zero, call onComplete and reset
             console.log("🔔 Countdown reached zero - executing callback");
-            if (onCompleteRef.current) {
-              const callback = onCompleteRef.current; // เก็บ reference ของ callback ปัจจุบันไว้
+            if (onCompleteRef.current && isMountedRef.current) {
+              const callback = onCompleteRef.current;
               setTimeout(() => {
-                console.log("🚀 Executing countdown completion callback");
-                callback(); // เรียก callback หลังจาก React update cycle ปัจจุบันเสร็จสิ้น
+                if (isMountedRef.current) {
+                  console.log("🚀 Executing countdown completion callback");
+                  callback();
+                }
               }, 0);
             }
             const completeTime = Date.now();
-            setLastCompleteTime(completeTime);
-            console.log("✅ Countdown cycle completed at:", new Date(completeTime).toISOString());
+            if (isMountedRef.current) {
+              setLastCompleteTime(completeTime);
+              console.log("✅ Countdown cycle completed at:", new Date(completeTime).toISOString());
+            }
             return initialSeconds;
           }
-          // Log every 30 seconds for tracking
           if (currentSeconds % 30 === 0) {
             console.log("⏰ Countdown status:", currentSeconds, "seconds remaining");
           }
@@ -91,6 +96,18 @@ export const CountdownProvider: React.FC<CountdownProviderProps> = ({
       }
     };
   }, [isActive, initialSeconds]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      console.log("🛑 CountdownProvider unmounting - cleaning up");
+      isMountedRef.current = false;
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, []);
 
   const value = {
     seconds,

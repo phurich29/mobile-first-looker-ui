@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useGlobalCountdown } from "@/contexts/CountdownContext";
 import { fetchLatestMeasurementValue } from "./alertUtils";
 
@@ -27,6 +27,8 @@ export const useMeasurement = ({
   const [latestTimestamp, setLatestTimestamp] = useState<string | null>(null);
   const [isAlertActive, setIsAlertActive] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [error, setError] = useState<string | null>(null);
+  const isMountedRef = useRef(true);
   
   // Access the global countdown context
   const { lastCompleteTime } = useGlobalCountdown();
@@ -34,6 +36,11 @@ export const useMeasurement = ({
   // Effect to fetch latest measurement data
   useEffect(() => {
     const fetchLatestValue = async () => {
+      if (!isMountedRef.current) {
+        console.log("📊 Component unmounted, skipping measurement fetch");
+        return;
+      }
+
       if (!deviceCode || !symbol || !enabled || !notificationType || !threshold) {
         console.log("📊 Skipping measurement fetch - missing parameters:", {
           deviceCode: !!deviceCode,
@@ -45,23 +52,36 @@ export const useMeasurement = ({
         return;
       }
 
-      console.log(`📊 Fetching latest measurement for ${deviceCode}:${symbol}`);
-      const result = await fetchLatestMeasurementValue(
-        deviceCode,
-        symbol,
-        enabled,
-        notificationType,
-        threshold
-      );
-      
-      if (result.value !== null) {
-        console.log(`📊 Updated measurement ${symbol}:`, result.value, "at", result.timestamp);
-        setLatestValue(result.value);
-        setLatestTimestamp(result.timestamp);
-        setIsAlertActive(result.isAlertActive);
-        setLastUpdated(new Date());
-      } else {
-        console.log(`📊 No data found for measurement ${symbol}`);
+      try {
+        console.log(`📊 Fetching latest measurement for ${deviceCode}:${symbol}`);
+        if (isMountedRef.current) {
+          setError(null);
+        }
+        
+        const result = await fetchLatestMeasurementValue(
+          deviceCode,
+          symbol,
+          enabled,
+          notificationType,
+          threshold
+        );
+        
+        if (!isMountedRef.current) return;
+        
+        if (result.value !== null) {
+          console.log(`📊 Updated measurement ${symbol}:`, result.value, "at", result.timestamp);
+          setLatestValue(result.value);
+          setLatestTimestamp(result.timestamp);
+          setIsAlertActive(result.isAlertActive);
+          setLastUpdated(new Date());
+        } else {
+          console.log(`📊 No data found for measurement ${symbol}`);
+        }
+      } catch (error) {
+        console.error(`📊 Error fetching measurement ${symbol}:`, error);
+        if (isMountedRef.current) {
+          setError(error instanceof Error ? error.message : "Unknown error");
+        }
       }
     };
 
@@ -75,11 +95,20 @@ export const useMeasurement = ({
     }
   }, [deviceCode, symbol, enabled, notificationType, threshold, lastCompleteTime]);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      console.log(`🛑 useMeasurement unmounting for ${symbol}`);
+      isMountedRef.current = false;
+    };
+  }, [symbol]);
+
   return {
     valueToShow,
     latestValue,
     latestTimestamp,
     isAlertActive,
-    lastUpdated
+    lastUpdated,
+    error
   };
 };

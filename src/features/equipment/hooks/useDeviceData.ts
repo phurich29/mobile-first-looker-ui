@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useGuestMode } from "@/hooks/useGuestMode";
 import { useToast } from "@/components/ui/use-toast";
@@ -15,12 +15,19 @@ export function useDeviceData() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [totalUniqueDevices, setTotalUniqueDevices] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const isMountedRef = useRef(true);
   
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
   
   // Fetch guest devices
   const fetchGuestDevices = useCallback(async (): Promise<DeviceInfo[]> => {
+    if (!isMountedRef.current) {
+      console.log('📱 Component unmounted, skipping guest device fetch');
+      return [];
+    }
+
     try {
       console.log('📱 Fetching guest devices...');
       
@@ -30,9 +37,11 @@ export function useDeviceData() {
         .select('device_code')
         .eq('enabled', true);
 
+      if (!isMountedRef.current) return [];
+
       if (guestError) {
         console.error('Error fetching guest access:', guestError);
-        return [];
+        throw guestError;
       }
 
       if (!guestAccessData || guestAccessData.length === 0) {
@@ -49,12 +58,16 @@ export function useDeviceData() {
         .select('device_code, display_name')
         .in('device_code', deviceCodes);
 
+      if (!isMountedRef.current) return [];
+
       // ดึงข้อมูลล่าสุดจาก rice_quality_analysis พร้อมข้อมูลทั้งหมด
       const { data: analysisData } = await supabase
         .from('rice_quality_analysis')
         .select('*')
         .in('device_code', deviceCodes)
         .order('created_at', { ascending: false });
+
+      if (!isMountedRef.current) return [];
 
       // สร้าง map ของข้อมูลล่าสุดสำหรับแต่ละ device
       const latestDeviceData: Record<string, any> = {};
@@ -82,47 +95,54 @@ export function useDeviceData() {
       return devicesWithDetails;
     } catch (error) {
       console.error('Error fetching guest devices:', error);
-      return [];
+      throw error;
     }
   }, []);
   
   // Fetch devices using the new optimized function
   const fetchDevices = useCallback(async () => {
+    if (!isMountedRef.current) {
+      console.log("🔧 Component unmounted, skipping device fetch");
+      return;
+    }
+
     const startTime = Date.now();
     console.log("🔧 Starting device data fetch at:", new Date().toISOString());
     
     try {
-      setIsRefreshing(true);
+      if (isMountedRef.current) {
+        setIsRefreshing(true);
+        setError(null);
+      }
       
       let deviceList: DeviceInfo[] = [];
       
       if (isGuest) {
-        // สำหรับ Guest ใช้ฟังก์ชันพิเศษ
         console.log("👤 Fetching devices for guest user");
         deviceList = await fetchGuestDevices();
       } else if (user) {
-        // สำหรับ User ที่ login แล้ว
         console.log('🔐 Fetching devices for authenticated user...');
         
-        // Use the existing optimized function but enhance with device data
         deviceList = await fetchDevicesWithDetails(
           user.id,
           isAdmin,
           isSuperAdmin
         );
         
+        if (!isMountedRef.current) return;
+        
         // เพิ่มข้อมูล deviceData สำหรับ authenticated users
         if (deviceList.length > 0) {
           const deviceCodes = deviceList.map(d => d.device_code);
           
-          // ดึงข้อมูลล่าสุดจาก rice_quality_analysis
           const { data: analysisData } = await supabase
             .from('rice_quality_analysis')
             .select('*')
             .in('device_code', deviceCodes)
             .order('created_at', { ascending: false });
 
-          // สร้าง map ของข้อมูลล่าสุด
+          if (!isMountedRef.current) return;
+
           const latestDeviceData: Record<string, any> = {};
           analysisData?.forEach(record => {
             if (!latestDeviceData[record.device_code]) {
@@ -130,7 +150,6 @@ export function useDeviceData() {
             }
           });
 
-          // เพิ่ม deviceData เข้าไปในแต่ละ device
           deviceList = deviceList.map(device => {
             const deviceAnalysisData = latestDeviceData[device.device_code];
             console.log(`🔐 User device ${device.device_code} data:`, deviceAnalysisData);
@@ -145,6 +164,8 @@ export function useDeviceData() {
         console.log(`🔐 Fetched ${deviceList.length} devices with data for authenticated user`);
       }
       
+      if (!isMountedRef.current) return;
+      
       const fetchTime = Date.now() - startTime;
       console.log(`🔧 Device fetch completed in ${fetchTime}ms`);
       console.log('🎯 Final device list with data:', deviceList.map(d => ({
@@ -153,28 +174,37 @@ export function useDeviceData() {
         timestamp: d.updated_at
       })));
       
-      setDevices(deviceList);
+      if (isMountedRef.current) {
+        setDevices(deviceList);
+      }
       
       // Count total unique devices (only for authenticated users)
-      if (!isGuest && user) {
+      if (!isGuest && user && isMountedRef.current) {
         const totalCount = await countUniqueDevices();
-        setTotalUniqueDevices(totalCount);
-        console.log(`🔧 Total unique devices: ${totalCount}`);
-      } else {
+        if (isMountedRef.current) {
+          setTotalUniqueDevices(totalCount);
+          console.log(`🔧 Total unique devices: ${totalCount}`);
+        }
+      } else if (isMountedRef.current) {
         setTotalUniqueDevices(deviceList.length);
         console.log(`🔧 Guest devices count: ${deviceList.length}`);
       }
       
     } catch (error) {
       console.error('Error fetching devices:', error);
-      toast({
-        title: "Error",
-        description: "ไม่สามารถดึงข้อมูลอุปกรณ์ได้",
-        variant: "destructive",
-      });
+      if (isMountedRef.current) {
+        setError(error instanceof Error ? error.message : "Unknown error");
+        toast({
+          title: "Error",
+          description: "ไม่สามารถดึงข้อมูลอุปกรณ์ได้",
+          variant: "destructive",
+        });
+      }
     } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
+      if (isMountedRef.current) {
+        setIsLoading(false);
+        setIsRefreshing(false);
+      }
     }
   }, [user, isAdmin, isSuperAdmin, isGuest, toast, fetchGuestDevices]);
   
@@ -187,12 +217,21 @@ export function useDeviceData() {
   const handleRefresh = useCallback(async () => {
     await fetchDevices();
   }, [fetchDevices]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      console.log("🛑 useDeviceData unmounting");
+      isMountedRef.current = false;
+    };
+  }, []);
   
   return {
     devices,
     isLoading,
     isRefreshing,
     totalUniqueDevices,
+    error,
     handleRefresh,
     isAdmin,
     isSuperAdmin
