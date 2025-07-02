@@ -48,11 +48,13 @@ export function usePWAInstall(): PWAInstallState {
       }
     };
 
-    // Check if app is already installed
+    // Check if app is already installed - enhanced detection
     const checkIfInstalled = () => {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
       const isIOSStandalone = (window.navigator as any).standalone === true;
-      setIsInstalled(isStandalone || isIOSStandalone);
+      const isFullscreen = window.matchMedia('(display-mode: fullscreen)').matches;
+      
+      setIsInstalled(isStandalone || isIOSStandalone || isFullscreen);
     };
 
     // Check if user has previously dismissed the install prompt
@@ -70,9 +72,32 @@ export function usePWAInstall(): PWAInstallState {
       }
     };
 
+    // Enhanced installation status polling
+    const pollInstallationStatus = () => {
+      const checkInterval = setInterval(() => {
+        const wasInstalled = isInstalled;
+        checkIfInstalled();
+        
+        // If app was uninstalled, reset states
+        const currentlyInstalled = window.matchMedia('(display-mode: standalone)').matches || 
+                                  (window.navigator as any).standalone === true ||
+                                  window.matchMedia('(display-mode: fullscreen)').matches;
+        
+        if (wasInstalled && !currentlyInstalled) {
+          console.log('PWA app was uninstalled, resetting states');
+          setHasBeenDismissed(false);
+          localStorage.removeItem('pwa-install-dismissed');
+        }
+      }, 5000); // Check every 5 seconds
+
+      return checkInterval;
+    };
+
     detectIOS();
     checkIfInstalled();
     checkDismissedStatus();
+    
+    const pollInterval = pollInstallationStatus();
 
     // Listen for beforeinstallprompt event (Android/Desktop only)
     const handleBeforeInstallPrompt = (e: Event) => {
@@ -92,20 +117,40 @@ export function usePWAInstall(): PWAInstallState {
       localStorage.removeItem('pwa-install-dismissed');
     };
 
+    // Enhanced event listeners for better app state detection
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // When user comes back, check install status again
+        setTimeout(() => {
+          checkIfInstalled();
+        }, 1000);
+      }
+    };
+
+    const handlePageShow = () => {
+      // When page shows (including back/forward), check install status
+      checkIfInstalled();
+    };
+
     // Only add beforeinstallprompt listener for non-iOS devices
     if (!isIOS) {
       window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     }
     
     window.addEventListener('appinstalled', handleAppInstalled);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('pageshow', handlePageShow);
 
     return () => {
+      clearInterval(pollInterval);
       if (!isIOS) {
         window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       }
       window.removeEventListener('appinstalled', handleAppInstalled);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('pageshow', handlePageShow);
     };
-  }, [isIOS]);
+  }, [isIOS, isInstalled]);
 
   // Set canInstall based on platform
   useEffect(() => {

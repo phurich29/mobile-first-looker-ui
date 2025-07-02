@@ -5,6 +5,7 @@ import { AuthProvider } from "./components/AuthProvider";
 import { CountdownProvider } from "./contexts/CountdownContext";
 import { PWAProvider } from "./contexts/PWAContext";
 import { PWAInstallBanner } from "./components/PWAInstallBanner";
+import { PWADebugComponent } from "./components/PWADebugComponent";
 import { Toaster } from "@/components/ui/toaster";
 import { toast } from "@/components/ui/use-toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -42,6 +43,7 @@ function App() {
             <AuthProvider>
               <RouterProvider router={router} />
               <PWAInstallBanner />
+              <PWADebugComponent />
               <Toaster />
             </AuthProvider>
           </CountdownProvider>
