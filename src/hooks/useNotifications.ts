@@ -65,12 +65,21 @@ export const useNotifications = () => {
   }, [toast]);
 
   // Use React Query to handle data fetching with caching
-  const { data: notifications = [], isLoading: loading, isFetching, dataUpdatedAt } = useQuery({
+  const { data: notifications = [], isLoading: loading, isFetching, dataUpdatedAt, error } = useQuery({
     queryKey: ['notifications'],
     queryFn: fetchNotifications,
-    staleTime: 30000, // Consider data fresh for 30 seconds
-    refetchInterval: 45000, // Auto-refetch every 45 seconds
-    refetchIntervalInBackground: true, // Refetch even when tab is not active
+    staleTime: 30000,
+    refetchInterval: 45000,
+    refetchIntervalInBackground: true,
+    retry: (failureCount, error) => {
+      console.log(`🔄 Notification query retry attempt ${failureCount}:`, error);
+      return failureCount < 3; // Retry up to 3 times
+    },
+    retryDelay: (attemptIndex) => {
+      const delay = Math.min(1000 * 2 ** attemptIndex, 30000); // Exponential backoff, max 30s
+      console.log(`⏳ Retrying notifications in ${delay}ms`);
+      return delay;
+    },
   });
 
   // Log success when data changes

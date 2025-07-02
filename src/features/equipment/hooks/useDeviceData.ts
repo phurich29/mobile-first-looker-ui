@@ -89,10 +89,10 @@ export function useDeviceData() {
     }
   }, []);
   
-  // Fetch devices using the new optimized function
-  const fetchDevices = useCallback(async () => {
+  // Fetch devices using the new optimized function with retry logic
+  const fetchDevices = useCallback(async (retryCount = 0) => {
     const startTime = Date.now();
-    console.log("🔧 Starting device data fetch at:", new Date().toISOString());
+    console.log(`🔧 Starting device data fetch at: ${new Date().toISOString()} (attempt ${retryCount + 1})`);
     
     try {
       setIsRefreshing(true);
@@ -100,32 +100,30 @@ export function useDeviceData() {
       let deviceList: DeviceInfo[] = [];
       
       if (isGuest) {
-        // สำหรับ Guest ใช้ฟังก์ชันพิเศษ
         console.log("👤 Fetching devices for guest user");
         deviceList = await fetchGuestDevices();
       } else if (user) {
-        // สำหรับ User ที่ login แล้ว
         console.log('🔐 Fetching devices for authenticated user...');
         
-        // Use the existing optimized function but enhance with device data
         deviceList = await fetchDevicesWithDetails(
           user.id,
           isAdmin,
           isSuperAdmin
         );
         
-        // เพิ่มข้อมูล deviceData สำหรับ authenticated users
         if (deviceList.length > 0) {
           const deviceCodes = deviceList.map(d => d.device_code);
           
-          // ดึงข้อมูลล่าสุดจาก rice_quality_analysis
-          const { data: analysisData } = await supabase
+          const { data: analysisData, error: analysisError } = await supabase
             .from('rice_quality_analysis')
             .select('*')
             .in('device_code', deviceCodes)
             .order('created_at', { ascending: false });
 
-          // สร้าง map ของข้อมูลล่าสุด
+          if (analysisError) {
+            throw new Error(`Analysis data fetch failed: ${analysisError.message}`);
+          }
+
           const latestDeviceData: Record<string, any> = {};
           analysisData?.forEach(record => {
             if (!latestDeviceData[record.device_code]) {
@@ -133,7 +131,6 @@ export function useDeviceData() {
             }
           });
 
-          // เพิ่ม deviceData เข้าไปในแต่ละ device
           deviceList = deviceList.map(device => {
             const deviceAnalysisData = latestDeviceData[device.device_code];
             console.log(`🔐 User device ${device.device_code} data:`, deviceAnalysisData);
@@ -158,7 +155,6 @@ export function useDeviceData() {
       
       setDevices(deviceList);
       
-      // Count total unique devices (only for authenticated users)
       if (!isGuest && user) {
         const totalCount = await countUniqueDevices();
         setTotalUniqueDevices(totalCount);
@@ -168,22 +164,36 @@ export function useDeviceData() {
         console.log(`🔧 Guest devices count: ${deviceList.length}`);
       }
       
-      } catch (error) {
-        console.error('Error fetching devices:', error);
-        // Only show toast if component is still mounted
-        if (isMountedRef.current) {
-          toast({
-            title: "Error",
-            description: "ไม่สามารถดึงข้อมูลอุปกรณ์ได้",
-            variant: "destructive",
-          });
-        }
-      } finally {
-        if (isMountedRef.current) {
-          setIsLoading(false);
-          setIsRefreshing(false);
-        }
+    } catch (error) {
+      console.error(`❌ Error fetching devices (attempt ${retryCount + 1}):`, error);
+      
+      // Retry logic with exponential backoff
+      if (retryCount < 2 && isMountedRef.current) {
+        const retryDelay = Math.min(1000 * Math.pow(2, retryCount), 10000);
+        console.log(`🔄 Retrying device fetch in ${retryDelay}ms...`);
+        
+        setTimeout(() => {
+          if (isMountedRef.current) {
+            fetchDevices(retryCount + 1);
+          }
+        }, retryDelay);
+        return;
       }
+      
+      // Only show toast if component is still mounted and all retries failed
+      if (isMountedRef.current) {
+        toast({
+          title: "Error",
+          description: `ไม่สามารถดึงข้อมูลอุปกรณ์ได้ (ลองแล้ว ${retryCount + 1} ครั้ง)`,
+          variant: "destructive",
+        });
+      }
+    } finally {
+      if (isMountedRef.current) {
+        setIsLoading(false);
+        setIsRefreshing(false);
+      }
+    }
   }, [user, isAdmin, isSuperAdmin, isGuest, toast, fetchGuestDevices]);
   
   // Initial fetch

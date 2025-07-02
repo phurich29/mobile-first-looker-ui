@@ -11,7 +11,7 @@ interface DataRefreshIndicatorProps {
 export const DataRefreshIndicator: React.FC<DataRefreshIndicatorProps> = ({ 
   showDetailed = false 
 }) => {
-  const { seconds, isActive, lastCompleteTime } = useGlobalCountdown();
+  const { seconds, isActive, lastCompleteTime, adaptiveInterval, retryCount, isBackgroundMode } = useGlobalCountdown();
   const { isFetching, lastRefreshTime } = useNotifications();
   const [lastUpdateText, setLastUpdateText] = useState<string>('');
 
@@ -97,11 +97,33 @@ export const DataRefreshIndicator: React.FC<DataRefreshIndicatorProps> = ({
           <div className="text-gray-600">อัพเดทล่าสุด:</div>
           <div className="font-medium">{lastUpdateText}</div>
         </div>
+        <div>
+          <div className="text-gray-600">ความถี่ปัจจุบัน:</div>
+          <div className="font-medium">{adaptiveInterval}s {isBackgroundMode && '(โหมดพื้นหลัง)'}</div>
+        </div>
+        <div>
+          <div className="text-gray-600">สถานะ:</div>
+          <div className="font-medium">
+            {retryCount > 0 ? `ลองใหม่ ${retryCount} ครั้ง` : 'ปกติ'}
+          </div>
+        </div>
       </div>
       
       {!isActive && (
         <div className="mt-2 text-xs text-orange-600 bg-orange-100 p-2 rounded">
           ⚠️ ระบบอัพเดทอัตโนมัติหยุดชั่วคราว
+        </div>
+      )}
+      
+      {isBackgroundMode && (
+        <div className="mt-2 text-xs text-blue-600 bg-blue-100 p-2 rounded">
+          📱 โหมดพื้นหลัง - ใช้ช่วงเวลาอัพเดทที่ยาวขึ้น
+        </div>
+      )}
+      
+      {retryCount > 0 && (
+        <div className="mt-2 text-xs text-orange-600 bg-orange-100 p-2 rounded">
+          🔄 กำลังลองเชื่อมต่อใหม่ (ครั้งที่ {retryCount})
         </div>
       )}
     </div>
