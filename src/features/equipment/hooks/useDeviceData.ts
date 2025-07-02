@@ -1,20 +1,23 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useGuestMode } from "@/hooks/useGuestMode";
 import { useToast } from "@/components/ui/use-toast";
 import { DeviceInfo } from "../types";
 import { fetchDevicesWithDetails, countUniqueDevices } from "../services";
 import { supabase } from "@/integrations/supabase/client";
+import { useGlobalCountdown } from "@/contexts/CountdownContext";
 
 export function useDeviceData() {
   const { user, userRoles } = useAuth();
   const { isGuest } = useGuestMode();
   const { toast } = useToast();
+  const { lastCompleteTime } = useGlobalCountdown();
   const [devices, setDevices] = useState<DeviceInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [totalUniqueDevices, setTotalUniqueDevices] = useState(0);
+  const isMountedRef = useRef(true);
   
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
@@ -165,23 +168,43 @@ export function useDeviceData() {
         console.log(`🔧 Guest devices count: ${deviceList.length}`);
       }
       
-    } catch (error) {
-      console.error('Error fetching devices:', error);
-      toast({
-        title: "Error",
-        description: "ไม่สามารถดึงข้อมูลอุปกรณ์ได้",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
+      } catch (error) {
+        console.error('Error fetching devices:', error);
+        // Only show toast if component is still mounted
+        if (isMountedRef.current) {
+          toast({
+            title: "Error",
+            description: "ไม่สามารถดึงข้อมูลอุปกรณ์ได้",
+            variant: "destructive",
+          });
+        }
+      } finally {
+        if (isMountedRef.current) {
+          setIsLoading(false);
+          setIsRefreshing(false);
+        }
+      }
   }, [user, isAdmin, isSuperAdmin, isGuest, toast, fetchGuestDevices]);
   
   // Initial fetch
   useEffect(() => {
     fetchDevices();
   }, [fetchDevices]);
+  
+  // Auto-refresh when countdown completes
+  useEffect(() => {
+    if (lastCompleteTime && isMountedRef.current) {
+      console.log(`🔧 Countdown triggered device refresh at:`, new Date(lastCompleteTime).toISOString());
+      fetchDevices();
+    }
+  }, [lastCompleteTime, fetchDevices]);
+  
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
   
   // Handler for manual refresh
   const handleRefresh = useCallback(async () => {

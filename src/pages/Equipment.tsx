@@ -5,6 +5,8 @@ import { useDeviceData, DevicesHeader, DevicesGrid } from "@/features/equipment"
 import { AppLayout } from "@/components/layouts";
 import { DeviceHistoryTable } from "@/features/device-details/components/DeviceHistoryTable";
 import { useGuestMode } from "@/hooks/useGuestMode";
+import { DataRefreshIndicator } from "@/components/DataRefreshIndicator";
+import { RefreshControls } from "@/components/RefreshControls";
 
 export default function Equipment() {
     const {
@@ -28,6 +30,14 @@ export default function Equipment() {
           {/* Devices Section Header */}
           <div className="mb-8 relative">
             <DevicesHeader isRefreshing={isRefreshing} handleRefresh={handleRefresh} totalUniqueDevices={totalUniqueDevices} isSuperAdmin={isSuperAdmin} />
+            
+            {/* Data Refresh Status & Controls */}
+            <div className="mt-4 bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+              <div className="flex items-center justify-between">
+                <DataRefreshIndicator showDetailed={true} />
+                <RefreshControls onManualRefresh={handleRefresh} disabled={isRefreshing} />
+              </div>
+            </div>
           </div>
           
           {/* Add Device Form - Only for superadmin (not guests and not regular admins) */}
