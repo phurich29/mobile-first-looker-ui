@@ -14,6 +14,7 @@ import { ResetPasswordDialog } from "@/features/user-management/components/Reset
 import { DeleteUserDialog } from "@/features/user-management/components/DeleteUserDialog";
 import { CurrentUserRoleCard } from "@/features/user-management/components/CurrentUserRoleCard";
 import { GuestDeviceManagement } from "@/features/user-management/components/GuestDeviceManagement";
+import { DeviceVisibilityManagement } from "@/features/user-management/components/DeviceVisibilityManagement";
 
 export default function UserManagement() {
   const { user, userRoles, isLoading } = useAuth();
@@ -82,6 +83,12 @@ export default function UserManagement() {
 
         {/* Guest Device Management Section */}
         <GuestDeviceManagement />
+
+        {/* Device Visibility Management Section */}
+        <DeviceVisibilityManagement 
+          isAdmin={userRoles.includes('admin')}
+          isSuperAdmin={isSuperAdmin}
+        />
 
         <Card className="overflow-hidden dark:bg-slate-800 dark:border-slate-700 px-3">
           <CardContent className="p-0 overflow-x-auto">
