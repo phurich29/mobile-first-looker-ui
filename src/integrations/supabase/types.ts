@@ -9,33 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      admin_device_visibility: {
-        Row: {
-          created_at: string
-          created_by: string
-          device_code: string
-          hidden_for_admin: boolean
-          id: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          created_by: string
-          device_code: string
-          hidden_for_admin?: boolean
-          id?: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string
-          device_code?: string
-          hidden_for_admin?: boolean
-          id?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       device_settings: {
         Row: {
           created_at: string | null

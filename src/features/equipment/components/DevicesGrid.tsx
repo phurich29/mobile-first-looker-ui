@@ -1,9 +1,8 @@
 
-import { useState, useMemo, useEffect } from "react";
+import { useState } from "react";
 import { EquipmentCard } from "./EquipmentCard";
 import { DeviceInfo } from "../types";
 import { DevicesSortDropdown, SortOption } from "./DevicesSortDropdown";
-import { supabase } from "@/integrations/supabase/client";
 
 interface DevicesGridProps {
   devices: DeviceInfo[];
@@ -22,101 +21,14 @@ export function DevicesGrid({
 }: DevicesGridProps) {
   const [sortBy, setSortBy] = useState<SortOption>("device_code");
 
-  // Get hidden devices from database for admin filtering
-  const [hiddenDeviceCodes, setHiddenDeviceCodes] = useState<string[]>([]);
-
-  useEffect(() => {
-    const loadHiddenDevices = async () => {
-      if (!isAdmin || isSuperAdmin) {
-        setHiddenDeviceCodes([]);
-        return;
-      }
-      
-      try {
-        console.log("🔒 Loading hidden devices for admin user...");
-        const { data, error } = await supabase
-          .from('admin_device_visibility')
-          .select('device_code')
-          .eq('hidden_for_admin', true);
-
-        if (error) {
-          console.error('Error loading hidden devices:', error);
-          return;
-        }
-
-        const deviceCodes = data?.map(d => d.device_code) || [];
-        setHiddenDeviceCodes(deviceCodes);
-        console.log("🔒 Loaded hidden device codes for admin:", deviceCodes);
-      } catch (error) {
-        console.error('Error loading hidden devices:', error);
-      }
-    };
-
-    loadHiddenDevices();
-
-    // Set up real-time subscription for visibility changes
-    const channel = supabase
-      .channel('admin-device-visibility-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'admin_device_visibility'
-        },
-        () => {
-          console.log("🔒 Device visibility changed, reloading...");
-          loadHiddenDevices();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [isAdmin, isSuperAdmin]);
-
-  // Filter out hidden devices for admin users (but not superadmin)
-  const filteredDevices = useMemo(() => {
-    console.log("🔒 Filtering devices - isAdmin:", isAdmin, "isSuperAdmin:", isSuperAdmin, "hiddenCodes:", hiddenDeviceCodes);
-    console.log("🔒 Current user role check: !isAdmin =", !isAdmin, "|| isSuperAdmin =", isSuperAdmin);
-    
-    if (!isAdmin || isSuperAdmin) {
-      console.log("🔒 No filtering needed - showing all devices (reason: " + (!isAdmin ? "not admin" : "is superadmin") + ")");
-      return devices;
-    }
-    
-    if (hiddenDeviceCodes.length === 0) {
-      console.log("🔒 No hidden devices configured - showing all devices");
-      return devices;
-    }
-    
-    const filtered = devices.filter(device => {
-      const isHidden = hiddenDeviceCodes.includes(device.device_code);
-      if (isHidden) {
-        console.log(`🔒 Hiding device: ${device.device_code}`);
-      }
-      return !isHidden;
-    });
-    
-    console.log("🔒 Admin device filtering result:", {
-      total: devices.length,
-      hidden: hiddenDeviceCodes,
-      filtered: filtered.length,
-      hiddenCount: devices.length - filtered.length
-    });
-    
-    return filtered;
-  }, [devices, isAdmin, isSuperAdmin, hiddenDeviceCodes]);
-
-  console.log("🏗️ DevicesGrid rendering with devices:", filteredDevices.map(d => ({
+  console.log("🏗️ DevicesGrid rendering with devices:", devices.map(d => ({
     code: d.device_code,
     hasDeviceData: !!d.deviceData,
     deviceData: d.deviceData
   })));
 
   // Sort devices based on selected option
-  const sortedDevices = [...filteredDevices].sort((a, b) => {
+  const sortedDevices = [...devices].sort((a, b) => {
     switch (sortBy) {
       case "device_code":
         return a.device_code.localeCompare(b.device_code);
@@ -148,12 +60,10 @@ export function DevicesGrid({
     );
   }
 
-  if (filteredDevices.length === 0) {
+  if (devices.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500 dark:text-gray-400">
-          {devices.length === 0 ? "ไม่พบอุปกรณ์" : "อุปกรณ์ทั้งหมดถูกซ่อนการแสดงผล"}
-        </p>
+        <p className="text-gray-500 dark:text-gray-400">ไม่พบอุปกรณ์</p>
       </div>
     );
   }
