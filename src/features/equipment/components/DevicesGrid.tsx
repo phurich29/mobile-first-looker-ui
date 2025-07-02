@@ -27,9 +27,13 @@ export function DevicesGrid({
 
   useEffect(() => {
     const loadHiddenDevices = async () => {
-      if (!isAdmin || isSuperAdmin) return;
+      if (!isAdmin || isSuperAdmin) {
+        setHiddenDeviceCodes([]);
+        return;
+      }
       
       try {
+        console.log("🔒 Loading hidden devices for admin user...");
         const { data, error } = await supabase
           .from('admin_device_visibility')
           .select('device_code')
@@ -49,21 +53,58 @@ export function DevicesGrid({
     };
 
     loadHiddenDevices();
+
+    // Set up real-time subscription for visibility changes
+    const channel = supabase
+      .channel('admin-device-visibility-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'admin_device_visibility'
+        },
+        () => {
+          console.log("🔒 Device visibility changed, reloading...");
+          loadHiddenDevices();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [isAdmin, isSuperAdmin]);
 
   // Filter out hidden devices for admin users (but not superadmin)
   const filteredDevices = useMemo(() => {
-    if (!isAdmin || isSuperAdmin || hiddenDeviceCodes.length === 0) {
+    console.log("🔒 Filtering devices - isAdmin:", isAdmin, "isSuperAdmin:", isSuperAdmin, "hiddenCodes:", hiddenDeviceCodes);
+    
+    if (!isAdmin || isSuperAdmin) {
+      console.log("🔒 No filtering needed - showing all devices");
       return devices;
     }
     
-    const filtered = devices.filter(device => !hiddenDeviceCodes.includes(device.device_code));
-    console.log("🔒 Admin device filtering:", {
+    if (hiddenDeviceCodes.length === 0) {
+      console.log("🔒 No hidden devices configured - showing all devices");
+      return devices;
+    }
+    
+    const filtered = devices.filter(device => {
+      const isHidden = hiddenDeviceCodes.includes(device.device_code);
+      if (isHidden) {
+        console.log(`🔒 Hiding device: ${device.device_code}`);
+      }
+      return !isHidden;
+    });
+    
+    console.log("🔒 Admin device filtering result:", {
       total: devices.length,
       hidden: hiddenDeviceCodes,
       filtered: filtered.length,
       hiddenCount: devices.length - filtered.length
     });
+    
     return filtered;
   }, [devices, isAdmin, isSuperAdmin, hiddenDeviceCodes]);
 
