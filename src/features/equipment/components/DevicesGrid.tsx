@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { EquipmentCard } from "./EquipmentCard";
 import { DeviceInfo } from "../types";
 import { DevicesSortDropdown, SortOption } from "./DevicesSortDropdown";
@@ -21,14 +21,42 @@ export function DevicesGrid({
 }: DevicesGridProps) {
   const [sortBy, setSortBy] = useState<SortOption>("device_code");
 
-  console.log("🏗️ DevicesGrid rendering with devices:", devices.map(d => ({
+  // Get hidden devices from localStorage for admin filtering
+  const hiddenDevices = useMemo(() => {
+    if (!isAdmin || isSuperAdmin) return [];
+    try {
+      const stored = localStorage.getItem('admin_hidden_devices');
+      return stored ? JSON.parse(stored) : [];
+    } catch (error) {
+      console.error('Error loading hidden devices:', error);
+      return [];
+    }
+  }, [isAdmin, isSuperAdmin]);
+
+  // Filter out hidden devices for admin users (but not superadmin)
+  const filteredDevices = useMemo(() => {
+    if (!isAdmin || isSuperAdmin || hiddenDevices.length === 0) {
+      return devices;
+    }
+    
+    const filtered = devices.filter(device => !hiddenDevices.includes(device.device_code));
+    console.log("🔒 Admin device filtering:", {
+      total: devices.length,
+      hidden: hiddenDevices,
+      filtered: filtered.length,
+      hiddenCount: devices.length - filtered.length
+    });
+    return filtered;
+  }, [devices, isAdmin, isSuperAdmin, hiddenDevices]);
+
+  console.log("🏗️ DevicesGrid rendering with devices:", filteredDevices.map(d => ({
     code: d.device_code,
     hasDeviceData: !!d.deviceData,
     deviceData: d.deviceData
   })));
 
   // Sort devices based on selected option
-  const sortedDevices = [...devices].sort((a, b) => {
+  const sortedDevices = [...filteredDevices].sort((a, b) => {
     switch (sortBy) {
       case "device_code":
         return a.device_code.localeCompare(b.device_code);
@@ -60,10 +88,12 @@ export function DevicesGrid({
     );
   }
 
-  if (devices.length === 0) {
+  if (filteredDevices.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500 dark:text-gray-400">ไม่พบอุปกรณ์</p>
+        <p className="text-gray-500 dark:text-gray-400">
+          {devices.length === 0 ? "ไม่พบอุปกรณ์" : "อุปกรณ์ทั้งหมดถูกซ่อนการแสดงผล"}
+        </p>
       </div>
     );
   }
