@@ -79,9 +79,10 @@ export function DevicesGrid({
   // Filter out hidden devices for admin users (but not superadmin)
   const filteredDevices = useMemo(() => {
     console.log("🔒 Filtering devices - isAdmin:", isAdmin, "isSuperAdmin:", isSuperAdmin, "hiddenCodes:", hiddenDeviceCodes);
+    console.log("🔒 Current user role check: !isAdmin =", !isAdmin, "|| isSuperAdmin =", isSuperAdmin);
     
     if (!isAdmin || isSuperAdmin) {
-      console.log("🔒 No filtering needed - showing all devices");
+      console.log("🔒 No filtering needed - showing all devices (reason: " + (!isAdmin ? "not admin" : "is superadmin") + ")");
       return devices;
     }
     
