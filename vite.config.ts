@@ -27,18 +27,32 @@ export default defineConfig(({ mode }) => ({
         orientation: 'portrait-primary',
         start_url: '/',
         scope: '/',
+        categories: ['productivity', 'utilities'],
+        lang: 'th',
         icons: [
           {
             src: '/lovable-uploads/649554cd-4d80-484a-995d-e49f2721a07d.png',
             sizes: '192x192',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
+          },
+          {
+            src: '/lovable-uploads/649554cd-4d80-484a-995d-e49f2721a07d.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'maskable'
           },
           {
             src: '/lovable-uploads/649554cd-4d80-484a-995d-e49f2721a07d.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
+          },
+          {
+            src: '/lovable-uploads/649554cd-4d80-484a-995d-e49f2721a07d.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
           }
         ]
       },

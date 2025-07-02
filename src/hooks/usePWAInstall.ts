@@ -19,6 +19,7 @@ export interface PWAInstallState {
   installApp: () => Promise<void>;
   dismissInstallPrompt: () => void;
   hasBeenDismissed: boolean;
+  resetDismissedStatus: () => void;
 }
 
 export function usePWAInstall(): PWAInstallState {
@@ -40,10 +41,10 @@ export function usePWAInstall(): PWAInstallState {
       // Check iOS PWA compatibility (iOS 11.3+)
       if (isIOSDevice) {
         const isInStandaloneMode = ('standalone' in window.navigator) && (window.navigator as any).standalone;
-        const isIOSSafari = /safari/.test(userAgent) && !/chrome|crios|fxios/.test(userAgent);
-        const hasAddToHomeScreen = 'BeforeInstallPromptEvent' in window || isIOSSafari;
+        const isIOSSafari = /safari/.test(userAgent) && !/chrome|crios|fxios|edgios/.test(userAgent);
+        const supportsPWA = 'serviceWorker' in navigator && 'PushManager' in window;
         
-        setIsIOSPWACompatible(hasAddToHomeScreen && !isInStandaloneMode);
+        setIsIOSPWACompatible(supportsPWA && isIOSSafari && !isInStandaloneMode);
       }
     };
 
@@ -60,8 +61,8 @@ export function usePWAInstall(): PWAInstallState {
       if (dismissed) {
         const dismissedDate = new Date(dismissed);
         const daysSinceDismissed = (Date.now() - dismissedDate.getTime()) / (1000 * 60 * 60 * 24);
-        // Show prompt again after 3 days for iOS (shorter than Android)
-        if (daysSinceDismissed < (isIOS ? 3 : 7)) {
+        // Show prompt again after 1 day for better user experience
+        if (daysSinceDismissed < 1) {
           setHasBeenDismissed(true);
         } else {
           localStorage.removeItem('pwa-install-dismissed');
@@ -165,6 +166,12 @@ export function usePWAInstall(): PWAInstallState {
     console.log('Install prompt dismissed');
   };
 
+  const resetDismissedStatus = (): void => {
+    localStorage.removeItem('pwa-install-dismissed');
+    setHasBeenDismissed(false);
+    console.log('PWA install dismissed status reset');
+  };
+
   return {
     canInstall,
     isInstalled,
@@ -174,5 +181,6 @@ export function usePWAInstall(): PWAInstallState {
     installApp,
     dismissInstallPrompt,
     hasBeenDismissed,
+    resetDismissedStatus,
   };
 }
