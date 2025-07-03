@@ -106,6 +106,11 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
                   <div className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
                     Device Code: {selectedRow.device_code}
                   </div>
+                  {selectedRow.output && (
+                    <div className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
+                      จำนวนเมล็ด: {selectedRow.output.toLocaleString()}
+                    </div>
+                  )}
                   <div className="text-xs text-gray-500 dark:text-gray-400">
                     {selectedRow.thai_datetime ? (() => {
                       const dateObj = new Date(selectedRow.thai_datetime);

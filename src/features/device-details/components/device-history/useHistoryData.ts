@@ -16,7 +16,7 @@ export const useHistoryData = (deviceIds?: string[]) => {
       
       let query = supabase
         .from('rice_quality_analysis')
-        .select('*', { count: 'exact' });
+        .select('*, output', { count: 'exact' });
 
             // Filter by device_ids if the array is provided and not empty
       if (deviceIds && deviceIds.length > 0) {
