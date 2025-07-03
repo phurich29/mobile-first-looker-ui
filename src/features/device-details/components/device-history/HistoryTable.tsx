@@ -33,14 +33,15 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragState, dragHandlers] = useDragScroll(containerRef);
-  // Get column keys and ensure device_display_name is after created_at
-  const allKeys = getColumnKeys(historyData).filter(k => k !== 'device_display_name');
+  // Get column keys and ensure device_display_name and output are ordered correctly
+  const allKeys = getColumnKeys(historyData).filter(k => k !== 'device_display_name' && k !== 'output');
   const createdAtIndex = allKeys.findIndex(k => k === 'created_at');
   
-  // Insert device_display_name after created_at
+  // Insert device_display_name after created_at, followed by 'output'
   const columnKeys = [
     ...allKeys.slice(0, createdAtIndex + 1),
     'device_display_name',
+    'output',
     ...allKeys.slice(createdAtIndex + 1)
   ];
 
@@ -70,9 +71,11 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
           <TableHeader>
             <TableRow>
               {columnKeys.map((key) => {
-                // Custom header for device_display_name
+                // Custom header for device_display_name and output
                 const displayName = key === 'device_display_name' 
                   ? 'ชื่ออุปกรณ์' 
+                  : key === 'output'
+                  ? 'จำนวนเมล็ด'
                   : getColumnThaiName(key);
                 
                 return (
