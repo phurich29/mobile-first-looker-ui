@@ -35,7 +35,7 @@ export const SidebarHeader = ({
       
       {/* Additional image below logo */}
       {(isMobile || !isCollapsed) && <div className="flex justify-center mb-4">
-          <img src="/lovable-uploads/c9e874a3-be6b-4b22-be05-653bf90f68c0.png" alt="Additional banner" className="w-auto h-auto " />
+          <img src="/lovable-uploads/5169ebf9-8d0a-497d-80db-718d4e122cf6.png" alt="Additional banner" className="w-auto h-auto " />
         </div>}
     </>;
 };
