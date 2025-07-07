@@ -2,6 +2,7 @@
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
 
 interface SidebarHeaderProps {
   isCollapsed: boolean;
@@ -64,11 +65,13 @@ export const SidebarHeader = ({
       {/* Additional image below logo */}
       {(isMobile || !isCollapsed) && (
         <div className="flex justify-center mb-4">
-          <img 
-            src="/lovable-uploads/ad4a172e-de53-405d-8beb-54febba6a7ed.png" 
-            alt="Additional banner" 
-            className="w-full h-auto"
-          />
+          <Link to="/assistant" className="block w-full hover:opacity-80 transition-opacity">
+            <img 
+              src="/lovable-uploads/ad4a172e-de53-405d-8beb-54febba6a7ed.png" 
+              alt="Additional banner" 
+              className="w-full h-auto cursor-pointer"
+            />
+          </Link>
         </div>
       )}
     </>
