@@ -39,19 +39,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
       async (event, currentSession) => {
         console.log("Auth state changed, event:", event);
         
-        // Validate session before using it
-        const validSession = await validateAndRefreshSession(currentSession);
+        // ปิด Auto Session Validation - ใช้ session ตรงๆ เพื่อลดโอกาส sign out
+        // const validSession = await validateAndRefreshSession(currentSession);
         
         // Update session and user state
-        setSession(validSession);
-        setUser(validSession?.user ?? null);
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
         
         // If user is logged in, fetch roles from database
-        if (validSession?.user) {
+        if (currentSession?.user) {
           try {
             // Using setTimeout to avoid deadlocks with Supabase client
             setTimeout(async () => {
-              const roles = await fetchUserRoles(validSession.user.id);
+              const roles = await fetchUserRoles(currentSession.user.id);
               console.log("Setting user roles after auth change:", roles);
               setUserRoles(roles);
               setIsLoading(false);
