@@ -33,7 +33,7 @@ export const SidebarHeader = ({
       
       <div className={cn(
         "flex justify-between items-center mt-4",
-        isCollapsed ? "mb-6" : "mb-8" // ลดช่องว่างด้านล่างเมื่อหดตัว
+        isCollapsed ? "mb-4" : "mb-6" // ลดช่องว่างด้านล่างเมื่อหดตัว
       )}>
         <div className={cn("flex items-center gap-2", !isMobile && isCollapsed && "justify-center w-full")}>
           <img src="/lovable-uploads/649554cd-4d80-484a-995d-e49f2721a07d.png" alt="RiceFlow Logo" className={cn(
@@ -60,6 +60,17 @@ export const SidebarHeader = ({
           </Button>
         )}
       </div>
+      
+      {/* Additional image below logo */}
+      {(isMobile || !isCollapsed) && (
+        <div className="flex justify-center mb-4">
+          <img 
+            src="/lovable-uploads/c9e874a3-be6b-4b22-be05-653bf90f68c0.png" 
+            alt="Additional banner" 
+            className="w-32 h-auto"
+          />
+        </div>
+      )}
     </>
   );
 };
