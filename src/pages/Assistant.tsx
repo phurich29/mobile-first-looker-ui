@@ -6,12 +6,12 @@ import { MessageCircle, Bot, HelpCircle } from "lucide-react";
 const Assistant = () => {
   return (
     <AppLayout>
-      <div className="container mx-auto px-4 py-6">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground mb-2">
             ผู้ช่วยระบบ RiceFlow
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-muted-foreground">
             ระบบช่วยเหลือและคำแนะนำในการใช้งาน
           </p>
         </div>
