@@ -31,6 +31,7 @@ import MeasurementDetail from "./pages/MeasurementDetail";
 import DeviceManagement from "./pages/DeviceManagement";
 import AboutRiceflow from "./pages/AboutRiceflow";
 import DeviceAccessManagement from "./pages/DeviceAccessManagement";
+import Assistant from "./pages/Assistant";
 
 // Device-specific graph pages
 import DeviceGraphMonitor from "./pages/DeviceGraphMonitor";
@@ -239,6 +240,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowGuest={true}>
             <MeasurementHistory />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "assistant",
+        element: (
+          <ProtectedRoute allowGuest={true}>
+            <Assistant />
           </ProtectedRoute>
         ),
       },

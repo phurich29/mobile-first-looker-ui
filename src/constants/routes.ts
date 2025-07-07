@@ -8,6 +8,7 @@ export const ROUTES = {
   // Public pages
   NEWS: '/news',
   ABOUT_RICEFLOW: '/about-riceflow',
+  ASSISTANT: '/assistant',
   
   // Equipment & Measurements
   EQUIPMENT: '/equipment',
