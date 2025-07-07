@@ -77,7 +77,7 @@ const AssistantContent = () => {
                 การจำแนกประเภทข้าว
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-0 w-full">
+            <CardContent className="p-6">
               <div className="space-y-4">
                 {/* Assistant Response */}
                 <DeviceDisplay />
