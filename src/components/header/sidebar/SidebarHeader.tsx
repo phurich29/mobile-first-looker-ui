@@ -65,12 +65,12 @@ export const SidebarHeader = ({
       {/* Additional image below logo */}
       {(isMobile || !isCollapsed) && (
         <div className="flex justify-center mb-4">
-          <Link to="/assistant" className="block w-full hover:opacity-80 transition-opacity">
-            <img 
-              src="/lovable-uploads/ad4a172e-de53-405d-8beb-54febba6a7ed.png" 
-              alt="Additional banner" 
-              className="w-full h-auto cursor-pointer"
-            />
+          <Link to="/assistant" className="block w-full">
+            <Button 
+              className="w-full bg-gradient-to-r from-chinese-red to-chinese-gold text-chinese-cream font-bold py-4 px-6 rounded-xl border-2 border-chinese-gold shadow-lg hover:shadow-xl hover:from-chinese-gold hover:to-chinese-red transition-all duration-300 transform hover:scale-105"
+            >
+              <span className="text-lg">🐉 หลงจู๊ 廊主 Ai assistant 🐉</span>
+            </Button>
           </Link>
         </div>
       )}
