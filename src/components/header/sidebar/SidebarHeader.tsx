@@ -65,7 +65,7 @@ export const SidebarHeader = ({
       {(isMobile || !isCollapsed) && (
         <div className="flex justify-center mb-4">
           <img 
-            src="/lovable-uploads/c9e874a3-be6b-4b22-be05-653bf90f68c0.png" 
+            src="/lovable-uploads/d06735fc-77f0-4ed8-be06-94231ff979dd.png" 
             alt="Additional banner" 
             className="w-32 h-auto"
           />
