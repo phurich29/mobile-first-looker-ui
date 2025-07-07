@@ -68,7 +68,7 @@ const AssistantContent = () => {
         </div>
 
         {/* Live Rice Classification Dashboard */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div className="mb-8">
           {/* Classification Card */}
           <Card className="border-2 border-chinese-jade bg-gradient-to-br from-chinese-cream to-white shadow-xl">
             <CardHeader className="bg-gradient-to-r from-chinese-jade to-chinese-green text-white rounded-t-lg">
@@ -119,9 +119,6 @@ const AssistantContent = () => {
               </div>
             </CardContent>
           </Card>
-
-          {/* Placeholder for the second column if needed */}
-          <div></div>
         </div>
 
 
