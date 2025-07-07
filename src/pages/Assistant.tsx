@@ -1,10 +1,57 @@
 import React from "react";
+import { DeviceDisplay } from "@/features/assistant/components/DeviceDisplay";
+import { useMemo } from "react";
+import { AssistantProvider, useAssistant } from "@/features/assistant/context/AssistantContext";
 import { AppLayout } from "@/components/layouts/app-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MessageCircle, Bot, HelpCircle } from "lucide-react";
+import { useTypewriter } from '@/hooks/useTypewriter';
 
-const Assistant = () => {
-  return (
+const TypewriterReport = ({ text }: { text: string }) => {
+  const displayedText = useTypewriter(text, 30);
+  return <p>"{displayedText}"</p>;
+};
+
+const AssistantContent = () => {
+    const { selectedDevice } = useAssistant();
+
+  // Main display values
+  const whitenessValue = selectedDevice?.deviceData?.whiteness ?? 0;
+
+  // Detailed report values
+  const confidence = selectedDevice?.deviceData?.confidence;
+  const valueRange = selectedDevice?.deviceData?.value_range;
+  const longJooReport = selectedDevice?.deviceData?.long_joo_report;
+  const whitenessClassification = selectedDevice?.deviceData?.whiteness_classification;
+    const classificationDetails = selectedDevice?.deviceData?.classification_details;
+    const trend = selectedDevice?.deviceData?.trend;
+
+    const riceAnalysis = useMemo(() => {
+    if (!selectedDevice) {
+      return {
+        title: "รอการวิเคราะห์",
+        description: "กรุณาเลือกอุปกรณ์เพื่อดูผลการตรวจสอบ",
+      };
+    }
+
+    if (whitenessValue >= 40 && whitenessValue <= 45) {
+      return {
+        title: "ข้าวขาว",
+        description: "ผลการตรวจสอบ: ข้าวของท่านจัดอยู่ในเกณฑ์คุณภาพข้าวขาว",
+      };
+    } else if (whitenessValue >= 25 && whitenessValue <= 30) {
+      return {
+        title: "ข้าวนึ่ง",
+        description: "ผลการตรวจสอบ: ข้าวของท่านจัดอยู่ในเกณฑ์คุณภาพข้าวนึ่ง",
+      };
+    } else {
+      return {
+                title: "ไม่สามารถระบุประเภท",
+        description: `ค่าความขาว ${whitenessValue.toFixed(1)} อยู่นอกเกณฑ์การจำแนกประเภทข้าว`,
+      };
+    }
+  }, [selectedDevice, whitenessValue]);
+    return (
     <AppLayout>
       <div className="min-h-screen bg-gradient-to-br from-chinese-cream via-background to-chinese-cream/30">
         {/* Hero Section - หลงจู๊ Header */}
@@ -12,7 +59,7 @@ const Assistant = () => {
           <div className="absolute inset-0 bg-chinese-gold/10 opacity-20 rounded-xl"></div>
           <div className="relative text-center">
             <h1 className="text-4xl font-bold text-white mb-3 drop-shadow-lg">
-              🐉 หลงจู๊ ผู้พิทักษ์คุณภาพข้าว 🐉
+              หลงจู๊ AI assistant
             </h1>
             <p className="text-chinese-cream text-lg font-medium">
               ข้าพเจ้าขออนุญาตนำเรียนท่านผู้มีเกียรติ เกี่ยวกับคุณภาพข้าวในวันนี้
@@ -32,20 +79,23 @@ const Assistant = () => {
             </CardHeader>
             <CardContent className="p-6">
               <div className="space-y-4">
-                {/* Mock Data - ข้าวขาว */}
+                {/* Assistant Response */}
+                <DeviceDisplay />
                 <div className="border-2 border-chinese-gold rounded-lg p-4 bg-gradient-to-r from-chinese-gold/10 to-chinese-gold/5">
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-semibold text-chinese-dark">ค่าความขาวปัจจุบัน:</span>
-                    <span className="text-2xl font-bold text-chinese-red">42.5</span>
+                    <span className="text-2xl font-bold text-chinese-red">{whitenessValue.toFixed(1)}</span>
                   </div>
                   <div className="text-center p-4 bg-chinese-gold/20 rounded-lg border border-chinese-gold">
-                    <h3 className="text-2xl font-bold text-chinese-red mb-2">🌾 ข้าวขาว 🌾</h3>
+                    <h3 className="text-2xl font-bold text-chinese-red mb-2">🌾 {riceAnalysis.title} 🌾</h3>
                     <p className="text-chinese-dark font-medium">
-                      ขออนุญาตรายงานผลการตรวจสอบ: ข้าวของท่านมีคุณภาพระดับข้าวขาว
+                      {riceAnalysis.description}
                     </p>
-                    <div className="mt-3 text-sm text-chinese-green">
-                      ความเชื่อมั่น: 95% | ช่วงค่า: 40-45
-                    </div>
+                    {selectedDevice && confidence && valueRange && (
+                      <div className="mt-3 text-sm text-chinese-green">
+                        ความเชื่อมั่น: {confidence}% | ช่วงค่า: {valueRange}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -53,10 +103,16 @@ const Assistant = () => {
                 <div className="bg-chinese-cream/50 border border-chinese-jade rounded-lg p-4">
                   <h4 className="font-semibold text-chinese-dark mb-2">🏛️ รายงานจากหลงจู๊:</h4>
                   <div className="text-sm text-chinese-dark space-y-1">
-                    <p>"ท่านผู้มีเกียรติ กระผมขอรายงานว่า..."</p>
-                    <p className="ml-4">📊 ค่าความขาว: 42.5 (อยู่ในเกณฑ์ข้าวขาว)</p>
-                    <p className="ml-4">🎯 การจำแนก: ข้าวขาว คุณภาพดี</p>
-                    <p className="ml-4">📈 แนวโน้ม: เสถียร</p>
+                    {selectedDevice ? (
+                      <>
+                        <TypewriterReport key={longJooReport || 'default-report'} text={longJooReport || `เรียน ท่านผู้มีเกียรติ จากการตรวจสอบอย่างละเอียด ข้าวของท่านจัดอยู่ในประเภท '${riceAnalysis.title}'`} />
+                        <p className="ml-4">📊 ค่าความขาว: {whitenessValue.toFixed(1)}</p>
+                        <p className="ml-4">🎯 การจำแนก: {riceAnalysis.title} - {classificationDetails || 'รอข้อมูลเพิ่มเติม'}</p>
+                        <p className="ml-4">📈 แนวโน้ม: {trend || 'ไม่สามารถระบุได้'}</p>
+                      </>
+                    ) : (
+                      <TypewriterReport key="no-device-selected" text="โปรดเลือกอุปกรณ์เพื่อรับฟังรายงานจากหลงจู๊" />
+                    )}
                     <p className="italic text-chinese-green mt-2">"ข้าพเจ้าขอรับใช้ด้วยความเคารพ"</p>
                   </div>
                 </div>
@@ -64,72 +120,11 @@ const Assistant = () => {
             </CardContent>
           </Card>
 
-          {/* Historical Data */}
-          <Card className="border-2 border-chinese-red bg-gradient-to-br from-chinese-cream to-white shadow-xl">
-            <CardHeader className="bg-gradient-to-r from-chinese-red to-chinese-gold text-white rounded-t-lg">
-              <CardTitle className="text-center text-xl font-bold flex items-center justify-center gap-2">
-                <MessageCircle className="h-6 w-6" />
-                ประวัติการจำแนก
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="space-y-3">
-                <div className="flex justify-between items-center p-3 bg-chinese-gold/10 rounded-lg border border-chinese-gold/30">
-                  <span className="font-medium">เมื่อ 5 นาทีที่แล้ว</span>
-                  <span className="px-3 py-1 bg-chinese-gold text-chinese-dark rounded-full text-sm font-bold">ข้าวขาว</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-chinese-jade/10 rounded-lg border border-chinese-jade/30">
-                  <span className="font-medium">เมื่อ 15 นาทีที่แล้ว</span>
-                  <span className="px-3 py-1 bg-chinese-jade text-white rounded-full text-sm font-bold">ข้าวนึ่ง</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-chinese-gold/10 rounded-lg border border-chinese-gold/30">
-                  <span className="font-medium">เมื่อ 30 นาทีที่แล้ว</span>
-                  <span className="px-3 py-1 bg-chinese-gold text-chinese-dark rounded-full text-sm font-bold">ข้าวขาว</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Placeholder for the second column if needed */}
+          <div></div>
         </div>
 
-        {/* Interactive Chat Interface */}
-        <Card className="border-4 border-chinese-red bg-gradient-to-br from-white to-chinese-cream shadow-2xl mb-8">
-          <CardHeader className="bg-gradient-to-r from-chinese-red via-chinese-gold to-chinese-red text-white rounded-t-lg">
-            <CardTitle className="text-center text-2xl font-bold flex items-center justify-center gap-3">
-              <HelpCircle className="h-8 w-8" />
-              🗣️ สนทนากับหลงจู๊
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="bg-chinese-cream/30 border-2 border-chinese-jade rounded-xl p-6 mb-4">
-              <div className="text-center mb-4">
-                <div className="inline-block p-3 bg-chinese-gold rounded-full">
-                  <span className="text-2xl">🐉</span>
-                </div>
-              </div>
-              <div className="text-chinese-dark">
-                <p className="text-lg font-medium mb-3 text-center">
-                  "ท่านผู้มีเกียรติ กระผมพร้อมให้คำปรึกษาเรื่องคุณภาพข้าว"
-                </p>
-                <div className="space-y-2 text-sm">
-                  <p>• ถามเรื่องการจำแนกประเภทข้าว</p>
-                  <p>• ขอคำแนะนำเรื่องคุณภาพ</p>
-                  <p>• ดูประวัติการตรวจสอบ</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex gap-3">
-              <input 
-                type="text" 
-                placeholder="พิมพ์คำถามของท่าน..." 
-                className="flex-1 p-3 border-2 border-chinese-jade rounded-lg focus:outline-none focus:border-chinese-gold"
-              />
-              <button className="px-6 py-3 bg-gradient-to-r from-chinese-red to-chinese-gold text-white rounded-lg font-bold hover:shadow-lg transition-all">
-                ส่ง
-              </button>
-            </div>
-          </CardContent>
-        </Card>
+
 
         {/* Status Indicators */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -155,5 +150,11 @@ const Assistant = () => {
     </AppLayout>
   );
 };
+
+const Assistant = () => (
+  <AssistantProvider>
+    <AssistantContent />
+  </AssistantProvider>
+);
 
 export default Assistant;

@@ -69,7 +69,7 @@ export const SidebarHeader = ({
             <Button 
               className="w-full bg-gradient-to-r from-chinese-red to-chinese-gold text-chinese-cream font-bold py-4 px-6 rounded-xl border-2 border-chinese-gold shadow-lg hover:shadow-xl hover:from-chinese-gold hover:to-chinese-red transition-all duration-300 transform hover:scale-105"
             >
-              <span className="text-lg">🐉 หลงจู๊ 廊主 Ai assistant 🐉</span>
+              <span className="text-lg">หลงจู๊ 廊主 Ai assistant</span>
             </Button>
           </Link>
         </div>
