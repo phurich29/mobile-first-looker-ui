@@ -67,7 +67,7 @@ export const SidebarHeader = ({
           <img 
             src="/lovable-uploads/ad4a172e-de53-405d-8beb-54febba6a7ed.png" 
             alt="Additional banner" 
-            className="w-32 h-auto"
+            className="w-full h-auto"
           />
         </div>
       )}
