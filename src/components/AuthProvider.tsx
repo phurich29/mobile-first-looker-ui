@@ -74,15 +74,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       try {
         const { data: { session: initialSession }, error } = await supabase.auth.getSession();
         
-        // ตรวจสอบข้อผิดพลาด refresh_token_not_found
+        // ตรวจสอบข้อผิดพลาด refresh_token_not_found แต่ไม่ sign out ทันที
         if (error) {
-          console.error('Error fetching session:', error);
+          console.warn('Warning fetching session:', error);
           
-          // ตรวจสอบว่าเป็นข้อผิดพลาด refresh_token_not_found หรือไม่
-          if (error.message?.includes('refresh_token_not_found') ||
-              (error as any)?.code === 'refresh_token_not_found' ||
-              (error as any)?.__isAuthError) {
-            console.log('Session expired or refresh token not found, signing out...');
+          // เฉพาะ auth error ที่ร้ายแรงเท่านั้นที่จะ sign out
+          if (error.message?.includes('invalid_grant') || 
+              error.message?.includes('token_expired')) {
+            console.log('Critical auth error detected, signing out...');
             await supabase.auth.signOut();
             setUser(null);
             setSession(null);
@@ -90,6 +89,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
             setIsLoading(false);
             return;
           }
+          
+          // สำหรับ error อื่นๆ ให้ log แต่ไม่ sign out
+          console.log('Non-critical auth error, continuing with current state');
         }
         
         console.log("Initial session retrieved:", !!initialSession);
@@ -109,18 +111,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setUserRoles(roles);
         }
       } catch (error) {
-        console.error('Error checking session:', error);
+        console.warn('Warning checking session:', error);
         
-        // กรณีเกิดข้อผิดพลาดใดๆ ให้ทำการ sign out เพื่อความปลอดภัย
-        try {
-          console.log('Signing out due to auth error...');
-          await supabase.auth.signOut();
-          setUser(null);
-          setSession(null);
-          setUserRoles([]);
-        } catch (signOutError) {
-          console.error('Error signing out:', signOutError);
-        }
+        // ไม่ sign out ทันที แต่ให้ continue ด้วย current state
+        console.log('Session check failed, but keeping current auth state');
+        setUser(null);
+        setSession(null);
+        setUserRoles([]);
       } finally {
         setIsLoading(false);
         console.log("Auth initialization complete");

@@ -38,11 +38,10 @@ export const refreshSessionWithRetry = async (currentSession: Session | null, re
         }
       }
       
-      // Only sign out for authentication errors, not network errors
-      if (error.message?.includes('refresh_token_not_found') || 
-          error.message?.includes('invalid_grant') ||
+      // เฉพาะ critical auth errors เท่านั้นที่จะ sign out
+      if (error.message?.includes('invalid_grant') ||
           error.message?.includes('token_expired')) {
-        console.log('Authentication error detected, signing out...');
+        console.log('Critical authentication error detected, signing out...');
         await supabase.auth.signOut();
         return null;
       }
