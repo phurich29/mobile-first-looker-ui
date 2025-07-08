@@ -86,15 +86,6 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
           />
         )}
         
-        {user && canAccessUserManagement && (
-          <SidebarMenuItem 
-            path="/news-management" 
-            icon={FileText}
-            label="จัดการข่าวสาร"
-            isActive={isActive("/news-management")}
-            isCollapsed={isCollapsed}
-          />
-        )}
         
         {/* Show login option for guests */}
         {isGuest && (
