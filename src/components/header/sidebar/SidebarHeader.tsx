@@ -62,18 +62,21 @@ export const SidebarHeader = ({
         )}
       </div>
       
-      {/* Additional image below logo */}
-      {(isMobile || !isCollapsed) && (
-        <div className="flex justify-center mb-4">
-          <Link to="/assistant" className="block w-full">
-            <Button 
-              className="w-full bg-gradient-to-r from-chinese-red to-chinese-gold text-chinese-cream font-bold py-4 px-6 rounded-xl border-2 border-chinese-gold shadow-lg hover:shadow-xl hover:from-chinese-gold hover:to-chinese-red transition-all duration-300 transform hover:scale-105"
-            >
-              <span className="text-lg">หลงจู๊ 廊主 Ai assistant</span>
-            </Button>
-          </Link>
-        </div>
-      )}
+      {/* Assistant Button */}
+      <div className="flex justify-center mb-4">
+        <Link to="/assistant" className="block w-full">
+          <Button 
+            className={cn(
+              "w-full bg-gradient-to-r from-chinese-red to-chinese-gold text-chinese-cream font-bold rounded-xl border-2 border-chinese-gold shadow-lg hover:shadow-xl hover:from-chinese-gold hover:to-chinese-red transition-all duration-300 transform hover:scale-105",
+              isCollapsed && !isMobile ? "px-2 py-4" : "py-4 px-6"
+            )}
+          >
+            <span className={cn(isCollapsed && !isMobile ? "text-base" : "text-lg")}>
+              {isCollapsed && !isMobile ? 'หลงจู๊ AI' : 'หลงจู๊ 廊主 Ai assistant'}
+            </span>
+          </Button>
+        </Link>
+      </div>
     </>
   );
 };
