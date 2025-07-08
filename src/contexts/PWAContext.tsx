@@ -72,9 +72,36 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
     },
   });
 
-  const clearAuthCache = async () => {
+  const clearAuthCache = async (forceSignOut: boolean = false) => {
     try {
-      console.log('Clearing authentication cache...');
+      console.log('Clearing authentication cache...', { forceSignOut });
+      
+      // ตรวจสอบสถานะ session ปัจจุบัน
+      const { data: { session } } = await supabase.auth.getSession();
+      const isUserLoggedIn = !!session?.user;
+      
+      console.log('Current auth state:', { isUserLoggedIn, forceSignOut });
+      
+      // ถ้า user ยัง login อยู่และไม่ได้บังคับให้ sign out ให้ skip การ clear cache
+      if (isUserLoggedIn && !forceSignOut) {
+        console.log('User is logged in, skipping auth cache clear to prevent auto logout');
+        
+        // Clear เฉพาะ cache ที่ไม่เกี่ยวกับ auth
+        if ('caches' in window) {
+          const cacheNames = await caches.keys();
+          for (const cacheName of cacheNames) {
+            // Clear เฉพาะ cache ที่ไม่ใช่ auth
+            if (!cacheName.includes('supabase-auth') && !cacheName.includes('auth')) {
+              await caches.delete(cacheName);
+              console.log(`Cleared non-auth cache: ${cacheName}`);
+            }
+          }
+        }
+        return;
+      }
+      
+      // ดำเนินการ clear cache ปกติเฉพาะเมื่อ user ไม่ได้ login หรือบังคับให้ sign out
+      console.log('Proceeding with full auth cache clear');
       
       // Clear all localStorage items related to auth
       const keysToRemove = [];
@@ -127,8 +154,9 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
         duration: 2000,
       });
       
-      // Clear authentication cache before update
-      await clearAuthCache();
+      // ไม่ clear auth cache สำหรับ PWA update เพื่อรักษา session
+      // แค่ clear cache ที่ไม่เกี่ยวกับ auth
+      await clearAuthCache(false);
       
       // Update service worker
       updateServiceWorker(true);
@@ -174,8 +202,9 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
     const checkAppVersion = () => {
       const storedVersion = localStorage.getItem('app-version');
       if (storedVersion && storedVersion !== appVersion) {
-        console.log('App version changed, clearing cache...');
-        clearAuthCache();
+        console.log('App version changed, but preserving auth session...');
+        // ไม่ clear auth cache เมื่อ app version เปลี่ยน เพื่อรักษา session
+        // clearAuthCache();
       }
       localStorage.setItem('app-version', appVersion);
     };
