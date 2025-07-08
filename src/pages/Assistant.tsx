@@ -145,10 +145,24 @@ const AssistantContent = () => {
                 </p>
               </div>
               
-              <div className="text-center p-6 bg-gradient-to-br from-chinese-red to-chinese-red/70 rounded-xl border-2 border-chinese-red shadow-lg">
-                <div className="text-3xl mb-2">🏆</div>
-                <h3 className="font-bold text-white">คุณภาพเฉลี่ย</h3>
-                <p className="text-2xl font-bold text-chinese-gold">A+</p>
+              <div className="text-left p-4 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border-2 border-gray-700 shadow-lg text-white">
+                <h3 className="font-bold text-white mb-2 text-center">พื้นข้าวเต็มเมล็ด</h3>
+                <div className="grid grid-cols-3 gap-2 text-sm">
+                  <div className="font-semibold col-span-2">ชั้น 1 (&gt;7.0mm):</div>
+                  <div className="text-right">{selectedDevice?.deviceData?.class1?.toFixed(2) || 'N/A'}%</div>
+                  
+                  <div className="font-semibold col-span-2">ชั้น 2 (&gt;6.6-7.0mm):</div>
+                  <div className="text-right">{selectedDevice?.deviceData?.class2?.toFixed(2) || 'N/A'}%</div>
+                  
+                  <div className="font-semibold col-span-2">ชั้น 3 (&gt;6.2-6.6mm):</div>
+                  <div className="text-right">{selectedDevice?.deviceData?.class3?.toFixed(2) || 'N/A'}%</div>
+                  
+                  <div className="font-semibold col-span-2">เมล็ดสั้น (≤6.2mm):</div>
+                  <div className="text-right">{selectedDevice?.deviceData?.short_grain?.toFixed(2) || 'N/A'}%</div>
+
+                  <div className="font-semibold col-span-2">ข้าวลีบ:</div>
+                  <div className="text-right">{selectedDevice?.deviceData?.imperfection_rate?.toFixed(2) || 'N/A'}%</div>
+                </div>
               </div>
             </div>
           </div>
