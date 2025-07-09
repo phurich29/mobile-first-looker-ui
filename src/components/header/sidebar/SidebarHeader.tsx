@@ -68,19 +68,22 @@ export const SidebarHeader = ({
           <Button 
             className={cn(
               "w-full bg-gradient-to-r from-chinese-red to-chinese-gold text-chinese-cream font-bold rounded-xl border-2 border-chinese-gold shadow-lg hover:shadow-xl hover:from-chinese-gold hover:to-chinese-red transition-all duration-300 transform hover:scale-105",
-              isCollapsed && !isMobile ? "px-2 py-4" : "py-4 px-6"
+              isCollapsed && !isMobile ? "px-1 py-3" : "py-3 px-4"
             )}
           >
-            <div className="flex items-center gap-2">
+            <div className={cn("flex items-center justify-center", isCollapsed && !isMobile ? "gap-1" : "gap-2")}>
               <img 
                 src="/lovable-uploads/14fdbf4f-5cb3-4905-b737-a0478e16d12b.png" 
                 alt="AI Assistant" 
                 className={cn(
-                  "rounded-full",
-                  isCollapsed && !isMobile ? "w-6 h-6" : "w-8 h-8"
+                  "rounded-full flex-shrink-0",
+                  isCollapsed && !isMobile ? "w-5 h-5" : "w-6 h-6"
                 )}
               />
-              <span className={cn(isCollapsed && !isMobile ? "text-sm" : "text-base")}>
+              <span className={cn(
+                "truncate",
+                isCollapsed && !isMobile ? "text-xs" : "text-sm"
+              )}>
                 {isCollapsed && !isMobile ? 'หลงจู๊ AI' : 'หลงจู๊ 廊主 Ai assistant'}
               </span>
             </div>
