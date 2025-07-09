@@ -42,7 +42,7 @@ export const getMeasurementName = (symbol: string): string => {
     'short_grain': 'เมล็ดสั้น',
     'slender_kernel': 'เมล็ดยาว',
     'whole_kernels': 'เมล็ดเต็ม',
-    'head_rice': 'หัวข้าว',
+    'head_rice': 'ต้นข้าว',
     'total_brokens': 'ข้าวหักรวม',
     'small_brokens': 'ปลายข้าว',
     'small_brokens_c1': 'ปลายข้าว C1',

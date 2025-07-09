@@ -77,7 +77,7 @@ export const formatIngredientItems = (
     },
     { 
       symbol: 'head_rice', 
-      name: 'หัวข้าว', 
+      name: 'ต้นข้าว', 
       price: latestData.head_rice?.toFixed(1), 
       iconColor: '#9b87f5', 
       updatedAt: new Date(latestData.created_at) 

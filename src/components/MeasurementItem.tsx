@@ -16,7 +16,7 @@ type MeasurementItemProps = {
   percentageChange?: number; // Change compared to previous value
   iconColor: string;
   updatedAt?: Date; // Updated timestamp
-  deviceCode?: string; // รหัสอุปกรณ์สำหรับดึงข้อมูลประวัติ
+  deviceCode?: string; // รต้นข้าวสอุปกรณ์สำหรับดึงข้อมูลประวัติ
   deviceName?: string; // ชื่ออุปกรณ์
   notificationType?: 'min' | 'max' | 'both'; // ประเภทการแจ้งเตือน
   threshold?: string; // ค่าขีดจำกัดการแจ้งเตือน

@@ -26,7 +26,7 @@ export const COLUMN_TRANSLATIONS: Record<string, string> = {
   'short_grain': 'เมล็ดสั้น (≤6.2mm)',
   'slender_kernel': 'ข้าวลีบ',
   'whole_kernels': 'เต็มเมล็ด',
-  'head_rice': 'หัวข้าว',
+  'head_rice': 'ต้นข้าว',
   'total_brokens': 'ข้าวหักรวม',
   'small_brokens': 'ปลายข้าว',
   'small_brokens_c1': 'ปลายข้าว C1',

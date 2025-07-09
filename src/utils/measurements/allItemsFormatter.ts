@@ -64,7 +64,7 @@ export const formatAllItems = (allData: any[] | null): MeasurementItem[] => {
     },
     {
       symbol: "head_rice",
-      name: "หัวข้าว",
+      name: "ต้นข้าว",
       price: latestData.head_rice?.toString() || "0",
       percentageChange: calculateChange(latestData.head_rice, previousData?.head_rice),
       iconColor: "#2196F3",
