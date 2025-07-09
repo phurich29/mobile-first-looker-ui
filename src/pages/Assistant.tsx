@@ -57,18 +57,6 @@ const AssistantContent = () => {
     return (
     <AppLayout>
       <div className="min-h-screen bg-gradient-to-br from-chinese-cream via-background to-chinese-cream/30">
-        {/* Hero Section - หลงจู๊ Header */}
-        <div className="relative border-4 border-chinese-gold bg-gradient-to-r from-chinese-red to-chinese-gold p-8 rounded-xl shadow-2xl mb-8">
-          <div className="absolute inset-0 bg-chinese-gold/10 opacity-20 rounded-xl"></div>
-          <div className="relative text-center">
-            <h1 className="text-4xl font-bold text-white mb-3 drop-shadow-lg">
-              หลงจู๊ AI assistant
-            </h1>
-            <p className="text-chinese-cream text-lg font-medium">
-              ข้าพเจ้าขออนุญาตนำเรียนท่านผู้มีเกียรติ เกี่ยวกับคุณภาพข้าวในวันนี้
-            </p>
-          </div>
-        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-8">
           {/* Live Rice Classification Dashboard */}
