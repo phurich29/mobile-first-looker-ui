@@ -14,7 +14,7 @@ const TypewriterReport = ({ text }: { text: string }) => {
 };
 
 const AssistantContent = () => {
-    const { selectedDevice } = useAssistant();
+  const { selectedDevice } = useAssistant();
 
   // Main display values
   const whitenessValue = selectedDevice?.deviceData?.whiteness ?? 0;
@@ -24,12 +24,12 @@ const AssistantContent = () => {
   const valueRange = selectedDevice?.deviceData?.value_range;
   const longJooReport = selectedDevice?.deviceData?.long_joo_report;
   const whitenessClassification = selectedDevice?.deviceData?.whiteness_classification;
-    const classificationDetails = selectedDevice?.deviceData?.classification_details;
-    const trend = selectedDevice?.deviceData?.trend;
+  const classificationDetails = selectedDevice?.deviceData?.classification_details;
+  const trend = selectedDevice?.deviceData?.trend;
 
   const isDeviceOnline = selectedDevice ? isRecentUpdate(selectedDevice.updated_at, selectedDevice.deviceData) : false;
 
-    const riceAnalysis = useMemo(() => {
+  const riceAnalysis = useMemo(() => {
     if (!selectedDevice) {
       return {
         title: "รอการวิเคราะห์",
@@ -49,16 +49,59 @@ const AssistantContent = () => {
       };
     } else {
       return {
-                title: "ไม่สามารถระบุประเภท",
+        title: "ไม่สามารถระบุประเภท",
         description: `ค่าความขาว ${whitenessValue.toFixed(1)} อยู่นอกเกณฑ์การจำแนกประเภทข้าว`,
       };
     }
   }, [selectedDevice, whitenessValue]);
-    return (
+
+  return (
     <AppLayout>
       <div className="min-h-screen bg-gradient-to-br from-chinese-cream via-background to-chinese-cream/30">
-
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-8">
+          {/* Status Indicators */}
+          <div className="lg:col-span-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
+              <div className="text-center p-6 bg-gradient-to-br from-chinese-gold to-chinese-gold/70 rounded-xl border-2 border-chinese-gold shadow-lg">
+                <div className="text-3xl mb-2">🖥️</div>
+                <h3 className="font-bold text-chinese-dark truncate">
+                  {selectedDevice ? selectedDevice.display_name : 'ยังไม่ได้เลือกอุปกรณ์'}
+                </h3>
+                <p className={`text-2xl font-bold ${isDeviceOnline ? 'text-green-500' : 'text-red-500'}`}>
+                  {isDeviceOnline ? 'Online' : 'Offline'}
+                </p>
+              </div>
+              
+              <div className="text-center p-6 bg-gradient-to-br from-chinese-jade to-chinese-jade/70 rounded-xl border-2 border-chinese-jade shadow-lg">
+                <div className="text-3xl mb-2">🎯</div>
+                <h3 className="font-bold text-white">จำนวนเมล็ด</h3>
+                <p className="text-2xl font-bold text-chinese-cream">
+                  {selectedDevice?.deviceData?.output?.toLocaleString() || 'N/A'}
+                </p>
+              </div>
+              
+              <div className="text-left p-4 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border-2 border-gray-700 shadow-lg text-white">
+                <h3 className="font-bold text-white mb-2 text-center">พื้นข้าวเต็มเมล็ด</h3>
+                <div className="grid grid-cols-3 gap-2 text-sm">
+                  <div className="font-semibold col-span-2">ชั้น 1 (&gt;7.0mm):</div>
+                  <div className="text-right">{selectedDevice?.deviceData?.class1?.toFixed(2) || 'N/A'}%</div>
+                  
+                  <div className="font-semibold col-span-2">ชั้น 2 (&gt;6.6-7.0mm):</div>
+                  <div className="text-right">{selectedDevice?.deviceData?.class2?.toFixed(2) || 'N/A'}%</div>
+                  
+                  <div className="font-semibold col-span-2">ชั้น 3 (&gt;6.2-6.6mm):</div>
+                  <div className="text-right">{selectedDevice?.deviceData?.class3?.toFixed(2) || 'N/A'}%</div>
+                  
+                  <div className="font-semibold col-span-2">เมล็ดสั้น (≤6.2mm):</div>
+                  <div className="text-right">{selectedDevice?.deviceData?.short_grain?.toFixed(2) || 'N/A'}%</div>
+
+                  <div className="font-semibold col-span-2">ข้าวลีบ:</div>
+                  <div className="text-right">{selectedDevice?.deviceData?.imperfection_rate?.toFixed(2) || 'N/A'}%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Live Rice Classification Dashboard */}
           <div className="lg:col-span-3">
             <Card className="border-2 border-chinese-jade bg-gradient-to-br from-chinese-cream to-white shadow-xl h-full">
@@ -111,49 +154,6 @@ const AssistantContent = () => {
               </CardContent>
             </Card>
           </div>
-
-          {/* Status Indicators */}
-          <div className="lg:col-span-2">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
-              <div className="text-center p-6 bg-gradient-to-br from-chinese-gold to-chinese-gold/70 rounded-xl border-2 border-chinese-gold shadow-lg">
-                <div className="text-3xl mb-2">🖥️</div>
-                <h3 className="font-bold text-chinese-dark truncate">
-                  {selectedDevice ? selectedDevice.display_name : 'ยังไม่ได้เลือกอุปกรณ์'}
-                </h3>
-                <p className={`text-2xl font-bold ${isDeviceOnline ? 'text-green-500' : 'text-red-500'}`}>
-                  {isDeviceOnline ? 'Online' : 'Offline'}
-                </p>
-              </div>
-              
-              <div className="text-center p-6 bg-gradient-to-br from-chinese-jade to-chinese-jade/70 rounded-xl border-2 border-chinese-jade shadow-lg">
-                <div className="text-3xl mb-2">🎯</div>
-                <h3 className="font-bold text-white">จำนวนเมล็ด</h3>
-                <p className="text-2xl font-bold text-chinese-cream">
-                  {selectedDevice?.deviceData?.output?.toLocaleString() || 'N/A'}
-                </p>
-              </div>
-              
-              <div className="text-left p-4 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border-2 border-gray-700 shadow-lg text-white">
-                <h3 className="font-bold text-white mb-2 text-center">พื้นข้าวเต็มเมล็ด</h3>
-                <div className="grid grid-cols-3 gap-2 text-sm">
-                  <div className="font-semibold col-span-2">ชั้น 1 (&gt;7.0mm):</div>
-                  <div className="text-right">{selectedDevice?.deviceData?.class1?.toFixed(2) || 'N/A'}%</div>
-                  
-                  <div className="font-semibold col-span-2">ชั้น 2 (&gt;6.6-7.0mm):</div>
-                  <div className="text-right">{selectedDevice?.deviceData?.class2?.toFixed(2) || 'N/A'}%</div>
-                  
-                  <div className="font-semibold col-span-2">ชั้น 3 (&gt;6.2-6.6mm):</div>
-                  <div className="text-right">{selectedDevice?.deviceData?.class3?.toFixed(2) || 'N/A'}%</div>
-                  
-                  <div className="font-semibold col-span-2">เมล็ดสั้น (≤6.2mm):</div>
-                  <div className="text-right">{selectedDevice?.deviceData?.short_grain?.toFixed(2) || 'N/A'}%</div>
-
-                  <div className="font-semibold col-span-2">ข้าวลีบ:</div>
-                  <div className="text-right">{selectedDevice?.deviceData?.imperfection_rate?.toFixed(2) || 'N/A'}%</div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </AppLayout>
@@ -166,4 +166,4 @@ const Assistant = () => (
   </AssistantProvider>
 );
 
-export default Assistant;
+export default Assistant; 
