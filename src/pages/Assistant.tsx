@@ -82,7 +82,7 @@ const AssistantContent = () => {
           <div className="lg:col-span-2">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
               
-              <img src="/lovable-uploads/6b24b99a-e1c4-4cbf-b1d5-10c0916c7171.png" alt="Scholar" />
+              <img src="/lovable-uploads/b252e920-a6de-4d7c-9730-7e9c6c386e9b.png" alt="Scholar" />
               
               <div 
                 className="relative text-left p-4 bg-gradient-to-br from-amber-800 via-amber-900 to-black rounded-xl border-2 border-amber-700 shadow-lg text-white cursor-pointer group"
