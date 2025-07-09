@@ -92,7 +92,7 @@ const AssistantContent = () => {
                 <div className="flex items-start gap-4">
                   
                   <div className="flex-1">
-                    <h3 className="font-bold text-amber-300">ลุงจู๊</h3>
+                    <h3 className="font-bold text-amber-300">หลงจู๊</h3>
                     <p className="text-amber-50 italic">"{longJooPhrases[phraseIndex]}"</p>
                   </div>
                 </div>
