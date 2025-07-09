@@ -85,13 +85,13 @@
 
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Chinese Theme Colors */
-    --chinese-red: 0 100% 50%;
-    --chinese-gold: 45 100% 50%;
-    --chinese-green: 120 60% 25%;
-    --chinese-jade: 160 50% 40%;
-    --chinese-cream: 45 100% 95%;
-    --chinese-dark: 220 20% 10%;
+    /* Medieval Fantasy Theme Colors */
+    --medieval-brown: 30 35% 25%;
+    --medieval-tan: 35 40% 60%;
+    --medieval-gold: 45 85% 65%;
+    --medieval-bronze: 25 45% 35%;
+    --medieval-parchment: 40 45% 88%;
+    --medieval-dark: 25 25% 15%;
   }
 
   .dark {
@@ -131,13 +131,13 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Chinese Theme Colors - Dark Mode */
-    --chinese-red: 0 80% 60%;
-    --chinese-gold: 45 90% 60%;
-    --chinese-green: 120 40% 35%;
-    --chinese-jade: 160 40% 50%;
-    --chinese-cream: 45 50% 15%;
-    --chinese-dark: 220 30% 5%;
+    /* Medieval Fantasy Theme Colors - Dark Mode */
+    --medieval-brown: 30 25% 20%;
+    --medieval-tan: 35 30% 45%;
+    --medieval-gold: 45 75% 55%;
+    --medieval-bronze: 25 35% 25%;
+    --medieval-parchment: 40 25% 25%;
+    --medieval-dark: 25 35% 8%;
   }
 }
 

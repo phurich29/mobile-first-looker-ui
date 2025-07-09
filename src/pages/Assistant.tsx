@@ -104,7 +104,7 @@ const AssistantContent = () => {
 
           {/* Live Rice Classification Dashboard */}
           <div className="lg:col-span-3">
-            <Card className="border-2 border-chinese-jade bg-gradient-to-br from-chinese-cream to-white shadow-xl h-full">
+            <Card className="border-4 border-medieval-bronze bg-gradient-to-br from-medieval-parchment to-medieval-tan shadow-2xl h-full relative overflow-hidden before:absolute before:inset-0 before:border-4 before:border-medieval-gold/30 before:rounded-lg before:pointer-events-none">
               <CardHeader className="bg-gradient-to-r from-chinese-jade to-chinese-green text-white rounded-t-lg">
                 <CardTitle className="text-center text-xl font-bold flex items-center justify-center gap-2">
                   <Bot className="h-6 w-6" />

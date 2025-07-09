@@ -67,13 +67,13 @@ export default {
 					cardano: '#8A33AE',
 					c2etech: '#1e6146' // Adding C2E Tech green color
 				},
-				chinese: {
-					red: 'hsl(var(--chinese-red))',
-					gold: 'hsl(var(--chinese-gold))',
-					green: 'hsl(var(--chinese-green))',
-					jade: 'hsl(var(--chinese-jade))',
-					cream: 'hsl(var(--chinese-cream))',
-					dark: 'hsl(var(--chinese-dark))'
+				medieval: {
+					brown: 'hsl(var(--medieval-brown))',
+					tan: 'hsl(var(--medieval-tan))',
+					gold: 'hsl(var(--medieval-gold))',
+					bronze: 'hsl(var(--medieval-bronze))',
+					parchment: 'hsl(var(--medieval-parchment))',
+					dark: 'hsl(var(--medieval-dark))'
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
