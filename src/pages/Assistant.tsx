@@ -1,6 +1,6 @@
 import React from "react";
 import { DeviceDisplay } from "@/features/assistant/components/DeviceDisplay";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { AssistantProvider, useAssistant } from "@/features/assistant/context/AssistantContext";
 import { AppLayout } from "@/components/layouts/app-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +14,21 @@ const TypewriterReport = ({ text }: { text: string }) => {
 };
 
 const AssistantContent = () => {
-    const { selectedDevice } = useAssistant();
+        const { selectedDevice } = useAssistant();
+
+    const longJooPhrases = [
+      "มีอะไรให้ลุงช่วยมั้ยหลาน",
+      "ข้าวล็อตนี้ดูดีนะ... อยากรู้รายละเอียดเพิ่มมั้ย?",
+      "กดดูรายงานสิ ลุงวิเคราะห์ไว้ให้หมดแล้ว",
+      `ค่าความขาว ${selectedDevice?.deviceData?.whiteness?.toFixed(1) || '...'} ถือว่าใช้ได้เลย`,
+      "อยากให้ลุงดูอะไรเป็นพิเศษ บอกได้เลยนะ",
+    ];
+
+    const [phraseIndex, setPhraseIndex] = useState(0);
+
+    const handleChatboxClick = () => {
+      setPhraseIndex((prevIndex) => (prevIndex + 1) % longJooPhrases.length);
+    };
 
   // Main display values
   const whitenessValue = selectedDevice?.deviceData?.whiteness ?? 0;
@@ -26,6 +40,11 @@ const AssistantContent = () => {
   const whitenessClassification = selectedDevice?.deviceData?.whiteness_classification;
     const classificationDetails = selectedDevice?.deviceData?.classification_details;
     const trend = selectedDevice?.deviceData?.trend;
+
+  const yieldValue = 
+    (selectedDevice?.deviceData?.class1 ?? 0) + 
+    (selectedDevice?.deviceData?.class2 ?? 0) + 
+    (selectedDevice?.deviceData?.class3 ?? 0);
 
   const isDeviceOnline = selectedDevice ? isRecentUpdate(selectedDevice.updated_at, selectedDevice.deviceData) : false;
 
@@ -65,24 +84,19 @@ const AssistantContent = () => {
               
               <img src="/lovable-uploads/96b6fef8-668b-4598-b167-385539f2215a.png" alt="Scholar" />
               
-              <div className="text-left p-4 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border-2 border-gray-700 shadow-lg text-white">
-                <h3 className="font-bold text-white mb-2 text-center">พื้นข้าวเต็มเมล็ด</h3>
-                <div className="grid grid-cols-3 gap-2 text-sm">
-                  <div className="font-semibold col-span-2">ชั้น 1 (&gt;7.0mm):</div>
-                  <div className="text-right">{selectedDevice?.deviceData?.class1?.toFixed(2) || 'N/A'}%</div>
-                  
-                  <div className="font-semibold col-span-2">ชั้น 2 (&gt;6.6-7.0mm):</div>
-                  <div className="text-right">{selectedDevice?.deviceData?.class2?.toFixed(2) || 'N/A'}%</div>
-                  
-                  <div className="font-semibold col-span-2">ชั้น 3 (&gt;6.2-6.6mm):</div>
-                  <div className="text-right">{selectedDevice?.deviceData?.class3?.toFixed(2) || 'N/A'}%</div>
-                  
-                  <div className="font-semibold col-span-2">เมล็ดสั้น (≤6.2mm):</div>
-                  <div className="text-right">{selectedDevice?.deviceData?.short_grain?.toFixed(2) || 'N/A'}%</div>
-
-                  <div className="font-semibold col-span-2">ข้าวลีบ:</div>
-                  <div className="text-right">{selectedDevice?.deviceData?.imperfection_rate?.toFixed(2) || 'N/A'}%</div>
+              <div 
+                className="relative text-left p-4 bg-gradient-to-br from-amber-800 via-amber-900 to-black rounded-xl border-2 border-amber-700 shadow-lg text-white cursor-pointer group"
+                onClick={handleChatboxClick}
+              >
+                <div className="absolute -top-3 left-4 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-[12px] border-b-amber-800"></div>
+                <div className="flex items-start gap-4">
+                  <img src="/lovable-logo/logo-lovable.png" alt="Long Joo" className="w-16 h-16 rounded-full border-2 border-amber-600 object-cover"/>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-amber-300">ลุงจู๊</h3>
+                    <p className="text-amber-50 italic">"{longJooPhrases[phraseIndex]}"</p>
+                  </div>
                 </div>
+                <span className="absolute bottom-2 right-3 text-xs text-amber-400/50 group-hover:text-amber-400 transition-colors">- คลิกเพื่อคุยต่อ -</span>
               </div>
             </div>
           </div>
@@ -164,6 +178,16 @@ const AssistantContent = () => {
                         </div>
                       )}
                       <p className="italic text-amber-700 mt-3 text-center font-semibold border-t border-amber-600 pt-2">"ข้าพเจ้าขอรับใช้ด้วยความเคารพ" 🙏</p>
+                    </div>
+                  </div>
+
+                  {/* Yield Percentage Display */}
+                  <div className="relative border-3 border-amber-800 rounded-lg p-4 bg-gradient-to-br from-amber-100 to-yellow-100 shadow-inner">
+                    <div className="flex justify-between items-center">
+                      <h4 className="font-bold text-amber-900 text-lg">🌾 ผลผลิตที่คาดหวัง (% Yield):</h4>
+                      <span className="text-3xl font-bold text-amber-800 bg-amber-200 px-4 py-2 rounded-lg border-2 border-amber-700 shadow-inner">
+                        {selectedDevice ? `${yieldValue.toFixed(2)}%` : 'N/A'}
+                      </span>
                     </div>
                   </div>
                 </div>
