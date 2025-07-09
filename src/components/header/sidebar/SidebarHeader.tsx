@@ -80,7 +80,7 @@ export const SidebarHeader = ({
                   isCollapsed && !isMobile ? "w-6 h-6" : "w-8 h-8"
                 )}
               />
-              <span className={cn(isCollapsed && !isMobile ? "text-base" : "text-lg")}>
+              <span className={cn(isCollapsed && !isMobile ? "text-sm" : "text-base")}>
                 {isCollapsed && !isMobile ? 'หลงจู๊ AI' : 'หลงจู๊ 廊主 Ai assistant'}
               </span>
             </div>
