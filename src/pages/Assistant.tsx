@@ -62,15 +62,6 @@ const AssistantContent = () => {
           {/* Status Indicators */}
           <div className="lg:col-span-2">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
-              <div className="text-center p-6 bg-gradient-to-br from-chinese-gold to-chinese-gold/70 rounded-xl border-2 border-chinese-gold shadow-lg">
-                <div className="text-3xl mb-2">🖥️</div>
-                <h3 className="font-bold text-chinese-dark truncate">
-                  {selectedDevice ? selectedDevice.display_name : 'ยังไม่ได้เลือกอุปกรณ์'}
-                </h3>
-                <p className={`text-2xl font-bold ${isDeviceOnline ? 'text-green-500' : 'text-red-500'}`}>
-                  {isDeviceOnline ? 'Online' : 'Offline'}
-                </p>
-              </div>
               
               <div className="text-center p-6 bg-gradient-to-br from-chinese-jade to-chinese-jade/70 rounded-xl border-2 border-chinese-jade shadow-lg">
                 <div className="text-3xl mb-2">🎯</div>
