@@ -90,7 +90,7 @@ const AssistantContent = () => {
               >
                 <div className="absolute -top-3 left-4 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-[12px] border-b-amber-800"></div>
                 <div className="flex items-start gap-4">
-                  <img src="/lovable-logo/logo-lovable.png" alt="Long Joo" className="w-16 h-16 rounded-full border-2 border-amber-600 object-cover"/>
+                  
                   <div className="flex-1">
                     <h3 className="font-bold text-amber-300">ลุงจู๊</h3>
                     <p className="text-amber-50 italic">"{longJooPhrases[phraseIndex]}"</p>
