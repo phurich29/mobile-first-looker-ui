@@ -71,9 +71,19 @@ export const SidebarHeader = ({
               isCollapsed && !isMobile ? "px-2 py-4" : "py-4 px-6"
             )}
           >
-            <span className={cn(isCollapsed && !isMobile ? "text-base" : "text-lg")}>
-              {isCollapsed && !isMobile ? 'หลงจู๊ AI' : 'หลงจู๊ 廊主 Ai assistant'}
-            </span>
+            <div className="flex items-center gap-2">
+              <img 
+                src="/lovable-uploads/14fdbf4f-5cb3-4905-b737-a0478e16d12b.png" 
+                alt="AI Assistant" 
+                className={cn(
+                  "rounded-full",
+                  isCollapsed && !isMobile ? "w-6 h-6" : "w-8 h-8"
+                )}
+              />
+              <span className={cn(isCollapsed && !isMobile ? "text-base" : "text-lg")}>
+                {isCollapsed && !isMobile ? 'หลงจู๊ AI' : 'หลงจู๊ 廊主 Ai assistant'}
+              </span>
+            </div>
           </Button>
         </Link>
       </div>
