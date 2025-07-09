@@ -63,13 +63,7 @@ const AssistantContent = () => {
           <div className="lg:col-span-2">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
               
-              <div className="text-center p-6 bg-gradient-to-br from-chinese-jade to-chinese-jade/70 rounded-xl border-2 border-chinese-jade shadow-lg">
-                <div className="text-3xl mb-2">🎯</div>
-                <h3 className="font-bold text-white">จำนวนเมล็ด</h3>
-                <p className="text-2xl font-bold text-chinese-cream">
-                  {selectedDevice?.deviceData?.output?.toLocaleString() || 'N/A'}
-                </p>
-              </div>
+              <img src="/lovable-uploads/96b6fef8-668b-4598-b167-385539f2215a.png" alt="Scholar" />
               
               <div className="text-left p-4 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border-2 border-gray-700 shadow-lg text-white">
                 <h3 className="font-bold text-white mb-2 text-center">พื้นข้าวเต็มเมล็ด</h3>
