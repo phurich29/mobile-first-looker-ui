@@ -80,7 +80,7 @@ const AssistantContent = () => {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-8">
           {/* Status Indicators */}
           <div className="lg:col-span-2">
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
               
               <img src="/lovable-uploads/0e624f3c-c8b3-4538-a6fa-022e3722dbf9.png" alt="Scholar" />
               
@@ -92,7 +92,7 @@ const AssistantContent = () => {
                 <div className="flex items-start gap-4">
                   
                   <div className="flex-1">
-                    <h3 className="font-bold text-amber-300">หลงจู๊</h3>
+                    <h3 className="font-bold text-amber-300">ลุงจู๊</h3>
                     <p className="text-amber-50 italic">"{longJooPhrases[phraseIndex]}"</p>
                   </div>
                 </div>
