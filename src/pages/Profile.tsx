@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { KeyRound, CheckCircle, AlertCircle } from "lucide-react";
+import { SharedLinksSection } from "@/components/profile/SharedLinksSection";
 const Profile = () => {
   const {
     user
@@ -92,7 +93,8 @@ const Profile = () => {
               </CardFooter>
             </Card>
             
-            {/* สถานะบัญชี Card */}
+            {/* ลิงก์แชร์ของฉัน Section */}
+            <SharedLinksSection />
             
           </div>
         </div>
