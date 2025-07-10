@@ -17,6 +17,13 @@ npm run preview      # Preview production build
 npm run lint         # Run ESLint
 ```
 
+### Supabase Local Development
+```bash
+supabase start       # Start local Supabase instance
+supabase db push     # Apply migrations to local database
+supabase migration new <name>  # Create new migration
+```
+
 ### Git Workflow
 The project is integrated with Lovable.dev. Changes made via Lovable are automatically committed. When working locally, standard git commands apply.
 
@@ -56,14 +63,23 @@ src/
 ## Current Issues & Considerations
 
 ### Critical Issues (from docs/TASK_MANAGER.md)
-1. **Infinite Recursion**: RLS policies causing recursion - Phase 1 migration in progress
-2. **Permission System**: Needs refactoring for better performance
-3. **API Optimization**: Redundant calls need consolidation
+1. **Infinite Recursion**: RLS policies causing recursion in `user_roles` table
+   - Temporary solution: Disable RLS on problematic tables
+   - Long-term: Implement hybrid approach (Application + simplified RLS)
+2. **Permission System**: Multiple redundant permission checks across components
+   - Solution: Centralize in `PermissionService`
+3. **API Optimization**: Same data fetched multiple times
+   - Solution: Implement caching strategy with React Query
 
-### Migration Status
-**Phase 1**: Emergency fix for RLS recursion (0/16 tasks completed)
-**Phase 2**: Core refactoring for performance (0/8 tasks)
-**Phase 3**: Enhanced security implementation (0/7 tasks)
+### Migration Status (Total: 31 tasks)
+- **Phase 1**: Emergency fix for RLS recursion (0/16 tasks)
+- **Phase 2**: Core refactoring for performance (0/8 tasks)  
+- **Phase 3**: Enhanced security implementation (0/7 tasks)
+
+### Known Issues & Workarounds
+- **Guest Access**: May show empty device list - check `guest_device_access` table
+- **Device Filtering**: Admin visibility controlled by `admin_device_visibility`
+- **Performance**: Initial load may be slow due to multiple permission checks
 
 ### Development Guidelines
 1. **TypeScript**: Project uses relaxed TypeScript settings - focus on functionality over strict typing
@@ -100,18 +116,64 @@ Currently no testing framework is configured. When implementing tests:
 - Test critical user flows and permissions
 
 ## Database Schema & Key Tables
-- **admin_device_visibility**: Device visibility control for admins
-- **device_settings**: Device configuration and display settings
-- **guest_device_access**: Guest user access permissions
-- **rice_quality_analysis**: Main data table for rice analysis
-- **user_roles**: User permission system
-- **device_permissions**: Device access control
 
-## API Patterns
-- All API calls use `@/integrations/supabase/client`
-- Use React Query hooks from `@/integrations/supabase/hooks/`
-- Follow existing query/mutation patterns in feature directories
-- Handle errors consistently with toast notifications
+### Core Tables
+```sql
+-- User & Permission Tables
+user_roles              # User permission levels (guest, user, admin, superadmin)
+device_permissions      # Maps users to devices they can access
+admin_device_visibility # Controls which devices admins can see
+guest_device_access     # Public device access configuration
+
+-- Data Tables  
+rice_quality_analysis   # Main measurement data (device_id, rice_type, quality metrics)
+device_settings         # Device configuration and display preferences
+devices                 # Device registry (linked via device_id)
+```
+
+### Common Queries
+```typescript
+// Get user permissions
+const { data: userRole } = useQuery({
+  queryKey: ['userRole', userId],
+  queryFn: () => supabase.from('user_roles').select('*').eq('user_id', userId)
+});
+
+// Get device access
+const { data: devices } = useDeviceAccess(userId);
+```
+
+## API Patterns & Conventions
+
+### Query Patterns
+```typescript
+// Use React Query hooks for data fetching
+import { useQuery, useMutation } from '@tanstack/react-query';
+
+// Naming convention: use[Resource][Action]
+useDeviceData()      // Fetch device data
+useCreateDevice()    // Create mutation
+useUpdateSettings()  // Update mutation
+```
+
+### Error Handling
+```typescript
+// Consistent error handling with toast
+import { toast } from 'sonner';
+
+try {
+  // operation
+} catch (error) {
+  toast.error('Operation failed');
+  console.error('Detailed error:', error);
+}
+```
+
+### Supabase Integration
+- Client instance: `@/integrations/supabase/client`
+- Type definitions: `@/integrations/supabase/types`
+- Custom hooks: `@/integrations/supabase/hooks/`
+- Always check for auth state before protected operations
 
 ## Common Development Tasks
 
@@ -145,12 +207,84 @@ supabase db push
 - Custom domains can be configured in Lovable project settings
 - PWA manifest configured for "Riceflow Setup" branding
 
+## Development Workflow
+
+### Standard Component Pattern
+```typescript
+// 1. Import dependencies
+import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Card } from '@/components/ui/card';
+import { toast } from 'sonner';
+
+// 2. Define types (if needed)
+interface ComponentProps {
+  deviceId: string;
+}
+
+// 3. Component with proper error handling
+export function MyComponent({ deviceId }: ComponentProps) {
+  // Use React Query for server state
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['device', deviceId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('devices')
+        .select('*')
+        .eq('id', deviceId)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error loading device</div>;
+
+  return (
+    <Card className="p-4">
+      {/* Component content */}
+    </Card>
+  );
+}
+```
+
+### Adding New Features
+1. Check existing patterns in similar features
+2. Use existing UI components from `@/components/ui/`
+3. Follow mobile-first responsive design
+4. Test with different user roles (guest, user, admin)
+
+### Working with Permissions
+```typescript
+// Always check permissions before sensitive operations
+const { userRole } = useAuth();
+
+if (!userRole || userRole === 'guest') {
+  toast.error('You need to be logged in');
+  return;
+}
+
+if (userRole !== 'admin' && userRole !== 'superadmin') {
+  toast.error('Admin access required');
+  return;
+}
+```
+
 ## Standard Workflow
-1. First think through the problem, read the codebase for relevant files, and write a plan to tasks/todo.md.
-2. The plan should have a list of todo items that you can check off as you complete them
-3. Before you begin working, check in with me and I will verify the plan.
-4. Then, begin working on the todo items, marking them as complete as you go.
-5. Please every step of the way just give me a high level explanation of what changes you made
-6. Make every task and code change you do as simple as possible. We want to avoid making any massive or complex changes. Every change should impact as little code as possible. Everything is about simplicity.
-7. Finally, add a review section to the [todo.md](http://todo.md/) file with a summary of the changes you made and any other relevant information.
-8. Explain and reply in Thai language only
+1. **Plan First**: Think through the problem and create a plan
+2. **Check Existing Code**: Look for similar patterns in the codebase
+3. **Start Simple**: Make minimal changes that achieve the goal
+4. **Test As You Go**: Verify each change works before moving on
+5. **Follow Conventions**: Match existing code style and patterns
+6. **Handle Errors**: Always include proper error handling
+7. **Communicate in Thai**: ตอบและอธิบายเป็นภาษาไทยเสมอ
+
+## Important Reminders
+- Focus on simplicity - avoid complex changes
+- Prefer editing existing files over creating new ones
+- Follow existing patterns and conventions
+- Test with different user roles
+- Handle loading and error states properly
