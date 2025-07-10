@@ -7,28 +7,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MessageCircle, Bot, HelpCircle } from "lucide-react";
 import { isRecentUpdate } from "@/features/equipment/components/card/utils/timeUtils";
 import { useTypewriter } from '@/hooks/useTypewriter';
-
-const TypewriterReport = ({ text }: { text: string }) => {
+const TypewriterReport = ({
+  text
+}: {
+  text: string;
+}) => {
   const displayedText = useTypewriter(text, 30);
   return <p>"{displayedText}"</p>;
 };
-
 const AssistantContent = () => {
-        const { selectedDevice } = useAssistant();
-
-    const longJooPhrases = [
-      "มีอะไรให้ลุงช่วยมั้ยหลาน",
-      "ข้าวล็อตนี้ดูดีนะ... อยากรู้รายละเอียดเพิ่มมั้ย?",
-      "กดดูรายงานสิ ลุงวิเคราะห์ไว้ให้หมดแล้ว",
-      `ค่าความขาว ${selectedDevice?.deviceData?.whiteness?.toFixed(1) || '...'} ถือว่าใช้ได้เลย`,
-      "อยากให้ลุงดูอะไรเป็นพิเศษ บอกได้เลยนะ",
-    ];
-
-    const [phraseIndex, setPhraseIndex] = useState(0);
-
-    const handleChatboxClick = () => {
-      setPhraseIndex((prevIndex) => (prevIndex + 1) % longJooPhrases.length);
-    };
+  const {
+    selectedDevice
+  } = useAssistant();
+  const longJooPhrases = ["มีอะไรให้ลุงช่วยมั้ยหลาน", "ข้าวล็อตนี้ดูดีนะ... อยากรู้รายละเอียดเพิ่มมั้ย?", "กดดูรายงานสิ ลุงวิเคราะห์ไว้ให้หมดแล้ว", `ค่าความขาว ${selectedDevice?.deviceData?.whiteness?.toFixed(1) || '...'} ถือว่าใช้ได้เลย`, "อยากให้ลุงดูอะไรเป็นพิเศษ บอกได้เลยนะ"];
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const handleChatboxClick = () => {
+    setPhraseIndex(prevIndex => (prevIndex + 1) % longJooPhrases.length);
+  };
 
   // Main display values
   const whitenessValue = selectedDevice?.deviceData?.whiteness ?? 0;
@@ -38,43 +33,35 @@ const AssistantContent = () => {
   const valueRange = selectedDevice?.deviceData?.value_range;
   const longJooReport = selectedDevice?.deviceData?.long_joo_report;
   const whitenessClassification = selectedDevice?.deviceData?.whiteness_classification;
-    const classificationDetails = selectedDevice?.deviceData?.classification_details;
-    const trend = selectedDevice?.deviceData?.trend;
-
-  const yieldValue = 
-    (selectedDevice?.deviceData?.class1 ?? 0) + 
-    (selectedDevice?.deviceData?.class2 ?? 0) + 
-    (selectedDevice?.deviceData?.class3 ?? 0);
-
+  const classificationDetails = selectedDevice?.deviceData?.classification_details;
+  const trend = selectedDevice?.deviceData?.trend;
+  const yieldValue = (selectedDevice?.deviceData?.class1 ?? 0) + (selectedDevice?.deviceData?.class2 ?? 0) + (selectedDevice?.deviceData?.class3 ?? 0);
   const isDeviceOnline = selectedDevice ? isRecentUpdate(selectedDevice.updated_at, selectedDevice.deviceData) : false;
-
-    const riceAnalysis = useMemo(() => {
+  const riceAnalysis = useMemo(() => {
     if (!selectedDevice) {
       return {
         title: "รอการวิเคราะห์",
-        description: "กรุณาเลือกอุปกรณ์เพื่อดูผลการตรวจสอบ",
+        description: "กรุณาเลือกอุปกรณ์เพื่อดูผลการตรวจสอบ"
       };
     }
-
     if (whitenessValue >= 40 && whitenessValue <= 45) {
       return {
         title: "ข้าวขาว",
-        description: "ผลการตรวจสอบ: ข้าวของท่านจัดอยู่ในเกณฑ์คุณภาพข้าวขาว",
+        description: "ผลการตรวจสอบ: ข้าวของท่านจัดอยู่ในเกณฑ์คุณภาพข้าวขาว"
       };
     } else if (whitenessValue >= 25 && whitenessValue <= 30) {
       return {
         title: "ข้าวนึ่ง",
-        description: "ผลการตรวจสอบ: ข้าวของท่านจัดอยู่ในเกณฑ์คุณภาพข้าวนึ่ง",
+        description: "ผลการตรวจสอบ: ข้าวของท่านจัดอยู่ในเกณฑ์คุณภาพข้าวนึ่ง"
       };
     } else {
       return {
-                title: "ไม่สามารถระบุประเภท",
-        description: `ค่าความขาว ${whitenessValue.toFixed(1)} อยู่นอกเกณฑ์การจำแนกประเภทข้าว`,
+        title: "ไม่สามารถระบุประเภท",
+        description: `ค่าความขาว ${whitenessValue.toFixed(1)} อยู่นอกเกณฑ์การจำแนกประเภทข้าว`
       };
     }
   }, [selectedDevice, whitenessValue]);
-    return (
-    <AppLayout>
+  return <AppLayout>
       <div className="min-h-screen bg-gradient-to-br from-chinese-cream via-background to-chinese-cream/30">
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-8">
@@ -86,15 +73,12 @@ const AssistantContent = () => {
                 <img src="/lovable-uploads/0e624f3c-c8b3-4538-a6fa-022e3722dbf9.png" alt="Scholar" className="mx-auto" />
               </div>
               
-              <div 
-                className="relative text-left p-4 bg-gradient-to-br from-amber-800 via-amber-900 to-black rounded-xl border-2 border-amber-700 shadow-lg text-white cursor-pointer group"
-                onClick={handleChatboxClick}
-              >
+              <div className="relative text-left p-4 bg-gradient-to-br from-amber-800 via-amber-900 to-black rounded-xl border-2 border-amber-700 shadow-lg text-white cursor-pointer group" onClick={handleChatboxClick}>
                 <div className="absolute -top-3 left-4 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-[12px] border-b-amber-800"></div>
                 <div className="flex items-start gap-4">
                   
                   <div className="flex-1">
-                    <h3 className="font-bold text-amber-300">ลุงจู๊</h3>
+                    <h3 className="font-bold text-amber-300">หลงจู๊</h3>
                     <p className="text-amber-50 italic">"{longJooPhrases[phraseIndex]}"</p>
                   </div>
                 </div>
@@ -145,11 +129,9 @@ const AssistantContent = () => {
                       <p className="text-amber-800 font-semibold">
                         {riceAnalysis.description}
                       </p>
-                      {selectedDevice && confidence && valueRange && (
-                        <div className="mt-3 text-sm text-amber-700 bg-amber-100 p-2 rounded border border-amber-600">
+                      {selectedDevice && confidence && valueRange && <div className="mt-3 text-sm text-amber-700 bg-amber-100 p-2 rounded border border-amber-600">
                           🎯 ความเชื่อมั่น: {confidence}% | 📏 ช่วงค่า: {valueRange}
-                        </div>
-                      )}
+                        </div>}
                     </div>
                   </div>
 
@@ -163,8 +145,7 @@ const AssistantContent = () => {
                     
                     <h4 className="font-bold text-amber-900 mb-3 text-lg border-b-2 border-amber-700 pb-2">📜 รายงานจากนักปราชญ์:</h4>
                     <div className="text-sm text-amber-900 space-y-2 bg-yellow-50/70 p-3 rounded border border-amber-600">
-                      {selectedDevice ? (
-                        <>
+                      {selectedDevice ? <>
                           <div className="italic font-medium border-l-4 border-amber-600 pl-3">
                             <TypewriterReport key={longJooReport || 'default-report'} text={longJooReport || `เรียน ท่านผู้มีเกียรติ จากการตรวจสอบอย่างละเอียด ข้าวของท่านจัดอยู่ในประเภท '${riceAnalysis.title}'`} />
                           </div>
@@ -173,12 +154,9 @@ const AssistantContent = () => {
                             <p className="flex items-center gap-2"><span className="text-amber-700">🎯</span> การจำแนก: <span className="font-bold">{riceAnalysis.title}</span> - {classificationDetails || 'รอข้อมูลเพิ่มเติม'}</p>
                             <p className="flex items-center gap-2"><span className="text-amber-700">📈</span> แนวโน้ม: <span className="font-bold">{trend || 'ไม่สามารถระบุได้'}</span></p>
                           </div>
-                        </>
-                      ) : (
-                        <div className="italic font-medium border-l-4 border-amber-600 pl-3">
+                        </> : <div className="italic font-medium border-l-4 border-amber-600 pl-3">
                           <TypewriterReport key="no-device-selected" text="โปรดเลือกอุปกรณ์เพื่อรับฟังรายงานจากนักปราชญ์" />
-                        </div>
-                      )}
+                        </div>}
                       <p className="italic text-amber-700 mt-3 text-center font-semibold border-t border-amber-600 pt-2">"ข้าพเจ้าขอรับใช้ด้วยความเคารพ" 🙏</p>
                     </div>
                   </div>
@@ -198,14 +176,9 @@ const AssistantContent = () => {
           </div>
         </div>
       </div>
-    </AppLayout>
-  );
+    </AppLayout>;
 };
-
-const Assistant = () => (
-  <AssistantProvider>
+const Assistant = () => <AssistantProvider>
     <AssistantContent />
-  </AssistantProvider>
-);
-
+  </AssistantProvider>;
 export default Assistant;
