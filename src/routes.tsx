@@ -32,6 +32,7 @@ import DeviceManagement from "./pages/DeviceManagement";
 import AboutRiceflow from "./pages/AboutRiceflow";
 import DeviceAccessManagement from "./pages/DeviceAccessManagement";
 import Assistant from "./pages/Assistant";
+import PublicAnalysisView from "./pages/PublicAnalysisView";
 
 // Device-specific graph pages
 import DeviceGraphMonitor from "./pages/DeviceGraphMonitor";
@@ -308,6 +309,11 @@ export const router = createBrowserRouter([
             <NotificationHistory />
           </ProtectedRoute>
         ),
+      },
+      // Public shared analysis route (no auth required)
+      {
+        path: "shared/:token",
+        element: <PublicAnalysisView />,
       },
     ],
   },
