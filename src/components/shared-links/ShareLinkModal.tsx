@@ -184,6 +184,9 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
                     ref={qrCanvasRef}
                     className="border border-gray-300 dark:border-gray-600 rounded"
                   />
+                  <div className="text-center">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{title}</p>
+                  </div>
                   <Button
                     type="button"
                     variant="outline"
