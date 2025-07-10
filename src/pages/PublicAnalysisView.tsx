@@ -4,10 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Share2, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { getColumnThaiName } from "@/lib/columnTranslations";
+import { DATA_CATEGORIES } from "@/features/device-details/components/device-history/dataCategories";
+import { formatCellValue } from "@/features/device-details/components/device-history/utils";
 
 const PublicAnalysisView = () => {
   const { token } = useParams<{ token: string }>();
@@ -42,10 +45,52 @@ const PublicAnalysisView = () => {
 
       if (analysisError) throw analysisError;
 
-      return { sharedLink, analysis };
+      // Get device display name
+      let deviceDisplayName = null;
+      if (analysis.device_code) {
+        const { data: deviceSettings } = await supabase
+          .from('device_settings')
+          .select('display_name')
+          .eq('device_code', analysis.device_code)
+          .maybeSingle();
+        deviceDisplayName = deviceSettings?.display_name || null;
+      }
+
+      return { sharedLink, analysis, deviceDisplayName };
     },
     enabled: !!token,
   });
+
+  // Render categorized data with striped table style like HistoryDetailDialog
+  const renderCategorizedData = (data: any) => {
+    return Object.entries(DATA_CATEGORIES).map(([categoryKey, category]) => {
+      const categoryData = category.fields.filter(field => data[field] !== null && data[field] !== undefined);
+      if (categoryData.length === 0) return null;
+
+      return (
+        <div key={categoryKey} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+          <div className="bg-gray-100 dark:bg-gray-700/50 px-4 py-2 border-b border-gray-200 dark:border-gray-600">
+            <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200">{category.title}</h4>
+          </div>
+          <div className="bg-white dark:bg-gray-800">
+            {categoryData.map((field, index) => (
+              <div key={field} className={`flex justify-between items-center py-3 px-4 border-b border-gray-100 dark:border-gray-700 last:border-b-0 ${
+                index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-800' : 'bg-white dark:bg-gray-700/60'
+              }`}>
+                <span className="text-gray-600 dark:text-gray-300 font-medium text-sm">
+                  {getColumnThaiName(field)}
+                </span>
+                <span className="font-bold text-gray-900 dark:text-gray-100 text-sm">
+                  {formatCellValue(field, data[field])}
+                  {field !== 'device_code' && field !== 'thai_datetime' && field !== 'paddy_rate' ? '%' : ''}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    });
+  };
 
   if (isLoading) {
     return (
@@ -58,8 +103,8 @@ const PublicAnalysisView = () => {
   if (error || !sharedData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-950">
-        <Card className="max-w-md mx-auto">
-          <CardContent className="text-center py-8">
+        <div className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-lg mx-4">
+          <div className="text-center py-8">
             <h2 className="text-2xl font-bold text-red-600 mb-4">ลิงก์ไม่ถูกต้อง</h2>
             <p className="text-muted-foreground mb-6">
               {error?.message === 'Shared link not found or inactive' 
@@ -75,84 +120,96 @@ const PublicAnalysisView = () => {
               <ArrowLeft className="w-4 h-4" />
               กลับสู่หน้าหลัก
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     );
   }
 
-  const { sharedLink, analysis } = sharedData;
-
-  const measurementFields = [
-    'whiteness', 'head_rice', 'whole_kernels', 'imperfection_rate',
-    'small_brokens', 'small_brokens_c1', 'total_brokens', 'paddy_rate',
-    'yellow_rice_rate', 'sticky_rice_rate', 'red_line_rate', 'honey_rice',
-    'black_kernel', 'partly_black', 'partly_black_peck', 'short_grain',
-    'slender_kernel', 'parboiled_white_rice', 'parboiled_red_line'
-  ];
+  const { sharedLink, analysis, deviceDisplayName } = sharedData;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-950">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
+      <div className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-lg animate-scale-in">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <Button 
-            variant="outline"
-            onClick={() => window.location.href = '/'}
-            className="gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            กลับสู่หน้าหลัก
-          </Button>
-          <Badge variant="secondary" className="gap-2">
-            <Share2 className="w-4 h-4" />
-            ข้อมูลแบบสาธารณะ
-          </Badge>
+        <div className="pb-2">
+          <div className="flex items-center justify-between">
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              {sharedLink.title}
+            </h1>
+            <Badge variant="secondary" className="gap-2">
+              <Share2 className="w-4 h-4" />
+              แชร์สาธารณะ
+            </Badge>
+          </div>
+          <Separator className="bg-gray-200 dark:bg-gray-700 mt-2" />
         </div>
 
-        {/* Title Card */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="text-2xl">{sharedLink.title}</CardTitle>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Calendar className="w-4 h-4" />
-              <span>
-                วิเคราะห์เมื่อ: {format(new Date(analysis.created_at || ''), 'dd/MM/yyyy HH:mm', { locale: th })}
-              </span>
+        {/* Summary Header - เหมือน HistoryDetailDialog */}
+        <div className="bg-gray-100 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3 mb-4">
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              {deviceDisplayName && (
+                <div className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
+                  Name: {deviceDisplayName}
+                </div>
+              )}
+              <div className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
+                Device Code: {analysis.device_code}
+              </div>
+              {analysis.output && (
+                <div className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
+                  จำนวนเมล็ด: {analysis.output.toLocaleString()}
+                </div>
+              )}
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                {analysis.thai_datetime ? (() => {
+                  const dateObj = new Date(analysis.thai_datetime);
+                  dateObj.setHours(dateObj.getHours() - 7);
+                  return dateObj.toLocaleString('th-TH', {
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit'
+                  });
+                })() : (() => {
+                  const dateObj = new Date(analysis.created_at);
+                  dateObj.setHours(dateObj.getHours() - 7);
+                  return dateObj.toLocaleString('th-TH', {
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit'
+                  });
+                })()}
+              </div>
             </div>
-            {analysis.device_code && (
-              <Badge variant="outline">อุปกรณ์: {analysis.device_code}</Badge>
-            )}
-          </CardHeader>
-        </Card>
+            <Badge variant="outline" className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-xs text-gray-800 dark:text-gray-200">
+              ID: {analysis.id}
+            </Badge>
+          </div>
+        </div>
 
-        {/* Analysis Data */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {measurementFields.map((field) => {
-            const value = analysis[field as keyof typeof analysis];
-            if (value === null || value === undefined) return null;
-
-            return (
-              <Card key={field}>
-                <CardContent className="p-4">
-                  <div className="text-sm text-muted-foreground mb-1">
-                    {getColumnThaiName(field)}
-                  </div>
-                  <div className="text-2xl font-bold">
-                    {Number(value).toFixed(2)}%
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+        {/* Categorized Data Display - เหมือน HistoryDetailDialog */}
+        <div className="space-y-3 mb-6">
+          {renderCategorizedData(analysis)}
         </div>
 
         {/* Footer */}
-        <div className="mt-12 text-center text-muted-foreground">
-          <p>ข้อมูลนี้ถูกแบบ่งปันผ่านระบบ RiceFlow</p>
-          <p className="text-sm mt-2">
-            แบ่งปันเมื่อ: {format(new Date(sharedLink.created_at), 'dd/MM/yyyy HH:mm', { locale: th })}
-          </p>
+        <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <Button 
+              variant="outline"
+              onClick={() => window.location.href = '/'}
+              className="gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              กลับสู่หน้าหลัก
+            </Button>
+            <div className="text-right text-xs text-gray-500 dark:text-gray-400">
+              <div>แบ่งปันโดย: RiceFlow</div>
+              <div className="flex items-center gap-1 mt-1">
+                <Calendar className="w-3 h-3" />
+                แบ่งปันเมื่อ: {format(new Date(sharedLink.created_at), 'dd/MM/yyyy HH:mm', { locale: th })}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
