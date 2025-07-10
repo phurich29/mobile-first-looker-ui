@@ -1,12 +1,13 @@
 
 import { Link } from "react-router-dom";
-import { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react"; // Use type import
+import type { ElementType } from "react"; // Import ElementType
 import { cn } from "@/lib/utils";
 import { getMenuItemClasses } from "./sidebar-utils";
 
 interface SidebarMenuItemProps {
   path: string;
-  icon: LucideIcon;
+  icon: ElementType | LucideIcon;
   label: string;
   isActive: boolean;
   isCollapsed: boolean;
