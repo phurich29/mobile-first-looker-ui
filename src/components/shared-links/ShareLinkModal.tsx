@@ -43,21 +43,19 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
 
     setLoading(true);
     try {
+      console.log('Creating link for analysis ID:', analysisId, 'with title:', title);
       const result = await createSharedLink(analysisId, title.trim());
-      if (result) {
-        const url = getPublicLink(result.share_token);
-        setShareUrl(url);
-        toast({
-          title: 'สำเร็จ',
-          description: 'สร้างลิงก์แชร์เรียบร้อยแล้ว',
-        });
-      } else {
-        throw new Error('Failed to create shared link');
-      }
-    } catch (error) {
+      const url = getPublicLink(result.share_token);
+      setShareUrl(url);
+      toast({
+        title: 'สำเร็จ',
+        description: 'สร้างลิงก์แชร์เรียบร้อยแล้ว',
+      });
+    } catch (error: any) {
+      console.error('Failed to create link:', error);
       toast({
         title: 'ข้อผิดพลาด',
-        description: 'ไม่สามารถสร้างลิงก์แชร์ได้',
+        description: error?.message || 'ไม่สามารถสร้างลิงก์แชร์ได้',
         variant: 'destructive',
       });
     } finally {

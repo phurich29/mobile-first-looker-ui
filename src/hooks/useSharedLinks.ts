@@ -31,11 +31,15 @@ export const useSharedLinks = () => {
   };
 
   const createSharedLink = async (analysisId: number, title: string) => {
-    if (!user) return null;
+    if (!user) {
+      console.error('User not authenticated');
+      throw new Error('กรุณาเข้าสู่ระบบก่อนแชร์ข้อมูล');
+    }
 
     const shareToken = generateShareToken();
     
     try {
+      console.log('Creating shared link for analysis ID:', analysisId);
       const { data, error } = await supabase
         .from('shared_analysis_links')
         .insert({
@@ -47,13 +51,17 @@ export const useSharedLinks = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
       
+      console.log('Successfully created shared link:', data);
       setSharedLinks(prev => [data, ...prev]);
       return data;
     } catch (error) {
       console.error('Error creating shared link:', error);
-      return null;
+      throw error;
     }
   };
 
