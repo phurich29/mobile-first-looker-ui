@@ -49,12 +49,40 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
   }, [shareUrl]);
 
   const handleDownloadQR = () => {
-    if (!qrCanvasRef.current) return;
+    if (!qrCanvasRef.current || !title) return;
     
     try {
+      // สร้าง canvas ใหม่สำหรับรวม QR Code และข้อความ
+      const finalCanvas = document.createElement('canvas');
+      const ctx = finalCanvas.getContext('2d');
+      if (!ctx) return;
+
+      const qrCanvas = qrCanvasRef.current;
+      const padding = 20;
+      const fontSize = 16;
+      
+      // คำนวณขนาด canvas รวม
+      finalCanvas.width = qrCanvas.width + (padding * 2);
+      finalCanvas.height = qrCanvas.height + (padding * 3) + fontSize + 10;
+      
+      // เติมพื้นหลังสีขาว
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+      
+      // วาด QR Code
+      ctx.drawImage(qrCanvas, padding, padding);
+      
+      // เพิ่มข้อความ
+      ctx.fillStyle = '#000000';
+      ctx.font = `${fontSize}px Arial`;
+      ctx.textAlign = 'center';
+      const textY = qrCanvas.height + padding * 2 + fontSize;
+      ctx.fillText(title, finalCanvas.width / 2, textY);
+      
+      // บันทึกรูป
       const link = document.createElement('a');
-      link.download = `qr-code-${title || 'shared-link'}.png`;
-      link.href = qrCanvasRef.current.toDataURL();
+      link.download = `qr-code-${title.replace(/[^a-zA-Z0-9]/g, '-')}.png`;
+      link.href = finalCanvas.toDataURL();
       link.click();
       
       toast({
