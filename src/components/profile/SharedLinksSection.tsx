@@ -42,6 +42,7 @@ export const SharedLinksSection: React.FC = () => {
   useEffect(() => {
     if (showQrCode && qrCanvasRef.current) {
       const url = getPublicLink(showQrCode);
+      console.log('Generating QR code for URL:', url);
       QRCode.toCanvas(qrCanvasRef.current, url, {
         width: 200,
         margin: 2,
@@ -49,7 +50,11 @@ export const SharedLinksSection: React.FC = () => {
           dark: '#000000',
           light: '#FFFFFF'
         }
-      }).catch(console.error);
+      }).then(() => {
+        console.log('QR code generated successfully');
+      }).catch((error) => {
+        console.error('QR code generation failed:', error);
+      });
     }
   }, [showQrCode, getPublicLink]);
 
