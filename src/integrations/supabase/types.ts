@@ -379,6 +379,50 @@ export type Database = {
         }
         Relationships: []
       }
+      shared_analysis_links: {
+        Row: {
+          analysis_id: number
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          share_token: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analysis_id: number
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          share_token: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analysis_id?: number
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          share_token?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_shared_analysis_links_analysis_id"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "rice_quality_analysis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_chart_preferences: {
         Row: {
           created_at: string

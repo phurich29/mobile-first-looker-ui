@@ -3,12 +3,15 @@ import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Share } from "lucide-react";
 import { getColumnThaiName } from "@/lib/columnTranslations";
 import { RiceQualityData } from './types';
 import { DATA_CATEGORIES } from './dataCategories';
 import { formatCellValue } from './utils';
 import { supabase } from "@/integrations/supabase/client";
+import { ShareLinkModal } from "@/components/shared-links/ShareLinkModal";
 
 interface HistoryDetailDialogProps {
   selectedRow: RiceQualityData | null;
@@ -20,6 +23,7 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
   onClose
 }) => {
   const [deviceDisplayName, setDeviceDisplayName] = useState<string | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   // Fetch device display name when selectedRow changes
   useEffect(() => {
@@ -86,9 +90,22 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
     <Dialog open={selectedRow !== null} onOpenChange={() => onClose()}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4">
         <DialogHeader className="pb-2">
-          <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 text-center">
-            Rice Quality Analysis Details
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              Rice Quality Analysis Details
+            </DialogTitle>
+            {selectedRow && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowShareModal(true)}
+                className="ml-2"
+              >
+                <Share className="h-4 w-4 mr-2" />
+                แชร์
+              </Button>
+            )}
+          </div>
           <Separator className="bg-gray-200 dark:bg-gray-700" />
         </DialogHeader>
         
@@ -140,6 +157,14 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
               {renderCategorizedData(selectedRow)}
             </div>
           </>
+        )}
+
+        {selectedRow && (
+          <ShareLinkModal
+            open={showShareModal}
+            onOpenChange={setShowShareModal}
+            analysisId={selectedRow.id}
+          />
         )}
       </DialogContent>
     </Dialog>
