@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MessageCircle, Bot, HelpCircle } from "lucide-react";
 import { isRecentUpdate } from "@/features/equipment/components/card/utils/timeUtils";
 import { useTypewriter } from '@/hooks/useTypewriter';
+import { calculateHeadRicePercentage } from "@/utils/calculations";
 const TypewriterReport = ({
   text
 }: {
@@ -35,7 +36,9 @@ const AssistantContent = () => {
   const whitenessClassification = selectedDevice?.deviceData?.whiteness_classification;
   const classificationDetails = selectedDevice?.deviceData?.classification_details;
   const trend = selectedDevice?.deviceData?.trend;
-  const yieldValue = (selectedDevice?.deviceData?.class1 ?? 0) + (selectedDevice?.deviceData?.class2 ?? 0) + (selectedDevice?.deviceData?.class3 ?? 0);
+  const headRicePercentage = selectedDevice?.deviceData ? calculateHeadRicePercentage(selectedDevice.deviceData) : 0;
+  const wholeKernelsValue = selectedDevice?.deviceData?.whole_kernels ?? 0;
+  const headRiceValue = selectedDevice?.deviceData?.head_rice ?? 0;
   const isDeviceOnline = selectedDevice ? isRecentUpdate(selectedDevice.updated_at, selectedDevice.deviceData) : false;
   const riceAnalysis = useMemo(() => {
     if (!selectedDevice) {
@@ -164,11 +167,16 @@ const AssistantContent = () => {
                   {/* Yield Percentage Display */}
                   <div className="relative border-3 border-amber-800 rounded-lg p-4 bg-gradient-to-br from-amber-100 to-yellow-100 shadow-inner">
                     <div className="flex justify-between items-center">
-                      <h4 className="font-bold text-amber-900 text-lg">🌾 ผลผลิตที่คาดหวัง (% Yield):</h4>
+                      <h4 className="font-bold text-amber-900 text-lg">🌾 % ข้าวต้น:</h4>
                       <span className="text-3xl font-bold text-amber-800 bg-amber-200 px-4 py-2 rounded-lg border-2 border-amber-700 shadow-inner">
-                        {selectedDevice ? `${yieldValue.toFixed(2)}%` : 'N/A'}
+                        {selectedDevice ? `${headRicePercentage.toFixed(2)}%` : 'N/A'}
                       </span>
                     </div>
+                    {selectedDevice && (
+                      <div className="text-xs text-right text-amber-800/90 mt-1 pr-1">
+                        (เต็มเมล็ด: {wholeKernelsValue.toFixed(2)}, ต้นข้าว: {headRiceValue.toFixed(2)})
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
