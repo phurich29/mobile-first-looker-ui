@@ -176,11 +176,18 @@ const AssistantContent = () => {
 
                   {/* Yield Percentage Display */}
                   <div className="relative border-3 border-amber-800 rounded-lg p-3 sm:p-4 bg-gradient-to-br from-amber-100 to-yellow-100 shadow-inner">
-                    <div className="flex justify-between items-center gap-2">
+                    <div className="flex justify-between items-center gap-2 mb-3">
                       <h4 className="font-bold text-amber-900 text-sm sm:text-base lg:text-lg flex-shrink-0">🌾 ผลผลิต (หาบ):</h4>
                       <span className="text-lg sm:text-xl lg:text-3xl font-bold text-amber-800 bg-amber-200 px-2 sm:px-3 lg:px-4 py-1 sm:py-2 rounded-lg border-2 border-amber-700 shadow-inner flex-shrink-0">
                         {selectedDevice ? `${yieldInHaab.toFixed(2)} หาบ` : 'N/A'}
                       </span>
+                    </div>
+                    
+                    {/* Smart Calculator Button */}
+                    <div className="flex justify-center">
+                      <button className="w-full bg-gradient-to-br from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold py-2 px-4 rounded-lg border-2 border-amber-800 shadow-lg transition-all duration-200 hover:shadow-xl transform hover:scale-105">
+                        Smart Calculator
+                      </button>
                     </div>
                   </div>
                 </div>
