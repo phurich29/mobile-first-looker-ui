@@ -113,13 +113,7 @@ const PublicAnalysisView = () => {
                 ? 'ลิงก์นี้หมดอายุแล้ว'
                 : 'เกิดข้อผิดพลาดในการโหลดข้อมูล'}
             </p>
-            <Button 
-              onClick={() => window.location.href = '/'}
-              className="gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              กลับสู่หน้าหลัก
-            </Button>
+
           </div>
         </div>
       </div>
@@ -194,14 +188,7 @@ const PublicAnalysisView = () => {
         {/* Footer */}
         <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <Button 
-              variant="outline"
-              onClick={() => window.location.href = '/'}
-              className="gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              กลับสู่หน้าหลัก
-            </Button>
+
             <div className="text-right text-xs text-gray-500 dark:text-gray-400">
               <div>แบ่งปันโดย: RiceFlow</div>
               <div className="flex items-center gap-1 mt-1">

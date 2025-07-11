@@ -90,7 +90,7 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
     <Dialog open={selectedRow !== null} onOpenChange={() => onClose()}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4">
         <DialogHeader className="pb-2">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Rice Quality Analysis Details
             </DialogTitle>
@@ -99,10 +99,10 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={() => setShowShareModal(true)}
-                className="ml-2"
+                className="w-full md:w-auto"
               >
                 <Share className="h-4 w-4 mr-2" />
-                แชร์
+                สร้าง Link สำหรับแชร์
               </Button>
             )}
           </div>
