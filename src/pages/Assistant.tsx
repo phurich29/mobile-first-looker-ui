@@ -231,7 +231,7 @@ const AssistantContent = () => {
                               />
                             </div>
                             <div className="space-y-2">
-                              <Label htmlFor="headRice" className="text-amber-900 font-bold">%ข้าวต้น</Label>
+                              <Label htmlFor="headRice" className="text-amber-900 font-bold">%ต้นข้าว</Label>
                               <Input
                                 id="headRice"
                                 type="number"
