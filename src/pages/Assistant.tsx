@@ -228,65 +228,67 @@ const AssistantContent = () => {
 
         {/* Smart Calculator Section */}
         <div className="mb-8">
-          <div className="max-w-md mx-auto">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="w-full bg-gradient-to-br from-amber-600 to-amber-700 text-white font-bold py-3 px-6 rounded-lg border-2 border-amber-900 shadow-[0_4px_#78350f] hover:-translate-y-0.5 hover:shadow-[0_6px_#78350f] active:translate-y-0.5 active:shadow-none transition-all duration-150">
-                  <Calculator className="w-5 h-5 mr-2" />
-                  หลงจู๊ Calculator
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px] bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-800">
-                <DialogHeader>
-                  <DialogTitle className="text-center text-xl font-bold text-amber-900 flex items-center justify-center gap-2">
-                    <Calculator className="w-6 h-6" />
-                    เครื่องคำนวณอัจฉริยะ
-                  </DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 p-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="wholeKernels" className="text-amber-900 font-bold">%ข้าวเต็มเมล็ด</Label>
-                    <Input
-                      id="wholeKernels"
-                      type="number"
-                      placeholder="ใส่เปอร์เซ็นต์ข้าวเต็มเมล็ด"
-                      value={wholeKernelsInput}
-                      onChange={(e) => setWholeKernelsInput(e.target.value)}
-                      className="border-2 border-amber-600 focus:border-amber-800 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="headRice" className="text-amber-900 font-bold">%ต้นข้าว</Label>
-                    <Input
-                      id="headRice"
-                      type="number"
-                      placeholder="ใส่เปอร์เซ็นต์ข้าวต้น"
-                      value={headRiceInput}
-                      onChange={(e) => setHeadRiceInput(e.target.value)}
-                      className="border-2 border-amber-600 focus:border-amber-800 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
-                    />
-                  </div>
-                  
-                  {(wholeKernelsInput || headRiceInput) && (
-                    <div className="mt-6 space-y-4 p-4 bg-gradient-to-br from-amber-100 to-yellow-100 rounded-lg border-2 border-amber-700">
-                      <h3 className="text-lg font-bold text-amber-900 text-center">📊 ผลการคำนวณ</h3>
-                      
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center p-2 bg-amber-200 rounded border border-amber-600">
-                          <span className="font-bold text-amber-900">%ข้าวต้น+%เต็มเมล็ด =</span>
-                          <span className="text-lg font-bold text-amber-800">{calculateResults().totalPercent}%</span>
-                        </div>
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+            <div className="lg:col-start-3 lg:col-span-3">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="w-full bg-gradient-to-br from-amber-600 to-amber-700 text-white font-bold py-3 px-6 rounded-lg border-2 border-amber-900 shadow-[0_4px_#78350f] hover:-translate-y-0.5 hover:shadow-[0_6px_#78350f] active:translate-y-0.5 active:shadow-none transition-all duration-150">
+                    <Calculator className="w-5 h-5 mr-2" />
+                    หลงจู๊ Calculator
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px] bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-800">
+                  <DialogHeader>
+                    <DialogTitle className="text-center text-xl font-bold text-amber-900 flex items-center justify-center gap-2">
+                      <Calculator className="w-6 h-6" />
+                      เครื่องคำนวณอัจฉริยะ
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 p-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="wholeKernels" className="text-amber-900 font-bold">%ข้าวเต็มเมล็ด</Label>
+                      <Input
+                        id="wholeKernels"
+                        type="number"
+                        placeholder="ใส่เปอร์เซ็นต์ข้าวเต็มเมล็ด"
+                        value={wholeKernelsInput}
+                        onChange={(e) => setWholeKernelsInput(e.target.value)}
+                        className="border-2 border-amber-600 focus:border-amber-800 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="headRice" className="text-amber-900 font-bold">%ต้นข้าว</Label>
+                      <Input
+                        id="headRice"
+                        type="number"
+                        placeholder="ใส่เปอร์เซ็นต์ข้าวต้น"
+                        value={headRiceInput}
+                        onChange={(e) => setHeadRiceInput(e.target.value)}
+                        className="border-2 border-amber-600 focus:border-amber-800 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
+                      />
+                    </div>
+                    
+                    {(wholeKernelsInput || headRiceInput) && (
+                      <div className="mt-6 space-y-4 p-4 bg-gradient-to-br from-amber-100 to-yellow-100 rounded-lg border-2 border-amber-700">
+                        <h3 className="text-lg font-bold text-amber-900 text-center">📊 ผลการคำนวณ</h3>
                         
-                        <div className="flex justify-between items-center p-2 bg-amber-200 rounded border border-amber-600">
-                          <span className="font-bold text-amber-900">ผลหาบ:</span>
-                          <span className="text-lg font-bold text-amber-800">{calculateResults().yieldHaab} หาบ</span>
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center p-2 bg-amber-200 rounded border border-amber-600">
+                            <span className="font-bold text-amber-900">%ข้าวต้น+%เต็มเมล็ด =</span>
+                            <span className="text-lg font-bold text-amber-800">{calculateResults().totalPercent}%</span>
+                          </div>
+                          
+                          <div className="flex justify-between items-center p-2 bg-amber-200 rounded border border-amber-600">
+                            <span className="font-bold text-amber-900">ผลหาบ:</span>
+                            <span className="text-lg font-bold text-amber-800">{calculateResults().yieldHaab} หาบ</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              </DialogContent>
-            </Dialog>
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
 
