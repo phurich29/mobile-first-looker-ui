@@ -63,7 +63,7 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
         className={`flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700 ${bgColor} dark:bg-gray-800 hover:brightness-95 dark:hover:brightness-110 transition-all duration-300 relative overflow-hidden ${deviceCode ? 'cursor-pointer active:bg-gray-100 dark:active:bg-gray-700' : ''} ${isAlertActive ? 'bg-red-50/90 dark:bg-red-900/50' : ''}`}
       >
         {/* เพิ่มองค์ประกอบด้านหลังเพื่อความมีมิติ */}
-        <div className="absolute inset-0 w-full h-full bg-white dark:bg-gray-800 opacity-80 dark:opacity-50 z-10"></div>
+        <div className="absolute inset-0 w-full h-full bg-white dark:bg-gray-800 opacity-80 dark:opacity-50"></div>
         
         <div className="flex items-center relative z-10">
           <NotificationIcon 
