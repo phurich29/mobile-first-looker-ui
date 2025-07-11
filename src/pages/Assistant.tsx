@@ -174,7 +174,7 @@ const AssistantContent = () => {
                     </div>
                     {selectedDevice && (
                       <div className="text-xs text-right text-amber-800/90 mt-1 pr-1">
-                        (เต็มเมล็ด: {wholeKernelsValue.toFixed(2)}, ต้นข้าว: {headRiceValue.toFixed(2)})
+                        (เต็มเมล็ด: {wholeKernelsValue.toFixed(2)}%, ต้นข้าว: {headRiceValue.toFixed(2)}%)
                       </div>
                     )}
                   </div>
