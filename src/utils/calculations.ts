@@ -1,27 +1,27 @@
-// This file is for custom calculation functions.
-
-interface MeasurementData {
-  [key: string]: number;
+interface DeviceData {
+  whole_kernels?: number;
+  head_rice?: number;
+  [key: string]: any;
 }
 
-/**
- * Calculates the yield in Haab ("หาบ").
- * 1 Haab = 60 kg.
- * The formula first calculates the weight in kg: ((whole_kernels + head_rice) * 660) / 100
- * Then it converts kg to Haab: result_in_kg / 60
- * @param data - An object containing measurement values, e.g., { whole_kernels: 10, head_rice: 50 }
- * @returns The calculated yield in Haab.
- */
-export function calculateYieldInHaab(data: MeasurementData): number {
-  const wholeKernels = data.whole_kernels || 0;
-  const headRice = data.head_rice || 0;
+export const calculateYieldInHaab = (deviceData: DeviceData): number => {
+  const wholeKernels = deviceData.whole_kernels ?? 0;
+  const headRice = deviceData.head_rice ?? 0;
 
-  if (wholeKernels === 0 && headRice === 0) {
-    return 0;
-  }
+  // 1. Calculate Yield in kg
+  const yieldKg = ((wholeKernels + headRice) * 660) / 100;
 
-  const resultInKg = ((wholeKernels + headRice) * 660) / 100;
-  const resultInHaab = resultInKg / 60;
-  return resultInHaab;
-}
+  // 2. Calculate contamination (10% of yield in kg)
+  const contamination = yieldKg * 0.1;
+
+  // 3. Subtract contamination from yield
+  const netYieldKg = yieldKg - contamination;
+
+  // 4. Convert to Haab (1 Haab = 60 kg)
+  const yieldHaab = netYieldKg / 60;
+
+  return yieldHaab;
+};
+
+
 

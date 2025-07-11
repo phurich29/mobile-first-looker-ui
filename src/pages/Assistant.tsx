@@ -37,8 +37,19 @@ const AssistantContent = () => {
     const wholeKernels = parseFloat(wholeKernelsInput) || 0;
     const headRice = parseFloat(headRiceInput) || 0;
     const totalPercent = wholeKernels + headRice;
-    const yieldHaab = (totalPercent * 660) / 100 / 60;
-    
+
+    // 1. Calculate Yield in kg
+    const yieldKg = (totalPercent * 660) / 100;
+
+    // 2. Calculate contamination (10% of yield in kg)
+    const contamination = yieldKg * 0.1;
+
+    // 3. Subtract contamination from yield
+    const netYieldKg = yieldKg - contamination;
+
+    // 4. Convert to Haab (1 Haab = 60 kg)
+    const yieldHaab = netYieldKg / 60;
+
     return {
       totalPercent: totalPercent.toFixed(2),
       yieldHaab: yieldHaab.toFixed(2)
