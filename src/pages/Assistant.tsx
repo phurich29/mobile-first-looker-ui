@@ -248,7 +248,7 @@ const AssistantContent = () => {
                                 
                                 <div className="space-y-2">
                                   <div className="flex justify-between items-center p-2 bg-amber-200 rounded border border-amber-600">
-                                    <span className="font-bold text-amber-900">%ข้าวต้น:</span>
+                                    <span className="font-bold text-amber-900">%ข้าวต้น+%เต็มเมล็ด =</span>
                                     <span className="text-lg font-bold text-amber-800">{calculateResults().totalPercent}%</span>
                                   </div>
                                   
