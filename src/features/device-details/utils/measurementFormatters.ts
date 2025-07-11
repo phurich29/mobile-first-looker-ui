@@ -128,6 +128,13 @@ export const formatImpuritiesItems = (
   const latestData = impuritiesData[0];
   const items = [
     { 
+      symbol: 'whiteness', 
+      name: 'ความขาว', 
+      price: latestData.whiteness?.toFixed(1), 
+      iconColor: '#90CAF9', 
+      updatedAt: new Date(latestData.created_at) 
+    },
+    { 
       symbol: 'red_line_rate', 
       name: 'สีต่ำกว่ามาตรฐาน', 
       price: latestData.red_line_rate?.toFixed(1), 
@@ -209,13 +216,6 @@ export const formatImpuritiesItems = (
       name: 'ข้าวเปลือก(เมล็ด/กก.)', 
       price: latestData.paddy_rate?.toFixed(1), 
       iconColor: '#81C784', 
-      updatedAt: new Date(latestData.created_at) 
-    },
-    { 
-      symbol: 'whiteness', 
-      name: 'ความขาว', 
-      price: latestData.whiteness?.toFixed(1), 
-      iconColor: '#90CAF9', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
