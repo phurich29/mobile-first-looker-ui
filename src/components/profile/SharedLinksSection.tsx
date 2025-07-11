@@ -38,25 +38,34 @@ export const SharedLinksSection: React.FC = () => {
   const [showQrCode, setShowQrCode] = useState<string | null>(null);
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Generate QR Code when showQrCode changes
-  useEffect(() => {
-    if (showQrCode && qrCanvasRef.current) {
-      const url = getPublicLink(showQrCode);
-      console.log('Generating QR code for URL:', url);
-      QRCode.toCanvas(qrCanvasRef.current, url, {
-        width: 200,
-        margin: 2,
-        color: {
-          dark: '#000000',
-          light: '#FFFFFF'
-        }
-      }).then(() => {
-        console.log('QR code generated successfully');
-      }).catch((error) => {
-        console.error('QR code generation failed:', error);
-      });
+  // Function to generate QR code
+  const generateQRCode = (token: string) => {
+    if (!qrCanvasRef.current) return;
+    
+    const url = getPublicLink(token);
+    console.log('Generating QR code for URL:', url);
+    
+    // Clear previous QR code
+    const canvas = qrCanvasRef.current;
+    const context = canvas.getContext('2d');
+    if (context) {
+      context.clearRect(0, 0, canvas.width, canvas.height);
     }
-  }, [showQrCode, getPublicLink]);
+    
+    // Generate new QR code
+    QRCode.toCanvas(qrCanvasRef.current, url, {
+      width: 200,
+      margin: 2,
+      color: {
+        dark: '#000000',
+        light: '#FFFFFF'
+      }
+    }).then(() => {
+      console.log('QR code generated successfully');
+    }).catch((error) => {
+      console.error('QR code generation failed:', error);
+    });
+  };
 
   const handleDownloadQR = (shareToken: string, title: string) => {
     if (!qrCanvasRef.current) return;
@@ -239,57 +248,114 @@ export const SharedLinksSection: React.FC = () => {
             {sharedLinks.map((link) => (
               <div
                 key={link.id}
-                className="border rounded-lg p-4 space-y-3"
+                className="border rounded-lg p-3 md:p-4 space-y-4"
               >
-                <div className="flex items-start justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-0">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-medium">{link.title}</h4>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex items-center gap-1">
+                        <h4 className="font-medium text-base md:text-lg">{link.title}</h4>
+                        <Dialog open={editingLink === link.id} onOpenChange={(open) => {
+                          if (!open) {
+                            setEditingLink(null);
+                            setEditTitle('');
+                          }
+                        }}>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => openEditDialog(link)}
+                              className="h-6 w-6 p-0 hover:bg-muted"
+                            >
+                              <Edit className="h-3.5 w-3.5" />
+                              <span className="sr-only">แก้ไข</span>
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>แก้ไขชื่อลิงก์</DialogTitle>
+                              <DialogDescription>
+                                เปลี่ยนชื่อลิงก์แชร์ของคุณ
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-2">
+                              <Label htmlFor="edit-title">ชื่อลิงก์</Label>
+                              <Input
+                                id="edit-title"
+                                value={editTitle}
+                                onChange={(e) => setEditTitle(e.target.value)}
+                                placeholder="กรอกชื่อลิงก์ใหม่"
+                              />
+                            </div>
+                            <DialogFooter>
+                              <Button
+                                variant="outline"
+                                onClick={() => {
+                                  setEditingLink(null);
+                                  setEditTitle('');
+                                }}
+                              >
+                                ยกเลิก
+                              </Button>
+                              <Button onClick={() => handleEditTitle(link.id)}>
+                                บันทึก
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                       <Badge variant={link.is_active ? "default" : "secondary"}>
                         {link.is_active ? 'ใช้งานได้' : 'ปิดใช้งาน'}
                       </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      สร้างเมื่อ: {formatDate(link.created_at)}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      อัปเดตล่าสุด: {formatDate(link.updated_at)}
-                    </p>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1.5 mb-3">
+                      <p className="text-xs text-muted-foreground">
+                        สร้างเมื่อ: {formatDate(link.created_at)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        อัปเดตล่าสุด: {formatDate(link.updated_at)}
+                      </p>
+                    </div>
+                    
+                    <div className="mt-2 bg-muted/30 p-3 rounded-md">
+                      <p className="text-xs font-medium mb-2">
+                        QR Code ที่สร้างขึ้นคือเมื่อสแกนจะส่งไปยังลิงค์นี้:
+                      </p>
+                      <div className="flex flex-wrap items-center gap-2 bg-background p-2 rounded border">
+                        <span className="text-sm text-muted-foreground break-all flex-1 min-w-[200px]">
+                          {getPublicLink(link.share_token)}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0"
+                          onClick={() => handleCopyLink(link.share_token)}
+                        >
+                          {copiedLinks.has(link.share_token) ? (
+                            <Check className="h-4 w-4" />
+                          ) : (
+                            <Copy className="h-4 w-4" />
+                          )}
+                          <span className="sr-only">คัดลอกลิงก์</span>
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={link.is_active}
-                      onCheckedChange={() => handleToggleActive(link.id, link.is_active)}
-                    />
+                  <div className="flex justify-end items-center gap-2 mt-2 sm:mt-0">
+                    <div className="flex items-center gap-1 ml-auto">
+                      <span className="text-xs text-muted-foreground">
+                        {link.is_active ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
+                      </span>
+                      <Switch
+                        checked={link.is_active}
+                        onCheckedChange={() => handleToggleActive(link.id, link.is_active)}
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleCopyLink(link.share_token)}
-                    className="flex items-center gap-1"
-                  >
-                    {copiedLinks.has(link.share_token) ? (
-                      <Check className="h-3 w-3" />
-                    ) : (
-                      <Copy className="h-3 w-3" />
-                    )}
-                    {copiedLinks.has(link.share_token) ? 'คัดลอกแล้ว' : 'คัดลอกลิงก์'}
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => window.open(getPublicLink(link.share_token), '_blank')}
-                    className="flex items-center gap-1"
-                  >
-                    <ExternalLink className="h-3 w-3" />
-                    เปิดลิงก์
-                  </Button>
-
+                <div className="flex items-center gap-2 flex-wrap mt-3">
                   <Dialog open={showQrCode === link.share_token} onOpenChange={(open) => {
                     if (!open) setShowQrCode(null);
                   }}>
@@ -298,106 +364,16 @@ export const SharedLinksSection: React.FC = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => setShowQrCode(link.share_token)}
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-1 w-full sm:w-auto justify-center"
                       >
-                        <QrCode className="h-3 w-3" />
-                        QR Code
+                        <QrCode className="h-4 w-4" />
+                        แชร์ลิงค์
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-md">
-                      <DialogHeader>
-                        <DialogTitle>QR Code</DialogTitle>
-                        <DialogDescription>
-                          สแกน QR Code เพื่อเข้าถึงลิงก์แชร์
-                        </DialogDescription>
-                      </DialogHeader>
-                      
-                      <div className="flex flex-col items-center space-y-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900">
-                        <canvas
-                          ref={qrCanvasRef}
-                          className="border border-gray-300 dark:border-gray-600 rounded"
-                        />
-                        <div className="text-center">
-                          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{link.title}</p>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDownloadQR(link.share_token, link.title)}
-                          className="gap-2"
-                        >
-                          <Download className="h-4 w-4" />
-                          บันทึก QR Code เป็น PNG
-                        </Button>
-                      </div>
-
-                      <DialogFooter>
-                        <Button onClick={() => setShowQrCode(null)}>
-                          ปิด
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-
-                  <Dialog open={editingLink === link.id} onOpenChange={(open) => {
-                    if (!open) {
-                      setEditingLink(null);
-                      setEditTitle('');
-                    }
-                  }}>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => openEditDialog(link)}
-                        className="flex items-center gap-1"
-                      >
-                        <Edit className="h-3 w-3" />
-                        แก้ไข
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>แก้ไขชื่อลิงก์</DialogTitle>
-                        <DialogDescription>
-                          เปลี่ยนชื่อลิงก์แชร์ของคุณ
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="space-y-2">
-                        <Label htmlFor="edit-title">ชื่อลิงก์</Label>
-                        <Input
-                          id="edit-title"
-                          value={editTitle}
-                          onChange={(e) => setEditTitle(e.target.value)}
-                          placeholder="กรอกชื่อลิงก์ใหม่"
-                        />
-                      </div>
-                      <DialogFooter>
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setEditingLink(null);
-                            setEditTitle('');
-                          }}
-                        >
-                          ยกเลิก
-                        </Button>
-                        <Button onClick={() => handleEditTitle(link.id)}>
-                          บันทึก
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex items-center gap-1 text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="h-3 w-3" />
+                      <Button variant="destructive" size="sm" className="flex items-center gap-1 w-full sm:w-auto justify-center">
+                        <Trash2 className="h-4 w-4" />
                         ลบ
                       </Button>
                     </AlertDialogTrigger>
@@ -405,20 +381,62 @@ export const SharedLinksSection: React.FC = () => {
                       <AlertDialogHeader>
                         <AlertDialogTitle>ยืนยันการลบ</AlertDialogTitle>
                         <AlertDialogDescription>
-                          คุณแน่ใจหรือไม่ที่จะลบลิงก์ "{link.title}" การกระทำนี้ไม่สามารถยกเลิกได้
+                          คุณแน่ใจหรือไม่ว่าต้องการลบลิงก์ "{link.title}"? การกระทำนี้ไม่สามารถย้อนกลับได้
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleDeleteLink(link.id)}
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        >
+                        <AlertDialogAction onClick={() => handleDeleteLink(link.id)}>
                           ลบ
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
+                    <DialogContent 
+                      className="sm:max-w-md"
+                      onOpenAutoFocus={(event) => {
+                        event.preventDefault();
+                        setTimeout(() => generateQRCode(link.share_token), 100);
+                      }}
+                    >
+                      <DialogHeader>
+                        <DialogTitle>แชร์ลิงค์</DialogTitle>
+                        <DialogDescription>
+                          สแกน QR Code เพื่อเข้าถึงลิงก์แชร์
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="flex flex-col items-center space-y-5 p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900">
+                        <canvas
+                          ref={qrCanvasRef}
+                          className="border border-gray-300 dark:border-gray-600 rounded-md shadow-sm"
+                        />
+                        <div className="text-center">
+                          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{link.title}</p>
+                        </div>
+                        <DialogFooter className="flex flex-col sm:flex-row gap-3 items-stretch mt-4">
+                          <Button
+                            variant="outline"
+                            onClick={() => handleDownloadQR(link.share_token, link.title)}
+                            className="flex items-center justify-center gap-2 py-5 sm:py-2"
+                          >
+                            <Download className="h-4 w-4" />
+                            ดาวน์โหลด QR Code
+                          </Button>
+                          <Button
+                            onClick={() => handleCopyLink(link.share_token)}
+                            className="flex items-center justify-center gap-2 py-5 sm:py-2"
+                          >
+                            {copiedLinks.has(link.share_token) ? (
+                              <Check className="h-4 w-4" />
+                            ) : (
+                              <Copy className="h-4 w-4" />
+                            )}
+                            คัดลอกลิงก์
+                          </Button>
+                        </DialogFooter>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </div>
             ))}
