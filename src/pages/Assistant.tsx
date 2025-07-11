@@ -167,7 +167,7 @@ const AssistantContent = () => {
                   {/* Combined Percentage Display */}
                   <div className="relative border-3 border-amber-800 rounded-lg p-3 sm:p-4 bg-gradient-to-br from-amber-100 to-yellow-100 shadow-inner">
                     <div className="flex justify-between items-center gap-2">
-                      <h4 className="font-bold text-amber-900 text-sm sm:text-base lg:text-lg flex-shrink-0">📊 %ข้าวต้น+%เต็มเมล็ด =</h4>
+                      <h4 className="font-bold text-amber-900 text-sm sm:text-base lg:text-lg flex-shrink-0">%ข้าวต้น+%เต็มเมล็ด =</h4>
                       <span className="text-lg sm:text-xl lg:text-3xl font-bold text-amber-800 bg-amber-200 px-2 sm:px-3 lg:px-4 py-1 sm:py-2 rounded-lg border-2 border-amber-700 shadow-inner flex-shrink-0">
                         {selectedDevice ? `${(wholeKernelsValue + headRiceValue).toFixed(2)}%` : 'N/A'}
                       </span>
@@ -182,9 +182,7 @@ const AssistantContent = () => {
                         {selectedDevice ? `${yieldInHaab.toFixed(2)} หาบ` : 'N/A'}
                       </span>
                     </div>
-                    {selectedDevice && <div className="text-xs text-right text-amber-800/90 mt-1 pr-1">
-                        (เต็มเมล็ด: {wholeKernelsValue.toFixed(2)}%, ต้นข้าว: {headRiceValue.toFixed(2)}%)
-                      </div>}
+                    {selectedDevice}
                   </div>
                 </div>
               </CardContent>
