@@ -43,7 +43,9 @@ export const SharedLinksSection: React.FC = () => {
     if (!qrCanvasRef.current) return;
     
     const url = getPublicLink(token);
-    console.log('Generating QR code for URL:', url);
+    console.log('Generating QR code for token:', token);
+    console.log('Generated URL:', url);
+    console.log('Current origin:', window.location.origin);
     
     // Clear previous QR code
     const canvas = qrCanvasRef.current;
@@ -61,7 +63,7 @@ export const SharedLinksSection: React.FC = () => {
         light: '#FFFFFF'
       }
     }).then(() => {
-      console.log('QR code generated successfully');
+      console.log('QR code generated successfully for URL:', url);
     }).catch((error) => {
       console.error('QR code generation failed:', error);
     });
