@@ -72,45 +72,45 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
     }
   };
   const iconColor = getIconColor(notification.threshold_type);
-  return <Card className="p-4 hover:shadow-md transition-all duration-200 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-      <div className="flex items-start justify-between">
-        <div className="flex items-start space-x-3 flex-1">
+  return <Card className="p-3 sm:p-4 hover:shadow-md transition-all duration-200 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+      <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-0">
+        <div className="flex items-start space-x-2 sm:space-x-3 flex-1 min-w-0">
           {/* Icon with same style as NotificationIcon */}
           <div className="relative flex-shrink-0">
-            <div className="w-12 h-12 rounded-full flex items-center justify-center shadow-md relative overflow-hidden" style={{
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-md relative overflow-hidden" style={{
             background: `linear-gradient(135deg, ${iconColor}, ${iconColor}cc)`
           }}>
               <div className="absolute inset-0 bg-white/10"></div>
-              <div className="absolute top-0 left-0 w-3 h-3 bg-white/30 rounded-full blur-sm"></div>
+              <div className="absolute top-0 left-0 w-2 h-2 sm:w-3 sm:h-3 bg-white/30 rounded-full blur-sm"></div>
               {getThresholdIcon(notification.threshold_type, notification.rice_type_id)}
             </div>
           </div>
           
           {/* Content */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center space-x-2 mb-1">
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 mb-1">
               <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                 {notification.rice_type_id}
               </h3>
-              <Badge variant="outline" className={cn("text-xs", getThresholdColor(notification.threshold_type))}>
+              <Badge variant="outline" className={cn("text-xs w-fit", getThresholdColor(notification.threshold_type))}>
                 {notification.threshold_type === 'max' ? 'เกินค่าสูงสุด' : 'ต่ำกว่าค่าต่ำสุด'}
               </Badge>
             </div>
             
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
+            <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-2 break-words">
               {notification.notification_message}
             </p>
             
-            <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4 text-xs text-gray-500 dark:text-gray-400">
               <div className="flex items-center space-x-1">
-                <span className="font-mono text-gray-700 dark:text-gray-300">{notification.device_code}</span>
+                <span className="font-mono text-gray-700 dark:text-gray-300 truncate">{notification.device_code}</span>
               </div>
               <div className="flex items-center space-x-1">
-                <Clock className="h-3 w-3" />
-                <span>{thaiDate} {thaiTime}</span>
+                <Clock className="h-3 w-3 flex-shrink-0" />
+                <span className="truncate">{thaiDate} {thaiTime}</span>
               </div>
               {notification.notification_count > 1 && <div className="flex items-center space-x-1">
-                  <span className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full text-xs">
+                  <span className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full text-xs whitespace-nowrap">
                     {notification.notification_count} ครั้ง
                   </span>
                 </div>}
@@ -119,13 +119,14 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
         </div>
         
         {/* Value and Action */}
-        <div className="flex-shrink-0 text-right space-y-2">
-          <div className={cn("text-lg font-mono", getValueColor(notification.threshold_type))}>
+        <div className="flex sm:flex-col sm:text-right items-center sm:items-end justify-between sm:justify-start space-x-2 sm:space-x-0 sm:space-y-2 flex-shrink-0 w-full sm:w-auto">
+          <div className={cn("text-base sm:text-lg font-mono", getValueColor(notification.threshold_type))}>
             {notification.value?.toFixed(2) || 'N/A'}%
           </div>
-          <Button variant="ghost" size="sm" onClick={() => onViewDetails(notification.device_code, notification.rice_type_id)} className="text-xs hover:bg-purple-50 dark:hover:bg-purple-900/30 text-slate-950 dark:text-slate-50">
+          <Button variant="ghost" size="sm" onClick={() => onViewDetails(notification.device_code, notification.rice_type_id)} className="text-xs hover:bg-purple-50 dark:hover:bg-purple-900/30 text-slate-950 dark:text-slate-50 px-2 sm:px-3">
             <Eye className="h-3 w-3 mr-1" />
-            ดูข้อมูล
+            <span className="hidden sm:inline">ดูข้อมูล</span>
+            <span className="sm:hidden">ดู</span>
           </Button>
         </div>
       </div>
