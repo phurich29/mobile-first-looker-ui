@@ -231,9 +231,9 @@ const AssistantContent = () => {
           <div className="max-w-md mx-auto">
             <Dialog>
               <DialogTrigger asChild>
-                <Button className="w-full bg-gradient-to-br from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold py-3 px-6 rounded-lg border-2 border-amber-800 shadow-lg transition-all duration-200 hover:shadow-xl transform hover:scale-105">
+                <Button className="w-full bg-gradient-to-br from-amber-600 to-amber-700 text-white font-bold py-3 px-6 rounded-lg border-2 border-amber-900 shadow-[0_4px_#78350f] hover:-translate-y-0.5 hover:shadow-[0_6px_#78350f] active:translate-y-0.5 active:shadow-none transition-all duration-150">
                   <Calculator className="w-5 h-5 mr-2" />
-                  Smart Calculator
+                  หลงจู๊ Calculator
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px] bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-800">
