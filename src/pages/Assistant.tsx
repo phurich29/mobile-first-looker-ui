@@ -165,10 +165,10 @@ const AssistantContent = () => {
                   </div>
 
                   {/* Combined Percentage Display */}
-                  <div className="relative border-3 border-amber-800 rounded-lg p-4 bg-gradient-to-br from-amber-100 to-yellow-100 shadow-inner">
-                    <div className="flex justify-between items-center">
-                      <h4 className="font-bold text-amber-900 text-lg">📊 %ข้าวต้น+%เต็มเมล็ด =</h4>
-                      <span className="text-3xl font-bold text-amber-800 bg-amber-200 px-4 py-2 rounded-lg border-2 border-amber-700 shadow-inner">
+                  <div className="relative border-3 border-amber-800 rounded-lg p-3 sm:p-4 bg-gradient-to-br from-amber-100 to-yellow-100 shadow-inner">
+                    <div className="flex justify-between items-center gap-2">
+                      <h4 className="font-bold text-amber-900 text-sm sm:text-base lg:text-lg flex-shrink-0">📊 %ข้าวต้น+%เต็มเมล็ด =</h4>
+                      <span className="text-lg sm:text-xl lg:text-3xl font-bold text-amber-800 bg-amber-200 px-2 sm:px-3 lg:px-4 py-1 sm:py-2 rounded-lg border-2 border-amber-700 shadow-inner flex-shrink-0">
                         {selectedDevice ? `${(wholeKernelsValue + headRiceValue).toFixed(2)}%` : 'N/A'}
                       </span>
                     </div>
