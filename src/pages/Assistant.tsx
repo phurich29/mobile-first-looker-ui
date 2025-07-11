@@ -182,7 +182,6 @@ const AssistantContent = () => {
                         {selectedDevice ? `${yieldInHaab.toFixed(2)} หาบ` : 'N/A'}
                       </span>
                     </div>
-                    {selectedDevice}
                   </div>
                 </div>
               </CardContent>
