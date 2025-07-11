@@ -22,6 +22,8 @@ interface MeasurementHistoryContentProps {
   timeFrame: TimeFrame;
   setTimeFrame: (timeFrame: TimeFrame) => void;
   averageValue: number;
+  minValue: number;
+  maxValue: number;
   settingsOpen: boolean;
   handleOpenChange: (open: boolean) => void;
   notificationEnabled: boolean;
@@ -39,6 +41,8 @@ const MeasurementHistoryContent: React.FC<MeasurementHistoryContentProps> = ({
   timeFrame,
   setTimeFrame,
   averageValue,
+  minValue,
+  maxValue,
   settingsOpen,
   handleOpenChange,
   notificationEnabled
@@ -62,6 +66,8 @@ const MeasurementHistoryContent: React.FC<MeasurementHistoryContentProps> = ({
           name={name}
           unit={unit}
           average={averageValue}
+          min={minValue}
+          max={maxValue}
           onOpenSettings={() => handleOpenChange(true)}
           notificationEnabled={notificationEnabled}
           deviceCode={deviceCode}

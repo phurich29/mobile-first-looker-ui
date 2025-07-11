@@ -46,6 +46,11 @@ export const useMeasurementHistoryState = ({
     symbol: safeSymbol 
   });
 
+  // Calculate min and max values
+  const measurementValues = historyData.map(d => d[safeSymbol]).filter(v => v !== null && v !== undefined);
+  const minValue = measurementValues.length > 0 ? Math.min(...measurementValues) : 0;
+  const maxValue = measurementValues.length > 0 ? Math.max(...measurementValues) : 0;
+
   // Show error toast if there's an error
   useEffect(() => {
     if (isError) {
@@ -96,6 +101,8 @@ export const useMeasurementHistoryState = ({
     timeFrame,
     setTimeFrame,
     averageValue,
+    minValue,
+    maxValue,
     dateTimeInfo,
     handleOpenChange,
     isValidData: !!(deviceCode && symbol)

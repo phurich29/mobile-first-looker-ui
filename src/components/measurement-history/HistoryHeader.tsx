@@ -10,6 +10,8 @@ interface HistoryHeaderProps {
   name: string;
   unit?: string;
   average: number;
+  min: number;
+  max: number;
   onOpenSettings: () => void;
   notificationEnabled?: boolean;
   deviceCode?: string;
@@ -19,6 +21,8 @@ const HistoryHeader: React.FC<HistoryHeaderProps> = ({
   name, 
   unit, 
   average, 
+  min,
+  max,
   onOpenSettings,
   notificationEnabled = false,
   deviceCode
@@ -65,6 +69,8 @@ const HistoryHeader: React.FC<HistoryHeaderProps> = ({
           </div>
           <p className="text-sm text-gray-500">
             ค่าเฉลี่ย: <span className="font-medium text-emerald-600">{average.toFixed(2)}{unit}</span>
+            (ต่ำสุด: <span className="font-medium text-blue-600">{min.toFixed(2)}{unit}</span>, 
+            สูงสุด: <span className="font-medium text-red-600">{max.toFixed(2)}{unit}</span>)
           </p>
         </div>
         
