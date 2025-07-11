@@ -271,6 +271,29 @@ const AssistantContent = () => {
             </Dialog>
           </div>
         </div>
+
+        {/* Notes Section */}
+        <div className="mb-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="relative border-3 border-amber-800 rounded-lg p-4 bg-gradient-to-br from-amber-100 to-yellow-100 shadow-inner">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-600 to-transparent"></div>
+              <div className="absolute top-1 left-1 w-3 h-3 bg-amber-600 rotate-45"></div>
+              <div className="absolute top-1 right-1 w-3 h-3 bg-amber-600 rotate-45"></div>
+              <div className="absolute bottom-1 left-1 w-3 h-3 bg-amber-600 rotate-45"></div>
+              <div className="absolute bottom-1 right-1 w-3 h-3 bg-amber-600 rotate-45"></div>
+              
+              <h4 className="font-bold text-amber-900 mb-3 text-lg">📝 หมายเหตุ</h4>
+              <div className="text-sm text-amber-900 space-y-2 bg-yellow-50/70 p-3 rounded border border-amber-600">
+                <p className="leading-relaxed">
+                  *%ข้าวต้น คิดจากข้าวเต็ม+ข้าวต้นหลังจากการขัดขาว/ขัดมัน ที่ยังไม่ได้หักข้าวดีดออกจาการยิงสี
+                </p>
+                <p className="leading-relaxed">
+                  ** การคำนวณหาบ คิดจากการหักข้าวดีดออกจากการยิงสี 10% ของข้าวต้นแล้ว
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </AppLayout>;
 };
