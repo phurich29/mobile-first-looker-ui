@@ -227,7 +227,7 @@ const AssistantContent = () => {
                                 placeholder="ใส่เปอร์เซ็นต์ข้าวเต็มเมล็ด"
                                 value={wholeKernelsInput}
                                 onChange={(e) => setWholeKernelsInput(e.target.value)}
-                                className="border-2 border-amber-600 focus:border-amber-800"
+                                className="border-2 border-amber-600 focus:border-amber-800 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                               />
                             </div>
                             <div className="space-y-2">
@@ -238,7 +238,7 @@ const AssistantContent = () => {
                                 placeholder="ใส่เปอร์เซ็นต์ข้าวต้น"
                                 value={headRiceInput}
                                 onChange={(e) => setHeadRiceInput(e.target.value)}
-                                className="border-2 border-amber-600 focus:border-amber-800"
+                                className="border-2 border-amber-600 focus:border-amber-800 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                               />
                             </div>
                             
