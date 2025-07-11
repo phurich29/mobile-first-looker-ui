@@ -215,7 +215,7 @@ const AssistantContent = () => {
                           <DialogHeader>
                             <DialogTitle className="text-center text-xl font-bold text-amber-900 flex items-center justify-center gap-2">
                               <Calculator className="w-6 h-6" />
-                              🧮 เครื่องคำนวณอัจฉริยะ
+                              เครื่องคำนวณอัจฉริยะ
                             </DialogTitle>
                           </DialogHeader>
                           <div className="space-y-4 p-4">
