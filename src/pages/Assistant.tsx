@@ -4,7 +4,11 @@ import { useMemo, useState } from "react";
 import { AssistantProvider, useAssistant } from "@/features/assistant/context/AssistantContext";
 import { AppLayout } from "@/components/layouts/app-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageCircle, Bot, HelpCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { MessageCircle, Bot, HelpCircle, Calculator } from "lucide-react";
 import { isRecentUpdate } from "@/features/equipment/components/card/utils/timeUtils";
 import { useTypewriter } from '@/hooks/useTypewriter';
 import { calculateYieldInHaab } from "@/utils/calculations";
@@ -22,8 +26,23 @@ const AssistantContent = () => {
   } = useAssistant();
   const longJooPhrases = ["มีอะไรให้ลุงช่วยมั้ยหลาน", "ข้าวล็อตนี้ดูดีนะ... อยากรู้รายละเอียดเพิ่มมั้ย?", "กดดูรายงานสิ ลุงวิเคราะห์ไว้ให้หมดแล้ว", `ค่าความขาว ${selectedDevice?.deviceData?.whiteness?.toFixed(1) || '...'} ถือว่าใช้ได้เลย`, "อยากให้ลุงดูอะไรเป็นพิเศษ บอกได้เลยนะ"];
   const [phraseIndex, setPhraseIndex] = useState(0);
+  const [wholeKernelsInput, setWholeKernelsInput] = useState('');
+  const [headRiceInput, setHeadRiceInput] = useState('');
+  
   const handleChatboxClick = () => {
     setPhraseIndex(prevIndex => (prevIndex + 1) % longJooPhrases.length);
+  };
+
+  const calculateResults = () => {
+    const wholeKernels = parseFloat(wholeKernelsInput) || 0;
+    const headRice = parseFloat(headRiceInput) || 0;
+    const totalPercent = wholeKernels + headRice;
+    const yieldHaab = (totalPercent * 660) / 100 / 60;
+    
+    return {
+      totalPercent: totalPercent.toFixed(2),
+      yieldHaab: yieldHaab.toFixed(2)
+    };
   };
 
   // Main display values
@@ -185,9 +204,64 @@ const AssistantContent = () => {
                     
                     {/* Smart Calculator Button */}
                     <div className="flex justify-center">
-                      <button className="w-full bg-gradient-to-br from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold py-2 px-4 rounded-lg border-2 border-amber-800 shadow-lg transition-all duration-200 hover:shadow-xl transform hover:scale-105">
-                        Smart Calculator
-                      </button>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button className="w-full bg-gradient-to-br from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold py-2 px-4 rounded-lg border-2 border-amber-800 shadow-lg transition-all duration-200 hover:shadow-xl transform hover:scale-105">
+                            <Calculator className="w-4 h-4 mr-2" />
+                            Smart Calculator
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px] bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-800">
+                          <DialogHeader>
+                            <DialogTitle className="text-center text-xl font-bold text-amber-900 flex items-center justify-center gap-2">
+                              <Calculator className="w-6 h-6" />
+                              🧮 เครื่องคำนวณอัจฉริยะ
+                            </DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4 p-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="wholeKernels" className="text-amber-900 font-bold">%ข้าวเต็มเมล็ด</Label>
+                              <Input
+                                id="wholeKernels"
+                                type="number"
+                                placeholder="ใส่เปอร์เซ็นต์ข้าวเต็มเมล็ด"
+                                value={wholeKernelsInput}
+                                onChange={(e) => setWholeKernelsInput(e.target.value)}
+                                className="border-2 border-amber-600 focus:border-amber-800"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="headRice" className="text-amber-900 font-bold">%ข้าวต้น</Label>
+                              <Input
+                                id="headRice"
+                                type="number"
+                                placeholder="ใส่เปอร์เซ็นต์ข้าวต้น"
+                                value={headRiceInput}
+                                onChange={(e) => setHeadRiceInput(e.target.value)}
+                                className="border-2 border-amber-600 focus:border-amber-800"
+                              />
+                            </div>
+                            
+                            {(wholeKernelsInput || headRiceInput) && (
+                              <div className="mt-6 space-y-4 p-4 bg-gradient-to-br from-amber-100 to-yellow-100 rounded-lg border-2 border-amber-700">
+                                <h3 className="text-lg font-bold text-amber-900 text-center">📊 ผลการคำนวณ</h3>
+                                
+                                <div className="space-y-2">
+                                  <div className="flex justify-between items-center p-2 bg-amber-200 rounded border border-amber-600">
+                                    <span className="font-bold text-amber-900">%ข้าวต้น:</span>
+                                    <span className="text-lg font-bold text-amber-800">{calculateResults().totalPercent}%</span>
+                                  </div>
+                                  
+                                  <div className="flex justify-between items-center p-2 bg-amber-200 rounded border border-amber-600">
+                                    <span className="font-bold text-amber-900">ผลหาบ:</span>
+                                    <span className="text-lg font-bold text-amber-800">{calculateResults().yieldHaab} หาบ</span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </div>
                 </div>
