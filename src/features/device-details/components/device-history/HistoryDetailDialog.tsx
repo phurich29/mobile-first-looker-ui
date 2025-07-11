@@ -89,17 +89,17 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
   return (
     <Dialog open={selectedRow !== null} onOpenChange={() => onClose()}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4">
-        <DialogHeader className="pb-2">
+        <DialogHeader className="pb-2 pt-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Rice Quality Analysis Details
             </DialogTitle>
             {selectedRow && (
               <Button
-                variant="outline"
+                variant="default"
                 size="sm"
                 onClick={() => setShowShareModal(true)}
-                className="w-full md:w-auto"
+                className="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white"
               >
                 <Share className="h-4 w-4 mr-2" />
                 สร้าง Link สำหรับแชร์
