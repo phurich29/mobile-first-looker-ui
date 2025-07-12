@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Riceflow</string>
+    <string name="title_activity_main">Riceflow</string>
+    <string name="package_name">setup.riceflow.app</string>
+    <string name="custom_url_scheme">setup.riceflow.app</string>
+</resources>
