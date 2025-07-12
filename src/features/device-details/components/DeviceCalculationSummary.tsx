@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Share2 } from "lucide-react";
 import { calculateYieldInHaab } from "@/utils/calculations";
+import { ShareLinkModal } from "@/components/shared-links/ShareLinkModal";
 
 interface DeviceCalculationSummaryProps {
   allData: any[] | null;
@@ -11,6 +14,8 @@ export const DeviceCalculationSummary: React.FC<DeviceCalculationSummaryProps> =
   allData,
   isLoading
 }) => {
+  const [showShareModal, setShowShareModal] = useState(false);
+  
   // Get the latest data entry
   const latestData = allData && allData.length > 0 ? allData[0] : null;
   
@@ -51,9 +56,20 @@ export const DeviceCalculationSummary: React.FC<DeviceCalculationSummaryProps> =
   return (
     <Card className="mb-6 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-emerald-800 dark:text-emerald-200">
-          สรุปผลการคำนวณ
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg font-semibold text-emerald-800 dark:text-emerald-200">
+            สรุปผลการคำนวณ
+          </CardTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowShareModal(true)}
+            className="gap-2 border-emerald-200 hover:bg-emerald-50 dark:border-emerald-800 dark:hover:bg-emerald-900/20"
+          >
+            <Share2 className="h-4 w-4" />
+            แชร์ & QR Code
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -85,6 +101,15 @@ export const DeviceCalculationSummary: React.FC<DeviceCalculationSummaryProps> =
           </div>
         </div>
       </CardContent>
+      
+      {/* Share Link Modal */}
+      {latestData && (
+        <ShareLinkModal
+          open={showShareModal}
+          onOpenChange={setShowShareModal}
+          analysisId={latestData.id}
+        />
+      )}
     </Card>
   );
 };
