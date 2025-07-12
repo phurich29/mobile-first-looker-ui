@@ -12,6 +12,7 @@ import { DATA_CATEGORIES } from './dataCategories';
 import { formatCellValue } from './utils';
 import { supabase } from "@/integrations/supabase/client";
 import { ShareLinkModal } from "@/components/shared-links/ShareLinkModal";
+import { DeviceCalculationSummary } from "../DeviceCalculationSummary";
 
 interface HistoryDetailDialogProps {
   selectedRow: RiceQualityData | null;
@@ -155,6 +156,14 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
             {/* Categorized Data Display */}
             <div className="space-y-3">
               {renderCategorizedData(selectedRow)}
+            </div>
+
+            {/* Calculation Summary Box */}
+            <div className="mt-4">
+              <DeviceCalculationSummary 
+                allData={[selectedRow]}
+                isLoading={false}
+              />
             </div>
           </>
         )}
