@@ -59,6 +59,15 @@ const PublicAnalysisView = () => {
       return { sharedLink, analysis, deviceDisplayName };
     },
     enabled: !!token,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+    retry: (failureCount, error) => {
+      if (error?.message?.includes('not found') || error?.message?.includes('expired')) {
+        return false; // Don't retry for these errors
+      }
+      return failureCount < 2; // Retry up to 2 times for other errors
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
   });
 
   // Render categorized data with striped table style like HistoryDetailDialog
