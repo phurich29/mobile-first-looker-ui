@@ -5,6 +5,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Wheat } from "lucide-react";
 import { DeviceHeader } from "./DeviceHeader";
 import { MeasurementTabs } from "./MeasurementTabs";
+import { DeviceCalculationSummary } from "./DeviceCalculationSummary";
 import { NotificationSetting } from "../types";
 import { lazy } from "react";
 
@@ -77,6 +78,16 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
             onMeasurementClick={onMeasurementClick} 
           />
         </div>
+
+        {/* Add Calculation Summary Box */}
+        {deviceCode && deviceCode !== 'default' && (
+          <div className="px-0">
+            <DeviceCalculationSummary 
+              allData={allData}
+              isLoading={isLoadingAllData}
+            />
+          </div>
+        )}
 
         {/* Add Device History Table at the bottom - Show to all users including guests with proper container styling */}
         {deviceCode && deviceCode !== 'default' && (
