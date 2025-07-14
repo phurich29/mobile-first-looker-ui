@@ -19,10 +19,10 @@ export const DATA_CATEGORIES: Record<string, DataCategory> = {
     icon: "⚠️",
     color: "bg-orange-50 border-orange-200",
     fields: [
-      'red_line_rate', 'parboiled_red_line', 'parboiled_white_rice', 'honey_rice',
+      'whiteness', 'red_line_rate', 'parboiled_red_line', 'parboiled_white_rice', 'honey_rice',
       'yellow_rice_rate', 'black_kernel', 'partly_black_peck', 'partly_black',
       'imperfection_rate', 'sticky_rice_rate', 'impurity_num', 'paddy_rate',
-      'whiteness', 'process_precision'
+      'process_precision'
     ]
   }
 };
