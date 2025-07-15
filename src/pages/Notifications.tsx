@@ -22,7 +22,6 @@ const Notifications = () => {
     const autoCheckNotifications = async () => {
       try {
         console.log("Auto-checking notifications on page load...");
-        
         const { data, error } = await supabase.functions.invoke('check_notifications', {
           method: 'POST',
           body: { 
@@ -30,25 +29,43 @@ const Notifications = () => {
             checkType: 'auto_page_load'
           }
         });
-        
+
+        // 1. ตรวจสอบ Error อย่างละเอียด
         if (error) {
-          console.error("Error in auto notification check:", error);
-          return;
+          console.error("Error invoking Supabase function:", error);
+          toast({
+            variant: "destructive",
+            title: "เกิดข้อผิดพลาด",
+            description: "ไม่สามารถตรวจสอบการแจ้งเตือนได้ในขณะนี้",
+          });
+          return; // หยุดทำงานทันที
         }
-        
-        const notificationCount = data?.notificationCount || 0;
+
+        // 2. ตรวจสอบโครงสร้างข้อมูล
+        if (!data || typeof data.notificationCount !== 'number') {
+          console.warn("Invalid data structure from check_notifications:", data);
+          return; // หยุดทำงานเพื่อป้องกันแอปเด้ง
+        }
+
+        // 3. ใช้งานข้อมูลได้อย่างปลอดภัย
+        const notificationCount = data.notificationCount;
         console.log(`Auto-check completed: ${notificationCount} notifications processed`);
         
-        // Show subtle notification only if new notifications were found
         if (notificationCount > 0) {
           toast({
-            title: "ตรวจพบการแจ้งเตือนใหม่",
+            title: "การแจ้งเตือนใหม่",
             description: `พบการแจ้งเตือนใหม่/อัพเดท ${notificationCount} รายการ`,
             variant: "update",
           });
         }
       } catch (error) {
         console.error("Error during auto notification check:", error);
+        // Optional: Show a generic error toast for unexpected errors during the try-catch execution
+        toast({
+          variant: "destructive",
+          title: "เกิดข้อผิดพลาดที่ไม่คาดคิด",
+          description: "มีบางอย่างผิดปกติขณะตรวจสอบการแจ้งเตือน",
+        });
       }
     };
 
