@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -5,7 +6,7 @@ import { RiceQualityData } from './types';
 
 export const useHistoryData = (deviceIds?: string[]) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(20); // Phase 1: Increased default to 20
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const { data: historyData, isLoading, error } = useQuery({
     queryKey: ['deviceHistory', deviceIds || 'all', currentPage, itemsPerPage],
@@ -64,11 +65,9 @@ export const useHistoryData = (deviceIds?: string[]) => {
       return { data: enhancedData as RiceQualityData[], count: count || 0 };
     },
     enabled: true, // Always enable the query
-    retry: 3, // Phase 3: Enhanced retry mechanism
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    retry: 2,
+    retryDelay: 1000,
     refetchOnWindowFocus: false,
-    staleTime: 5 * 60 * 1000, // Phase 2: 5 minutes stale time
-    gcTime: 10 * 60 * 1000, // Phase 2: 10 minutes garbage collection time
   });
 
   const totalPages = historyData ? Math.ceil(historyData.count / itemsPerPage) : 0;

@@ -37,7 +37,7 @@ The project is integrated with Lovable.dev. Changes made via Lovable are automat
 - **Forms**: React Hook Form + Zod validation
 - **Charts**: Recharts
 - **PWA**: Vite PWA plugin with Workbox
-
+- **Notifications**: OneSignal integration
 
 ### Project Structure
 ```

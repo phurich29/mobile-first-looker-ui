@@ -9,14 +9,7 @@ interface PWAContextValue {
   needRefresh: boolean;
   offlineReady: boolean;
   updateServiceWorker: () => void;
-  clearAllCache: () => Promise<void>;
   appVersion: string;
-  performanceMetrics: {
-    pageLoadTime: number;
-    componentStuckCount: number;
-    networkFailureCount: number;
-    lastAutoRecovery: number | null;
-  };
 }
 
 const PWAContext = createContext<PWAContextValue | undefined>(undefined);
@@ -39,16 +32,6 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
     // Generate app version based on build time or use a fixed version
     return `${Date.now()}`;
   });
-
-  // Performance Monitoring States
-  const [performanceMetrics, setPerformanceMetrics] = useState({
-    pageLoadTime: 0,
-    componentStuckCount: 0,
-    networkFailureCount: 0,
-    lastAutoRecovery: null as number | null,
-  });
-  const [loadingStates] = useState(new Map<string, number>());
-  const [networkFailures] = useState(new Map<string, number>());
   
   const {
     needRefresh: [needRefresh, setNeedRefresh],
@@ -160,166 +143,6 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
     }
   };
 
-  const clearAllCache = async () => {
-    try {
-      console.log('Starting clear all cache process...');
-      
-      // บันทึก auth session และ last device ก่อน clear
-      const { data: { session } } = await supabase.auth.getSession();
-      const lastDevice = localStorage.getItem('selectedDevice') || localStorage.getItem('lastDevice');
-      
-      // Clear ทุก cache ยกเว้น auth และ device selection
-      const protectedKeys = ['selectedDevice', 'lastDevice'];
-      
-      // Clear localStorage ยกเว้น protected keys และ auth
-      const localKeysToRemove = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && 
-            !key.includes('supabase') && 
-            !key.includes('auth-token') && 
-            !protectedKeys.includes(key)) {
-          localKeysToRemove.push(key);
-        }
-      }
-      localKeysToRemove.forEach(key => localStorage.removeItem(key));
-      
-      // Clear sessionStorage ยกเว้น auth
-      const sessionKeysToRemove = [];
-      for (let i = 0; i < sessionStorage.length; i++) {
-        const key = sessionStorage.key(i);
-        if (key && 
-            !key.includes('supabase') && 
-            !key.includes('auth-token')) {
-          sessionKeysToRemove.push(key);
-        }
-      }
-      sessionKeysToRemove.forEach(key => sessionStorage.removeItem(key));
-      
-      // Clear service worker caches ทั้งหมด
-      if ('caches' in window) {
-        const cacheNames = await caches.keys();
-        for (const cacheName of cacheNames) {
-          await caches.delete(cacheName);
-          console.log(`Cleared cache: ${cacheName}`);
-        }
-      }
-      
-      // Unregister และ register service worker ใหม่
-      if ('serviceWorker' in navigator) {
-        const registrations = await navigator.serviceWorker.getRegistrations();
-        for (const registration of registrations) {
-          await registration.unregister();
-          console.log('Unregistered service worker');
-        }
-        
-        // Re-register service worker หลังจาก delay เล็กน้อย
-        setTimeout(() => {
-          window.location.reload();
-        }, 500);
-      }
-      
-      // Restore last device ถ้ามี
-      if (lastDevice) {
-        localStorage.setItem('selectedDevice', lastDevice);
-      }
-      
-      console.log('All cache cleared successfully while preserving auth and device selection');
-    } catch (error) {
-      console.error('Error clearing all cache:', error);
-      throw error;
-    }
-  };
-
-  // Auto Cache Clear System Functions
-  const performAutoRecovery = async (reason: string) => {
-    try {
-      console.log(`🚨 Auto recovery triggered: ${reason}`);
-      
-      toast({
-        title: 'ตรวจพบปัญหาการโหลด',
-        description: 'กำลังแก้ไขอัตโนมัติ กรุณารอสักครู่...',
-        duration: 3000,
-      });
-
-      // บันทึกเวลาที่ทำ auto recovery
-      setPerformanceMetrics(prev => ({
-        ...prev,
-        lastAutoRecovery: Date.now()
-      }));
-
-      // Clear cache แต่เก็บ auth และ device selection
-      await clearAllCache();
-      
-      console.log('✅ Auto recovery completed successfully');
-    } catch (error) {
-      console.error('❌ Auto recovery failed:', error);
-      toast({
-        title: 'แก้ไขปัญหาไม่สำเร็จ',
-        description: 'กรุณารีเฟรชหน้าเว็บด้วยตนเอง',
-        variant: 'destructive',
-        duration: 5000,
-      });
-    }
-  };
-
-  const checkPageLoadPerformance = () => {
-    if (window.performance && window.performance.timing) {
-      const timing = window.performance.timing;
-      const loadTime = timing.loadEventEnd - timing.navigationStart;
-      
-      setPerformanceMetrics(prev => ({
-        ...prev,
-        pageLoadTime: loadTime
-      }));
-
-      // หากโหลดนานเกิน 15 วินาที
-      if (loadTime > 15000) {
-        console.log(`⚠️ Slow page load detected: ${loadTime}ms`);
-        performAutoRecovery('Page load timeout exceeded 15 seconds');
-      }
-    }
-  };
-
-  const trackComponentStuck = (componentName: string) => {
-    const now = Date.now();
-    const lastCheck = loadingStates.get(componentName) || now;
-    const timeDiff = now - lastCheck;
-
-    // หาก component ติด loading เกิน 8 วินาที
-    if (timeDiff > 8000) {
-      console.log(`⚠️ Component stuck detected: ${componentName} (${timeDiff}ms)`);
-      
-      setPerformanceMetrics(prev => ({
-        ...prev,
-        componentStuckCount: prev.componentStuckCount + 1
-      }));
-
-      performAutoRecovery(`Component ${componentName} stuck for ${timeDiff}ms`);
-      loadingStates.delete(componentName);
-    } else {
-      loadingStates.set(componentName, now);
-    }
-  };
-
-  const trackNetworkFailure = (endpoint: string) => {
-    const now = Date.now();
-    const failureCount = (networkFailures.get(endpoint) || 0) + 1;
-    networkFailures.set(endpoint, failureCount);
-
-    setPerformanceMetrics(prev => ({
-      ...prev,
-      networkFailureCount: prev.networkFailureCount + 1
-    }));
-
-    // หาก API calls fail ติดต่อกัน 3+ ครั้ง
-    if (failureCount >= 3) {
-      console.log(`⚠️ Network failure threshold reached: ${endpoint} (${failureCount} failures)`);
-      performAutoRecovery(`Network failures on ${endpoint}: ${failureCount} consecutive failures`);
-      networkFailures.delete(endpoint);
-    }
-  };
-
   const handleUpdate = async () => {
     try {
       console.log('Starting PWA update process...');
@@ -397,51 +220,12 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
     };
   }, [appVersion]);
 
-  // Performance Monitoring useEffect
-  useEffect(() => {
-    // Check page load performance
-    if (document.readyState === 'complete') {
-      checkPageLoadPerformance();
-    } else {
-      window.addEventListener('load', checkPageLoadPerformance);
-    }
-
-    // ตั้ง interval ตรวจสอบ performance ทุก 5 นาที
-    const performanceInterval = setInterval(() => {
-      checkPageLoadPerformance();
-    }, 5 * 60 * 1000);
-
-    // ตั้ง interval ตรวจสอบ auth loading stuck ทุก 10 วินาที
-    const authCheckInterval = setInterval(() => {
-      trackComponentStuck('AuthProvider');
-    }, 10000);
-
-    return () => {
-      window.removeEventListener('load', checkPageLoadPerformance);
-      clearInterval(performanceInterval);
-      clearInterval(authCheckInterval);
-    };
-  }, []);
-
-  // Expose tracking functions to global window for components to use
-  useEffect(() => {
-    (window as any).trackComponentStuck = trackComponentStuck;
-    (window as any).trackNetworkFailure = trackNetworkFailure;
-    
-    return () => {
-      delete (window as any).trackComponentStuck;
-      delete (window as any).trackNetworkFailure;
-    };
-  }, []);
-
   const contextValue: PWAContextValue = {
     isOnline,
     needRefresh,
     offlineReady,
     updateServiceWorker: handleUpdate,
-    clearAllCache,
     appVersion,
-    performanceMetrics,
   };
 
   return (

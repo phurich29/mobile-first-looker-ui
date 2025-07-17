@@ -1,91 +1,53 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useProgressiveAuth } from '@/hooks/useProgressiveAuth';
-import { useDeviceDataQuery } from '@/hooks/useDeviceDataQuery';
-import { ProgressiveLoadingScreen } from '@/components/loading/ProgressiveLoadingScreen';
+import { useAuth } from '@/components/AuthProvider';
+import { fetchDevicesWithDetails } from '@/features/equipment/services/deviceDataService';
+import { LoadingScreen } from '@/features/device-details/components/LoadingScreen';
 
 const Index = () => {
   const navigate = useNavigate();
-  const { isLoading: authLoading, isAuthenticated, userId } = useProgressiveAuth();
-  const [loadingStage, setLoadingStage] = useState<'auth' | 'devices' | 'complete'>('auth');
-  const [progress, setProgress] = useState(0);
-
-  // Use React Query for device data with progressive loading
-  const {
-    devices,
-    isLoading: devicesLoading,
-    error: devicesError,
-  } = useDeviceDataQuery({
-    enabled: !authLoading && (isAuthenticated || true), // Enable for guests too
-    staleTime: 30000, // 30 seconds
-    gcTime: 300000, // 5 minutes
-  });
+  const { isLoading, user } = useAuth();
 
   useEffect(() => {
-    // Progressive loading stages
-    if (authLoading) {
-      setLoadingStage('auth');
-      setProgress(20);
+    // Wait for the authentication to be fully resolved before making any decisions.
+    if (isLoading) {
       return;
     }
 
-    if (devicesLoading) {
-      setLoadingStage('devices');
-      setProgress(60);
-      return;
-    }
+    const handleRedirect = async () => {
+      const lastViewedDeviceCode = localStorage.getItem('lastViewedDeviceCode');
 
-    setLoadingStage('complete');
-    setProgress(100);
+      if (lastViewedDeviceCode) {
+        try {
+          // Before redirecting, VERIFY that the user still has access to this device.
+          const accessibleDevices = await fetchDevicesWithDetails();
+          const hasAccess = accessibleDevices.some(d => d.device_code === lastViewedDeviceCode);
 
-    // Small delay for smooth transition
-    const redirectTimer = setTimeout(() => {
-      handleRedirect();
-    }, 500);
-
-    return () => clearTimeout(redirectTimer);
-  }, [authLoading, devicesLoading]);
-
-  const handleRedirect = () => {
-    const lastViewedDeviceCode = localStorage.getItem('lastViewedDeviceCode');
-
-    if (lastViewedDeviceCode && devices.length > 0) {
-      // Quick check using cached data from React Query
-      const hasAccess = devices.some(d => d.device_code === lastViewedDeviceCode);
-
-      if (hasAccess) {
-        console.log(`✅ Using cached data: Access confirmed for device ${lastViewedDeviceCode}`);
-        navigate(`/device/${lastViewedDeviceCode}`, { replace: true });
-        return;
+          if (hasAccess) {
+            // If access is confirmed, proceed to the device page.
+            navigate(`/device/${lastViewedDeviceCode}`, { replace: true });
+          } else {
+            // If access is revoked, clear the invalid entry and go to the equipment page.
+            console.warn(`Access to last viewed device (${lastViewedDeviceCode}) is revoked. Redirecting to equipment.`);
+            localStorage.removeItem('lastViewedDeviceCode');
+            navigate('/equipment', { replace: true });
+          }
+        } catch (error) {
+          console.error("Error verifying device access, redirecting to equipment page:", error);
+          navigate('/equipment', { replace: true });
+        }
       } else {
-        console.warn(`❌ Using cached data: Access revoked for device ${lastViewedDeviceCode}`);
-        localStorage.removeItem('lastViewedDeviceCode');
+        // For new users with no history, redirect to the equipment list.
+        navigate('/equipment', { replace: true });
       }
-    }
+    };
 
-    // Default redirect to equipment page
-    navigate('/equipment', { replace: true });
-  };
+    handleRedirect();
 
-  const handleSkipToEquipment = () => {
-    console.log('⏭️ User skipped loading, redirecting to equipment');
-    navigate('/equipment', { replace: true });
-  };
+  }, [isLoading, user, navigate]);
 
-  // Show error state if device fetch fails
-  if (devicesError && !authLoading) {
-    console.error('❌ Device fetch error, redirecting to equipment:', devicesError);
-    setTimeout(() => navigate('/equipment', { replace: true }), 1000);
-  }
-
-  return (
-    <ProgressiveLoadingScreen
-      stage={loadingStage}
-      progress={progress}
-      showSkipOption={loadingStage === 'devices' && progress < 100}
-      onSkip={handleSkipToEquipment}
-    />
-  );
+  // Render a loading screen while authentication and redirection logic are in progress.
+  return <LoadingScreen />;
 };
 
 export default Index;

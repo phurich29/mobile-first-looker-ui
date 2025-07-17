@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { FooterNav } from "@/components/FooterNav";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { BackButton } from "@/components/ui/back-button";
 
 export default function Login() {
   const { user, isLoading } = useAuth();
@@ -184,17 +184,8 @@ export default function Login() {
       <div className={`min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4 ${isMobile ? 'pb-20' : ''}`}>
         <Card className="w-full max-w-md mx-auto">
           <CardHeader>
-            <div className="flex items-center mb-2">
-              <BackButton 
-                to="/" 
-                ariaLabel="กลับไปหน้าแรก"
-                className="mr-2 p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors flex items-center justify-center"
-              />
-              <div className="flex-1">
-                <CardTitle className="text-2xl text-center">Riceflow Login</CardTitle>
-                <CardDescription className="text-center">เข้าสู่ระบบหรือลงทะเบียนเพื่อใช้งาน</CardDescription>
-              </div>
-            </div>
+            <CardTitle className="text-2xl text-center">Riceflow Login</CardTitle>
+            <CardDescription className="text-center">เข้าสู่ระบบหรือลงทะเบียนเพื่อใช้งาน</CardDescription>
           </CardHeader>
           
           <Tabs 
