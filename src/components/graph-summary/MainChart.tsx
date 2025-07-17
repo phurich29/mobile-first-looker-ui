@@ -113,10 +113,7 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
             tick={{ fontSize: 12 }} 
           />
           <Tooltip 
-            labelFormatter={(time) => {
-              const date = new Date(time);
-              return `${date.toLocaleDateString()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
-            }}
+            labelFormatter={(time) => formatTimeWithOffset(time)}
             formatter={(value: number) => [value?.toFixed(2) || '0', '']}
           />
           <Legend />
@@ -149,10 +146,7 @@ export const MainChart: React.FC<MainChartProps> = ({ graphData, selectedMetrics
             tick={{ fontSize: 12 }} 
           />
           <Tooltip 
-            labelFormatter={(time) => {
-              const date = new Date(time);
-              return `${date.toLocaleDateString()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
-            }}
+            labelFormatter={(time) => formatTimeWithOffset(time)}
             formatter={(value: number) => [value?.toFixed(2) || '0', '']}
           />
           <Legend />
