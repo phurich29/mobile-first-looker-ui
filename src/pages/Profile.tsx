@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { KeyRound, CheckCircle, AlertCircle } from "lucide-react";
 import { SharedLinksSection } from "@/components/profile/SharedLinksSection";
+import { ClearCacheButton } from "@/components/ui/clear-cache-button";
 const Profile = () => {
   const {
     user
@@ -86,13 +87,31 @@ const Profile = () => {
                   <p className="text-base font-medium text-gray-900 dark:text-gray-100">{created}</p>
                 </div>
               </CardContent>
-              <CardFooter>
+              <CardFooter className="flex flex-col sm:flex-row gap-3">
                 <Button onClick={() => setShowPasswordDialog(true)} variant="outline">
                   <KeyRound className="w-4 h-4 mr-2" /> เปลี่ยนรหัสผ่าน
                 </Button>
+                <ClearCacheButton variant="outline" />
               </CardFooter>
             </Card>
             
+            {/* PWA Settings Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle>การตั้งค่าแอป</CardTitle>
+                <CardDescription>จัดการแคชและการอัพเดทแอป</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <h4 className="font-medium mb-2">เคลียร์แคชแอป</h4>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    ใช้เมื่อแอปโหลดช้า ไม่รับอัพเดทล่าสุด หรือมีปัญหาการแสดงผล
+                  </p>
+                  <ClearCacheButton variant="outline" size="default" />
+                </div>
+              </CardContent>
+            </Card>
+
             {/* ลิงก์แชร์ของฉัน Section */}
             <SharedLinksSection />
             

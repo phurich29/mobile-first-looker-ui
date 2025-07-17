@@ -9,6 +9,7 @@ interface PWAContextValue {
   needRefresh: boolean;
   offlineReady: boolean;
   updateServiceWorker: () => void;
+  clearAllCache: () => Promise<void>;
   appVersion: string;
 }
 
@@ -143,6 +144,77 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
     }
   };
 
+  const clearAllCache = async () => {
+    try {
+      console.log('Starting clear all cache process...');
+      
+      // บันทึก auth session และ last device ก่อน clear
+      const { data: { session } } = await supabase.auth.getSession();
+      const lastDevice = localStorage.getItem('selectedDevice') || localStorage.getItem('lastDevice');
+      
+      // Clear ทุก cache ยกเว้น auth และ device selection
+      const protectedKeys = ['selectedDevice', 'lastDevice'];
+      
+      // Clear localStorage ยกเว้น protected keys และ auth
+      const localKeysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && 
+            !key.includes('supabase') && 
+            !key.includes('auth-token') && 
+            !protectedKeys.includes(key)) {
+          localKeysToRemove.push(key);
+        }
+      }
+      localKeysToRemove.forEach(key => localStorage.removeItem(key));
+      
+      // Clear sessionStorage ยกเว้น auth
+      const sessionKeysToRemove = [];
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        if (key && 
+            !key.includes('supabase') && 
+            !key.includes('auth-token')) {
+          sessionKeysToRemove.push(key);
+        }
+      }
+      sessionKeysToRemove.forEach(key => sessionStorage.removeItem(key));
+      
+      // Clear service worker caches ทั้งหมด
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        for (const cacheName of cacheNames) {
+          await caches.delete(cacheName);
+          console.log(`Cleared cache: ${cacheName}`);
+        }
+      }
+      
+      // Unregister และ register service worker ใหม่
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const registration of registrations) {
+          await registration.unregister();
+          console.log('Unregistered service worker');
+        }
+        
+        // Re-register service worker หลังจาก delay เล็กน้อย
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      }
+      
+      // Restore last device ถ้ามี
+      if (lastDevice) {
+        localStorage.setItem('selectedDevice', lastDevice);
+      }
+      
+      console.log('All cache cleared successfully while preserving auth and device selection');
+    } catch (error) {
+      console.error('Error clearing all cache:', error);
+      throw error;
+    }
+  };
+
   const handleUpdate = async () => {
     try {
       console.log('Starting PWA update process...');
@@ -225,6 +297,7 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
     needRefresh,
     offlineReady,
     updateServiceWorker: handleUpdate,
+    clearAllCache,
     appVersion,
   };
 
