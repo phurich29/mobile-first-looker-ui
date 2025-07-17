@@ -25,7 +25,7 @@ supabase migration new <name>  # Create new migration
 ```
 
 ### Git Workflow
-The project is integrated with Lovable.dev. Changes made via Lovable are automatically committed. When working locally, standard git commands apply.
+The project is integrated with Lovable.dev (Project URL: https://lovable.dev/projects/a7741834-f80e-41b5-b0fa-946cf657a1d1). Changes made via Lovable are automatically committed. When working locally, standard git commands apply.
 
 ## Architecture Overview
 
@@ -108,6 +108,8 @@ src/
 - `src/integrations/supabase/` - Supabase client and types
 - `vite.config.ts` - Build configuration and PWA settings
 - `docs/TASK_MANAGER.md` - Current migration tasks and issues
+- `docs/HYBRID_APPROACH_MIGRATION.md` - Migration plan details
+- `docs/IMPLEMENTATION_CHECKLIST.md` - Implementation verification steps
 
 ## Testing
 Currently no testing framework is configured. When implementing tests:
@@ -288,3 +290,5 @@ if (userRole !== 'admin' && userRole !== 'superadmin') {
 - Follow existing patterns and conventions
 - Test with different user roles
 - Handle loading and error states properly
+- Check PWA manifest settings in `vite.config.ts` for app metadata
+- Review documentation in `docs/` folder for current migration status
