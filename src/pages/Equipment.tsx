@@ -3,7 +3,7 @@ import { AddDeviceForm } from "@/components/device-management/AddDeviceForm";
 import { DatabaseTable } from "@/components/DatabaseTable";
 import { useDeviceData, DevicesHeader, DevicesGrid } from "@/features/equipment";
 import { AppLayout } from "@/components/layouts";
-import { DeviceHistoryTable } from "@/features/device-details/components/DeviceHistoryTable";
+import { LazyDeviceHistoryTable } from "@/components/loading/LazyDeviceHistoryTable";
 import { useGuestMode } from "@/hooks/useGuestMode";
 
 export default function Equipment() {
@@ -40,9 +40,12 @@ export default function Equipment() {
           {/* Admin now has same permissions as SuperAdmin for viewing devices */}
           <DevicesGrid devices={devices} isAdmin={isAdmin && !isGuest} isLoading={isLoading} isSuperAdmin={isSuperAdmin && !isGuest} onDeviceUpdated={handleRefresh} />
 
-          {/* Device History Table - Show to all users including guests */}
-                    <div className="mt-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-            <DeviceHistoryTable deviceIds={devices.map(d => d.device_code)} title="ประวัติอุปกรณ์" />
+          {/* Device History Table - Phase 1: Lazy loaded with enhanced UX */}
+          <div className="mt-8">
+            <LazyDeviceHistoryTable 
+              deviceIds={devices.map(d => d.device_code)} 
+              title="ประวัติอุปกรณ์" 
+            />
           </div>
     </AppLayout>;
 }

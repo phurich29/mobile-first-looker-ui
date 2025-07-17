@@ -3,6 +3,7 @@ import { useAuth } from '@/components/AuthProvider';
 import { useGuestMode } from '@/hooks/useGuestMode';
 import { DeviceInfo } from '@/features/equipment/types';
 import { fetchDevicesWithDetails } from '@/features/equipment/services/deviceDataService';
+import { supabase } from '@/integrations/supabase/client';
 
 // Query keys for React Query
 export const deviceQueryKeys = {
@@ -63,6 +64,24 @@ export function useDeviceDataQuery(options: UseDeviceDataQueryOptions = {}) {
         const fetchTime = Date.now() - startTime;
         console.log(`✅ React Query: Device fetch completed in ${fetchTime}ms`);
         console.log(`📱 React Query: Fetched ${deviceList.length} devices`);
+        
+        // Phase 2: Enhanced prefetch mechanism for device history
+        if (deviceList.length > 0 && !isGuest) {
+          const activeCodes = deviceList.slice(0, 5).map(d => d.device_code);
+          queryClient.prefetchQuery({
+            queryKey: ['deviceHistory', activeCodes, 1, 20],
+            queryFn: async () => {
+              const { data: historyData } = await supabase
+                .from('rice_quality_analysis')
+                .select('*, output', { count: 'exact' })
+                .in('device_code', activeCodes)
+                .order('created_at', { ascending: false })
+                .range(0, 19);
+              return { data: historyData || [], count: historyData?.length || 0 };
+            },
+            staleTime: 5 * 60 * 1000
+          });
+        }
         
         return deviceList;
       } catch (error) {
