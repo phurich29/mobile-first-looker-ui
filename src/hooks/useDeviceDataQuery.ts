@@ -3,6 +3,7 @@ import { useAuth } from '@/components/AuthProvider';
 import { useGuestMode } from '@/hooks/useGuestMode';
 import { DeviceInfo } from '@/features/equipment/types';
 import { fetchDevicesWithDetails } from '@/features/equipment/services/deviceDataService';
+import { useGuestDevices } from '@/features/equipment/hooks/useGuestDevices';
 import { supabase } from '@/integrations/supabase/client';
 
 // Query keys for React Query
@@ -25,6 +26,7 @@ interface UseDeviceDataQueryOptions {
 export function useDeviceDataQuery(options: UseDeviceDataQueryOptions = {}) {
   const { user, userRoles } = useAuth();
   const { isGuest } = useGuestMode();
+  const { fetchGuestDevices } = useGuestDevices();
   const queryClient = useQueryClient();
   
   const isAdmin = userRoles.includes('admin');
@@ -33,7 +35,7 @@ export function useDeviceDataQuery(options: UseDeviceDataQueryOptions = {}) {
   const {
     staleTime = 30000, // 30 seconds - data is fresh for 30s
     gcTime = 300000, // 5 minutes - keep in cache for 5 min
-    refetchInterval = 60000, // 1 minute - background refresh
+    refetchInterval = isGuest ? 120000 : 60000, // 2 minutes for guests, 1 minute for authenticated
     enabled = true,
   } = options;
 
@@ -55,17 +57,25 @@ export function useDeviceDataQuery(options: UseDeviceDataQueryOptions = {}) {
       const startTime = Date.now();
       
       try {
-        const deviceList = await fetchDevicesWithDetails(
-          user?.id,
-          isAdmin,
-          isSuperAdmin
-        );
+        let deviceList: DeviceInfo[];
+        
+        if (isGuest) {
+          console.log('📱 Fetching devices for guest user');
+          deviceList = await fetchGuestDevices();
+        } else {
+          console.log('🔐 Fetching devices for authenticated user');
+          deviceList = await fetchDevicesWithDetails(
+            user?.id,
+            isAdmin,
+            isSuperAdmin
+          );
+        }
         
         const fetchTime = Date.now() - startTime;
         console.log(`✅ React Query: Device fetch completed in ${fetchTime}ms`);
         console.log(`📱 React Query: Fetched ${deviceList.length} devices`);
         
-        // Phase 2: Enhanced prefetch mechanism for device history
+        // Phase 2: Enhanced prefetch mechanism for device history (only for authenticated users)
         if (deviceList.length > 0 && !isGuest) {
           const activeCodes = deviceList.slice(0, 5).map(d => d.device_code);
           queryClient.prefetchQuery({
