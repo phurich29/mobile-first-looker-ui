@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -181,7 +182,18 @@ export default function Login() {
   
   return (
     <>
-      <div className={`min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4 ${isMobile ? 'pb-20' : ''}`}>
+      <div className={`min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4 ${isMobile ? 'pb-20' : ''} relative`}>
+        {/* Back Button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate("/")}
+          className="absolute top-4 left-4 flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          กลับ
+        </Button>
+        
         <Card className="w-full max-w-md mx-auto">
           <CardHeader>
             <CardTitle className="text-2xl text-center">Riceflow Login</CardTitle>
