@@ -1,69 +1,90 @@
-
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { DeviceInfo } from '../types';
+import { useMountedRef } from './useMountedRef';
 
+/**
+ * Hook for fetching guest devices
+ */
 export function useGuestDevices() {
+  const isMountedRef = useMountedRef();
+
   const fetchGuestDevices = useCallback(async (): Promise<DeviceInfo[]> => {
-    console.log("👤 Fetching guest devices with optimized query");
-    
-    try {
-      // Try the fast guest devices function first
-      const { data, error } = await supabase.rpc('get_guest_devices_fast');
-      
-      if (error) {
-        console.error("👤 Error with get_guest_devices_fast:", error);
-        throw error;
-      }
-
-      if (!data || data.length === 0) {
-        console.log("👤 No guest devices found");
-        return [];
-      }
-
-      // Transform the data to match DeviceInfo interface
-      const transformedDevices: DeviceInfo[] = data.map(device => ({
-        device_code: device.device_code,
-        display_name: device.display_name,
-        updated_at: device.updated_at ? new Date(device.updated_at).toISOString() : new Date().toISOString(),
-        deviceData: null // Guest devices don't need full device data
-      }));
-
-      console.log(`👤 Successfully fetched ${transformedDevices.length} guest devices`);
-      return transformedDevices;
-      
-    } catch (error) {
-      console.error('👤 Error in fetchGuestDevices:', error);
-      
-      // Emergency fallback for guests
-      console.log('👤 Using emergency fallback for guest devices');
-      try {
-        const { data: fallbackData, error: fallbackError } = await supabase.rpc('get_devices_emergency_fallback');
-        
-        if (fallbackError) {
-          console.error("👤 Emergency fallback also failed:", fallbackError);
-          return [];
-        }
-
-        if (!fallbackData) {
-          return [];
-        }
-
-        const fallbackDevices: DeviceInfo[] = fallbackData.map(device => ({
-          device_code: device.device_code,
-          display_name: device.display_name || device.device_code,
-          updated_at: device.updated_at ? new Date(device.updated_at).toISOString() : new Date().toISOString(),
-          deviceData: null
-        }));
-
-        console.log(`👤 Emergency fallback returned ${fallbackDevices.length} devices`);
-        return fallbackDevices;
-      } catch (fallbackError) {
-        console.error('👤 Emergency fallback failed completely:', fallbackError);
-        return [];
-      }
+    if (!isMountedRef.current) {
+      console.log('📱 Component unmounted, skipping guest device fetch');
+      return [];
     }
-  }, []);
+
+    try {
+      console.log('📱 Fetching guest devices...');
+      
+      // ดึงรายการอุปกรณ์ที่เปิดให้ guest ดู
+      const { data: guestAccessData, error: guestError } = await supabase
+        .from('guest_device_access')
+        .select('device_code')
+        .eq('enabled', true);
+
+      if (!isMountedRef.current) return [];
+
+      if (guestError) {
+        console.error('Error fetching guest access:', guestError);
+        throw guestError;
+      }
+
+      if (!guestAccessData || guestAccessData.length === 0) {
+        console.log('No guest devices found');
+        return [];
+      }
+
+      const deviceCodes = guestAccessData.map(item => item.device_code);
+      console.log('📱 Guest device codes:', deviceCodes);
+      
+      // ดึงข้อมูล display name
+      const { data: settingsData } = await supabase
+        .from('device_settings')
+        .select('device_code, display_name')
+        .in('device_code', deviceCodes);
+
+      if (!isMountedRef.current) return [];
+
+      // ดึงข้อมูลล่าสุดจาก rice_quality_analysis พร้อมข้อมูลทั้งหมด
+      const { data: analysisData } = await supabase
+        .from('rice_quality_analysis')
+        .select('*')
+        .in('device_code', deviceCodes)
+        .order('created_at', { ascending: false });
+
+      if (!isMountedRef.current) return [];
+
+      // สร้าง map ของข้อมูลล่าสุดสำหรับแต่ละ device
+      const latestDeviceData: Record<string, any> = {};
+      analysisData?.forEach(record => {
+        if (!latestDeviceData[record.device_code]) {
+          latestDeviceData[record.device_code] = record;
+        }
+      });
+
+      const devicesWithDetails = deviceCodes.map(code => {
+        const setting = settingsData?.find(s => s.device_code === code);
+        const deviceAnalysisData = latestDeviceData[code];
+        
+        console.log(`📱 Guest device ${code} data:`, deviceAnalysisData);
+        
+        return {
+          device_code: code,
+          display_name: setting?.display_name || code,
+          updated_at: deviceAnalysisData?.created_at || new Date().toISOString(),
+          deviceData: deviceAnalysisData || null
+        };
+      });
+
+      console.log(`📱 Fetched ${devicesWithDetails.length} guest devices with data`);
+      return devicesWithDetails;
+    } catch (error) {
+      console.error('Error fetching guest devices:', error);
+      throw error;
+    }
+  }, [isMountedRef]);
 
   return { fetchGuestDevices };
 }

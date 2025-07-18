@@ -38,51 +38,70 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
 
     let devices: DeviceInfo[] = [];
 
-    try {
-      // Try the main optimized function first
-      console.log(`Calling get_devices_with_details for ${userIsSuperAdmin ? 'SuperAdmin' : userIsAdmin ? 'Admin' : 'Regular User'}`);
-      
+    // SuperAdmin and Admin have different permissions now
+    if (userIsSuperAdmin || userIsAdmin) {
+      console.log(`Fetching devices for ${userIsSuperAdmin ? 'SuperAdmin' : 'Admin'} using database function...`);
       const { data, error } = await supabase.rpc('get_devices_with_details', {
         user_id_param: currentUserId,
-        is_admin_param: userIsAdmin && !userIsSuperAdmin,
-        is_superadmin_param: userIsSuperAdmin
+        is_admin_param: userIsAdmin && !userIsSuperAdmin, // Only true for admin, not superadmin
+        is_superadmin_param: userIsSuperAdmin // Only true for superadmin
       });
-      
       if (error) {
         console.error("Error from database function:", error);
         throw error;
       }
-      
       devices = data || [];
-      console.log(`✅ Successfully fetched ${devices.length} devices from main function`);
+      console.log(`${userIsSuperAdmin ? 'SuperAdmin' : 'Admin'}: Found ${devices.length} devices from database function`);
+    } else {
+      // Regular users see devices they have access to OR devices in guest_device_access that are enabled
+      console.log("Fetching devices for regular user...");
       
-    } catch (mainError) {
-      console.error("❌ Main function failed, trying emergency fallback:", mainError);
-      
-      // Emergency fallback - try the emergency function
-      try {
-        const { data: emergencyData, error: emergencyError } = await supabase.rpc('get_devices_emergency_fallback');
+      const { data: accessibleDevices, error: accessError } = await supabase
+        .from('user_device_access')
+        .select('device_code')
+        .eq('user_id', currentUserId);
+
+      if (accessError) throw accessError;
+
+      const { data: guestDevices, error: guestError } = await supabase
+        .from('guest_device_access')
+        .select('device_code')
+        .eq('enabled', true);
+
+      if (guestError) throw guestError;
+
+      // Combine accessible devices and enabled guest devices
+      const allAccessibleDeviceCodes = [
+        ...(accessibleDevices?.map(d => d.device_code) || []),
+        ...(guestDevices?.map(d => d.device_code) || [])
+      ];
+
+      const uniqueDeviceCodes = [...new Set(allAccessibleDeviceCodes)];
+      console.log(`Regular user: Found ${uniqueDeviceCodes.length} accessible device codes`);
+
+      if (uniqueDeviceCodes.length > 0) {
+        // Use database function and filter results
+        const { data, error } = await supabase.rpc('get_devices_with_details', {
+          user_id_param: currentUserId,
+          is_admin_param: false,
+          is_superadmin_param: false
+        });
+        if (error) throw error;
         
-        if (emergencyError) {
-          console.error("❌ Emergency fallback also failed:", emergencyError);
-          return [];
-        }
-        
-        devices = emergencyData || [];
-        console.log(`🚑 Emergency fallback returned ${devices.length} devices`);
-        
-      } catch (emergencyError) {
-        console.error("❌ Emergency fallback completely failed:", emergencyError);
-        return [];
+        // Filter to only show devices they have access to
+        devices = (data || []).filter(device => 
+          uniqueDeviceCodes.includes(device.device_code)
+        );
       }
+      console.log(`Regular user: Filtered to ${devices.length} devices`);
     }
 
-    console.log(`✅ Final result: ${devices.length} devices`);
+    console.log(`✅ Successfully fetched ${devices.length} devices with details`);
     console.log("Device codes found:", devices.map(d => d.device_code));
     
     return devices;
   } catch (error) {
-    console.error("❌ Outer error in fetchDevicesWithDetails:", error);
+    console.error("❌ Error fetching devices with details:", error);
     return [];
   }
 };
@@ -94,7 +113,7 @@ export const fetchDeviceCount = async (): Promise<number> => {
     // Get current user
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.log("No authenticated user found for count");
+      console.log("No authenticated user found");
       return 0;
     }
 
@@ -109,31 +128,38 @@ export const fetchDeviceCount = async (): Promise<number> => {
 
     let count = 0;
 
-    try {
-      // Use the main function to get count
+    // SuperAdmin and Admin have different permissions
+    if (isSuperAdmin || isAdmin) {
       const { data, error } = await supabase.rpc('get_devices_with_details', {
         user_id_param: user.id,
-        is_admin_param: isAdmin && !isSuperAdmin,
-        is_superadmin_param: isSuperAdmin
+        is_admin_param: isAdmin && !isSuperAdmin, // Only true for admin, not superadmin
+        is_superadmin_param: isSuperAdmin // Only true for superadmin
       });
-      
       if (error) throw error;
       count = data?.length || 0;
-    } catch (error) {
-      console.error("❌ Error counting devices, using fallback:", error);
-      // Fallback count method
-      if (isSuperAdmin || isAdmin) {
-        const { data: fallbackData } = await supabase
-          .from('rice_quality_analysis')
-          .select('device_code', { count: 'exact', head: true });
-        count = fallbackData?.length || 0;
-      } else {
-        const { data: accessibleDevices } = await supabase
-          .from('user_device_access')
-          .select('device_code')
-          .eq('user_id', user.id);
-        count = accessibleDevices?.length || 0;
-      }
+    } else {
+      // Regular users see devices they have access to OR devices in guest_device_access that are enabled
+      const { data: accessibleDevices, error: accessError } = await supabase
+        .from('user_device_access')
+        .select('device_code')
+        .eq('user_id', user.id);
+
+      if (accessError) throw accessError;
+
+      const { data: guestDevices, error: guestError } = await supabase
+        .from('guest_device_access')
+        .select('device_code')
+        .eq('enabled', true);
+
+      if (guestError) throw guestError;
+
+      // Combine accessible devices and enabled guest devices
+      const allAccessibleDeviceCodes = [
+        ...(accessibleDevices?.map(d => d.device_code) || []),
+        ...(guestDevices?.map(d => d.device_code) || [])
+      ];
+
+      count = new Set(allAccessibleDeviceCodes).size;
     }
 
     console.log(`Found ${count} unique devices using optimized function`);

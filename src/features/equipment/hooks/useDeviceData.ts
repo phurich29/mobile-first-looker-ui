@@ -18,7 +18,6 @@ export function useDeviceData() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [totalUniqueDevices, setTotalUniqueDevices] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [hasInitialized, setHasInitialized] = useState(false);
   const isMountedRef = useMountedRef();
   
   const isAdmin = userRoles.includes('admin');
@@ -33,10 +32,10 @@ export function useDeviceData() {
   });
   const { fetchDeviceCount } = useDeviceCount();
   
-  // Main device fetching function with timeout and circuit breaker
+  // Main device fetching function
   const fetchDevices = useCallback(async () => {
-    if (!isMountedRef.current || isRefreshing) {
-      console.log("🔧 Skipping fetch - component unmounted or already refreshing");
+    if (!isMountedRef.current) {
+      console.log("🔧 Component unmounted, skipping device fetch");
       return;
     }
 
@@ -51,22 +50,11 @@ export function useDeviceData() {
       
       let deviceList: DeviceInfo[] = [];
       
-      // Add timeout wrapper for all fetch operations
-      const fetchWithTimeout = async (fetchFn: () => Promise<DeviceInfo[]>, timeoutMs = 10000) => {
-        return Promise.race([
-          fetchFn(),
-          new Promise<DeviceInfo[]>((_, reject) => 
-            setTimeout(() => reject(new Error('Fetch timeout')), timeoutMs)
-          )
-        ]);
-      };
-      
       if (isGuest) {
         console.log("👤 Fetching devices for guest user");
-        deviceList = await fetchWithTimeout(() => fetchGuestDevices(), 8000);
+        deviceList = await fetchGuestDevices();
       } else if (user) {
-        console.log("🔐 Fetching devices for authenticated user");
-        deviceList = await fetchWithTimeout(() => fetchAuthenticatedDevices(), 10000);
+        deviceList = await fetchAuthenticatedDevices();
       }
       
       if (!isMountedRef.current) return;
@@ -81,26 +69,13 @@ export function useDeviceData() {
       
       if (isMountedRef.current) {
         setDevices(deviceList);
-        setHasInitialized(true);
       }
       
       // Count total unique devices (only for authenticated users)
       if (!isGuest && user && isMountedRef.current) {
-        try {
-          const totalCount = await Promise.race([
-            fetchDeviceCount(),
-            new Promise<number>((_, reject) => 
-              setTimeout(() => reject(new Error('Count timeout')), 5000)
-            )
-          ]);
-          if (isMountedRef.current) {
-            setTotalUniqueDevices(totalCount);
-          }
-        } catch (countError) {
-          console.warn('🔧 Device count failed, using fallback:', countError);
-          if (isMountedRef.current) {
-            setTotalUniqueDevices(deviceList.length);
-          }
+        const totalCount = await fetchDeviceCount();
+        if (isMountedRef.current) {
+          setTotalUniqueDevices(totalCount);
         }
       } else if (isMountedRef.current) {
         setTotalUniqueDevices(deviceList.length);
@@ -108,24 +83,14 @@ export function useDeviceData() {
       }
       
     } catch (error) {
-      console.error('🔧 Error fetching devices:', error);
+      console.error('Error fetching devices:', error);
       if (isMountedRef.current) {
-        const errorMessage = error instanceof Error ? error.message : "Unknown error";
-        setError(errorMessage);
-        
-        // Don't show toast for timeout errors in guest mode to avoid spam
-        if (!isGuest || !errorMessage.includes('timeout')) {
-          toast({
-            title: "Error",
-            description: "ไม่สามารถดึงข้อมูลอุปกรณ์ได้",
-            variant: "destructive",
-          });
-        }
-        
-        // Set empty devices on error to prevent infinite loading
-        setDevices([]);
-        setTotalUniqueDevices(0);
-        setHasInitialized(true);
+        setError(error instanceof Error ? error.message : "Unknown error");
+        toast({
+          title: "Error",
+          description: "ไม่สามารถดึงข้อมูลอุปกรณ์ได้",
+          variant: "destructive",
+        });
       }
     } finally {
       if (isMountedRef.current) {
@@ -133,31 +98,17 @@ export function useDeviceData() {
         setIsRefreshing(false);
       }
     }
-  }, [user, isGuest, fetchGuestDevices, fetchAuthenticatedDevices, fetchDeviceCount, toast, isMountedRef, isRefreshing]);
+  }, [user, isGuest, fetchGuestDevices, fetchAuthenticatedDevices, fetchDeviceCount, toast, isMountedRef]);
   
-  // Initial fetch with debouncing
+  // Initial fetch
   useEffect(() => {
-    if (hasInitialized) {
-      console.log("🔧 Already initialized, skipping fetch");
-      return;
-    }
-
-    const timeoutId = setTimeout(() => {
-      fetchDevices();
-    }, 100); // Small delay to prevent multiple rapid calls
-
-    return () => clearTimeout(timeoutId);
-  }, [fetchDevices, hasInitialized]);
+    fetchDevices();
+  }, [fetchDevices]);
 
   // Handler for manual refresh
   const handleRefresh = useCallback(async () => {
-    if (isRefreshing) {
-      console.log("🔧 Already refreshing, ignoring refresh request");
-      return;
-    }
-    console.log("🔧 Manual refresh triggered");
     await fetchDevices();
-  }, [fetchDevices, isRefreshing]);
+  }, [fetchDevices]);
   
   return {
     devices,

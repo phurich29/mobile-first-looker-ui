@@ -3,7 +3,6 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { clearCache } from '@/utils/clearCache';
 
 interface PWAContextValue {
   isOnline: boolean;
@@ -11,7 +10,6 @@ interface PWAContextValue {
   offlineReady: boolean;
   updateServiceWorker: () => void;
   appVersion: string;
-  clearCacheNow: () => void;
 }
 
 const PWAContext = createContext<PWAContextValue | undefined>(undefined);
@@ -149,8 +147,16 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
     try {
       console.log('Starting PWA update process...');
       
-      // ใช้ clearCache utility แทน
-      await clearCache({ preserveAuth: true, showToast: true, reload: false });
+      // Show loading toast
+      toast({
+        title: 'กำลังอัปเดต...',
+        description: 'กรุณารอสักครู่',
+        duration: 2000,
+      });
+      
+      // ไม่ clear auth cache สำหรับ PWA update เพื่อรักษา session
+      // แค่ clear cache ที่ไม่เกี่ยวกับ auth
+      await clearAuthCache(false);
       
       // Update service worker
       updateServiceWorker(true);
@@ -170,10 +176,6 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
         duration: 5000,
       });
     }
-  };
-
-  const handleClearCacheNow = () => {
-    clearCache({ preserveAuth: true, showToast: true, reload: true });
   };
 
   useEffect(() => {
@@ -224,7 +226,6 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
     offlineReady,
     updateServiceWorker: handleUpdate,
     appVersion,
-    clearCacheNow: handleClearCacheNow,
   };
 
   return (
