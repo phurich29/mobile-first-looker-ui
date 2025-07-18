@@ -2,8 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { User, LogIn } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useGuestMode } from '@/hooks/useGuestMode';
-import { supabase } from '@/integrations/supabase/client';
+import { useUnifiedPermissions } from '@/hooks/useUnifiedPermissions';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,32 +11,24 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export const UserProfileButton: React.FC = () => {
-  const { isGuest, user } = useGuestMode();
+  const { isGuest } = useUnifiedPermissions();
   const navigate = useNavigate();
-
-  const handleLoginClick = async () => {
-    // สำหรับ guest: logout ก่อน (เผื่อมี session เก่าค้างอยู่) แล้วไปหน้า login
-    if (isGuest) {
-      await supabase.auth.signOut();
-      navigate('/login');
-    }
-  };
-
-  const handleLogoutClick = async () => {
-    await supabase.auth.signOut();
-    navigate('/login');
-  };
 
   const handleProfileClick = () => {
     navigate('/profile');
   };
 
-  // สำหรับ Guest ไม่ต้องแสดงอะไร
+  const handleImmediateLogout = () => {
+    // Navigate to logout page for immediate cleanup
+    navigate('/logout');
+  };
+
+  // For guests, don't show anything
   if (isGuest) {
     return null;
   }
 
-  // สำหรับผู้ใช้ที่ login แล้ว แสดง dropdown menu
+  // For authenticated users, show dropdown menu
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -54,7 +45,7 @@ export const UserProfileButton: React.FC = () => {
           <User className="h-4 w-4 mr-2" />
           ข้อมูลส่วนตัว
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleLogoutClick}>
+        <DropdownMenuItem onClick={handleImmediateLogout}>
           <LogIn className="h-4 w-4 mr-2" />
           ออกจากระบบ
         </DropdownMenuItem>

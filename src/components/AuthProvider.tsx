@@ -73,74 +73,78 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [setIsLoading]);
 
   useEffect(() => {
-    console.log("🚀 Single Client AuthProvider initialized");
-    setIsLoading(true);
-    isAuthReady.current = false;
-    sessionInitialized.current = false;
-
-    // Single auth state listener with aggressive debouncing
+    console.log("🚀 Simplified AuthProvider initialized");
+    
+    // Single, simple auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
-        const now = Date.now();
-        
-        // Aggressive debouncing - prevent cascade
-        if (now - lastAuthStateChange.current < 150) {
-          return;
-        }
-        lastAuthStateChange.current = now;
-        
+      async (event, session) => {
         console.log(`🔄 Auth: ${event}`);
         
-        // Immediate state resolution
-        if (event === 'SIGNED_OUT') {
+        // Immediate state updates - no debouncing needed
+        if (event === 'SIGNED_OUT' || !session) {
           setUser(null);
           setSession(null);
           setUserRoles([]);
-          completeAuthInitialization();
+          setIsLoading(false);
+          isAuthReady.current = true;
           return;
         }
 
-        if (currentSession?.user) {
-          setUser(currentSession.user);
-          setSession(currentSession);
+        if (session?.user) {
+          setUser(session.user);
+          setSession(session);
           
-          // Fetch roles only once
+          // Fetch roles only once per session
           if (!sessionInitialized.current) {
-            const roles = await fetchUserRoles(currentSession.user.id);
-            setUserRoles(roles);
+            try {
+              const roles = await fetchUserRoles(session.user.id);
+              setUserRoles(roles);
+            } catch (error) {
+              console.warn('Role fetch failed:', error);
+              setUserRoles([]);
+            }
             sessionInitialized.current = true;
           }
-        } else {
-          setUser(null);
-          setSession(null);
-          setUserRoles([]);
         }
         
-        completeAuthInitialization();
+        setIsLoading(false);
+        isAuthReady.current = true;
       }
     );
 
     // Simple initial session check
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
+      if (session?.user) {
         setUser(session.user);
         setSession(session);
-        fetchUserRoles(session.user.id).then(setUserRoles);
+        fetchUserRoles(session.user.id)
+          .then(setUserRoles)
+          .catch(() => setUserRoles([]));
       }
       sessionInitialized.current = true;
-      completeAuthInitialization();
+      setIsLoading(false);
+      isAuthReady.current = true;
     });
 
     return () => subscription.unsubscribe();
-  }, [fetchUserRoles, completeAuthInitialization]);
+  }, [fetchUserRoles]);
 
+  // Immediate logout function
   const handleSignOut = async () => {
+    console.log('🚀 Immediate logout initiated');
+    
+    // Set states immediately
     setUser(null);
     setSession(null);
     setUserRoles([]);
+    setIsLoading(false);
     isAuthReady.current = false;
     sessionInitialized.current = false;
-    await supabase.auth.signOut();
+    
+    // Sign out from Supabase (async, but don't wait)
+    supabase.auth.signOut().catch(console.error);
+    
+    console.log('✅ Immediate logout completed');
   };
 
   const value = {

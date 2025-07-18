@@ -1,33 +1,28 @@
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useAuth } from '@/components/AuthProvider';
 
+/**
+ * Simplified guest mode hook - immediate state resolution
+ */
 export const useGuestMode = () => {
   const { user, isLoading, isAuthReady } = useAuth();
-  const [isInitialized, setIsInitialized] = useState(false);
   
-  // Immediate state resolution - no waiting
-  useEffect(() => {
-    // Set immediate fallback state
-    if (!isInitialized) {
-      setIsInitialized(true);
-    }
-  }, [isInitialized]);
-  
-  // Simple guest determination
-  const isGuest = !user && !isLoading && isAuthReady;
-  const isStable = isInitialized; // Simplified stability check
-  
-  // Log only important state changes
-  useEffect(() => {
-    if (isStable) {
-      console.log(`👤 Guest mode: ${isGuest ? 'ENABLED' : 'DISABLED'}`);
-    }
-  }, [isGuest, isStable]);
+  // Immediate state calculation - no delays or timeouts
+  const { isGuest, isStable } = useMemo(() => {
+    // Simple guest determination - no complex logic
+    const guest = !user && !isLoading && isAuthReady;
+    const stable = isAuthReady; // Auth ready = stable
+    
+    return {
+      isGuest: guest,
+      isStable: stable,
+    };
+  }, [user, isLoading, isAuthReady]);
 
   return {
     isGuest,
     isStable,
-    user, // Add user back for components that need it
+    user, // Return user for backward compatibility
   };
 };
