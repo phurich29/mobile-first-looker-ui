@@ -527,7 +527,13 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      guest_enabled_devices: {
+        Row: {
+          device_code: string | null
+          enabled: boolean | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       check_notification_thresholds: {
@@ -557,6 +563,13 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_guest_enabled_devices: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          device_code: string
+          enabled: boolean
+        }[]
+      }
       get_user_roles: {
         Args: { user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
@@ -575,6 +588,14 @@ export type Database = {
       }
       is_admin_or_superadmin_safe: {
         Args: { user_id_param: string }
+        Returns: boolean
+      }
+      log_security_check: {
+        Args: { function_name: string; user_id: string; success: boolean }
+        Returns: undefined
+      }
+      validate_password_strength: {
+        Args: { password: string }
         Returns: boolean
       }
     }
