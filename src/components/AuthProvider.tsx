@@ -21,7 +21,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isLoading,
     setIsLoading,
     signOut,
-    validateAndRefreshSession,
   } = useAuthSession();
 
   const {
@@ -31,29 +30,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
   } = useUserRoles();
 
   useEffect(() => {
-    console.log("Setting up AuthProvider");
+    console.log("🔐 Setting up AuthProvider");
     setIsLoading(true);
 
     // Set up auth state listener first - critical to avoid race conditions
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
-        console.log("Auth state changed, event:", event);
+        console.log("🔄 Auth state changed, event:", event);
         
-        // Re-enable session validation to ensure session is always fresh
-        const validSession = await validateAndRefreshSession(currentSession);
-        
-        // Update session and user state with the validated session
-        setSession(validSession);
-        setUser(validSession?.user ?? null);
+        // Simple session update without additional validation
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
         
         // If user is logged in, fetch roles from database
-        if (validSession?.user) {
+        if (currentSession?.user) {
           try {
-            const roles = await fetchUserRoles(validSession.user.id);
-            console.log("Setting user roles after auth change:", roles);
+            const roles = await fetchUserRoles(currentSession.user.id);
+            console.log("👤 Setting user roles after auth change:", roles);
             setUserRoles(roles);
           } catch (error) {
-            console.error("Error fetching roles during auth change:", error);
+            console.error("❌ Error fetching roles during auth change:", error);
             setUserRoles([]);
           }
         } else {
@@ -63,20 +59,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     );
 
-    // Initial session check happens after setting up the listener
+    // Initial session check - simplified
     const initializeAuth = async () => {
-      console.log("Initializing auth");
+      console.log("🚀 Initializing auth");
       try {
         const { data: { session: initialSession }, error } = await supabase.auth.getSession();
         
-        // ตรวจสอบข้อผิดพลาด refresh_token_not_found แต่ไม่ sign out ทันที
         if (error) {
-          console.warn('Warning fetching session:', error);
+          console.warn('⚠️ Warning fetching session:', error);
           
-          // เฉพาะ auth error ที่ร้ายแรงเท่านั้นที่จะ sign out
+          // Only handle critical auth errors
           if (error.message?.includes('invalid_grant') || 
               error.message?.includes('token_expired')) {
-            console.log('Critical auth error detected, signing out...');
+            console.log('🚨 Critical auth error detected, signing out...');
             await supabase.auth.signOut();
             setUser(null);
             setSession(null);
@@ -84,38 +79,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
             setIsLoading(false);
             return;
           }
-          
-          // สำหรับ error อื่นๆ ให้ log แต่ไม่ sign out
-          console.log('Non-critical auth error, continuing with current state');
         }
         
-        console.log("Initial session retrieved:", !!initialSession);
+        console.log("📋 Initial session retrieved:", !!initialSession);
         
-        // Validate initial session
-        const validSession = await validateAndRefreshSession(initialSession);
-        
-        // Update session and user state immediately
-        setSession(validSession);
-        setUser(validSession?.user ?? null);
+        // Simple session update without validation
+        setSession(initialSession);
+        setUser(initialSession?.user ?? null);
         
         // If user is logged in, fetch roles from database
-        if (validSession?.user) {
-          console.log("User is logged in, fetching roles");
-          const roles = await fetchUserRoles(validSession.user.id);
-          console.log("Setting initial user roles:", roles);
+        if (initialSession?.user) {
+          console.log("👤 User is logged in, fetching roles");
+          const roles = await fetchUserRoles(initialSession.user.id);
+          console.log("🏷️ Setting initial user roles:", roles);
           setUserRoles(roles);
         }
       } catch (error) {
-        console.warn('Warning checking session:', error);
-        
-        // ไม่ sign out ทันที แต่ให้ continue ด้วย current state
-        console.log('Session check failed, but keeping current auth state');
+        console.warn('⚠️ Warning checking session:', error);
         setUser(null);
         setSession(null);
         setUserRoles([]);
       } finally {
         setIsLoading(false);
-        console.log("Auth initialization complete");
+        console.log("✅ Auth initialization complete");
       }
     };
 

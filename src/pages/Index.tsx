@@ -1,61 +1,129 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/AuthProvider';
+import { useGuestMode } from '@/hooks/useGuestMode';
 import { useQuery } from '@tanstack/react-query';
 import { fetchDevicesWithDetails } from '@/features/equipment/services/deviceDataService';
 import { LoadingScreen } from '@/features/device-details/components/LoadingScreen';
 
 const Index = () => {
   const navigate = useNavigate();
-  const { isLoading, user, userRoles } = useAuth();
-  
+  const { isLoading: authLoading, user, userRoles } = useAuth();
+  const { isGuest, isAuthenticated } = useGuestMode();
+  const [redirectAttempts, setRedirectAttempts] = useState(0);
+  const [hasRedirected, setHasRedirected] = useState(false);
+
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
 
-  // Use React Query to fetch devices for access verification
+  console.log('🏠 Index page render:', {
+    authLoading,
+    isAuthenticated,
+    isGuest,
+    user: !!user,
+    redirectAttempts,
+    hasRedirected
+  });
+
+  // Safeguard against infinite redirects
+  const MAX_REDIRECT_ATTEMPTS = 3;
+  
+  // Only fetch devices for authenticated users, not guests
   const { data: accessibleDevices } = useQuery({
     queryKey: ['accessible-devices-check', user?.id, isAdmin, isSuperAdmin],
     queryFn: () => fetchDevicesWithDetails(user?.id, isAdmin, isSuperAdmin),
-    enabled: !isLoading && !!user,
+    enabled: !authLoading && !!user && isAuthenticated && !isGuest,
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 5 * 60 * 1000, // 5 minutes
   });
 
   useEffect(() => {
-    // Wait for the authentication to be fully resolved before making any decisions.
-    if (isLoading) {
+    // Prevent infinite redirect loops
+    if (redirectAttempts >= MAX_REDIRECT_ATTEMPTS) {
+      console.error('🚫 Max redirect attempts reached, staying on Index');
+      return;
+    }
+
+    if (hasRedirected) {
+      console.log('🔄 Already redirected, skipping');
+      return;
+    }
+
+    // Wait for authentication to be fully resolved
+    if (authLoading) {
+      console.log('⏳ Auth still loading, waiting...');
       return;
     }
 
     const handleRedirect = async () => {
-      const lastViewedDeviceCode = localStorage.getItem('lastViewedDeviceCode');
+      console.log('🚀 Starting redirect logic:', {
+        isGuest,
+        isAuthenticated,
+        user: !!user,
+        accessibleDevices: accessibleDevices?.length
+      });
 
-      if (lastViewedDeviceCode && accessibleDevices) {
-        const hasAccess = accessibleDevices.some(d => d.device_code === lastViewedDeviceCode);
+      // For guests (visitors), always go to equipment page
+      if (isGuest) {
+        console.log('👤 Guest user detected, redirecting to equipment');
+        setHasRedirected(true);
+        navigate('/equipment', { replace: true });
+        return;
+      }
 
-        if (hasAccess) {
-          // If access is confirmed, proceed to the device page.
-          navigate(`/device/${lastViewedDeviceCode}`, { replace: true });
+      // For authenticated users, check last viewed device
+      if (isAuthenticated && user) {
+        const lastViewedDeviceCode = localStorage.getItem('lastViewedDeviceCode');
+        console.log('🔍 Checking last viewed device:', lastViewedDeviceCode);
+
+        if (lastViewedDeviceCode && accessibleDevices) {
+          const hasAccess = accessibleDevices.some(d => d.device_code === lastViewedDeviceCode);
+
+          if (hasAccess) {
+            console.log('✅ Access confirmed, redirecting to device page');
+            setHasRedirected(true);
+            navigate(`/device/${lastViewedDeviceCode}`, { replace: true });
+          } else {
+            console.warn(`❌ Access revoked for device ${lastViewedDeviceCode}, clearing and redirecting to equipment`);
+            localStorage.removeItem('lastViewedDeviceCode');
+            setHasRedirected(true);
+            navigate('/equipment', { replace: true });
+          }
         } else {
-          // If access is revoked, clear the invalid entry and go to the equipment page.
-          console.warn(`Access to last viewed device (${lastViewedDeviceCode}) is revoked. Redirecting to equipment.`);
-          localStorage.removeItem('lastViewedDeviceCode');
+          console.log('📋 No last viewed device, redirecting to equipment');
+          setHasRedirected(true);
           navigate('/equipment', { replace: true });
         }
-      } else {
-        // For new users with no history, redirect to the equipment list.
-        navigate('/equipment', { replace: true });
+        return;
       }
+
+      // Fallback: if we can't determine user state, go to equipment
+      console.log('🤷 Unable to determine user state, fallback to equipment');
+      setRedirectAttempts(prev => prev + 1);
+      setHasRedirected(true);
+      navigate('/equipment', { replace: true });
     };
 
-    if (!isLoading && (accessibleDevices !== undefined || !user)) {
+    // Small delay to prevent race conditions
+    const timeoutId = setTimeout(() => {
       handleRedirect();
-    }
+    }, 100);
 
-  }, [isLoading, user, navigate, accessibleDevices]);
+    return () => clearTimeout(timeoutId);
 
-  // Render a loading screen while authentication and redirection logic are in progress.
+  }, [
+    authLoading,
+    isGuest,
+    isAuthenticated,
+    user,
+    navigate,
+    accessibleDevices,
+    redirectAttempts,
+    hasRedirected
+  ]);
+
+  // Show loading screen while determining redirect
   return <LoadingScreen />;
 };
 

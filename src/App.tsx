@@ -7,6 +7,7 @@ import { PWAProvider } from "./contexts/PWAContext";
 import { PWAInstallBanner } from "./components/PWAInstallBanner";
 import { PWADebugComponent } from "./components/PWADebugComponent";
 import { CountdownDebugger } from "./components/CountdownDebugger";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Toaster } from "@/components/ui/toaster";
 import { toast } from "@/components/ui/use-toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -48,21 +49,23 @@ function App() {
   };
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light">
-        <PWAProvider>
-          <CountdownProvider initialSeconds={60} onComplete={handleGlobalCountdownComplete}>
-            <AuthProvider>
-              <RouterProvider router={router} />
-              <PWAInstallBanner />
-              <PWADebugComponent />
-              <CountdownDebugger />
-              <Toaster />
-            </AuthProvider>
-          </CountdownProvider>
-        </PWAProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider defaultTheme="light">
+          <PWAProvider>
+            <CountdownProvider initialSeconds={60} onComplete={handleGlobalCountdownComplete}>
+              <AuthProvider>
+                <RouterProvider router={router} />
+                <PWAInstallBanner />
+                <PWADebugComponent />
+                <CountdownDebugger />
+                <Toaster />
+              </AuthProvider>
+            </CountdownProvider>
+          </PWAProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
