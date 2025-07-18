@@ -741,7 +741,7 @@ export type Database = {
         Returns: boolean
       }
       increment_counter: {
-        Args: { counter_name: string; increment_by?: number }
+        Args: { counter_name_param: string; increment_by?: number }
         Returns: undefined
       }
       invalidate_guest_devices_cache: {

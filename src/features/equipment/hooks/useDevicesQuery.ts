@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/AuthProvider";
 import { useGuestMode } from "@/hooks/useGuestMode";
@@ -11,11 +10,14 @@ import { useCallback, useRef, useState, useEffect } from "react";
  * React Query hook for fetching devices with improved loading state management
  */
 export const useDevicesQuery = () => {
-  const { user, userRoles } = useAuth();
-  const { isGuest } = useGuestMode();
+  const { user, userRoles, isAuthReady } = useAuth();
+  const { isGuest, isStable } = useGuestMode();
   
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
+  
+  // Don't run queries until auth is stable
+  const isQueryEnabled = isAuthReady && isStable;
   
   // Loading state management
   const [isRefreshingState, setIsRefreshingState] = useState(false);
@@ -69,14 +71,14 @@ export const useDevicesQuery = () => {
     };
   }, []);
   
-  // Guest devices query (no cache) with timeout management
+  // Guest devices query with auth stability check
   const guestDevicesQuery = useQuery({
-    queryKey: ['guest-devices-no-cache'],
+    queryKey: ['guest-devices', { isGuest, isAuthReady }],
     queryFn: async (): Promise<DeviceInfo[]> => {
       handleQueryStart();
-      console.log('📱 Fetching guest devices without cache...');
+      console.log('📱 Fetching guest devices with cache...');
       
-      // Direct query without cache - get guest-enabled devices
+      // Direct query - get guest-enabled devices
       const { data: guestDevicesData, error: guestError } = await supabase
         .from('guest_device_access')
         .select('device_code')
@@ -128,26 +130,24 @@ export const useDevicesQuery = () => {
         deviceData: latestDeviceData[device.device_code] || null
       }));
 
-      console.log(`📱 Fetched ${enrichedDevices.length} guest devices without cache`);
+      console.log(`📱 Fetched ${enrichedDevices.length} guest devices`);
       handleQueryComplete();
       return enrichedDevices;
     },
-    enabled: isGuest && !hasTimedOut,
-    staleTime: 0, // No cache
-    gcTime: 0, // No cache
+    enabled: isQueryEnabled && isGuest,
+    retry: 1,
     refetchOnWindowFocus: false,
-    retry: 2,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000) // Max 5s retry delay
+    staleTime: 30000, // 30 seconds cache to prevent excessive queries
   });
 
-  // Authenticated devices query with timeout management
+  // Authenticated devices query with auth stability check
   const authenticatedDevicesQuery = useQuery({
-    queryKey: ['authenticated-devices', user?.id, isAdmin, isSuperAdmin],
+    queryKey: ['devices-details', user?.id, isAdmin, isSuperAdmin, isAuthReady],
     queryFn: async (): Promise<DeviceInfo[]> => {
       handleQueryStart();
       if (!user?.id) return [];
       
-      console.log('🔐 Fetching authenticated devices via React Query...');
+      console.log('🔐 Fetching authenticated devices...');
       
       const deviceList = await fetchDevicesWithDetails(
         user.id,
@@ -181,16 +181,14 @@ export const useDevicesQuery = () => {
         deviceData: latestDeviceData[device.device_code] || null
       }));
 
-      console.log(`🔐 React Query: Fetched ${enrichedDeviceList.length} authenticated devices`);
+      console.log(`🔐 Fetched ${enrichedDeviceList.length} authenticated devices`);
       handleQueryComplete();
       return enrichedDeviceList;
     },
-    enabled: !isGuest && !!user?.id && !hasTimedOut,
-    staleTime: 0, // No cache
-    gcTime: 0, // No cache
+    enabled: isQueryEnabled && !!user && !isGuest,
+    retry: 1,
     refetchOnWindowFocus: false,
-    retry: 2,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000) // Max 5s retry delay
+    staleTime: 15000, // 15 seconds cache to prevent excessive queries
   });
 
   // Monitor query state changes
@@ -205,10 +203,10 @@ export const useDevicesQuery = () => {
     }
   }, [guestDevicesQuery.isError, guestDevicesQuery.isSuccess, authenticatedDevicesQuery.isError, authenticatedDevicesQuery.isSuccess, handleQueryComplete]);
 
-  // Device count query
+  // Device count query with stability check
   const deviceCountQuery = useQuery({
-    queryKey: ['device-count', user?.id, isAdmin, isSuperAdmin],
-    queryFn: async (): Promise<number> => {
+    queryKey: ['device-count', isGuest, isAuthReady],
+    queryFn: async () => {
       if (isGuest) {
         return guestDevicesQuery.data?.length || 0;
       }
@@ -219,10 +217,9 @@ export const useDevicesQuery = () => {
       const devices = await fetchDevicesWithDetails(user.id, isAdmin, isSuperAdmin);
       return devices.length;
     },
-    enabled: !isGuest ? !!user?.id : true,
-    staleTime: 0, // No cache
-    gcTime: 0, // No cache
-    refetchOnWindowFocus: false
+    enabled: isQueryEnabled,
+    retry: 1,
+    staleTime: 60000, // 1 minute cache for count
   });
 
   // Return the appropriate query based on user type
