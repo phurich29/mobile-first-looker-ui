@@ -8,19 +8,14 @@ import { DeviceInfo } from "../types";
 import { useCallback, useRef, useState, useEffect } from "react";
 
 /**
- * React Query hook for fetching devices with improved loading state management and race condition prevention
+ * React Query hook for fetching devices with improved loading state management
  */
 export const useDevicesQuery = () => {
-  const { user, userRoles, isLoading: authLoading } = useAuth();
-  const { isGuest, isStable: guestModeStable } = useGuestMode();
+  const { user, userRoles } = useAuth();
+  const { isGuest } = useGuestMode();
   
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
-  
-  // Auth stability tracking - critical for preventing race conditions
-  const [authStable, setAuthStable] = useState(false);
-  const [stableUserType, setStableUserType] = useState<'guest' | 'authenticated' | null>(null);
-  const authStabilityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Loading state management
   const [isRefreshingState, setIsRefreshingState] = useState(false);
@@ -30,47 +25,6 @@ export const useDevicesQuery = () => {
   
   // Maximum loading time: 15 seconds
   const MAX_LOADING_TIME = 15000;
-  
-  // Auth stability detection with longer delay for post-refresh scenarios
-  useEffect(() => {
-    console.log('🔍 Auth stability check:', { 
-      authLoading, 
-      guestModeStable, 
-      isGuest, 
-      user: !!user,
-      userRoles 
-    });
-    
-    // Clear existing timeout
-    if (authStabilityTimeoutRef.current) {
-      clearTimeout(authStabilityTimeoutRef.current);
-    }
-    
-    // Don't determine stability while auth is loading or guest mode is unstable
-    if (authLoading || !guestModeStable) {
-      console.log('⏳ Auth not ready - waiting for stability');
-      setAuthStable(false);
-      return;
-    }
-    
-    // Determine stable user type with debounce to prevent rapid switches
-    const currentUserType = isGuest ? 'guest' : 'authenticated';
-    
-    // Add extra stability delay especially after page refresh
-    const stabilityDelay = 1500; // 1.5 seconds for extra stability
-    
-    authStabilityTimeoutRef.current = setTimeout(() => {
-      console.log(`✅ Auth stable as: ${currentUserType}`);
-      setAuthStable(true);
-      setStableUserType(currentUserType);
-    }, stabilityDelay);
-    
-    return () => {
-      if (authStabilityTimeoutRef.current) {
-        clearTimeout(authStabilityTimeoutRef.current);
-      }
-    };
-  }, [authLoading, guestModeStable, isGuest, user?.id, userRoles.length]);
   
   // Reset timeout when query starts
   const handleQueryStart = useCallback(() => {
@@ -112,30 +66,15 @@ export const useDevicesQuery = () => {
       if (loadingTimeoutRef.current) {
         clearTimeout(loadingTimeoutRef.current);
       }
-      if (authStabilityTimeoutRef.current) {
-        clearTimeout(authStabilityTimeoutRef.current);
-      }
     };
   }, []);
   
-  // Enhanced query enablement logic - only enable when auth is stable and user type is determined
-  const shouldEnableGuestQuery = authStable && stableUserType === 'guest' && !hasTimedOut;
-  const shouldEnableAuthQuery = authStable && stableUserType === 'authenticated' && !!user?.id && !hasTimedOut;
-  
-  console.log('🎯 Query enablement check:', {
-    authStable,
-    stableUserType,
-    shouldEnableGuestQuery,
-    shouldEnableAuthQuery,
-    hasTimedOut
-  });
-  
-  // Guest devices query with enhanced stability checks
+  // Guest devices query (no cache) with timeout management
   const guestDevicesQuery = useQuery({
-    queryKey: ['guest-devices-stable', stableUserType],
+    queryKey: ['guest-devices-no-cache'],
     queryFn: async (): Promise<DeviceInfo[]> => {
       handleQueryStart();
-      console.log('📱 Fetching guest devices with stability checks...');
+      console.log('📱 Fetching guest devices without cache...');
       
       // Direct query without cache - get guest-enabled devices
       const { data: guestDevicesData, error: guestError } = await supabase
@@ -189,11 +128,11 @@ export const useDevicesQuery = () => {
         deviceData: latestDeviceData[device.device_code] || null
       }));
 
-      console.log(`📱 Fetched ${enrichedDevices.length} stable guest devices`);
+      console.log(`📱 Fetched ${enrichedDevices.length} guest devices without cache`);
       handleQueryComplete();
       return enrichedDevices;
     },
-    enabled: shouldEnableGuestQuery,
+    enabled: isGuest && !hasTimedOut,
     staleTime: 0, // No cache
     gcTime: 0, // No cache
     refetchOnWindowFocus: false,
@@ -201,14 +140,14 @@ export const useDevicesQuery = () => {
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000) // Max 5s retry delay
   });
 
-  // Authenticated devices query with enhanced stability checks
+  // Authenticated devices query with timeout management
   const authenticatedDevicesQuery = useQuery({
-    queryKey: ['authenticated-devices-stable', user?.id, isAdmin, isSuperAdmin, stableUserType],
+    queryKey: ['authenticated-devices', user?.id, isAdmin, isSuperAdmin],
     queryFn: async (): Promise<DeviceInfo[]> => {
       handleQueryStart();
       if (!user?.id) return [];
       
-      console.log('🔐 Fetching authenticated devices with stability checks...');
+      console.log('🔐 Fetching authenticated devices via React Query...');
       
       const deviceList = await fetchDevicesWithDetails(
         user.id,
@@ -242,11 +181,11 @@ export const useDevicesQuery = () => {
         deviceData: latestDeviceData[device.device_code] || null
       }));
 
-      console.log(`🔐 Fetched ${enrichedDeviceList.length} stable authenticated devices`);
+      console.log(`🔐 React Query: Fetched ${enrichedDeviceList.length} authenticated devices`);
       handleQueryComplete();
       return enrichedDeviceList;
     },
-    enabled: shouldEnableAuthQuery,
+    enabled: !isGuest && !!user?.id && !hasTimedOut,
     staleTime: 0, // No cache
     gcTime: 0, // No cache
     refetchOnWindowFocus: false,
@@ -266,37 +205,32 @@ export const useDevicesQuery = () => {
     }
   }, [guestDevicesQuery.isError, guestDevicesQuery.isSuccess, authenticatedDevicesQuery.isError, authenticatedDevicesQuery.isSuccess, handleQueryComplete]);
 
-  // Device count query with stability checks
+  // Device count query
   const deviceCountQuery = useQuery({
-    queryKey: ['device-count-stable', user?.id, isAdmin, isSuperAdmin, stableUserType],
+    queryKey: ['device-count', user?.id, isAdmin, isSuperAdmin],
     queryFn: async (): Promise<number> => {
-      if (stableUserType === 'guest') {
+      if (isGuest) {
         return guestDevicesQuery.data?.length || 0;
       }
       
-      if (!user?.id || stableUserType !== 'authenticated') return 0;
+      if (!user?.id) return 0;
       
       // Use the same logic as fetchDevicesWithDetails for consistency
       const devices = await fetchDevicesWithDetails(user.id, isAdmin, isSuperAdmin);
       return devices.length;
     },
-    enabled: authStable && stableUserType !== null,
+    enabled: !isGuest ? !!user?.id : true,
     staleTime: 0, // No cache
     gcTime: 0, // No cache
     refetchOnWindowFocus: false
   });
 
-  // Return the appropriate query based on stable user type
-  const activeQuery = stableUserType === 'guest' ? guestDevicesQuery : authenticatedDevicesQuery;
+  // Return the appropriate query based on user type
+  const activeQuery = isGuest ? guestDevicesQuery : authenticatedDevicesQuery;
   
-  // Enhanced refetch with stability checks
+  // Enhanced refetch with timeout management
   const enhancedRefetch = useCallback(async () => {
-    if (!authStable) {
-      console.warn('🚫 Cannot refetch - auth not stable');
-      return;
-    }
-    
-    console.log('🔄 Enhanced refetch triggered for stable user type:', stableUserType);
+    console.log('🔄 Enhanced refetch triggered');
     setHasTimedOut(false);
     try {
       return await activeQuery.refetch();
@@ -305,19 +239,17 @@ export const useDevicesQuery = () => {
       handleQueryComplete();
       throw error;
     }
-  }, [activeQuery.refetch, handleQueryComplete, authStable, stableUserType]);
+  }, [activeQuery.refetch, handleQueryComplete]);
   
   return {
     devices: activeQuery.data || [],
-    isLoading: !authStable || activeQuery.isLoading,
+    isLoading: activeQuery.isLoading,
     isRefreshing: isRefreshingState || (activeQuery.isFetching && !activeQuery.isLoading),
     error: hasTimedOut ? new Error('Query timeout exceeded') : activeQuery.error,
     totalUniqueDevices: deviceCountQuery.data || 0,
     refetch: enhancedRefetch,
     isAdmin,
     isSuperAdmin,
-    hasTimedOut, // New field to indicate timeout status
-    authStable, // New field to indicate auth stability
-    stableUserType // New field to show stable user type
+    hasTimedOut // New field to indicate timeout status
   };
 };
