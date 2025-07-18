@@ -1,6 +1,6 @@
 
 import { useAuth } from '@/components/AuthProvider';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 export const useGuestMode = () => {
   const { user, userRoles, isLoading, isAuthReady } = useAuth();
@@ -22,10 +22,14 @@ export const useGuestMode = () => {
     }
   }, [isAuthReady, isLoading, user, isInitialized]);
   
-  // Calculate states based on auth readiness
-  const isGuest = isAuthReady && !isLoading && !user;
-  const isAuthenticated = isAuthReady && !isLoading && !!user;
-  const isStable = isAuthReady && isInitialized;
+  // Memoized calculated states to prevent unnecessary re-renders
+  const derivedStates = useMemo(() => {
+    const isGuest = isAuthReady && !isLoading && !user;
+    const isAuthenticated = isAuthReady && !isLoading && !!user;
+    const isStable = isAuthReady && isInitialized;
+    
+    return { isGuest, isAuthenticated, isStable };
+  }, [isAuthReady, isLoading, user, isInitialized]);
   
   // Don't expose guest/auth states until AuthProvider is ready
   if (!isAuthReady) {
@@ -33,13 +37,13 @@ export const useGuestMode = () => {
   }
   
   return {
-    isGuest: isAuthReady ? isGuest : false,
-    isAuthenticated: isAuthReady ? isAuthenticated : false,
+    isGuest: isAuthReady ? derivedStates.isGuest : false,
+    isAuthenticated: isAuthReady ? derivedStates.isAuthenticated : false,
     user: isAuthReady ? user : null,
     userRoles: isAuthReady ? userRoles : [],
     isLoading: isLoading || !isAuthReady,
     // Stability info for debugging
-    isStable,
+    isStable: derivedStates.isStable,
     isAuthReady
   };
 };

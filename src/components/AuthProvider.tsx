@@ -35,48 +35,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const initializationStartTime = useRef<number>(Date.now());
   const sessionInitialized = useRef<boolean>(false);
   
-  // Minimum loading times (in milliseconds)
-  const MIN_LOADING_TIME_REFRESH = 2500; // 2.5 seconds for refresh scenarios
-  const MIN_LOADING_TIME_INITIAL = 1000; // 1 second for initial load
-  
   // Session stability tracking
   const lastSessionValidation = useRef<number>(0);
   const sessionValidationCount = useRef<number>(0);
   const authStateChangeCount = useRef<number>(0);
   const lastAuthStateChange = useRef<number>(Date.now());
   
-  // Session validation throttling
-  const SESSION_VALIDATION_INTERVAL = 30000; // 30 seconds minimum between validations
-  const MAX_VALIDATIONS_PER_MINUTE = 3;
-  const AUTH_STABILITY_DELAY = 1000; // 1 second delay for auth state changes
+  // Session validation throttling - REDUCED FREQUENCY
+  const SESSION_VALIDATION_INTERVAL = 120000; // 120 seconds (2 minutes) instead of 30s
+  const MAX_VALIDATIONS_PER_MINUTE = 2; // Reduced from 3 to 2
+  const AUTH_STABILITY_DELAY = 200; // Reduced from 1000ms to 200ms
 
-  // Enhanced session validation with throttling
+  // Simplified session validation with debouncing
   const throttledValidateSession = useCallback(async (currentSession: any) => {
     const now = Date.now();
     
-    // Check if we're validating too frequently
+    // Aggressive debouncing to prevent rapid calls
     if (now - lastSessionValidation.current < SESSION_VALIDATION_INTERVAL) {
-      console.log(`⏳ Session validation throttled (${now - lastSessionValidation.current}ms since last)`);
+      console.log(`⏭️ Session validation debounced (${Math.round((now - lastSessionValidation.current) / 1000)}s since last)`);
       return currentSession;
     }
     
-    // Check validation rate limit
-    if (sessionValidationCount.current >= MAX_VALIDATIONS_PER_MINUTE) {
-      console.log(`🚫 Session validation rate limited (${sessionValidationCount.current} validations)`);
-      return currentSession;
-    }
-    
-    console.log(`🔍 Performing session validation (count: ${sessionValidationCount.current + 1})`);
+    console.log(`🔍 Session validation (${sessionValidationCount.current + 1})`);
     
     try {
       const validSession = await validateAndRefreshSession(currentSession);
       lastSessionValidation.current = now;
       sessionValidationCount.current++;
-      
-      // Reset validation counter every minute
-      setTimeout(() => {
-        sessionValidationCount.current = Math.max(0, sessionValidationCount.current - 1);
-      }, 60000);
       
       return validSession;
     } catch (error) {
@@ -85,27 +70,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [validateAndRefreshSession]);
 
-  // Enhanced loading completion check with minimum time enforcement
+  // Natural loading completion without forced delays
   const checkAndCompleteLoading = useCallback(async () => {
     const now = Date.now();
     const elapsedTime = now - initializationStartTime.current;
     
-    // Determine minimum loading time based on scenario
-    const isRefreshScenario = performance.navigation?.type === 1; // Navigation type reload
-    const minLoadingTime = isRefreshScenario ? MIN_LOADING_TIME_REFRESH : MIN_LOADING_TIME_INITIAL;
-    const remainingTime = minLoadingTime - elapsedTime;
+    console.log(`🕐 Auth completing naturally: elapsed=${elapsedTime}ms`);
     
-    console.log(`🕐 Loading completion check: elapsed=${elapsedTime}ms, min=${minLoadingTime}ms, remaining=${remainingTime}ms, refresh=${isRefreshScenario}`);
-    
-    // Wait for minimum time if needed
-    if (remainingTime > 0) {
-      console.log(`⏱️ Waiting additional ${remainingTime}ms for minimum loading time`);
+    // Only minimal stability delay
+    if (elapsedTime < AUTH_STABILITY_DELAY) {
+      const remainingTime = AUTH_STABILITY_DELAY - elapsedTime;
+      console.log(`⏱️ Auth stability delay: ${remainingTime}ms`);
       await new Promise(resolve => setTimeout(resolve, remainingTime));
     }
     
     // Mark auth as ready and complete loading
     if (sessionInitialized.current && !isAuthReady.current) {
-      console.log(`✅ Auth initialization complete after ${Date.now() - initializationStartTime.current}ms`);
+      console.log(`✅ Auth ready after ${Date.now() - initializationStartTime.current}ms`);
       isAuthReady.current = true;
       setIsLoading(false);
     }
@@ -126,13 +107,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         
         console.log(`🔄 Auth state changed, event: ${event} (change #${authStateChangeCount.current})`);
         
-        // Detect rapid auth state changes
+        // Minimal debouncing for auth state changes
         const timeSinceLastChange = now - lastAuthStateChange.current;
         if (timeSinceLastChange < AUTH_STABILITY_DELAY) {
-          console.warn(`⚠️ Rapid auth state change detected (${timeSinceLastChange}ms), adding stability delay`);
-          
-          // Add delay for stability
-          await new Promise(resolve => setTimeout(resolve, AUTH_STABILITY_DELAY));
+          console.log(`⏭️ Auth state debounced (${timeSinceLastChange}ms)`);
+          await new Promise(resolve => setTimeout(resolve, AUTH_STABILITY_DELAY - timeSinceLastChange));
         }
         
         lastAuthStateChange.current = now;

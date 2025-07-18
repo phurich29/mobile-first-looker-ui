@@ -4,7 +4,7 @@ import { useGuestMode } from "@/hooks/useGuestMode";
 import { fetchDevicesWithDetails } from "../services/deviceDataService";
 import { supabase } from "@/integrations/supabase/client";
 import { DeviceInfo } from "../types";
-import { useCallback, useRef, useState, useEffect } from "react";
+import { useCallback, useRef, useState, useEffect, useMemo } from "react";
 
 /**
  * React Query hook for fetching devices with improved loading state management
@@ -25,8 +25,8 @@ export const useDevicesQuery = () => {
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const queryStartTimeRef = useRef<number | null>(null);
   
-  // Maximum loading time: 15 seconds
-  const MAX_LOADING_TIME = 15000;
+  // Reduced maximum loading time: 8 seconds
+  const MAX_LOADING_TIME = 8000;
   
   // Reset timeout when query starts
   const handleQueryStart = useCallback(() => {
@@ -71,9 +71,13 @@ export const useDevicesQuery = () => {
     };
   }, []);
   
+  // Memoized query keys for stability
+  const guestQueryKey = useMemo(() => ['guest-devices'], []);
+  const authenticatedQueryKey = useMemo(() => ['devices-details', user?.id], [user?.id]);
+
   // Guest devices query with auth stability check
   const guestDevicesQuery = useQuery({
-    queryKey: ['guest-devices', { isGuest, isAuthReady }],
+    queryKey: guestQueryKey,
     queryFn: async (): Promise<DeviceInfo[]> => {
       handleQueryStart();
       console.log('📱 Fetching guest devices with cache...');
@@ -135,14 +139,16 @@ export const useDevicesQuery = () => {
       return enrichedDevices;
     },
     enabled: isQueryEnabled && isGuest,
-    retry: 1,
+    retry: (failureCount) => failureCount < 2, // Max 2 retries
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
     refetchOnWindowFocus: false,
-    staleTime: 30000, // 30 seconds cache to prevent excessive queries
+    staleTime: 20000, // Reduced from 30s to 20s
+    gcTime: 60000, // 1 minute garbage collection
   });
 
   // Authenticated devices query with auth stability check
   const authenticatedDevicesQuery = useQuery({
-    queryKey: ['devices-details', user?.id, isAdmin, isSuperAdmin, isAuthReady],
+    queryKey: authenticatedQueryKey,
     queryFn: async (): Promise<DeviceInfo[]> => {
       handleQueryStart();
       if (!user?.id) return [];
@@ -186,9 +192,11 @@ export const useDevicesQuery = () => {
       return enrichedDeviceList;
     },
     enabled: isQueryEnabled && !!user && !isGuest,
-    retry: 1,
+    retry: (failureCount) => failureCount < 2, // Max 2 retries
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
     refetchOnWindowFocus: false,
-    staleTime: 15000, // 15 seconds cache to prevent excessive queries
+    staleTime: 15000, // Keep 15s for auth users
+    gcTime: 90000, // 1.5 minutes garbage collection
   });
 
   // Monitor query state changes
