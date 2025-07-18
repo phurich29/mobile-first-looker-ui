@@ -563,6 +563,14 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_guest_devices_optimized: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          device_code: string
+          display_name: string
+          updated_at: string
+        }[]
+      }
       get_guest_enabled_devices: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -593,6 +601,10 @@ export type Database = {
       log_security_check: {
         Args: { function_name: string; user_id: string; success: boolean }
         Returns: undefined
+      }
+      refresh_guest_enabled_devices: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
       validate_password_strength: {
         Args: { password: string }
