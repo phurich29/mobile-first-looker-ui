@@ -98,6 +98,33 @@ export type Database = {
         }
         Relationships: []
       }
+      guest_devices_cache: {
+        Row: {
+          cached_at: string | null
+          device_code: string
+          display_name: string | null
+          expires_at: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          cached_at?: string | null
+          device_code: string
+          display_name?: string | null
+          expires_at?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Update: {
+          cached_at?: string | null
+          device_code?: string
+          display_name?: string | null
+          expires_at?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       news: {
         Row: {
           content: string
@@ -563,7 +590,25 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_guest_cache_status: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          total_cached: number
+          valid_cached: number
+          expired_cached: number
+          oldest_cache: string
+          newest_cache: string
+        }[]
+      }
       get_guest_devices_optimized: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          device_code: string
+          display_name: string
+          updated_at: string
+        }[]
+      }
+      get_guest_devices_with_cache: {
         Args: Record<PropertyKey, never>
         Returns: {
           device_code: string
@@ -588,6 +633,10 @@ export type Database = {
       }
       has_role: {
         Args: { user_id: string; role: Database["public"]["Enums"]["app_role"] }
+        Returns: boolean
+      }
+      invalidate_guest_devices_cache: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
       is_admin_or_superadmin: {
