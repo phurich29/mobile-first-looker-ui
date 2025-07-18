@@ -61,7 +61,8 @@ export const WatchlistSection = () => {
         return [];
       }
     },
-    staleTime: 60000, // Consider data fresh for 1 minute
+    staleTime: 0, // No cache
+    gcTime: 0, // No cache
     refetchInterval: 120000, // Refetch every 2 minutes
   });
 

@@ -78,8 +78,8 @@ export const useDevicesQuery = () => {
       return enrichedDevices;
     },
     enabled: isGuest,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 0, // No cache
+    gcTime: 0, // No cache
     refetchOnWindowFocus: false,
     retry: 2
   });
@@ -128,8 +128,8 @@ export const useDevicesQuery = () => {
       return enrichedDeviceList;
     },
     enabled: !isGuest && !!user?.id,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 0, // No cache
+    gcTime: 0, // No cache
     refetchOnWindowFocus: false,
     retry: 2
   });
@@ -149,8 +149,8 @@ export const useDevicesQuery = () => {
       return devices.length;
     },
     enabled: !isGuest ? !!user?.id : true,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    staleTime: 0, // No cache
+    gcTime: 0, // No cache
     refetchOnWindowFocus: false
   });
 

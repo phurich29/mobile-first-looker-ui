@@ -83,11 +83,12 @@ export const useNotifications = () => {
     }
   }, [toast]);
 
-  // Use React Query to handle data fetching with caching
+  // Use React Query to handle data fetching without caching
   const { data: notifications = [], isLoading: loading, isFetching, dataUpdatedAt, error: queryError } = useQuery({
     queryKey: ['notifications'],
     queryFn: fetchNotifications,
-    staleTime: 30000,
+    staleTime: 0, // No cache
+    gcTime: 0, // No cache
     refetchInterval: 45000,
     refetchIntervalInBackground: true,
     retry: (failureCount, error) => {

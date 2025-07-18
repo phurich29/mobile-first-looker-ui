@@ -141,7 +141,8 @@ export function useNotificationHistory() {
   } = useQuery({
     queryKey: ['notification_history', currentPage, filters, user?.id, userRoles],
     queryFn: fetchNotifications,
-    staleTime: 10000,
+    staleTime: 0, // No cache
+    gcTime: 0, // No cache
     refetchInterval: 30000,
     refetchOnWindowFocus: true,
     retry: 2,
