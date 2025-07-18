@@ -20,7 +20,7 @@ export const ProtectedRoute = ({
   path = window.location.pathname,
 }: ProtectedRouteProps) => {
   const { user, userRoles, isLoading } = useAuth();
-  const { isAuthenticated } = useUnifiedPermissions();
+  const { isAuthenticated, isVisitor } = useUnifiedPermissions();
 
   // Only log when debug mode is enabled to reduce console spam
   const isDebugMode = process.env.NODE_ENV === 'development';
@@ -43,15 +43,15 @@ export const ProtectedRoute = ({
     );
   }
 
+  // If unauthenticated access is allowed, always show page (visitor mode)
+  if (allowUnauthenticated) {
+    return <>{children}</>;
+  }
+
   // If user not logged in and not allowed unauthenticated access, redirect to login
-  if (!user && !allowUnauthenticated) {
+  if (!user) {
     console.log("User not logged in, redirecting to", redirectTo);
     return <Navigate to={redirectTo} replace />;
-  }
-  
-  // If unauthenticated access is allowed and user is not logged in, show page
-  if (!user && allowUnauthenticated) {
-    return <>{children}</>;
   }
   
   // If user is logged in, check for required roles
