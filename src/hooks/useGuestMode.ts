@@ -8,11 +8,18 @@ export const useGuestMode = () => {
   // Simple initialization state
   const [isInitialized, setIsInitialized] = useState(false);
   
-  // Wait for auth to be ready before determining final state
+  // Add timeout to prevent infinite waiting
   useEffect(() => {
     if (!isAuthReady || isLoading) {
-      console.log(`⏳ useGuestMode waiting: isAuthReady=${isAuthReady}, isLoading=${isLoading}`);
-      return;
+      // Set timeout to prevent infinite waiting
+      const timeout = setTimeout(() => {
+        if (!isInitialized) {
+          console.log('⚠️ useGuestMode timeout - forcing initialization');
+          setIsInitialized(true);
+        }
+      }, 3000); // 3 second timeout
+      
+      return () => clearTimeout(timeout);
     }
     
     if (!isInitialized) {

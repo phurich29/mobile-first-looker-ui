@@ -16,25 +16,31 @@ interface ProtectedRouteProps {
 export const ProtectedRoute = ({
   children,
   requiredRoles = [],
-  redirectTo = "/login",
+  redirectTo = "/auth/login",
   allowUnauthenticated = false,
   allowGuest = false,
   path = window.location.pathname,
 }: ProtectedRouteProps) => {
   const { user, userRoles, isLoading } = useAuth();
-  const { isGuest } = useGuestMode();
+  const { isGuest, isStable } = useGuestMode();
 
-  console.log("Protected route checking access:");
-  console.log("- Required roles:", requiredRoles);
-  console.log("- Current user roles:", userRoles);
-  console.log("- User authenticated:", !!user);
-  console.log("- Is guest:", isGuest);
-  console.log("- Is still loading auth:", isLoading);
-  console.log("- Allow unauthenticated:", allowUnauthenticated);
-  console.log("- Allow guest:", allowGuest);
+  // Only log when debug mode is enabled to reduce console spam
+  const isDebugMode = process.env.NODE_ENV === 'development';
+  if (isDebugMode && Math.random() < 0.1) { // Log only 10% of the time in dev
+    console.log("🔒 Protected route check:", {
+      requiredRoles,
+      userRoles,
+      authenticated: !!user,
+      isGuest,
+      isLoading,
+      isStable,
+      allowGuest,
+      path: path.slice(0, 20) + '...'
+    });
+  }
 
-  // If auth is still loading, show loading indicator
-  if (isLoading) {
+  // Wait for auth and guest mode to be stable
+  if (isLoading || !isStable) {
     return (
       <div className="min-h-screen flex justify-center items-center bg-gradient-to-b from-emerald-50 to-gray-50">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>

@@ -36,11 +36,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const lastAuthStateChange = useRef<number>(0);
   
   // Reduced debouncing delay for faster response
-  const AUTH_DEBOUNCE_DELAY = 100; // Reduced from 200ms
+  const AUTH_DEBOUNCE_DELAY = 50; // Further reduced to 50ms
 
-  // Simplified session validation - only when truly needed
+  // Circuit breaker for session validation to prevent loops
+  const validationInProgress = useRef<boolean>(false);
+  
   const validateSessionIfNeeded = useCallback(async (currentSession: any) => {
-    if (!currentSession) return null;
+    if (!currentSession || validationInProgress.current) return currentSession;
     
     // Only validate if session is close to expiring (within 5 minutes)
     const now = Math.floor(Date.now() / 1000);
@@ -48,8 +50,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const shouldValidate = (expiresAt - now) < 300; // 5 minutes
     
     if (shouldValidate) {
+      validationInProgress.current = true;
       console.log('🔄 Session validation needed');
-      return await validateAndRefreshSession(currentSession);
+      try {
+        const result = await validateAndRefreshSession(currentSession);
+        return result;
+      } finally {
+        validationInProgress.current = false;
+      }
     }
     
     return currentSession;
