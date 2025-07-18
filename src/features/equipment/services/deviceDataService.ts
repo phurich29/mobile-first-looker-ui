@@ -53,7 +53,7 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
       devices = data || [];
       console.log(`${userIsSuperAdmin ? 'SuperAdmin' : 'Admin'}: Found ${devices.length} devices from database function`);
     } else {
-      // Regular users see devices they have access to OR devices in guest_device_access that are enabled
+      // Regular users see only devices they have access to
       console.log("Fetching devices for regular user...");
       
       const { data: accessibleDevices, error: accessError } = await supabase
@@ -63,20 +63,7 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
 
       if (accessError) throw accessError;
 
-      const { data: guestDevices, error: guestError } = await supabase
-        .from('guest_device_access')
-        .select('device_code')
-        .eq('enabled', true);
-
-      if (guestError) throw guestError;
-
-      // Combine accessible devices and enabled guest devices
-      const allAccessibleDeviceCodes = [
-        ...(accessibleDevices?.map(d => d.device_code) || []),
-        ...(guestDevices?.map(d => d.device_code) || [])
-      ];
-
-      const uniqueDeviceCodes = [...new Set(allAccessibleDeviceCodes)];
+      const uniqueDeviceCodes = accessibleDevices?.map(d => d.device_code) || [];
       console.log(`Regular user: Found ${uniqueDeviceCodes.length} accessible device codes`);
 
       if (uniqueDeviceCodes.length > 0) {

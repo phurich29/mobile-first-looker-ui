@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { ActivitySquare, Clock } from 'lucide-react';
 import { useAuth } from '@/components/AuthProvider';
-import { useGuestMode } from '@/hooks/useGuestMode';
+import { useUnifiedPermissions } from '@/hooks/useUnifiedPermissions';
 import { formatDistanceToNow } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -14,7 +14,7 @@ import { useDevicesQuery } from '@/features/equipment/hooks/useDevicesQuery';
 export const DeviceList = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { isGuest } = useGuestMode();
+  const { isAuthenticated } = useUnifiedPermissions();
   
   // Use the optimized devices query
   const { devices, isLoading, error } = useDevicesQuery();
@@ -77,9 +77,9 @@ export const DeviceList = () => {
       {devices.length === 0 ? (
         <Card className="bg-gray-50 border-dashed">
           <CardContent className="p-6 text-center">
-            {isGuest ? (
+            {!isAuthenticated ? (
               <div>
-                <p className="text-gray-500 mb-2">ไม่มีอุปกรณ์ที่เปิดให้ Guest เข้าถึงได้</p>
+                <p className="text-gray-500 mb-2">กรุณาเข้าสู่ระบบเพื่อดูอุปกรณ์</p>
                 <p className="text-sm text-gray-400">กรุณาติดต่อผู้ดูแลระบบเพื่อขออนุญาตเข้าถึงอุปกรณ์</p>
               </div>
             ) : (

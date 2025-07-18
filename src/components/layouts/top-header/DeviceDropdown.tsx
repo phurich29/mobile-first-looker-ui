@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { useGuestMode } from '@/hooks/useGuestMode';
+import { useUnifiedPermissions } from '@/hooks/useUnifiedPermissions';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Device {
@@ -29,58 +29,12 @@ export const DeviceDropdown: React.FC<DeviceDropdownProps> = ({
   const navigate = useNavigate();
   const { deviceCode: deviceCodeFromUrl } = useParams<{ deviceCode?: string }>();
   const location = useLocation();
-  const { isGuest } = useGuestMode();
+  const { isAuthenticated } = useUnifiedPermissions();
   const [selectedDeviceName, setSelectedDeviceName] = useState<string>("เลือกอุปกรณ์");
-  const [guestDevices, setGuestDevices] = useState<Device[]>([]);
-  const [isLoadingGuestDevices, setIsLoadingGuestDevices] = useState(false);
 
-  // สำหรับ Guest: ดึงข้อมูลอุปกรณ์ที่เปิดให้ guest ดูได้
-  useEffect(() => {
-    const fetchGuestDevices = async () => {
-      if (!isGuest) return;
-      
-      setIsLoadingGuestDevices(true);
-      try {
-        // ดึงรายการอุปกรณ์ที่เปิดให้ guest ดู
-        const { data: guestAccessData, error: guestError } = await supabase
-          .from('guest_device_access')
-          .select('device_code')
-          .eq('enabled', true);
-
-        if (guestError) throw guestError;
-
-        if (guestAccessData && guestAccessData.length > 0) {
-          const deviceCodes = guestAccessData.map(item => item.device_code);
-          
-          // ดึงข้อมูล display name
-          const { data: settingsData } = await supabase
-            .from('device_settings')
-            .select('device_code, display_name')
-            .in('device_code', deviceCodes);
-
-          const devicesWithNames = deviceCodes.map(code => {
-            const setting = settingsData?.find(s => s.device_code === code);
-            return {
-              device_code: code,
-              display_name: setting?.display_name || code
-            };
-          });
-
-          setGuestDevices(devicesWithNames);
-        }
-      } catch (error) {
-        console.error('Error fetching guest devices:', error);
-      } finally {
-        setIsLoadingGuestDevices(false);
-      }
-    };
-
-    fetchGuestDevices();
-  }, [isGuest]);
-
-  // เลือกใช้ devices ที่เหมาะสม
-  const displayDevices = isGuest ? guestDevices : devices;
-  const isLoading = isGuest ? isLoadingGuestDevices : isLoadingDevices;
+  // เลือกใช้ devices ที่เหมาะสม - เฉพาะ authenticated users
+  const displayDevices = devices;
+  const isLoading = isLoadingDevices;
 
   useEffect(() => {
     if (isLoading) {
@@ -89,7 +43,7 @@ export const DeviceDropdown: React.FC<DeviceDropdownProps> = ({
     }
 
     if (displayDevices.length === 0) {
-      setSelectedDeviceName(isGuest ? "ไม่มีอุปกรณ์สำหรับ Guest" : "ไม่มีอุปกรณ์"); 
+      setSelectedDeviceName("ไม่มีอุปกรณ์"); 
       return;
     }
 
@@ -103,7 +57,7 @@ export const DeviceDropdown: React.FC<DeviceDropdownProps> = ({
     } else {
       setSelectedDeviceName("เลือกอุปกรณ์");
     }
-  }, [deviceCodeFromUrl, displayDevices, isLoading, isGuest]);
+  }, [deviceCodeFromUrl, displayDevices, isLoading]);
 
   const handleDeviceSelect = (newDeviceCode: string) => {
     const currentPathname = location.pathname;

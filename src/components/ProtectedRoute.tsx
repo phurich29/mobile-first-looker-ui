@@ -1,7 +1,7 @@
 
 import { Navigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
-import { useGuestMode } from "@/hooks/useGuestMode";
+import { useUnifiedPermissions } from "@/hooks/useUnifiedPermissions";
 import React from "react";
 
 interface ProtectedRouteProps {
@@ -9,7 +9,6 @@ interface ProtectedRouteProps {
   requiredRoles?: string[];
   redirectTo?: string;
   allowUnauthenticated?: boolean;
-  allowGuest?: boolean;
   path?: string;
 }
 
@@ -18,11 +17,10 @@ export const ProtectedRoute = ({
   requiredRoles = [],
   redirectTo = "/auth/login",
   allowUnauthenticated = false,
-  allowGuest = false,
   path = window.location.pathname,
 }: ProtectedRouteProps) => {
   const { user, userRoles, isLoading } = useAuth();
-  const { isGuest, isStable } = useGuestMode();
+  const { isAuthenticated } = useUnifiedPermissions();
 
   // Only log when debug mode is enabled to reduce console spam
   const isDebugMode = process.env.NODE_ENV === 'development';
@@ -31,16 +29,13 @@ export const ProtectedRoute = ({
       requiredRoles,
       userRoles,
       authenticated: !!user,
-      isGuest,
       isLoading,
-      isStable,
-      allowGuest,
       path: path.slice(0, 20) + '...'
     });
   }
 
-  // Wait for auth and guest mode to be stable
-  if (isLoading || !isStable) {
+  // Wait for auth to be ready
+  if (isLoading) {
     return (
       <div className="min-h-screen flex justify-center items-center bg-gradient-to-b from-emerald-50 to-gray-50">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
@@ -48,14 +43,8 @@ export const ProtectedRoute = ({
     );
   }
 
-  // If user is guest and guest access is allowed, show page with guest permissions
-  if (isGuest && allowGuest) {
-    console.log("Guest access allowed, showing page");
-    return <>{children}</>;
-  }
-
-  // If user not logged in and not allowed unauthenticated access and not guest allowed, redirect to login
-  if (!user && !allowUnauthenticated && !allowGuest) {
+  // If user not logged in and not allowed unauthenticated access, redirect to login
+  if (!user && !allowUnauthenticated) {
     console.log("User not logged in, redirecting to", redirectTo);
     return <Navigate to={redirectTo} replace />;
   }

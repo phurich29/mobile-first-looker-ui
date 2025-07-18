@@ -1,13 +1,13 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/AuthProvider";
-import { useGuestMode } from "@/hooks/useGuestMode";
+import { useUnifiedPermissions } from "@/hooks/useUnifiedPermissions";
 import { fetchDevicesWithDetails } from "@/features/equipment/services";
 import { supabase } from "@/integrations/supabase/client";
 
 export const useDeviceAccess = (deviceCode: string | undefined) => {
   const { user, userRoles } = useAuth();
-  const { isGuest } = useGuestMode();
+  const { isAuthenticated } = useUnifiedPermissions();
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
 
@@ -22,31 +22,7 @@ export const useDeviceAccess = (deviceCode: string | undefined) => {
       // Both admin and superadmin get full access to all devices
       return await fetchDevicesWithDetails(user.id, isAdmin, isSuperAdmin);
     },
-    enabled: !!user && !isGuest,
-    staleTime: 0, // No cache
-    gcTime: 0, // No cache
-  });
-
-  // Check guest device access without cache
-  const {
-    data: guestAccessibleDevices,
-    isLoading: isCheckingGuestAccess
-  } = useQuery({
-    queryKey: ['guestDeviceAccess'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('guest_device_access')
-        .select('device_code')
-        .eq('enabled', true);
-      
-      if (error) {
-        console.error('Error fetching guest device access:', error);
-        return [];
-      }
-      
-      return data?.map(item => ({ device_code: item.device_code })) || [];
-    },
-    enabled: isGuest,
+    enabled: !!user && isAuthenticated,
     staleTime: 0, // No cache
     gcTime: 0, // No cache
   });
@@ -54,10 +30,7 @@ export const useDeviceAccess = (deviceCode: string | undefined) => {
   // Check if user has access to the current device
   let hasDeviceAccess = false;
   
-  if (isGuest) {
-    // For guests, check guest_device_access
-    hasDeviceAccess = guestAccessibleDevices?.some(device => device.device_code === deviceCode) ?? false;
-  } else {
+  if (isAuthenticated) {
     // For authenticated users, admin and superadmin have access to all devices
     if (isAdmin || isSuperAdmin) {
       hasDeviceAccess = true; // Admin and SuperAdmin have access to all devices
@@ -67,12 +40,12 @@ export const useDeviceAccess = (deviceCode: string | undefined) => {
     }
   }
 
-  const isLoading = (isGuest && isCheckingGuestAccess) || (!isGuest && isCheckingAccess);
+  const isLoading = isCheckingAccess;
 
   return {
     hasDeviceAccess,
     isLoading,
-    isGuest,
+    isAuthenticated,
     isAdmin,
     isSuperAdmin
   };

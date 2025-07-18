@@ -104,7 +104,7 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: (
-          <ProtectedRoute allowGuest={true}>
+          <ProtectedRoute allowUnauthenticated={true}>
             <Index />
           </ProtectedRoute>
         ),
@@ -112,7 +112,7 @@ export const router = createBrowserRouter([
       {
         path: "news",
         element: (
-          <ProtectedRoute allowGuest={true}>
+          <ProtectedRoute allowUnauthenticated={true}>
             <News />
           </ProtectedRoute>
         ),
@@ -120,7 +120,7 @@ export const router = createBrowserRouter([
       {
         path: "about-riceflow",
         element: (
-          <ProtectedRoute allowGuest={true}>
+          <ProtectedRoute allowUnauthenticated={true}>
             <AboutRiceflow />
           </ProtectedRoute>
         ),
@@ -134,7 +134,7 @@ export const router = createBrowserRouter([
       {
         path: "waiting",
         element: (
-          <ProtectedRoute allowGuest={true}>
+          <ProtectedRoute>
             <Waiting />
           </ProtectedRoute>
         ),
@@ -142,7 +142,7 @@ export const router = createBrowserRouter([
       {
         path: "equipment",
         element: (
-          <ProtectedRoute allowGuest={true}>
+          <ProtectedRoute>
             <Equipment />
           </ProtectedRoute>
         ),
@@ -150,7 +150,7 @@ export const router = createBrowserRouter([
       {
         path: "measurements",
         element: (
-          <ProtectedRoute allowGuest={true}>
+          <ProtectedRoute>
             <div>Measurements Page - To be implemented</div>
           </ProtectedRoute>
         ),
@@ -158,7 +158,7 @@ export const router = createBrowserRouter([
       {
         path: "device/:deviceCode",
         element: (
-          <ProtectedRoute allowGuest={true}>
+          <ProtectedRoute>
             <DeviceDetails />
           </ProtectedRoute>
         ),
@@ -166,7 +166,7 @@ export const router = createBrowserRouter([
       {
         path: "device/:deviceCode/:symbol",
         element: (
-          <ProtectedRoute allowGuest={true}>
+          <ProtectedRoute>
             <MeasurementHistory />
           </ProtectedRoute>
         ),
@@ -175,7 +175,7 @@ export const router = createBrowserRouter([
       {
         path: "device/:deviceCode/graph-monitor",
         element: (
-          <ProtectedRoute allowGuest={true}>
+          <ProtectedRoute>
             <DeviceGraphMonitor />
           </ProtectedRoute>
         ),
@@ -183,7 +183,7 @@ export const router = createBrowserRouter([
       {
         path: "device/:deviceCode/graph-summary",
         element: (
-          <ProtectedRoute allowGuest={true}>
+          <ProtectedRoute>
             <DeviceGraphSummary />
           </ProtectedRoute>
         ),
@@ -199,7 +199,7 @@ export const router = createBrowserRouter([
       {
         path: "graph-monitor",
         element: (
-          <ProtectedRoute allowGuest={true}>
+          <ProtectedRoute>
             <GraphMonitor />
           </ProtectedRoute>
         ),
@@ -207,7 +207,7 @@ export const router = createBrowserRouter([
       {
         path: "graph-summary",
         element: (
-          <ProtectedRoute allowGuest={true}>
+          <ProtectedRoute>
             <GraphSummary />
           </ProtectedRoute>
         ),
@@ -215,7 +215,7 @@ export const router = createBrowserRouter([
       {
         path: "graph-summary-detail",
         element: (
-          <ProtectedRoute allowGuest={true}>
+          <ProtectedRoute>
             <GraphSummaryDetail />
           </ProtectedRoute>
         ),
@@ -223,7 +223,7 @@ export const router = createBrowserRouter([
       {
         path: "new-quality-measurements",
         element: (
-          <ProtectedRoute allowGuest={true}>
+          <ProtectedRoute>
             <NewQualityMeasurements />
           </ProtectedRoute>
         ),
@@ -231,7 +231,7 @@ export const router = createBrowserRouter([
       {
         path: "measurement-detail/:measurementSymbol",
         element: (
-          <ProtectedRoute allowGuest={true}>
+          <ProtectedRoute>
             <MeasurementDetail />
           </ProtectedRoute>
         ),
@@ -239,7 +239,7 @@ export const router = createBrowserRouter([
       {
         path: "measurement-history/:deviceCode/:symbol",
         element: (
-          <ProtectedRoute allowGuest={true}>
+          <ProtectedRoute>
             <MeasurementHistory />
           </ProtectedRoute>
         ),
@@ -247,7 +247,7 @@ export const router = createBrowserRouter([
       {
         path: "assistant",
         element: (
-          <ProtectedRoute allowGuest={true}>
+          <ProtectedRoute>
             <Assistant />
           </ProtectedRoute>
         ),

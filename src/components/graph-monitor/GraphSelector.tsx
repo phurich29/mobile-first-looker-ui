@@ -12,7 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { X, Wheat, Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
-import { useGuestMode } from "@/hooks/useGuestMode";
+import { useUnifiedPermissions } from "@/hooks/useUnifiedPermissions";
 import { getColumnThaiName } from "@/lib/columnTranslations";
 import { COLUMN_ORDER } from "@/features/device-details/components/device-history/utils";
 
@@ -82,7 +82,7 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
   const [loading, setLoading] = useState(true);
   const [availableMeasurements, setAvailableMeasurements] = useState<Measurement[]>([]);
   const { user, userRoles } = useAuth();
-  const { isGuest } = useGuestMode();
+  const { isAuthenticated } = useUnifiedPermissions();
 
   // Load devices when component mounts
   useEffect(() => {
@@ -102,53 +102,26 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
       });
       setAvailableMeasurements(dynamicMeasurements);
     }
-  }, [open, user, isGuest]);
+  }, [open, user, isAuthenticated]);
 
   // Auto-select device if deviceFilter is provided
   useEffect(() => {
     if (deviceFilter) {
       setSelectedDevice(deviceFilter);
-      // For guests, we don't need to wait for devices to load
-      if (isGuest) {
-        setLoading(false);
-      }
     } else if (devices.length > 0) {
       setSelectedDevice(devices[0].device_code);
     }
-  }, [deviceFilter, devices, isGuest]);
+  }, [deviceFilter, devices, isAuthenticated]);
 
   const loadDevices = async () => {
     setLoading(true);
     try {
-      // For guests, if deviceFilter is provided, create a simple device entry
-      if (isGuest && deviceFilter) {
-        // Try to get device display name from device_settings
-        let deviceName = `อุปกรณ์วัด ${deviceFilter}`;
-        try {
-          const { data: deviceSettings } = await supabase
-            .from('device_settings')
-            .select('display_name')
-            .eq('device_code', deviceFilter)
-            .maybeSingle();
-          
-          if (deviceSettings?.display_name) {
-            deviceName = deviceSettings.display_name;
-          }
-        } catch (error) {
-          console.log("Could not fetch device name for guest:", error);
-        }
-
-        setDevices([{
-          device_code: deviceFilter,
-          display_name: deviceName,
-          updated_at: new Date().toISOString()
-        }]);
+      // For authenticated users only
+      if (!user) {
+        setDevices([]);
         setLoading(false);
         return;
       }
-
-      // For authenticated users, use the original logic
-      if (!user && !isGuest) {
         setDevices([]);
         setLoading(false);
         return;

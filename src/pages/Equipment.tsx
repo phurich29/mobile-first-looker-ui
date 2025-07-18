@@ -3,7 +3,7 @@ import { AddDeviceForm } from "@/components/device-management/AddDeviceForm";
 import { DevicesHeader, DevicesGrid } from "@/features/equipment";
 import { AppLayout } from "@/components/layouts";
 import { DeviceHistoryTable } from "@/features/device-details/components/DeviceHistoryTable";
-import { useGuestMode } from "@/hooks/useGuestMode";
+
 import { useMemo } from "react";
 import { useDevicesQuery } from "@/features/equipment/hooks/useDevicesQuery";
 
@@ -17,8 +17,6 @@ export default function Equipment() {
     isAdmin,
     isSuperAdmin
   } = useDevicesQuery();
-  
-  const { isGuest } = useGuestMode();
   
   // Memoize deviceIds to prevent unnecessary re-renders
   const deviceIds = useMemo(() => {
@@ -50,7 +48,7 @@ export default function Equipment() {
       </div>
       
       {/* Add Device Form - Only for superadmin */}
-      {isSuperAdmin && !isGuest && (
+      {isSuperAdmin && (
         <div className="mb-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">เพิ่มอุปกรณ์ใหม่</h2>
           <AddDeviceForm onDeviceAdded={handleRefresh} />
@@ -60,9 +58,9 @@ export default function Equipment() {
       {/* Devices Grid - Lazy loaded */}
       <DevicesGrid 
         devices={devices} 
-        isAdmin={isAdmin && !isGuest} 
+        isAdmin={isAdmin} 
         isLoading={isLoading} 
-        isSuperAdmin={isSuperAdmin && !isGuest} 
+        isSuperAdmin={isSuperAdmin}
         onDeviceUpdated={handleRefresh} 
       />
 
