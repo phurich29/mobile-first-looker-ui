@@ -83,14 +83,14 @@ export const useNotifications = () => {
     }
   }, [toast]);
 
-  // Use React Query to handle data fetching without caching
+  // Use React Query to handle data fetching without caching - REMOVED refetchInterval
   const { data: notifications = [], isLoading: loading, isFetching, dataUpdatedAt, error: queryError } = useQuery({
     queryKey: ['notifications'],
     queryFn: fetchNotifications,
     staleTime: 0, // No cache
     gcTime: 0, // No cache
-    refetchInterval: 45000,
-    refetchIntervalInBackground: true,
+    // REMOVED: refetchInterval: 45000 - Now only triggered by Global Countdown
+    refetchOnWindowFocus: false, // Disable window focus refetch to reduce triggers
     retry: (failureCount, error) => {
       console.log(`📡 Query retry attempt ${failureCount}:`, error);
       return failureCount < 3;
@@ -103,7 +103,8 @@ export const useNotifications = () => {
     if (notifications.length > 0) {
       console.log("✅ Notifications query success:", {
         count: notifications.length,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        triggeredBy: 'Global Countdown or Manual Trigger'
       });
     }
   }, [notifications]);
