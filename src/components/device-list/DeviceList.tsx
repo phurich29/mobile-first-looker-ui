@@ -9,7 +9,7 @@ import { useGuestMode } from '@/hooks/useGuestMode';
 import { formatDistanceToNow } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useGlobalDeviceCache } from '@/features/equipment/hooks/useGlobalDeviceCache';
+import { useDevices } from '@/features/equipment/contexts/DeviceContext';
 import { supabase } from '@/integrations/supabase/client';
 
 interface DeviceData {
@@ -26,8 +26,8 @@ export const DeviceList = () => {
   const { user, userRoles } = useAuth();
   const { isGuest } = useGuestMode();
   
-  // Use global device cache for authenticated users
-  const { devices: authenticatedDevices, isLoading: authLoading } = useGlobalDeviceCache();
+  // Use device context for all users
+  const { devices: authenticatedDevices, isLoading: authLoading } = useDevices();
   
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');

@@ -1,14 +1,14 @@
 
 import { useAuth } from "@/components/AuthProvider";
 import { useGuestMode } from "@/hooks/useGuestMode";
-import { useGlobalDeviceCache } from "@/features/equipment/hooks/useGlobalDeviceCache";
+import { useDeviceListOptimistic } from "@/features/equipment/hooks/useGlobalDeviceCache";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
 export const useDeviceAccess = (deviceCode: string | undefined) => {
   const { user, userRoles } = useAuth();
   const { isGuest } = useGuestMode();
-  const { devices: cachedDevices, isLoading: isLoadingCache } = useGlobalDeviceCache();
+  const cachedDevices = useDeviceListOptimistic();
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
 
@@ -50,7 +50,7 @@ export const useDeviceAccess = (deviceCode: string | undefined) => {
     }
   }
 
-  const isLoading = (isGuest && isCheckingGuestAccess) || (!isGuest && isLoadingCache);
+  const isLoading = isGuest && isCheckingGuestAccess;
 
   return {
     hasDeviceAccess,

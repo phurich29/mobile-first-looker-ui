@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Notification, NotificationFilters } from "../types";
-import { useGlobalDeviceCache } from "@/features/equipment/hooks/useGlobalDeviceCache";
+import { useDeviceListOptimistic } from "@/features/equipment/hooks/useGlobalDeviceCache";
 import { useAuth } from "@/components/AuthProvider";
 
 export function useNotificationHistory() {
@@ -15,7 +15,7 @@ export function useNotificationHistory() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const { devices: cachedDevices } = useGlobalDeviceCache();
+  const cachedDevices = useDeviceListOptimistic();
 
   // Function to get accessible device codes from cache
   const getAccessibleDeviceCodes = useCallback((): string[] => {

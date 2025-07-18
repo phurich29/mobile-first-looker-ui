@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { NotificationSetting } from "../types";
-import { useGlobalDeviceCache } from "@/features/equipment/hooks/useGlobalDeviceCache";
+import { useDeviceListOptimistic } from "@/features/equipment/hooks/useGlobalDeviceCache";
 import { useAuth } from "@/components/AuthProvider";
 
 export const useNotificationSettings = () => {
@@ -12,7 +12,7 @@ export const useNotificationSettings = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
-  const { devices: cachedDevices } = useGlobalDeviceCache();
+  const cachedDevices = useDeviceListOptimistic();
 
   // Function to get accessible device codes from cache
   const getAccessibleDeviceCodes = useCallback((): string[] => {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchLatestDeviceCode } from "@/integrations/supabase/client";
-import { useGlobalDeviceCache } from "@/features/equipment/hooks/useGlobalDeviceCache";
+import { useDeviceListOptimistic } from "@/features/equipment/hooks/useGlobalDeviceCache";
 
 /**
  * Custom hook to handle redirection for the 'default' device route.
@@ -10,7 +10,7 @@ import { useGlobalDeviceCache } from "@/features/equipment/hooks/useGlobalDevice
  */
 export const useDefaultDeviceRedirect = (deviceCode: string | undefined): { isRedirecting: boolean } => {
   const navigate = useNavigate();
-  const { devices: cachedDevices } = useGlobalDeviceCache();
+  const cachedDevices = useDeviceListOptimistic();
   // The redirecting state is ONLY true if the initial deviceCode is 'default'.
   const [isRedirecting] = useState(deviceCode === 'default');
 

@@ -3,11 +3,11 @@ import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/components/AuthProvider";
-import { useGlobalDeviceCache } from "@/features/equipment/hooks/useGlobalDeviceCache";
+import { useDevices } from "@/features/equipment/contexts/DeviceContext";
 
 export const EmptyState = () => {
   const { user } = useAuth();
-  const { devices: cachedDevices, isLoading } = useGlobalDeviceCache();
+  const { devices: cachedDevices, isLoading } = useDevices();
 
   const hasDeviceAccess = user && cachedDevices.length > 0;
 

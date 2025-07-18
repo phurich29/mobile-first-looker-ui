@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { useGlobalDeviceCache } from "@/features/equipment/hooks/useGlobalDeviceCache";
+import { useDeviceListOptimistic } from "@/features/equipment/hooks/useGlobalDeviceCache";
 
 interface Device {
   device_code: string;
@@ -13,7 +13,7 @@ export function useDeviceManagement() {
   const [userDevices, setUserDevices] = useState<string[]>([]);
   const [isLoadingDevices, setIsLoadingDevices] = useState(false);
   const { toast } = useToast();
-  const { devices: cachedDevices } = useGlobalDeviceCache();
+  const cachedDevices = useDeviceListOptimistic();
 
   // Transform cached devices to expected format
   const availableDevices = cachedDevices.map(device => ({
