@@ -11,7 +11,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { toast } from "@/components/ui/use-toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./components/theme/ThemeProvider";
-import { DeviceProvider } from "./features/equipment/contexts/DeviceContext";
 
 function App() {
   // Create a client
@@ -54,13 +53,11 @@ function App() {
         <PWAProvider>
           <CountdownProvider initialSeconds={60} onComplete={handleGlobalCountdownComplete}>
             <AuthProvider>
-              <DeviceProvider>
-                <RouterProvider router={router} />
-                <PWAInstallBanner />
-                <PWADebugComponent />
-                <CountdownDebugger />
-                <Toaster />
-              </DeviceProvider>
+              <RouterProvider router={router} />
+              <PWAInstallBanner />
+              <PWADebugComponent />
+              <CountdownDebugger />
+              <Toaster />
             </AuthProvider>
           </CountdownProvider>
         </PWAProvider>

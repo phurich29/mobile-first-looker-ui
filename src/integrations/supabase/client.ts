@@ -12,23 +12,14 @@ const SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3Mi
 // For admin operations, use:
 // import { supabaseAdmin } from "@/integrations/supabase/client"
 
-// Singleton pattern to prevent multiple instances
-let supabaseInstance: any = null;
-
 // Normal client for standard operations
-export const supabase = supabaseInstance || (() => {
-  supabaseInstance = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
-      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-      storageKey: 'sb-auth-token',
-      flowType: 'pkce',
-    },
-  });
-  return supabaseInstance;
-})();
+export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth: {
+    persistSession: true, // Persist session in storage
+    autoRefreshToken: true, // Automatically refresh tokens
+    detectSessionInUrl: true, // Detect session from URL (for OAuth)
+  },
+});
 
 // Admin client with full access for admin operations
 export const supabaseAdmin = createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {

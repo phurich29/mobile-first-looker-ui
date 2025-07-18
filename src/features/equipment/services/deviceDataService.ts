@@ -3,19 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { DeviceInfo } from "../types";
 
 export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean, isSuperAdmin?: boolean): Promise<DeviceInfo[]> => {
-  const startTime = performance.now();
-  console.log("🚀 Fetching devices with details using optimized database function...");
+  console.log("Fetching devices with details using optimized database function...");
   
   try {
-    // Add timeout to prevent hanging
-    const timeoutPromise = new Promise<never>((_, reject) => 
-      setTimeout(() => reject(new Error('fetchDevicesWithDetails timeout after 15 seconds')), 15000)
-    );
-
-    const fetchPromise = async (): Promise<DeviceInfo[]> => {
-      // Get current user if not provided
-      let currentUserId = userId;
-      let currentUser = null;
+    // Get current user if not provided
+    let currentUserId = userId;
+    let currentUser = null;
     
     if (!currentUserId) {
       const { data: { user } } = await supabase.auth.getUser();
@@ -103,24 +96,12 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
       console.log(`Regular user: Filtered to ${devices.length} devices`);
     }
 
-      console.log(`✅ Successfully fetched ${devices.length} devices with details`);
-      console.log("Device codes found:", devices.map(d => d.device_code));
-      
-      return devices;
-    };
-
-    // Race between fetch and timeout
-    const result = await Promise.race([fetchPromise(), timeoutPromise]);
+    console.log(`✅ Successfully fetched ${devices.length} devices with details`);
+    console.log("Device codes found:", devices.map(d => d.device_code));
     
-    const endTime = performance.now();
-    console.log(`⏱️ fetchDevicesWithDetails completed in ${(endTime - startTime).toFixed(2)}ms`);
-    
-    return result;
+    return devices;
   } catch (error) {
-    const endTime = performance.now();
-    console.error(`❌ Error fetching devices with details after ${(endTime - startTime).toFixed(2)}ms:`, error);
-    
-    // Return empty array instead of throwing to prevent app crash
+    console.error("❌ Error fetching devices with details:", error);
     return [];
   }
 };

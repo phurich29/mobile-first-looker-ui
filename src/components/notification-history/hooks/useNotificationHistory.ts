@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Notification, NotificationFilters } from "../types";
-import { useDeviceListOptimistic } from "@/features/equipment/hooks/useGlobalDeviceCache";
+import { fetchDevicesWithDetails } from "@/features/equipment/services";
 import { useAuth } from "@/components/AuthProvider";
 
 export function useNotificationHistory() {
@@ -14,13 +14,24 @@ export function useNotificationHistory() {
   const rowsPerPage = 10;
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { user } = useAuth();
-  const cachedDevices = useDeviceListOptimistic();
+  const { user, userRoles } = useAuth();
 
-  // Function to get accessible device codes from cache
-  const getAccessibleDeviceCodes = useCallback((): string[] => {
-    return cachedDevices.map(device => device.device_code);
-  }, [cachedDevices]);
+  const isAdmin = userRoles.includes('admin');
+  const isSuperAdmin = userRoles.includes('superadmin');
+
+  // Function to fetch accessible device codes for the current user
+  const fetchAccessibleDeviceCodes = useCallback(async (): Promise<string[]> => {
+    if (!user) return [];
+
+    try {
+      // Use the same device access logic as the equipment page
+      const devices = await fetchDevicesWithDetails(user.id, isAdmin, isSuperAdmin);
+      return devices.map(device => device.device_code);
+    } catch (error) {
+      console.error("Error fetching accessible devices:", error);
+      return [];
+    }
+  }, [user, isAdmin, isSuperAdmin]);
 
   // Function to fetch notifications with filters and device access restrictions
   const fetchNotifications = useCallback(async (): Promise<{
@@ -31,8 +42,8 @@ export function useNotificationHistory() {
     try {
       console.log("📊 Fetching notifications - Page:", currentPage, "Filters:", filters);
       
-      // Get accessible device codes from cache
-      const accessibleDeviceCodes = getAccessibleDeviceCodes();
+      // Get accessible device codes first
+      const accessibleDeviceCodes = await fetchAccessibleDeviceCodes();
       console.log("🔐 User has access to devices:", accessibleDeviceCodes);
       
       if (accessibleDeviceCodes.length === 0) {
@@ -118,7 +129,7 @@ export function useNotificationHistory() {
         totalPages: 0
       };
     }
-  }, [currentPage, filters, rowsPerPage, toast, getAccessibleDeviceCodes]);
+  }, [currentPage, filters, rowsPerPage, toast, fetchAccessibleDeviceCodes]);
 
   // Use React Query for data management
   const { 
@@ -128,14 +139,14 @@ export function useNotificationHistory() {
     isFetching,
     error
   } = useQuery({
-    queryKey: ['notification_history', currentPage, filters, user?.id, cachedDevices.length],
+    queryKey: ['notification_history', currentPage, filters, user?.id, userRoles],
     queryFn: fetchNotifications,
     staleTime: 10000,
     refetchInterval: 30000,
     refetchOnWindowFocus: true,
     retry: 2,
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
-    enabled: !!user && cachedDevices.length > 0, // Only run query if user is authenticated and has cached devices
+    enabled: !!user, // Only run query if user is authenticated
   });
 
   const { notifications, totalCount, totalPages } = queryResult;

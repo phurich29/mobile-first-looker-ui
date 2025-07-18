@@ -527,13 +527,7 @@ export type Database = {
       }
     }
     Views: {
-      guest_enabled_devices: {
-        Row: {
-          device_code: string | null
-          enabled: boolean | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       check_notification_thresholds: {

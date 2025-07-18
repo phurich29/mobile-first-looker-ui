@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchLatestDeviceCode } from "@/integrations/supabase/client";
-import { useDeviceListOptimistic } from "@/features/equipment/hooks/useGlobalDeviceCache";
+import { fetchDevicesWithDetails } from "@/features/equipment/services/deviceDataService";
 
 /**
  * Custom hook to handle redirection for the 'default' device route.
@@ -10,7 +10,6 @@ import { useDeviceListOptimistic } from "@/features/equipment/hooks/useGlobalDev
  */
 export const useDefaultDeviceRedirect = (deviceCode: string | undefined): { isRedirecting: boolean } => {
   const navigate = useNavigate();
-  const cachedDevices = useDeviceListOptimistic();
   // The redirecting state is ONLY true if the initial deviceCode is 'default'.
   const [isRedirecting] = useState(deviceCode === 'default');
 
@@ -30,14 +29,14 @@ export const useDefaultDeviceRedirect = (deviceCode: string | undefined): { isRe
           return;
         }
 
-        // Use cached devices for faster access check
-        const hasAccessToLatest = cachedDevices.some(d => d.device_code === latestDeviceCode);
+        const accessibleDevices = await fetchDevicesWithDetails();
+        const hasAccessToLatest = accessibleDevices.some(d => d.device_code === latestDeviceCode);
 
         if (hasAccessToLatest) {
           console.log(`User has access to latest device (${latestDeviceCode}). Redirecting.`);
           navigate(`/device/${latestDeviceCode}`, { replace: true });
-        } else if (cachedDevices.length > 0) {
-          const firstAccessibleDevice = cachedDevices[0].device_code;
+        } else if (accessibleDevices.length > 0) {
+          const firstAccessibleDevice = accessibleDevices[0].device_code;
           console.log(`User lacks access to latest, redirecting to first accessible device (${firstAccessibleDevice}).`);
           navigate(`/device/${firstAccessibleDevice}`, { replace: true });
         } else {
@@ -52,7 +51,7 @@ export const useDefaultDeviceRedirect = (deviceCode: string | undefined): { isRe
 
     determineRedirect();
     // The component will unmount on navigate, so we don't need to set isRedirecting to false.
-  }, [isRedirecting, navigate, cachedDevices]); // Run when devices are available
+  }, [isRedirecting, navigate]); // Run only when isRedirecting state is determined.
 
   return { isRedirecting };
 };

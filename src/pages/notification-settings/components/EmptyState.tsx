@@ -3,15 +3,40 @@ import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/components/AuthProvider";
-import { useDevices } from "@/features/equipment/contexts/DeviceContext";
+import { useState, useEffect } from "react";
+import { fetchDevicesWithDetails } from "@/features/equipment/services";
 
 export const EmptyState = () => {
-  const { user } = useAuth();
-  const { devices: cachedDevices, isLoading } = useDevices();
+  const { user, userRoles } = useAuth();
+  const [hasDeviceAccess, setHasDeviceAccess] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const hasDeviceAccess = user && cachedDevices.length > 0;
+  const isAdmin = userRoles.includes('admin');
+  const isSuperAdmin = userRoles.includes('superadmin');
 
-  if (isLoading) {
+  useEffect(() => {
+    const checkDeviceAccess = async () => {
+      if (!user) {
+        setHasDeviceAccess(false);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const devices = await fetchDevicesWithDetails(user.id, isAdmin, isSuperAdmin);
+        setHasDeviceAccess(devices.length > 0);
+      } catch (error) {
+        console.error("Error checking device access:", error);
+        setHasDeviceAccess(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkDeviceAccess();
+  }, [user, userRoles, isAdmin, isSuperAdmin]);
+
+  if (loading) {
     return (
       <div className="flex flex-col items-center justify-center p-4 sm:p-8 h-40 sm:h-60 text-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>

@@ -33,7 +33,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 }) => {
   const { user } = useAuth();
   const { isGuest } = useGuestMode();
-  const { devices, isLoading } = useDeviceData();
+  const { devices, isLoadingDevices } = useDeviceData();
   const navigate = useNavigate();
 
   return (
@@ -73,7 +73,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         {(user || isGuest) && (
           <DeviceDropdown 
             devices={devices}
-            isLoadingDevices={isLoading}
+            isLoadingDevices={isLoadingDevices}
           />
         )}
         

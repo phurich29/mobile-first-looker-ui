@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useMemo, ReactNode } from 'react';
-import { useDevices } from '@/features/equipment/contexts/DeviceContext';
+import { useDeviceData } from '@/features/equipment/hooks/useDeviceData';
 import { DeviceInfo } from '@/features/equipment/types';
 
 interface AssistantContextType {
@@ -17,8 +17,8 @@ export const AssistantProvider = ({ children }: { children: ReactNode }) => {
   const {
     devices,
     isLoading,
-    invalidateDevices,
-  } = useDevices();
+    handleRefresh,
+  } = useDeviceData();
   const [selectedDeviceCode, setSelectedDeviceCode] = useState('');
 
   const selectedDevice = useMemo(
@@ -32,7 +32,7 @@ export const AssistantProvider = ({ children }: { children: ReactNode }) => {
     selectedDevice,
     selectedDeviceCode,
     setSelectedDeviceCode,
-    handleRefresh: invalidateDevices,
+    handleRefresh,
   };
 
   return (

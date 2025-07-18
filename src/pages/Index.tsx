@@ -1,13 +1,12 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/AuthProvider';
-import { useDevices } from '@/features/equipment/contexts/DeviceContext';
+import { fetchDevicesWithDetails } from '@/features/equipment/services/deviceDataService';
 import { LoadingScreen } from '@/features/device-details/components/LoadingScreen';
 
 const Index = () => {
   const navigate = useNavigate();
   const { isLoading, user } = useAuth();
-  const { devices: cachedDevices } = useDevices();
 
   useEffect(() => {
     // Wait for the authentication to be fully resolved before making any decisions.
@@ -20,38 +19,30 @@ const Index = () => {
 
       if (lastViewedDeviceCode) {
         try {
-          console.log(`Verifying access to device: ${lastViewedDeviceCode}`);
-          
-          // Use cached devices for faster verification
-          const hasAccess = cachedDevices.some(d => d.device_code === lastViewedDeviceCode);
+          // Before redirecting, VERIFY that the user still has access to this device.
+          const accessibleDevices = await fetchDevicesWithDetails();
+          const hasAccess = accessibleDevices.some(d => d.device_code === lastViewedDeviceCode);
 
           if (hasAccess) {
-            console.log(`Access confirmed for device: ${lastViewedDeviceCode}`);
+            // If access is confirmed, proceed to the device page.
             navigate(`/device/${lastViewedDeviceCode}`, { replace: true });
           } else {
+            // If access is revoked, clear the invalid entry and go to the equipment page.
             console.warn(`Access to last viewed device (${lastViewedDeviceCode}) is revoked. Redirecting to equipment.`);
             localStorage.removeItem('lastViewedDeviceCode');
             navigate('/equipment', { replace: true });
           }
         } catch (error) {
           console.error("Error verifying device access, redirecting to equipment page:", error);
-          // Clear problematic cache and redirect
-          localStorage.removeItem('lastViewedDeviceCode');
           navigate('/equipment', { replace: true });
         }
       } else {
-        console.log("No last viewed device, redirecting to equipment");
+        // For new users with no history, redirect to the equipment list.
         navigate('/equipment', { replace: true });
       }
     };
 
-    // Add timeout for the entire redirect process
-    const redirectTimeout = setTimeout(() => {
-      console.warn("Redirect process taking too long, forcing navigation to equipment");
-      navigate('/equipment', { replace: true });
-    }, 15000);
-
-    handleRedirect().finally(() => clearTimeout(redirectTimeout));
+    handleRedirect();
 
   }, [isLoading, user, navigate]);
 
