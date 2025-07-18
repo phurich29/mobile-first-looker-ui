@@ -611,16 +611,6 @@ export type Database = {
       }
     }
     Views: {
-      device_data_summary: {
-        Row: {
-          data_freshness: string | null
-          device_code: string | null
-          display_name: string | null
-          last_updated: string | null
-          location: string | null
-        }
-        Relationships: []
-      }
       guest_enabled_devices: {
         Row: {
           device_code: string | null
@@ -738,26 +728,6 @@ export type Database = {
           last_updated: string
         }[]
       }
-      get_super_fast_auth_devices: {
-        Args: {
-          user_id_param?: string
-          is_admin_param?: boolean
-          is_superadmin_param?: boolean
-        }
-        Returns: {
-          device_code: string
-          display_name: string
-          updated_at: string
-        }[]
-      }
-      get_super_fast_guest_devices: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          device_code: string
-          display_name: string
-          updated_at: string
-        }[]
-      }
       get_user_roles: {
         Args: { user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
@@ -771,7 +741,7 @@ export type Database = {
         Returns: boolean
       }
       increment_counter: {
-        Args: { counter_name_param: string; increment_by?: number }
+        Args: { counter_name: string; increment_by?: number }
         Returns: undefined
       }
       invalidate_guest_devices_cache: {
@@ -785,15 +755,6 @@ export type Database = {
       is_admin_or_superadmin_safe: {
         Args: { user_id_param: string }
         Returns: boolean
-      }
-      log_query_performance: {
-        Args: {
-          function_name: string
-          execution_time_ms: number
-          result_count?: number
-          is_cached?: boolean
-        }
-        Returns: undefined
       }
       log_security_check: {
         Args: { function_name: string; user_id: string; success: boolean }
@@ -811,40 +772,9 @@ export type Database = {
         }
         Returns: undefined
       }
-      monitor_policy_performance: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          table_name: string
-          policy_count: number
-          avg_check_time_ms: number
-        }[]
-      }
-      query_with_timeout: {
-        Args: { query_name: string; timeout_seconds?: number }
-        Returns: {
-          success: boolean
-          message: string
-        }[]
-      }
-      rate_limited_guest_devices: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          device_code: string
-          display_name: string
-          updated_at: string
-        }[]
-      }
-      refresh_device_summary: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
       refresh_guest_enabled_devices: {
         Args: Record<PropertyKey, never>
         Returns: boolean
-      }
-      safe_check_notification_thresholds: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
       }
       validate_password_strength: {
         Args: { password: string }

@@ -1,55 +1,45 @@
 
+import React from 'react';
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Settings, Users } from "lucide-react";
-import { useGlobalCountdown } from "@/contexts/CountdownContext";
+import { RefreshCw } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DevicesHeaderProps {
   isRefreshing: boolean;
-  handleRefresh: () => void;
+  handleRefresh: () => Promise<void>;
   totalUniqueDevices: number;
   isSuperAdmin: boolean;
 }
 
-export function DevicesHeader({ 
-  isRefreshing, 
-  handleRefresh, 
-  totalUniqueDevices, 
-  isSuperAdmin 
+export function DevicesHeader({
+  isRefreshing,
+  handleRefresh,
+  totalUniqueDevices,
+  isSuperAdmin
 }: DevicesHeaderProps) {
-  const { seconds, manualRefresh } = useGlobalCountdown();
-
-  // Use manual refresh instead of automatic
-  const onRefreshClick = () => {
-    manualRefresh();
-    handleRefresh();
-  };
-
+  const isMobile = useIsMobile();
+  
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+    <div className="flex justify-between items-center mb-4">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
-          อุปกรณ์ทั้งหมด
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">
-          พบอุปกรณ์ทั้งหมด {totalUniqueDevices} เครื่อง
-        </p>
-        <p className="text-sm text-gray-500 mt-1">
-          อัพเดทอัตโนมัติในอีก {seconds} วินาที
-        </p>
+        <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-800 dark:text-white`}>อุปกรณ์</h1>
+        {isSuperAdmin && totalUniqueDevices > 0 && (
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-1">จำนวนอุปกรณ์ทั้งหมดในระบบ: {totalUniqueDevices} เครื่อง</p>
+        )}
+        {!isSuperAdmin && (
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-1">แสดงเฉพาะอุปกรณ์ที่คุณได้รับสิทธิ์การเข้าถึง</p>
+        )}
       </div>
-      
-      <div className="flex gap-2">
-        <Button
-          onClick={onRefreshClick}
-          disabled={isRefreshing}
-          variant="outline"
-          size="sm"
-          className="flex items-center gap-2"
-        >
-          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-          {isRefreshing ? 'กำลังโหลด...' : 'รีเฟรช'}
-        </Button>
-      </div>
+      <Button 
+        variant="outline" 
+        size="sm"
+        className="flex items-center gap-1 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
+        onClick={handleRefresh} 
+        disabled={isRefreshing}
+      >
+        <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+        <span className="text-xs">รีเฟรช</span>
+      </Button>
     </div>
   );
 }

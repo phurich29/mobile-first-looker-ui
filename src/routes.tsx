@@ -9,8 +9,7 @@ import { cn } from "@/lib/utils";
 
 // Import pages directly (non-lazy for better performance on core pages)
 import Index from "./pages/Index";
-import { Login } from "./pages/auth/Login";
-import { Signup } from "./pages/auth/Signup";
+import Login from "./pages/Login";
 import Logout from "./pages/Logout";
 import NotFound from "./pages/NotFound";
 import Waiting from "./pages/Waiting";
@@ -105,7 +104,7 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: (
-          <ProtectedRoute allowUnauthenticated={true}>
+          <ProtectedRoute allowGuest={true}>
             <Index />
           </ProtectedRoute>
         ),
@@ -113,7 +112,7 @@ export const router = createBrowserRouter([
       {
         path: "news",
         element: (
-          <ProtectedRoute allowUnauthenticated={true}>
+          <ProtectedRoute allowGuest={true}>
             <News />
           </ProtectedRoute>
         ),
@@ -121,7 +120,7 @@ export const router = createBrowserRouter([
       {
         path: "about-riceflow",
         element: (
-          <ProtectedRoute allowUnauthenticated={true}>
+          <ProtectedRoute allowGuest={true}>
             <AboutRiceflow />
           </ProtectedRoute>
         ),
@@ -131,11 +130,11 @@ export const router = createBrowserRouter([
         path: "logout",
         element: <Logout />,
       },
-      // Protected routes with visitor access
+      // Protected routes with guest access
       {
         path: "waiting",
         element: (
-          <ProtectedRoute allowUnauthenticated={true}>
+          <ProtectedRoute allowGuest={true}>
             <Waiting />
           </ProtectedRoute>
         ),
@@ -143,7 +142,7 @@ export const router = createBrowserRouter([
       {
         path: "equipment",
         element: (
-          <ProtectedRoute allowUnauthenticated={true}>
+          <ProtectedRoute allowGuest={true}>
             <Equipment />
           </ProtectedRoute>
         ),
@@ -151,7 +150,7 @@ export const router = createBrowserRouter([
       {
         path: "measurements",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <div>Measurements Page - To be implemented</div>
           </ProtectedRoute>
         ),
@@ -159,7 +158,7 @@ export const router = createBrowserRouter([
       {
         path: "device/:deviceCode",
         element: (
-          <ProtectedRoute allowUnauthenticated={true}>
+          <ProtectedRoute allowGuest={true}>
             <DeviceDetails />
           </ProtectedRoute>
         ),
@@ -167,7 +166,7 @@ export const router = createBrowserRouter([
       {
         path: "device/:deviceCode/:symbol",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <MeasurementHistory />
           </ProtectedRoute>
         ),
@@ -176,7 +175,7 @@ export const router = createBrowserRouter([
       {
         path: "device/:deviceCode/graph-monitor",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <DeviceGraphMonitor />
           </ProtectedRoute>
         ),
@@ -184,7 +183,7 @@ export const router = createBrowserRouter([
       {
         path: "device/:deviceCode/graph-summary",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <DeviceGraphSummary />
           </ProtectedRoute>
         ),
@@ -200,7 +199,7 @@ export const router = createBrowserRouter([
       {
         path: "graph-monitor",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <GraphMonitor />
           </ProtectedRoute>
         ),
@@ -208,7 +207,7 @@ export const router = createBrowserRouter([
       {
         path: "graph-summary",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <GraphSummary />
           </ProtectedRoute>
         ),
@@ -216,7 +215,7 @@ export const router = createBrowserRouter([
       {
         path: "graph-summary-detail",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <GraphSummaryDetail />
           </ProtectedRoute>
         ),
@@ -224,7 +223,7 @@ export const router = createBrowserRouter([
       {
         path: "new-quality-measurements",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <NewQualityMeasurements />
           </ProtectedRoute>
         ),
@@ -232,7 +231,7 @@ export const router = createBrowserRouter([
       {
         path: "measurement-detail/:measurementSymbol",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <MeasurementDetail />
           </ProtectedRoute>
         ),
@@ -240,7 +239,7 @@ export const router = createBrowserRouter([
       {
         path: "measurement-history/:deviceCode/:symbol",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <MeasurementHistory />
           </ProtectedRoute>
         ),
@@ -248,7 +247,7 @@ export const router = createBrowserRouter([
       {
         path: "assistant",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowGuest={true}>
             <Assistant />
           </ProtectedRoute>
         ),
@@ -326,10 +325,6 @@ export const router = createBrowserRouter([
       {
         path: "login",
         element: <Login />,
-      },
-      {
-        path: "signup",
-        element: <Signup />,
       },
     ],
   },

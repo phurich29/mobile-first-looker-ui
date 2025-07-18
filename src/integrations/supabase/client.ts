@@ -9,27 +9,25 @@ const SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3Mi
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client"
+// For admin operations, use:
+// import { supabaseAdmin } from "@/integrations/supabase/client"
 
-// Single unified client - no more multiple GoTrueClient instances
+// Normal client for standard operations
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-    storageKey: 'sb-riceflow-auth-token',
+    persistSession: true, // Persist session in storage
+    autoRefreshToken: true, // Automatically refresh tokens
+    detectSessionInUrl: true, // Detect session from URL (for OAuth)
   },
 });
 
-// Helper for admin operations using service role key in headers
-export const createAdminRequest = () => ({
-  headers: {
-    'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-    'apikey': SUPABASE_SERVICE_ROLE_KEY,
-  }
+// Admin client with full access for admin operations
+export const supabaseAdmin = createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  auth: {
+    persistSession: false, // Admin client should not persist sessions
+    autoRefreshToken: false,
+  },
 });
-
-// Legacy compatibility - use regular client with proper RLS policies
-export const supabaseAdmin = supabase;
 
 /**
  * Fetches the latest device code from rice quality analysis

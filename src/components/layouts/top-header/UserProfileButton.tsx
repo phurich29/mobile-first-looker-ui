@@ -2,7 +2,8 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { User, LogIn } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useUnifiedPermissions } from '@/hooks/useUnifiedPermissions';
+import { useGuestMode } from '@/hooks/useGuestMode';
+import { supabase } from '@/integrations/supabase/client';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,38 +12,32 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export const UserProfileButton: React.FC = () => {
-  const { isVisitor, isAuthenticated } = useUnifiedPermissions();
+  const { isGuest, user } = useGuestMode();
   const navigate = useNavigate();
+
+  const handleLoginClick = async () => {
+    // สำหรับ guest: logout ก่อน (เผื่อมี session เก่าค้างอยู่) แล้วไปหน้า login
+    if (isGuest) {
+      await supabase.auth.signOut();
+      navigate('/login');
+    }
+  };
+
+  const handleLogoutClick = async () => {
+    await supabase.auth.signOut();
+    navigate('/login');
+  };
 
   const handleProfileClick = () => {
     navigate('/profile');
   };
 
-  const handleImmediateLogout = () => {
-    // Navigate to logout page for immediate cleanup
-    navigate('/logout');
-  };
-
-  const handleLogin = () => {
-    navigate('/auth/login');
-  };
-
-  // For visitors, show login button
-  if (isVisitor) {
-    return (
-      <Button 
-        variant="ghost" 
-        size="sm" 
-        onClick={handleLogin}
-        className="text-white hover:bg-emerald-700/50"
-      >
-        <LogIn className="h-4 w-4 mr-2" />
-        เข้าสู่ระบบ
-      </Button>
-    );
+  // สำหรับ Guest ไม่ต้องแสดงอะไร
+  if (isGuest) {
+    return null;
   }
 
-  // For authenticated users, show dropdown menu
+  // สำหรับผู้ใช้ที่ login แล้ว แสดง dropdown menu
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -59,7 +54,7 @@ export const UserProfileButton: React.FC = () => {
           <User className="h-4 w-4 mr-2" />
           ข้อมูลส่วนตัว
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleImmediateLogout}>
+        <DropdownMenuItem onClick={handleLogoutClick}>
           <LogIn className="h-4 w-4 mr-2" />
           ออกจากระบบ
         </DropdownMenuItem>

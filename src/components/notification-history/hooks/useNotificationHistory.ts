@@ -131,7 +131,7 @@ export function useNotificationHistory() {
     }
   }, [currentPage, filters, rowsPerPage, toast, fetchAccessibleDeviceCodes]);
 
-  // Use React Query for data management - REMOVED refetchInterval
+  // Use React Query for data management
   const { 
     data: queryResult = { notifications: [], totalCount: 0, totalPages: 0 },
     isLoading,
@@ -141,10 +141,9 @@ export function useNotificationHistory() {
   } = useQuery({
     queryKey: ['notification_history', currentPage, filters, user?.id, userRoles],
     queryFn: fetchNotifications,
-    staleTime: 0, // No cache
-    gcTime: 0, // No cache
-    // REMOVED: refetchInterval: 30000 - Now only triggered by Global Countdown
-    refetchOnWindowFocus: false, // Disable window focus refetch to reduce triggers
+    staleTime: 10000,
+    refetchInterval: 30000,
+    refetchOnWindowFocus: true,
     retry: 2,
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
     enabled: !!user, // Only run query if user is authenticated
@@ -154,7 +153,7 @@ export function useNotificationHistory() {
 
   // Manual notification check
   const handleManualCheck = useCallback(async () => {
-    console.log("🔄 Manual notification check started - triggered by user action, not automatic interval");
+    console.log("🔄 Manual notification check started");
     
     toast({
       title: "กำลังตรวจสอบการแจ้งเตือน...",
@@ -204,9 +203,9 @@ export function useNotificationHistory() {
     }
   }, [toast, queryClient]);
 
-  // Manual refresh - triggered by user action or Global Countdown only
+  // Manual refresh
   const handleRefresh = useCallback(() => {
-    console.log("🔄 Manual refresh triggered - by user action or Global Countdown, not automatic interval");
+    console.log("🔄 Manual refresh triggered");
     refetch();
     toast({
       title: "รีเฟรชข้อมูล",

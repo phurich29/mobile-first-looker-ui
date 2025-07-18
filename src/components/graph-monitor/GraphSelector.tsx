@@ -12,7 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { X, Wheat, Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
-import { useUnifiedPermissions } from "@/hooks/useUnifiedPermissions";
+import { useGuestMode } from "@/hooks/useGuestMode";
 import { getColumnThaiName } from "@/lib/columnTranslations";
 import { COLUMN_ORDER } from "@/features/device-details/components/device-history/utils";
 
@@ -82,7 +82,7 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
   const [loading, setLoading] = useState(true);
   const [availableMeasurements, setAvailableMeasurements] = useState<Measurement[]>([]);
   const { user, userRoles } = useAuth();
-  const { isAuthenticated } = useUnifiedPermissions();
+  const { isGuest } = useGuestMode();
 
   // Load devices when component mounts
   useEffect(() => {
@@ -102,22 +102,53 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
       });
       setAvailableMeasurements(dynamicMeasurements);
     }
-  }, [open, user, isAuthenticated]);
+  }, [open, user, isGuest]);
 
   // Auto-select device if deviceFilter is provided
   useEffect(() => {
     if (deviceFilter) {
       setSelectedDevice(deviceFilter);
+      // For guests, we don't need to wait for devices to load
+      if (isGuest) {
+        setLoading(false);
+      }
     } else if (devices.length > 0) {
       setSelectedDevice(devices[0].device_code);
     }
-  }, [deviceFilter, devices, isAuthenticated]);
+  }, [deviceFilter, devices, isGuest]);
 
   const loadDevices = async () => {
     setLoading(true);
     try {
-      // For authenticated users only
-      if (!user) {
+      // For guests, if deviceFilter is provided, create a simple device entry
+      if (isGuest && deviceFilter) {
+        // Try to get device display name from device_settings
+        let deviceName = `อุปกรณ์วัด ${deviceFilter}`;
+        try {
+          const { data: deviceSettings } = await supabase
+            .from('device_settings')
+            .select('display_name')
+            .eq('device_code', deviceFilter)
+            .maybeSingle();
+          
+          if (deviceSettings?.display_name) {
+            deviceName = deviceSettings.display_name;
+          }
+        } catch (error) {
+          console.log("Could not fetch device name for guest:", error);
+        }
+
+        setDevices([{
+          device_code: deviceFilter,
+          display_name: deviceName,
+          updated_at: new Date().toISOString()
+        }]);
+        setLoading(false);
+        return;
+      }
+
+      // For authenticated users, use the original logic
+      if (!user && !isGuest) {
         setDevices([]);
         setLoading(false);
         return;
@@ -170,16 +201,22 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
     // Get device name
     let deviceName = `อุปกรณ์วัด ${deviceCode}`;
     
-    // For all authenticated users
-    const device = devices.find(d => d.device_code === deviceCode);
-    deviceName = device?.display_name || deviceName;
+    if (isGuest && deviceFilter) {
+      // For guests, try to find device name from our devices array
+      const device = devices.find(d => d.device_code === deviceCode);
+      deviceName = device?.display_name || deviceName;
+    } else {
+      // For authenticated users
+      const device = devices.find(d => d.device_code === deviceCode);
+      deviceName = device?.display_name || deviceName;
+    }
     
-    console.log("Selecting measurement:", {
+    console.log("Guest selecting measurement:", {
       deviceCode,
       symbol: measurement.symbol,
       name: measurement.name,
       deviceName,
-      isAuthenticated
+      isGuest
     });
     
     onSelectGraph(

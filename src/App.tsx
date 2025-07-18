@@ -51,11 +51,11 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light">
         <PWAProvider>
-          <PWAInstallBanner />
-          <PWADebugComponent />
           <CountdownProvider initialSeconds={60} onComplete={handleGlobalCountdownComplete}>
             <AuthProvider>
               <RouterProvider router={router} />
+              <PWAInstallBanner />
+              <PWADebugComponent />
               <CountdownDebugger />
               <Toaster />
             </AuthProvider>

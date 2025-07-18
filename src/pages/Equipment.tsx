@@ -1,9 +1,10 @@
 
 import { AddDeviceForm } from "@/components/device-management/AddDeviceForm";
+import { DatabaseTable } from "@/components/DatabaseTable";
 import { DevicesHeader, DevicesGrid } from "@/features/equipment";
 import { AppLayout } from "@/components/layouts";
 import { DeviceHistoryTable } from "@/features/device-details/components/DeviceHistoryTable";
-
+import { useGuestMode } from "@/hooks/useGuestMode";
 import { useMemo } from "react";
 import { useDevicesQuery } from "@/features/equipment/hooks/useDevicesQuery";
 
@@ -18,6 +19,8 @@ export default function Equipment() {
     isSuperAdmin
   } = useDevicesQuery();
   
+  const { isGuest } = useGuestMode();
+  
   // Memoize deviceIds to prevent unnecessary re-renders
   const deviceIds = useMemo(() => {
     return devices.map(d => d.device_code);
@@ -26,7 +29,7 @@ export default function Equipment() {
   // Memoize refresh handler to prevent recreating on every render
   const handleRefresh = useMemo(() => {
     return async () => {
-      console.log('🔄 Manual refresh triggered from Equipment page');
+      console.log('🔄 Manual refresh triggered');
       await refetch();
     };
   }, [refetch]);
@@ -47,29 +50,27 @@ export default function Equipment() {
         />
       </div>
       
-      {/* Add Device Form - Only for superadmin */}
-      {isSuperAdmin && (
+      {/* Add Device Form - Only for superadmin (not guests and not regular admins) */}
+      {isSuperAdmin && !isGuest && (
         <div className="mb-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">เพิ่มอุปกรณ์ใหม่</h2>
           <AddDeviceForm onDeviceAdded={handleRefresh} />
         </div>
       )}
       
-      {/* Devices Grid - Lazy loaded */}
+      {/* Devices Grid - Show for both authenticated users and guests */}
       <DevicesGrid 
         devices={devices} 
-        isAdmin={isAdmin} 
+        isAdmin={isAdmin && !isGuest} 
         isLoading={isLoading} 
-        isSuperAdmin={isSuperAdmin}
+        isSuperAdmin={isSuperAdmin && !isGuest} 
         onDeviceUpdated={handleRefresh} 
       />
 
-      {/* Device History Table */}
-      {deviceIds.length > 0 && (
-        <div className="mt-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-          <DeviceHistoryTable deviceIds={deviceIds} title="ประวัติอุปกรณ์" />
-        </div>
-      )}
+      {/* Device History Table - Show to all users including guests */}
+      <div className="mt-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+        <DeviceHistoryTable deviceIds={deviceIds} title="ประวัติอุปกรณ์" />
+      </div>
     </AppLayout>
   );
 }

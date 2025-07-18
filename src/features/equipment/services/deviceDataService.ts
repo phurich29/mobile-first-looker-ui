@@ -3,38 +3,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { DeviceInfo } from "../types";
 
 export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean, isSuperAdmin?: boolean): Promise<DeviceInfo[]> => {
-  console.log("Fetching devices with details - supporting visitor mode...");
+  console.log("Fetching devices with details using optimized database function...");
   
   try {
-    // ถ้าไม่มี userId แสดงว่าเป็น visitor ให้ใช้ guest device access
-    if (!userId) {
-      console.log("📡 Fetching visitor devices from guest_device_access");
-      
-      const { data, error } = await supabase.rpc('get_guest_devices_fast');
-      
-      if (error) {
-        console.error('🚨 Visitor device fetch error:', error);
-        return [];
-      }
-
-      if (!data || !Array.isArray(data)) {
-        console.warn('⚠️ Invalid visitor device data:', data);
-        return [];
-      }
-
-      const devices: DeviceInfo[] = data.map((item: any) => ({
-        device_code: item.device_code || '',
-        display_name: item.display_name || item.device_code || 'ไม่ระบุชื่อ',
-        updated_at: item.updated_at || new Date().toISOString()
-      }));
-
-      console.log(`✅ Successfully fetched ${devices.length} visitor devices`);
-      return devices;
-    }
-
-    // สำหรับผู้ใช้ที่ login แล้ว
+    // Get current user if not provided
     let currentUserId = userId;
     let currentUser = null;
+    
+    if (!currentUserId) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.log("No authenticated user found");
+        return [];
+      }
+      currentUserId = user.id;
+      currentUser = user;
+    }
 
     // Check user role if not provided
     let userIsSuperAdmin = isSuperAdmin;
@@ -69,7 +53,7 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
       devices = data || [];
       console.log(`${userIsSuperAdmin ? 'SuperAdmin' : 'Admin'}: Found ${devices.length} devices from database function`);
     } else {
-      // Regular users see only devices they have access to
+      // Regular users see devices they have access to OR devices in guest_device_access that are enabled
       console.log("Fetching devices for regular user...");
       
       const { data: accessibleDevices, error: accessError } = await supabase
@@ -79,7 +63,20 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
 
       if (accessError) throw accessError;
 
-      const uniqueDeviceCodes = accessibleDevices?.map(d => d.device_code) || [];
+      const { data: guestDevices, error: guestError } = await supabase
+        .from('guest_device_access')
+        .select('device_code')
+        .eq('enabled', true);
+
+      if (guestError) throw guestError;
+
+      // Combine accessible devices and enabled guest devices
+      const allAccessibleDeviceCodes = [
+        ...(accessibleDevices?.map(d => d.device_code) || []),
+        ...(guestDevices?.map(d => d.device_code) || [])
+      ];
+
+      const uniqueDeviceCodes = [...new Set(allAccessibleDeviceCodes)];
       console.log(`Regular user: Found ${uniqueDeviceCodes.length} accessible device codes`);
 
       if (uniqueDeviceCodes.length > 0) {

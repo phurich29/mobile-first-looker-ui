@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/AuthProvider';
-import { useUnifiedPermissions } from "@/hooks/useUnifiedPermissions";
+import { useGuestMode } from '@/hooks/useGuestMode';
 import { MobileMenuButton } from './MobileMenuButton';
 import { HeaderLogo } from './HeaderLogo';
 import { DeviceDropdown } from './DeviceDropdown';
@@ -32,7 +32,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   appName = "RiceFlow",
 }) => {
   const { user } = useAuth();
-  const { isAuthenticated } = useUnifiedPermissions();
+  const { isGuest } = useGuestMode();
   const { devices, isLoadingDevices } = useDeviceData();
   const navigate = useNavigate();
 
@@ -69,8 +69,8 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 
       {/* Right Section */}
       <div className="flex flex-row items-center gap-3">
-        {/* Device Dropdown - แสดงเฉพาะสำหรับ user ที่ login แล้ว */}
-        {user && (
+        {/* Device Dropdown - แสดงสำหรับทั้ง user ที่ login และ guest */}
+        {(user || isGuest) && (
           <DeviceDropdown 
             devices={devices}
             isLoadingDevices={isLoadingDevices}
@@ -92,7 +92,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         {/* User Profile Button - แสดงสำหรับทั้ง user และ guest */}
         <UserProfileButton />
       </div>
-      {user && (
+      {user && !isGuest && (
         <div className="absolute bottom-0.5 right-4 text-[8px] text-white font-medium pointer-events-none truncate max-w-[150px]">
           {user.user_metadata?.full_name || user.email}
         </div>

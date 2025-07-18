@@ -13,13 +13,13 @@ const Index = () => {
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
 
-  // Use React Query to fetch devices for access verification without cache
+  // Use React Query to fetch devices for access verification
   const { data: accessibleDevices } = useQuery({
     queryKey: ['accessible-devices-check', user?.id, isAdmin, isSuperAdmin],
     queryFn: () => fetchDevicesWithDetails(user?.id, isAdmin, isSuperAdmin),
     enabled: !isLoading && !!user,
-    staleTime: 0, // No cache
-    gcTime: 0, // No cache
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
   });
 
   useEffect(() => {
