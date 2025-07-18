@@ -10,22 +10,30 @@ export const useAuthSession = () => {
 
   const signOut = useCallback(async () => {
     try {
-      await supabase.auth.signOut();
+      // Immediately clear state
       setUser(null);
       setSession(null);
+      setIsLoading(false);
       
-      // Clear any cached data in localStorage/sessionStorage
+      // Clear all cached data immediately
       const keysToRemove = [];
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && (key.includes('supabase') || key.includes('auth-token'))) {
+        if (key && (key.includes('supabase') || key.includes('auth-token') || key.includes('user_roles'))) {
           keysToRemove.push(key);
         }
       }
       keysToRemove.forEach(key => localStorage.removeItem(key));
       
+      // Force sign out from Supabase
+      await supabase.auth.signOut({ scope: 'global' });
+      
     } catch (error) {
       console.error('Error signing out:', error);
+      // Even if signOut fails, ensure local state is cleared
+      setUser(null);
+      setSession(null);
+      setIsLoading(false);
     }
   }, []);
 
