@@ -122,10 +122,6 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
         setLoading(false);
         return;
       }
-        setDevices([]);
-        setLoading(false);
-        return;
-      }
 
       const isAdmin = userRoles.includes('admin');
       const isSuperadmin = userRoles.includes('superadmin');
@@ -174,22 +170,16 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
     // Get device name
     let deviceName = `อุปกรณ์วัด ${deviceCode}`;
     
-    if (isGuest && deviceFilter) {
-      // For guests, try to find device name from our devices array
-      const device = devices.find(d => d.device_code === deviceCode);
-      deviceName = device?.display_name || deviceName;
-    } else {
-      // For authenticated users
-      const device = devices.find(d => d.device_code === deviceCode);
-      deviceName = device?.display_name || deviceName;
-    }
+    // For all authenticated users
+    const device = devices.find(d => d.device_code === deviceCode);
+    deviceName = device?.display_name || deviceName;
     
-    console.log("Guest selecting measurement:", {
+    console.log("Selecting measurement:", {
       deviceCode,
       symbol: measurement.symbol,
       name: measurement.name,
       deviceName,
-      isGuest
+      isAuthenticated
     });
     
     onSelectGraph(

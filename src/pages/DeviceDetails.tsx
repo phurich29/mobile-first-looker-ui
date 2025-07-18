@@ -33,7 +33,7 @@ export default function DeviceDetails() {
 
   // Use custom hooks
   const { isRedirecting } = useDefaultDeviceRedirect(deviceCode);
-  const { hasDeviceAccess, isLoading: isCheckingAccess, isGuest } = useDeviceAccess(deviceCode);
+  const { hasDeviceAccess, isLoading: isCheckingAccess, isAuthenticated } = useDeviceAccess(deviceCode);
   const {
     wholeGrainData,
     ingredientsData,
@@ -83,7 +83,7 @@ export default function DeviceDetails() {
 
   // If user doesn't have access to this device, show unauthorized message
   if (deviceCode && deviceCode !== 'default' && !hasDeviceAccess) {
-    return <UnauthorizedAccess isGuest={isGuest} />;
+    return <UnauthorizedAccess isGuest={false} />;
   }
 
   // Show measurement history if a measurement symbol is present in URL
@@ -113,7 +113,7 @@ export default function DeviceDetails() {
         isLoadingIngredients={isLoadingIngredients}
         isLoadingImpurities={isLoadingImpurities}
         isLoadingAllData={isLoadingAllData}
-        isGuest={isGuest}
+        isGuest={false}
         onMeasurementClick={handleMeasurementClick}
       />
     </CountdownProvider>
