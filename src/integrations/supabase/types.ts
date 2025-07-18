@@ -256,6 +256,27 @@ export type Database = {
           },
         ]
       }
+      performance_counters: {
+        Row: {
+          counter_name: string
+          counter_value: number | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          counter_name: string
+          counter_value?: number | null
+          id?: string
+          updated_at?: string | null
+        }
+        Update: {
+          counter_name?: string
+          counter_value?: number | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -450,6 +471,42 @@ export type Database = {
           },
         ]
       }
+      slow_query_log: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          execution_time_ms: number
+          id: string
+          parameters: Json | null
+          query_name: string
+          query_text: string | null
+          sql_state: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          execution_time_ms: number
+          id?: string
+          parameters?: Json | null
+          query_name: string
+          query_text?: string | null
+          sql_state?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          execution_time_ms?: number
+          id?: string
+          parameters?: Json | null
+          query_name?: string
+          query_text?: string | null
+          sql_state?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_chart_preferences: {
         Row: {
           created_at: string
@@ -563,6 +620,17 @@ export type Database = {
       }
     }
     Functions: {
+      analyze_slow_queries: {
+        Args: { hours_back?: number }
+        Returns: {
+          query_name: string
+          total_calls: number
+          avg_execution_ms: number
+          max_execution_ms: number
+          min_execution_ms: number
+          total_time_ms: number
+        }[]
+      }
       check_notification_thresholds: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -570,6 +638,10 @@ export type Database = {
       check_user_role_for_data_access: {
         Args: { user_id_param: string }
         Returns: boolean
+      }
+      cleanup_old_performance_logs: {
+        Args: { days_to_keep?: number }
+        Returns: number
       }
       get_device_data: {
         Args: Record<PropertyKey, never>
@@ -623,6 +695,14 @@ export type Database = {
           enabled: boolean
         }[]
       }
+      get_performance_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          metric_name: string
+          metric_value: number
+          last_updated: string
+        }[]
+      }
       get_user_roles: {
         Args: { user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
@@ -634,6 +714,10 @@ export type Database = {
       has_role: {
         Args: { user_id: string; role: Database["public"]["Enums"]["app_role"] }
         Returns: boolean
+      }
+      increment_counter: {
+        Args: { counter_name: string; increment_by?: number }
+        Returns: undefined
       }
       invalidate_guest_devices_cache: {
         Args: Record<PropertyKey, never>
@@ -649,6 +733,18 @@ export type Database = {
       }
       log_security_check: {
         Args: { function_name: string; user_id: string; success: boolean }
+        Returns: undefined
+      }
+      log_slow_query: {
+        Args: {
+          p_query_name: string
+          p_execution_time_ms: number
+          p_query_text?: string
+          p_user_id?: string
+          p_parameters?: Json
+          p_error_message?: string
+          p_sql_state?: string
+        }
         Returns: undefined
       }
       refresh_guest_enabled_devices: {
