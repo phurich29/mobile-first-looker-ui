@@ -18,7 +18,7 @@ const Logout = () => {
     handleLogout();
   }, [signOut]);
 
-  // Redirect to home page after logout to become guest
+  // Redirect to home page after logout
   return <Navigate to="/" replace />;
 };
 

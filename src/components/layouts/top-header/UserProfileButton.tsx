@@ -25,7 +25,7 @@ export const UserProfileButton: React.FC = () => {
 
   const handleLogoutClick = async () => {
     await supabase.auth.signOut();
-    navigate('/');
+    navigate('/login');
   };
 
   const handleProfileClick = () => {
