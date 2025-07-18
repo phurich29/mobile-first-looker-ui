@@ -291,6 +291,16 @@ export default function Login() {
               </form>
             </TabsContent>
           </Tabs>
+
+          <CardFooter className="flex-col space-y-2">
+            <Button 
+              variant="outline" 
+              className="w-full" 
+              onClick={() => navigate('/')}
+            >
+              กลับหน้าแรก
+            </Button>
+          </CardFooter>
         </Card>
       </div>
       
