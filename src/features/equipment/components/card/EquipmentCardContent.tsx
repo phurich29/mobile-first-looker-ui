@@ -69,7 +69,7 @@ export function EquipmentCardContent({
             onClick={onEditClick}
           >
             <Settings className="h-3.5 w-3.5" />
-          </Link>
+          </Button>
         )}
       </div>
     </CardContent>
