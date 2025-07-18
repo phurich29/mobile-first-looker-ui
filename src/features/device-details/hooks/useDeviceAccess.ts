@@ -1,29 +1,16 @@
 
-import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/AuthProvider";
 import { useGuestMode } from "@/hooks/useGuestMode";
-import { fetchDevicesWithDetails } from "@/features/equipment/services";
+import { useGlobalDeviceCache } from "@/features/equipment/hooks/useGlobalDeviceCache";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 export const useDeviceAccess = (deviceCode: string | undefined) => {
   const { user, userRoles } = useAuth();
   const { isGuest } = useGuestMode();
+  const { devices: cachedDevices, isLoading: isLoadingCache } = useGlobalDeviceCache();
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
-
-  // Check device access permissions for authenticated users
-  const {
-    data: accessibleDevices,
-    isLoading: isCheckingAccess
-  } = useQuery({
-    queryKey: ['deviceAccess', user?.id, userRoles],
-    queryFn: async () => {
-      if (!user) return [];
-      // Both admin and superadmin get full access to all devices
-      return await fetchDevicesWithDetails(user.id, isAdmin, isSuperAdmin);
-    },
-    enabled: !!user && !isGuest
-  });
 
   // Check guest device access
   const {
@@ -58,12 +45,12 @@ export const useDeviceAccess = (deviceCode: string | undefined) => {
     if (isAdmin || isSuperAdmin) {
       hasDeviceAccess = true; // Admin and SuperAdmin have access to all devices
     } else {
-      // Regular users need to check their specific device access
-      hasDeviceAccess = accessibleDevices?.some(device => device.device_code === deviceCode) ?? false;
+      // Regular users use cached devices for faster access check
+      hasDeviceAccess = cachedDevices.some(device => device.device_code === deviceCode);
     }
   }
 
-  const isLoading = (isGuest && isCheckingGuestAccess) || (!isGuest && isCheckingAccess);
+  const isLoading = (isGuest && isCheckingGuestAccess) || (!isGuest && isLoadingCache);
 
   return {
     hasDeviceAccess,

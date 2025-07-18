@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { fetchDevicesWithDetails } from "@/features/equipment/services/deviceDataService";
+import { useGlobalDeviceCache } from "@/features/equipment/hooks/useGlobalDeviceCache";
 
 interface Device {
   device_code: string;
@@ -10,40 +10,23 @@ interface Device {
 }
 
 export function useDeviceManagement() {
-  const [availableDevices, setAvailableDevices] = useState<Device[]>([]);
   const [userDevices, setUserDevices] = useState<string[]>([]);
   const [isLoadingDevices, setIsLoadingDevices] = useState(false);
   const { toast } = useToast();
+  const { devices: cachedDevices } = useGlobalDeviceCache();
+
+  // Transform cached devices to expected format
+  const availableDevices = cachedDevices.map(device => ({
+    device_code: device.device_code,
+    display_name: device.display_name
+  }));
 
   const fetchDevices = async (userId: string) => {
     setIsLoadingDevices(true);
     try {
-      console.log('Fetching devices using same method as Equipment page...');
-      
-      // Get current user
-      const { data: { user: currentUser } } = await supabase.auth.getUser();
-      if (!currentUser) throw new Error("User not authenticated");
+      console.log('Using cached devices from global cache...');
 
-      // Check user role
-      const { data: userRoles } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', currentUser.id);
-
-      const isSuperAdmin = userRoles?.some(role => role.role === 'superadmin');
-      const isAdmin = userRoles?.some(role => role.role === 'admin');
-
-      // Use the same service as Equipment page - both admin and superadmin get full access
-      const deviceList = await fetchDevicesWithDetails(currentUser.id, isAdmin, isSuperAdmin);
-      
-      // Convert to the format expected by DeviceAccessSection
-      const devices = deviceList.map(device => ({
-        device_code: device.device_code,
-        display_name: device.display_name
-      }));
-
-      console.log(`Found ${devices.length} devices using Equipment page method:`, devices.map(d => d.device_code));
-      setAvailableDevices(devices);
+      console.log(`Found ${availableDevices.length} devices from cache:`, availableDevices.map(d => d.device_code));
 
       // Fetch user's current device access
       const { data: accessData, error: accessError } = await supabase

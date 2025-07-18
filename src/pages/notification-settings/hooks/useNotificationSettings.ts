@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { NotificationSetting } from "../types";
-import { fetchDevicesWithDetails } from "@/features/equipment/services";
+import { useGlobalDeviceCache } from "@/features/equipment/hooks/useGlobalDeviceCache";
 import { useAuth } from "@/components/AuthProvider";
 
 export const useNotificationSettings = () => {
@@ -11,31 +11,20 @@ export const useNotificationSettings = () => {
   const [settings, setSettings] = useState<NotificationSetting[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { user, userRoles } = useAuth();
+  const { user } = useAuth();
+  const { devices: cachedDevices } = useGlobalDeviceCache();
 
-  const isAdmin = userRoles.includes('admin');
-  const isSuperAdmin = userRoles.includes('superadmin');
-
-  // Function to fetch accessible device codes for the current user
-  const fetchAccessibleDeviceCodes = useCallback(async (): Promise<string[]> => {
-    if (!user) return [];
-
-    try {
-      // Use the same device access logic as other pages
-      const devices = await fetchDevicesWithDetails(user.id, isAdmin, isSuperAdmin);
-      return devices.map(device => device.device_code);
-    } catch (error) {
-      console.error("Error fetching accessible devices:", error);
-      return [];
-    }
-  }, [user, isAdmin, isSuperAdmin]);
+  // Function to get accessible device codes from cache
+  const getAccessibleDeviceCodes = useCallback((): string[] => {
+    return cachedDevices.map(device => device.device_code);
+  }, [cachedDevices]);
 
   const fetchSettings = async () => {
     try {
       setLoading(true);
       
-      // Get accessible device codes first
-      const accessibleDeviceCodes = await fetchAccessibleDeviceCodes();
+      // Get accessible device codes from cache
+      const accessibleDeviceCodes = getAccessibleDeviceCodes();
       console.log("🔐 User has access to devices:", accessibleDeviceCodes);
       
       if (accessibleDeviceCodes.length === 0) {
@@ -93,10 +82,10 @@ export const useNotificationSettings = () => {
   };
 
   useEffect(() => {
-    if (user) {
+    if (user && cachedDevices.length > 0) {
       fetchSettings();
     }
-  }, [user, userRoles]);
+  }, [user, cachedDevices.length]);
 
   return { settings, loading, error, fetchSettings };
 };
