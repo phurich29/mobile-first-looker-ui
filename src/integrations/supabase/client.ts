@@ -12,20 +12,23 @@ const SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3Mi
 // For admin operations, use:
 // import { supabaseAdmin } from "@/integrations/supabase/client"
 
-// Normal client for standard operations
+// Normal client for standard operations with unique storage key
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    persistSession: true, // Persist session in storage
-    autoRefreshToken: true, // Automatically refresh tokens
-    detectSessionInUrl: true, // Detect session from URL (for OAuth)
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    storageKey: 'sb-riceflow-auth-token', // Unique storage key
   },
 });
 
-// Admin client with full access for admin operations
+// Admin client with completely isolated auth system
 export const supabaseAdmin = createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: {
-    persistSession: false, // Admin client should not persist sessions
+    persistSession: false,
     autoRefreshToken: false,
+    detectSessionInUrl: false,
+    storageKey: 'sb-riceflow-admin-token', // Separate admin storage key
   },
 });
 

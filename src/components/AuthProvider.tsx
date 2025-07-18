@@ -30,200 +30,139 @@ export function AuthProvider({ children }: AuthProviderProps) {
     fetchUserRoles,
   } = useUserRoles();
 
-  // Auth readiness and stability tracking
+  // Simplified auth readiness tracking
   const isAuthReady = useRef<boolean>(false);
-  const initializationStartTime = useRef<number>(Date.now());
   const sessionInitialized = useRef<boolean>(false);
+  const lastAuthStateChange = useRef<number>(0);
   
-  // Session stability tracking
-  const lastSessionValidation = useRef<number>(0);
-  const sessionValidationCount = useRef<number>(0);
-  const authStateChangeCount = useRef<number>(0);
-  const lastAuthStateChange = useRef<number>(Date.now());
-  
-  // Session validation throttling - REDUCED FREQUENCY
-  const SESSION_VALIDATION_INTERVAL = 120000; // 120 seconds (2 minutes) instead of 30s
-  const MAX_VALIDATIONS_PER_MINUTE = 2; // Reduced from 3 to 2
-  const AUTH_STABILITY_DELAY = 200; // Reduced from 1000ms to 200ms
+  // Reduced debouncing delay for faster response
+  const AUTH_DEBOUNCE_DELAY = 100; // Reduced from 200ms
 
-  // Simplified session validation with debouncing
-  const throttledValidateSession = useCallback(async (currentSession: any) => {
-    const now = Date.now();
+  // Simplified session validation - only when truly needed
+  const validateSessionIfNeeded = useCallback(async (currentSession: any) => {
+    if (!currentSession) return null;
     
-    // Aggressive debouncing to prevent rapid calls
-    if (now - lastSessionValidation.current < SESSION_VALIDATION_INTERVAL) {
-      console.log(`⏭️ Session validation debounced (${Math.round((now - lastSessionValidation.current) / 1000)}s since last)`);
-      return currentSession;
+    // Only validate if session is close to expiring (within 5 minutes)
+    const now = Math.floor(Date.now() / 1000);
+    const expiresAt = currentSession.expires_at || 0;
+    const shouldValidate = (expiresAt - now) < 300; // 5 minutes
+    
+    if (shouldValidate) {
+      console.log('🔄 Session validation needed');
+      return await validateAndRefreshSession(currentSession);
     }
     
-    console.log(`🔍 Session validation (${sessionValidationCount.current + 1})`);
-    
-    try {
-      const validSession = await validateAndRefreshSession(currentSession);
-      lastSessionValidation.current = now;
-      sessionValidationCount.current++;
-      
-      return validSession;
-    } catch (error) {
-      console.error('Session validation failed:', error);
-      return currentSession;
-    }
+    return currentSession;
   }, [validateAndRefreshSession]);
 
-  // Natural loading completion without forced delays
-  const checkAndCompleteLoading = useCallback(async () => {
-    const now = Date.now();
-    const elapsedTime = now - initializationStartTime.current;
-    
-    console.log(`🕐 Auth completing naturally: elapsed=${elapsedTime}ms`);
-    
-    // Only minimal stability delay
-    if (elapsedTime < AUTH_STABILITY_DELAY) {
-      const remainingTime = AUTH_STABILITY_DELAY - elapsedTime;
-      console.log(`⏱️ Auth stability delay: ${remainingTime}ms`);
-      await new Promise(resolve => setTimeout(resolve, remainingTime));
-    }
-    
-    // Mark auth as ready and complete loading
+  // Natural loading completion without artificial delays
+  const completeAuthInitialization = useCallback(() => {
     if (sessionInitialized.current && !isAuthReady.current) {
-      console.log(`✅ Auth ready after ${Date.now() - initializationStartTime.current}ms`);
+      console.log('✅ Auth initialization complete');
       isAuthReady.current = true;
       setIsLoading(false);
     }
   }, [setIsLoading]);
 
   useEffect(() => {
-    console.log("🚀 Setting up AuthProvider with enhanced initialization");
+    console.log("🚀 Initializing AuthProvider (optimized)");
     setIsLoading(true);
-    initializationStartTime.current = Date.now();
     isAuthReady.current = false;
     sessionInitialized.current = false;
 
-    // Set up auth state listener with stability enhancement
+    // Set up simplified auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
         const now = Date.now();
-        authStateChangeCount.current++;
         
-        console.log(`🔄 Auth state changed, event: ${event} (change #${authStateChangeCount.current})`);
-        
-        // Minimal debouncing for auth state changes
-        const timeSinceLastChange = now - lastAuthStateChange.current;
-        if (timeSinceLastChange < AUTH_STABILITY_DELAY) {
-          console.log(`⏭️ Auth state debounced (${timeSinceLastChange}ms)`);
-          await new Promise(resolve => setTimeout(resolve, AUTH_STABILITY_DELAY - timeSinceLastChange));
+        // Simple debouncing to prevent rapid-fire changes
+        if (now - lastAuthStateChange.current < AUTH_DEBOUNCE_DELAY) {
+          return;
         }
-        
         lastAuthStateChange.current = now;
         
-        // Throttled session validation
-        const validSession = await throttledValidateSession(currentSession);
+        console.log(`🔄 Auth state: ${event}`);
         
-        // Update session and user state with the validated session
+        // Simplified session validation
+        const validSession = await validateSessionIfNeeded(currentSession);
+        
+        // Update auth state immediately
         setSession(validSession);
         setUser(validSession?.user ?? null);
         
-        // If user is logged in, fetch roles from database
+        // Fetch user roles if authenticated
         if (validSession?.user) {
           try {
             const roles = await fetchUserRoles(validSession.user.id);
-            console.log("Setting user roles after auth change:", roles);
+            console.log("🏷️ User roles:", roles);
             setUserRoles(roles);
           } catch (error) {
-            console.error("Error fetching roles during auth change:", error);
+            console.error("Error fetching roles:", error);
             setUserRoles([]);
           }
         } else {
           setUserRoles([]);
         }
         
-        // Mark session as initialized (but don't complete loading yet)
+        // Mark as initialized and complete loading
         if (!sessionInitialized.current) {
           sessionInitialized.current = true;
-          console.log("📋 Session initialization marked complete");
-          
-          // Check if we can complete loading now
-          checkAndCompleteLoading();
+          console.log("📋 Session initialized");
+          completeAuthInitialization();
         }
       }
     );
 
-    // Initial session check with enhanced error handling
+    // Initial session check
     const initializeAuth = async () => {
-      console.log("🔍 Initializing auth - checking existing session");
+      console.log("🔍 Checking initial session");
       try {
         const { data: { session: initialSession }, error } = await supabase.auth.getSession();
         
-        // Handle session retrieval errors
         if (error) {
-          console.warn('⚠️ Warning fetching session:', error);
-          
-          // Critical auth errors that require sign out
+          console.warn('⚠️ Session check warning:', error);
           if (error.message?.includes('invalid_grant') || 
               error.message?.includes('token_expired')) {
-            console.log('🚨 Critical auth error detected, signing out...');
             await supabase.auth.signOut();
             setUser(null);
             setSession(null);
             setUserRoles([]);
-            sessionInitialized.current = true;
-            checkAndCompleteLoading();
-            return;
           }
-          
-          // Non-critical errors - continue with current state
-          console.log('📝 Non-critical auth error, continuing with current state');
         }
         
-        console.log("📦 Initial session retrieved:", !!initialSession);
-        
-        // Enhanced initial session validation with throttling
-        const validSession = await throttledValidateSession(initialSession);
-        
-        // Update session and user state immediately
+        // Simple session processing
+        const validSession = await validateSessionIfNeeded(initialSession);
         setSession(validSession);
         setUser(validSession?.user ?? null);
         
-        // If user is logged in, fetch roles from database
         if (validSession?.user) {
-          console.log("👤 User is logged in, fetching roles");
           const roles = await fetchUserRoles(validSession.user.id);
-          console.log("🏷️ Setting initial user roles:", roles);
           setUserRoles(roles);
         }
         
-        // Mark session as initialized
         sessionInitialized.current = true;
-        console.log("✅ Initial session check complete");
-        
-        // Check if we can complete loading now
-        checkAndCompleteLoading();
+        completeAuthInitialization();
         
       } catch (error) {
-        console.warn('⚠️ Warning checking session:', error);
-        
-        // Handle session check failure gracefully
-        console.log('📝 Session check failed, but keeping current auth state');
+        console.warn('⚠️ Auth initialization error:', error);
         setUser(null);
         setSession(null);
         setUserRoles([]);
         sessionInitialized.current = true;
-        checkAndCompleteLoading();
+        completeAuthInitialization();
       }
     };
 
-    // Run initialization after setting up listener
     initializeAuth();
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [throttledValidateSession, fetchUserRoles, checkAndCompleteLoading]);
+  }, [validateSessionIfNeeded, fetchUserRoles, completeAuthInitialization]);
 
   const handleSignOut = async () => {
     await signOut();
     setUserRoles([]);
-    // Reset auth readiness on sign out
     isAuthReady.current = false;
     sessionInitialized.current = false;
   };
@@ -234,7 +173,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     userRoles,
     isLoading,
     signOut: handleSignOut,
-    // Export auth readiness for child components
     isAuthReady: isAuthReady.current,
   };
 
