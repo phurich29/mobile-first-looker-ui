@@ -59,8 +59,8 @@ const PublicAnalysisView = () => {
       return { sharedLink, analysis, deviceDisplayName };
     },
     enabled: !!token,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+    staleTime: 0, // No cache
+    gcTime: 0, // No cache
     retry: (failureCount, error) => {
       if (error?.message?.includes('not found') || error?.message?.includes('expired')) {
         return false; // Don't retry for these errors

@@ -11,7 +11,7 @@ export const useDeviceAccess = (deviceCode: string | undefined) => {
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
 
-  // Check device access permissions for authenticated users
+  // Check device access permissions for authenticated users without cache
   const {
     data: accessibleDevices,
     isLoading: isCheckingAccess
@@ -22,10 +22,12 @@ export const useDeviceAccess = (deviceCode: string | undefined) => {
       // Both admin and superadmin get full access to all devices
       return await fetchDevicesWithDetails(user.id, isAdmin, isSuperAdmin);
     },
-    enabled: !!user && !isGuest
+    enabled: !!user && !isGuest,
+    staleTime: 0, // No cache
+    gcTime: 0, // No cache
   });
 
-  // Check guest device access
+  // Check guest device access without cache
   const {
     data: guestAccessibleDevices,
     isLoading: isCheckingGuestAccess
@@ -44,7 +46,9 @@ export const useDeviceAccess = (deviceCode: string | undefined) => {
       
       return data?.map(item => ({ device_code: item.device_code })) || [];
     },
-    enabled: isGuest
+    enabled: isGuest,
+    staleTime: 0, // No cache
+    gcTime: 0, // No cache
   });
 
   // Check if user has access to the current device

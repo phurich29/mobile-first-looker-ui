@@ -16,7 +16,7 @@ const NotificationManagement = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("settings");
   
-  // Fetch notification settings
+  // Fetch notification settings without cache
   const { data: notificationSettings } = useQuery({
     queryKey: ['notificationSettings'],
     queryFn: async () => {
@@ -32,9 +32,11 @@ const NotificationManagement = () => {
       
       return data || [];
     },
+    staleTime: 0, // No cache
+    gcTime: 0, // No cache
   });
   
-  // Fetch notification history
+  // Fetch notification history without cache
   const { data: notificationHistory } = useQuery({
     queryKey: ['notificationHistory'],
     queryFn: async () => {
@@ -51,6 +53,8 @@ const NotificationManagement = () => {
       
       return data || [];
     },
+    staleTime: 0, // No cache
+    gcTime: 0, // No cache
   });
 
   const handleViewHistory = () => {

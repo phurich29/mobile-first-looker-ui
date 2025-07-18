@@ -65,6 +65,8 @@ export const useHistoryData = (deviceIds?: string[]) => {
       return { data: enhancedData as RiceQualityData[], count: count || 0 };
     },
     enabled: true, // Always enable the query
+    staleTime: 0, // No cache
+    gcTime: 0, // No cache
     retry: 2,
     retryDelay: 1000,
     refetchOnWindowFocus: false,

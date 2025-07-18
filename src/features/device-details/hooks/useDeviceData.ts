@@ -30,7 +30,7 @@ export const useDeviceData = (deviceCode: string | undefined) => {
     }
   }, [queryClient, deviceCode, isQueryEnabled]);
 
-  // Fetch notification settings for this device
+  // Fetch notification settings for this device without cache
   const { data: notificationSettings } = useQuery({
     queryKey: ['notificationSettings', deviceCode],
     queryFn: async () => {
@@ -49,31 +49,41 @@ export const useDeviceData = (deviceCode: string | undefined) => {
       return data || [];
     },
     enabled: isQueryEnabled,
+    staleTime: 0, // No cache
+    gcTime: 0, // No cache
   });
 
-  // Use React Query for data fetching
+  // Use React Query for data fetching without cache
   const { data: wholeGrainData, isLoading: isLoadingWholeGrain } = useQuery({
     queryKey: ['wholeGrainData', deviceCode],
     queryFn: () => deviceCode ? fetchWholeGrainData(deviceCode) : Promise.resolve(null),
     enabled: isQueryEnabled,
+    staleTime: 0, // No cache
+    gcTime: 0, // No cache
   });
 
   const { data: ingredientsData, isLoading: isLoadingIngredients } = useQuery({
     queryKey: ['ingredientsData', deviceCode],
     queryFn: () => deviceCode ? fetchIngredientsData(deviceCode) : Promise.resolve(null),
     enabled: isQueryEnabled,
+    staleTime: 0, // No cache
+    gcTime: 0, // No cache
   });
   
   const { data: impuritiesData, isLoading: isLoadingImpurities } = useQuery({
     queryKey: ['impuritiesData', deviceCode],
     queryFn: () => deviceCode ? fetchImpuritiesData(deviceCode) : Promise.resolve(null),
     enabled: isQueryEnabled,
+    staleTime: 0, // No cache
+    gcTime: 0, // No cache
   });
   
   const { data: allData, isLoading: isLoadingAllData } = useQuery({
     queryKey: ['allData', deviceCode],
     queryFn: () => deviceCode ? fetchAllData(deviceCode) : Promise.resolve(null),
     enabled: isQueryEnabled,
+    staleTime: 0, // No cache
+    gcTime: 0, // No cache
   });
 
   return {
