@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { DeviceInfo } from '../types';
-import { fetchDevicesWithDetails } from '../services';
+import { useGlobalDeviceCache } from './useGlobalDeviceCache';
 import { useMountedRef } from './useMountedRef';
 
 interface UseAuthenticatedDevicesProps {
@@ -15,6 +15,7 @@ interface UseAuthenticatedDevicesProps {
  */
 export function useAuthenticatedDevices({ userId, isAdmin, isSuperAdmin }: UseAuthenticatedDevicesProps) {
   const isMountedRef = useMountedRef();
+  const { devices: cachedDevices } = useGlobalDeviceCache();
 
   const fetchAuthenticatedDevices = useCallback(async (): Promise<DeviceInfo[]> => {
     if (!isMountedRef.current) {
@@ -23,20 +24,13 @@ export function useAuthenticatedDevices({ userId, isAdmin, isSuperAdmin }: UseAu
     }
 
     try {
-      console.log('🔐 Fetching devices for authenticated user...');
-      
-      // Use the existing optimized function
-      const deviceList = await fetchDevicesWithDetails(
-        userId,
-        isAdmin,
-        isSuperAdmin
-      );
+      console.log('🔐 Using cached devices for authenticated user...');
       
       if (!isMountedRef.current) return [];
       
       // เพิ่มข้อมูล deviceData สำหรับ authenticated users
-      if (deviceList.length > 0) {
-        const deviceCodes = deviceList.map(d => d.device_code);
+      if (cachedDevices.length > 0) {
+        const deviceCodes = cachedDevices.map(d => d.device_code);
         
         const { data: analysisData } = await supabase
           .from('rice_quality_analysis')
@@ -53,7 +47,7 @@ export function useAuthenticatedDevices({ userId, isAdmin, isSuperAdmin }: UseAu
           }
         });
 
-        const enrichedDeviceList = deviceList.map(device => {
+        const enrichedDeviceList = cachedDevices.map(device => {
           const deviceAnalysisData = latestDeviceData[device.device_code];
           console.log(`🔐 User device ${device.device_code} data:`, deviceAnalysisData);
           
@@ -68,12 +62,12 @@ export function useAuthenticatedDevices({ userId, isAdmin, isSuperAdmin }: UseAu
       }
       
       console.log('🔐 No devices found for authenticated user');
-      return deviceList;
+      return cachedDevices;
     } catch (error) {
       console.error('Error fetching authenticated devices:', error);
       throw error;
     }
-  }, [userId, isAdmin, isSuperAdmin, isMountedRef]);
+  }, [cachedDevices, isMountedRef]);
 
   return { fetchAuthenticatedDevices };
 }

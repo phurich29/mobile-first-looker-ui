@@ -9,7 +9,7 @@ import { useGuestMode } from '@/hooks/useGuestMode';
 import { formatDistanceToNow } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
-import { fetchDevicesWithDetails } from '@/features/equipment/services';
+import { useGlobalDeviceCache } from '@/features/equipment/hooks/useGlobalDeviceCache';
 import { supabase } from '@/integrations/supabase/client';
 
 interface DeviceData {
@@ -19,107 +19,88 @@ interface DeviceData {
 }
 
 export const DeviceList = () => {
-  const [devices, setDevices] = useState<DeviceData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [guestDevices, setGuestDevices] = useState<DeviceData[]>([]);
+  const [guestLoading, setGuestLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, userRoles } = useAuth();
   const { isGuest } = useGuestMode();
   
+  // Use global device cache for authenticated users
+  const { devices: authenticatedDevices, isLoading: authLoading } = useGlobalDeviceCache();
+  
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
   
+  // Fetch guest devices only when needed
   useEffect(() => {
-    const fetchDevices = async () => {
+    const fetchGuestDevices = async () => {
+      if (!isGuest) return;
+      
       try {
-        setLoading(true);
+        setGuestLoading(true);
+        console.log('DeviceList: Fetching guest devices...');
         
-        if (isGuest) {
-          // สำหรับ Guest: ดึงอุปกรณ์ที่เปิดให้ Guest ดู
-          console.log('DeviceList: Fetching guest devices...');
+        const { data: guestAccessData, error: guestError } = await supabase
+          .from('guest_device_access')
+          .select('device_code')
+          .eq('enabled', true);
+
+        if (guestError) throw guestError;
+
+        if (guestAccessData && guestAccessData.length > 0) {
+          const deviceCodes = guestAccessData.map(item => item.device_code);
           
-          const { data: guestAccessData, error: guestError } = await supabase
-            .from('guest_device_access')
-            .select('device_code')
-            .eq('enabled', true);
+          // ดึงข้อมูล display name
+          const { data: settingsData } = await supabase
+            .from('device_settings')
+            .select('device_code, display_name')
+            .in('device_code', deviceCodes);
 
-          if (guestError) throw guestError;
+          // ดึงข้อมูล updated_at
+          const { data: analysisData } = await supabase
+            .from('rice_quality_analysis')
+            .select('device_code, created_at')
+            .in('device_code', deviceCodes)
+            .order('created_at', { ascending: false });
 
-          if (guestAccessData && guestAccessData.length > 0) {
-            const deviceCodes = guestAccessData.map(item => item.device_code);
-            
-            // ดึงข้อมูล display name
-            const { data: settingsData } = await supabase
-              .from('device_settings')
-              .select('device_code, display_name')
-              .in('device_code', deviceCodes);
+          // สร้าง map ของ updated_at ล่าสุด
+          const latestTimestamps: Record<string, string> = {};
+          analysisData?.forEach(record => {
+            if (!latestTimestamps[record.device_code]) {
+              latestTimestamps[record.device_code] = record.created_at;
+            }
+          });
 
-            // ดึงข้อมูล updated_at
-            const { data: analysisData } = await supabase
-              .from('rice_quality_analysis')
-              .select('device_code, created_at')
-              .in('device_code', deviceCodes)
-              .order('created_at', { ascending: false });
+          const transformedDevices = deviceCodes.map(code => {
+            const setting = settingsData?.find(s => s.device_code === code);
+            return {
+              device_code: code,
+              updated_at: latestTimestamps[code] || new Date().toISOString(),
+              display_name: setting?.display_name
+            };
+          });
 
-            // สร้าง map ของ updated_at ล่าสุด
-            const latestTimestamps: Record<string, string> = {};
-            analysisData?.forEach(record => {
-              if (!latestTimestamps[record.device_code]) {
-                latestTimestamps[record.device_code] = record.created_at;
-              }
-            });
-
-            const transformedDevices = deviceCodes.map(code => {
-              const setting = settingsData?.find(s => s.device_code === code);
-              return {
-                device_code: code,
-                updated_at: latestTimestamps[code] || new Date().toISOString(),
-                display_name: setting?.display_name
-              };
-            });
-
-            console.log(`DeviceList: Fetched ${transformedDevices.length} guest devices`);
-            setDevices(transformedDevices);
-          } else {
-            setDevices([]);
-          }
-        } else if (user) {
-          // สำหรับ User ที่ login แล้ว
-          console.log('DeviceList: Fetching devices using optimized function...');
-          
-          const deviceList = await fetchDevicesWithDetails(
-            user.id,
-            isAdmin,
-            isSuperAdmin
-          );
-          
-          // Transform to match expected interface
-          const transformedDevices = deviceList.map(device => ({
-            device_code: device.device_code,
-            updated_at: device.updated_at || new Date().toISOString(),
-            display_name: device.display_name
-          }));
-          
-          console.log(`DeviceList: Fetched ${transformedDevices.length} devices in single query`);
-          setDevices(transformedDevices);
+          console.log(`DeviceList: Fetched ${transformedDevices.length} guest devices`);
+          setGuestDevices(transformedDevices);
         } else {
-          setDevices([]);
+          setGuestDevices([]);
         }
         
       } catch (error) {
-        console.error('DeviceList: Error fetching devices:', error);
+        console.error('DeviceList: Error fetching guest devices:', error);
         toast({
           title: 'เกิดข้อผิดพลาดในการโหลดข้อมูล',
           description: 'ไม่สามารถโหลดรายการอุปกรณ์ได้ กรุณาลองใหม่อีกครั้ง',
           variant: 'destructive',
         });
       } finally {
-        setLoading(false);
+        setGuestLoading(false);
       }
     };
     
-    fetchDevices();
-  }, [user, isAdmin, isSuperAdmin, isGuest, toast]);
+    fetchGuestDevices();
+  }, [isGuest, toast]);
   
   // Format the date to be more readable
   const formatUpdatedAt = (dateString: string) => {
@@ -138,6 +119,15 @@ export const DeviceList = () => {
     navigate(`/device/${deviceCode}`);
   };
   
+  // Determine current state
+  const devices = isGuest ? guestDevices : authenticatedDevices.map(device => ({
+    device_code: device.device_code,
+    updated_at: device.updated_at || new Date().toISOString(),
+    display_name: device.display_name
+  }));
+  
+  const loading = isGuest ? guestLoading : authLoading;
+
   if (loading) {
     return (
       <div className="space-y-4">

@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/AuthProvider';
-import { fetchDevicesWithDetails } from '@/features/equipment/services/deviceDataService';
+import { useGlobalDeviceCache } from '@/features/equipment/hooks/useGlobalDeviceCache';
 import { LoadingScreen } from '@/features/device-details/components/LoadingScreen';
 
 const Index = () => {
   const navigate = useNavigate();
   const { isLoading, user } = useAuth();
+  const { devices: cachedDevices } = useGlobalDeviceCache();
 
   useEffect(() => {
     // Wait for the authentication to be fully resolved before making any decisions.
@@ -21,15 +22,8 @@ const Index = () => {
         try {
           console.log(`Verifying access to device: ${lastViewedDeviceCode}`);
           
-          // Set timeout for device access verification to prevent hanging
-          const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Device access verification timeout')), 10000)
-          );
-          
-          const devicesPromise = fetchDevicesWithDetails();
-          
-          const accessibleDevices = await Promise.race([devicesPromise, timeoutPromise]) as any[];
-          const hasAccess = accessibleDevices.some(d => d.device_code === lastViewedDeviceCode);
+          // Use cached devices for faster verification
+          const hasAccess = cachedDevices.some(d => d.device_code === lastViewedDeviceCode);
 
           if (hasAccess) {
             console.log(`Access confirmed for device: ${lastViewedDeviceCode}`);

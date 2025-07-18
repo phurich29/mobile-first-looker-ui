@@ -1,7 +1,6 @@
 
-import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/AuthProvider';
-import { fetchDevicesWithDetails } from '@/features/equipment/services';
+import { useGlobalDeviceCache } from '@/features/equipment/hooks/useGlobalDeviceCache';
 
 interface Device {
   device_code: string;
@@ -9,46 +8,17 @@ interface Device {
 }
 
 export const useDeviceData = () => {
-  const [devices, setDevices] = useState<Device[]>([]);
-  const [isLoadingDevices, setIsLoadingDevices] = useState(false);
-  const { user, userRoles } = useAuth();
+  const { user } = useAuth();
+  const { devices: cachedDevices, isLoading } = useGlobalDeviceCache();
 
-  const isAdmin = userRoles.includes('admin');
-  const isSuperAdmin = userRoles.includes('superadmin');
+  // Transform to match the expected interface
+  const devices = cachedDevices.map(device => ({
+    device_code: device.device_code,
+    display_name: device.display_name || device.device_code
+  }));
 
-  useEffect(() => {
-    const fetchDevices = async () => {
-      if (!user) return;
-      
-      setIsLoadingDevices(true);
-      try {
-        console.log('TopHeader: Fetching devices using optimized function...');
-        
-        // Use the new optimized function
-        const deviceList = await fetchDevicesWithDetails(
-          user.id,
-          isAdmin,
-          isSuperAdmin
-        );
-
-        // Transform to match the expected interface
-        const devicesWithNames = deviceList.map(device => ({
-          device_code: device.device_code,
-          display_name: device.display_name || device.device_code
-        }));
-
-        console.log(`TopHeader: Fetched ${devicesWithNames.length} devices in single query`);
-        setDevices(devicesWithNames);
-        
-      } catch (error) {
-        console.error('TopHeader: Error fetching devices:', error);
-      } finally {
-        setIsLoadingDevices(false);
-      }
-    };
-
-    fetchDevices();
-  }, [user, isAdmin, isSuperAdmin]);
-
-  return { devices, isLoadingDevices };
+  return { 
+    devices: user ? devices : [], 
+    isLoadingDevices: isLoading 
+  };
 };
