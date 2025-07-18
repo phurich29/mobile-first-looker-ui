@@ -27,67 +27,45 @@ export const useDevicesQuery = () => {
   const guestQueryKey = useMemo(() => ['guest-devices'], []);
   const authenticatedQueryKey = useMemo(() => ['devices-details', user?.id], [user?.id]);
 
-  // Basic devices query for guests - minimal data
+  // Basic devices query for guests - with rate limiting
   const guestDevicesQuery = useQuery({
     queryKey: guestQueryKey,
     queryFn: async (): Promise<DeviceInfo[]> => {
-      console.log('📱 Fetching basic guest devices...');
+      console.log('📱 Using rate-limited guest devices...');
       
-      // Get guest-enabled devices (basic info only)
-      const { data: guestDevicesData, error: guestError } = await supabase
-        .from('guest_device_access')
-        .select('device_code')
-        .eq('enabled', true)
-        .limit(20); // Limit for performance
-      
-      if (guestError) throw guestError;
-      if (!guestDevicesData?.length) return [];
-
-      const deviceCodes = guestDevicesData.map(d => d.device_code);
-
-      // Get basic display names only
-      const { data: settingsData } = await supabase
-        .from('device_settings')
-        .select('device_code, display_name')
-        .in('device_code', deviceCodes);
-
-      // Get only latest timestamp (no full analysis data)
-      const { data: timestampData } = await supabase
-        .from('rice_quality_analysis')
-        .select('device_code, created_at')
-        .in('device_code', deviceCodes)
-        .order('created_at', { ascending: false })
-        .limit(deviceCodes.length);
-
-      // Create maps
-      const deviceSettings: Record<string, any> = {};
-      settingsData?.forEach(setting => {
-        deviceSettings[setting.device_code] = setting;
-      });
-
-      const latestTimestamps: Record<string, string> = {};
-      timestampData?.forEach(record => {
-        if (!latestTimestamps[record.device_code]) {
-          latestTimestamps[record.device_code] = record.created_at;
+      try {
+        // ใช้ rate-limited function แทน direct queries
+        const { data, error } = await supabase.rpc('rate_limited_guest_devices');
+        
+        if (error) {
+          console.error('❌ Rate-limited guest devices error:', error);
+          throw error;
         }
-      });
+        
+        if (!data?.length) return [];
 
-      const basicDevices: DeviceInfo[] = guestDevicesData.map(device => ({
-        device_code: device.device_code,
-        display_name: deviceSettings[device.device_code]?.display_name || device.device_code,
-        updated_at: latestTimestamps[device.device_code] || new Date().toISOString(),
-        deviceData: null // No device data in basic loading
-      }));
+        // แปลงข้อมูลให้ match DeviceInfo interface
+        const devices: DeviceInfo[] = data.map((device: any) => ({
+          device_code: device.device_code,
+          display_name: device.display_name || device.device_code,
+          updated_at: device.updated_at || new Date().toISOString(),
+          deviceData: null // No device data in basic loading
+        }));
 
-      console.log(`📱 Loaded basic info for ${basicDevices.length} guest devices`);
-      return basicDevices;
+        console.log(`📱 Loaded ${devices.length} guest devices with rate limiting`);
+        return devices;
+      } catch (error) {
+        console.error('🚨 Guest devices query failed:', error);
+        // Return empty array แทน throw เพื่อป้องกัน cascade failures
+        return [];
+      }
     },
     enabled: isQueryEnabled && isGuest,
-    retry: 1, // Reduced retries
-    retryDelay: 1000,
+    retry: 1, // ลด retries
+    retryDelay: 2000, // เพิ่ม delay ระหว่าง retries
     refetchOnWindowFocus: false,
-    staleTime: 30000, // 30 seconds stale time
-    gcTime: 120000, // 2 minutes garbage collection
+    staleTime: 60000, // เพิ่ม stale time เป็น 1 นาที
+    gcTime: 300000, // เพิ่ม garbage collection time เป็น 5 นาที
   });
 
   // Authenticated devices query - also lazy loaded

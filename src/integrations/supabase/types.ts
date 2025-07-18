@@ -772,9 +772,21 @@ export type Database = {
         }
         Returns: undefined
       }
+      rate_limited_guest_devices: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          device_code: string
+          display_name: string
+          updated_at: string
+        }[]
+      }
       refresh_guest_enabled_devices: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      safe_check_notification_thresholds: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       validate_password_strength: {
         Args: { password: string }
