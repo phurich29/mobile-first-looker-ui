@@ -28,5 +28,6 @@ export const useGuestMode = () => {
   return {
     isGuest,
     isStable,
+    user, // Add user back for components that need it
   };
 };

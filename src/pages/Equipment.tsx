@@ -66,10 +66,10 @@ export default function Equipment() {
         onDeviceUpdated={handleRefresh} 
       />
 
-      {/* Device History Table - Lazy loaded */}
+      {/* Device History Table */}
       {deviceIds.length > 0 && (
         <div className="mt-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-          <DeviceHistoryTable deviceIds={deviceIds} title="ประวัติอุปกรณ์" lazy={true} />
+          <DeviceHistoryTable deviceIds={deviceIds} title="ประวัติอุปกรณ์" />
         </div>
       )}
     </AppLayout>
