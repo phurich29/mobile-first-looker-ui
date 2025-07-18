@@ -22,27 +22,43 @@ export const useDevicesQuery = () => {
     queryFn: async (): Promise<DeviceInfo[]> => {
       console.log('📱 Fetching guest devices via React Query...');
       
-      const { data: devicesData, error } = await supabase.rpc('get_guest_devices_fast');
+      // Fetch guest-enabled devices directly from database
+      const { data: guestDevicesData, error: guestError } = await supabase
+        .from('guest_device_access')
+        .select('device_code')
+        .eq('enabled', true);
       
-      if (error) {
-        console.error('Error fetching guest devices:', error);
-        throw error;
+      if (guestError) {
+        console.error('Error fetching guest devices:', guestError);
+        throw guestError;
       }
 
-      if (!devicesData || devicesData.length === 0) {
+      if (!guestDevicesData || guestDevicesData.length === 0) {
         console.log('No guest devices found');
         return [];
       }
 
+      const deviceCodes = guestDevicesData.map(d => d.device_code);
+
+      // Get device settings
+      const { data: settingsData } = await supabase
+        .from('device_settings')
+        .select('device_code, display_name')
+        .in('device_code', deviceCodes);
+
       // Get analysis data for enrichment
-      const deviceCodes = devicesData.map(d => d.device_code);
       const { data: analysisData } = await supabase
         .from('rice_quality_analysis')
         .select('*')
         .in('device_code', deviceCodes)
         .order('created_at', { ascending: false });
 
-      // Create map of latest device data
+      // Create maps
+      const deviceSettings: Record<string, any> = {};
+      settingsData?.forEach(setting => {
+        deviceSettings[setting.device_code] = setting;
+      });
+
       const latestDeviceData: Record<string, any> = {};
       analysisData?.forEach(record => {
         if (!latestDeviceData[record.device_code]) {
@@ -50,10 +66,10 @@ export const useDevicesQuery = () => {
         }
       });
 
-      const enrichedDevices = devicesData.map(device => ({
+      const enrichedDevices = guestDevicesData.map(device => ({
         device_code: device.device_code,
-        display_name: device.display_name || device.device_code,
-        updated_at: device.updated_at || new Date().toISOString(),
+        display_name: deviceSettings[device.device_code]?.display_name || device.device_code,
+        updated_at: latestDeviceData[device.device_code]?.created_at || new Date().toISOString(),
         deviceData: latestDeviceData[device.device_code] || null
       }));
 
