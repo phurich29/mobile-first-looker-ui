@@ -28,9 +28,9 @@ export default function Equipment() {
   
   // Memoize refresh handler to prevent recreating on every render
   const handleRefresh = useMemo(() => {
-    return () => {
+    return async () => {
       console.log('🔄 Manual refresh triggered');
-      refetch();
+      await refetch();
     };
   }, [refetch]);
   
