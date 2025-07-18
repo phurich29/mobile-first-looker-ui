@@ -5,9 +5,10 @@ import { useGuestMode } from "@/hooks/useGuestMode";
 import { fetchDevicesWithDetails } from "../services/deviceDataService";
 import { supabase } from "@/integrations/supabase/client";
 import { DeviceInfo } from "../types";
+import { useCallback, useRef, useState, useEffect } from "react";
 
 /**
- * React Query hook for fetching devices with proper caching
+ * React Query hook for fetching devices with improved loading state management
  */
 export const useDevicesQuery = () => {
   const { user, userRoles } = useAuth();
@@ -16,10 +17,63 @@ export const useDevicesQuery = () => {
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
   
-  // Guest devices query (no cache)
+  // Loading state management
+  const [isRefreshingState, setIsRefreshingState] = useState(false);
+  const [hasTimedOut, setHasTimedOut] = useState(false);
+  const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const queryStartTimeRef = useRef<number | null>(null);
+  
+  // Maximum loading time: 15 seconds
+  const MAX_LOADING_TIME = 15000;
+  
+  // Reset timeout when query starts
+  const handleQueryStart = useCallback(() => {
+    console.log('📊 Query started - setting timeout');
+    queryStartTimeRef.current = Date.now();
+    setHasTimedOut(false);
+    setIsRefreshingState(true);
+    
+    // Clear existing timeout
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current);
+    }
+    
+    // Set new timeout
+    loadingTimeoutRef.current = setTimeout(() => {
+      console.warn('⚠️ Query timeout reached (15s)');
+      setHasTimedOut(true);
+      setIsRefreshingState(false);
+    }, MAX_LOADING_TIME);
+  }, []);
+  
+  // Clear timeout when query completes
+  const handleQueryComplete = useCallback(() => {
+    const duration = queryStartTimeRef.current ? Date.now() - queryStartTimeRef.current : 0;
+    console.log(`✅ Query completed in ${duration}ms`);
+    
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current);
+      loadingTimeoutRef.current = null;
+    }
+    
+    setIsRefreshingState(false);
+    queryStartTimeRef.current = null;
+  }, []);
+  
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+      }
+    };
+  }, []);
+  
+  // Guest devices query (no cache) with timeout management
   const guestDevicesQuery = useQuery({
     queryKey: ['guest-devices-no-cache'],
     queryFn: async (): Promise<DeviceInfo[]> => {
+      handleQueryStart();
       console.log('📱 Fetching guest devices without cache...');
       
       // Direct query without cache - get guest-enabled devices
@@ -75,19 +129,22 @@ export const useDevicesQuery = () => {
       }));
 
       console.log(`📱 Fetched ${enrichedDevices.length} guest devices without cache`);
+      handleQueryComplete();
       return enrichedDevices;
     },
-    enabled: isGuest,
+    enabled: isGuest && !hasTimedOut,
     staleTime: 0, // No cache
     gcTime: 0, // No cache
     refetchOnWindowFocus: false,
-    retry: 2
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000) // Max 5s retry delay
   });
 
-  // Authenticated devices query
+  // Authenticated devices query with timeout management
   const authenticatedDevicesQuery = useQuery({
     queryKey: ['authenticated-devices', user?.id, isAdmin, isSuperAdmin],
     queryFn: async (): Promise<DeviceInfo[]> => {
+      handleQueryStart();
       if (!user?.id) return [];
       
       console.log('🔐 Fetching authenticated devices via React Query...');
@@ -125,14 +182,28 @@ export const useDevicesQuery = () => {
       }));
 
       console.log(`🔐 React Query: Fetched ${enrichedDeviceList.length} authenticated devices`);
+      handleQueryComplete();
       return enrichedDeviceList;
     },
-    enabled: !isGuest && !!user?.id,
+    enabled: !isGuest && !!user?.id && !hasTimedOut,
     staleTime: 0, // No cache
     gcTime: 0, // No cache
     refetchOnWindowFocus: false,
-    retry: 2
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000) // Max 5s retry delay
   });
+
+  // Monitor query state changes
+  useEffect(() => {
+    if (guestDevicesQuery.isError || authenticatedDevicesQuery.isError) {
+      console.error('❌ Query failed');
+      handleQueryComplete();
+    }
+    if (guestDevicesQuery.isSuccess || authenticatedDevicesQuery.isSuccess) {
+      console.log('✅ Query succeeded');
+      handleQueryComplete();
+    }
+  }, [guestDevicesQuery.isError, guestDevicesQuery.isSuccess, authenticatedDevicesQuery.isError, authenticatedDevicesQuery.isSuccess, handleQueryComplete]);
 
   // Device count query
   const deviceCountQuery = useQuery({
@@ -157,14 +228,28 @@ export const useDevicesQuery = () => {
   // Return the appropriate query based on user type
   const activeQuery = isGuest ? guestDevicesQuery : authenticatedDevicesQuery;
   
+  // Enhanced refetch with timeout management
+  const enhancedRefetch = useCallback(async () => {
+    console.log('🔄 Enhanced refetch triggered');
+    setHasTimedOut(false);
+    try {
+      return await activeQuery.refetch();
+    } catch (error) {
+      console.error('❌ Enhanced refetch failed:', error);
+      handleQueryComplete();
+      throw error;
+    }
+  }, [activeQuery.refetch, handleQueryComplete]);
+  
   return {
     devices: activeQuery.data || [],
     isLoading: activeQuery.isLoading,
-    isRefreshing: activeQuery.isFetching && !activeQuery.isLoading,
-    error: activeQuery.error,
+    isRefreshing: isRefreshingState || (activeQuery.isFetching && !activeQuery.isLoading),
+    error: hasTimedOut ? new Error('Query timeout exceeded') : activeQuery.error,
     totalUniqueDevices: deviceCountQuery.data || 0,
-    refetch: activeQuery.refetch,
+    refetch: enhancedRefetch,
     isAdmin,
-    isSuperAdmin
+    isSuperAdmin,
+    hasTimedOut // New field to indicate timeout status
   };
 };
