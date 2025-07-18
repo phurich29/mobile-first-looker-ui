@@ -30,6 +30,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     fetchUserRoles,
   } = useUserRoles();
 
+  // Auth readiness and stability tracking
+  const isAuthReady = useRef<boolean>(false);
+  const initializationStartTime = useRef<number>(Date.now());
+  const sessionInitialized = useRef<boolean>(false);
+  
+  // Minimum loading times (in milliseconds)
+  const MIN_LOADING_TIME_REFRESH = 2500; // 2.5 seconds for refresh scenarios
+  const MIN_LOADING_TIME_INITIAL = 1000; // 1 second for initial load
+  
   // Session stability tracking
   const lastSessionValidation = useRef<number>(0);
   const sessionValidationCount = useRef<number>(0);
@@ -76,9 +85,38 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [validateAndRefreshSession]);
 
+  // Enhanced loading completion check with minimum time enforcement
+  const checkAndCompleteLoading = useCallback(async () => {
+    const now = Date.now();
+    const elapsedTime = now - initializationStartTime.current;
+    
+    // Determine minimum loading time based on scenario
+    const isRefreshScenario = performance.navigation?.type === 1; // Navigation type reload
+    const minLoadingTime = isRefreshScenario ? MIN_LOADING_TIME_REFRESH : MIN_LOADING_TIME_INITIAL;
+    const remainingTime = minLoadingTime - elapsedTime;
+    
+    console.log(`🕐 Loading completion check: elapsed=${elapsedTime}ms, min=${minLoadingTime}ms, remaining=${remainingTime}ms, refresh=${isRefreshScenario}`);
+    
+    // Wait for minimum time if needed
+    if (remainingTime > 0) {
+      console.log(`⏱️ Waiting additional ${remainingTime}ms for minimum loading time`);
+      await new Promise(resolve => setTimeout(resolve, remainingTime));
+    }
+    
+    // Mark auth as ready and complete loading
+    if (sessionInitialized.current && !isAuthReady.current) {
+      console.log(`✅ Auth initialization complete after ${Date.now() - initializationStartTime.current}ms`);
+      isAuthReady.current = true;
+      setIsLoading(false);
+    }
+  }, [setIsLoading]);
+
   useEffect(() => {
-    console.log("Setting up AuthProvider with enhanced stability checks");
+    console.log("🚀 Setting up AuthProvider with enhanced initialization");
     setIsLoading(true);
+    initializationStartTime.current = Date.now();
+    isAuthReady.current = false;
+    sessionInitialized.current = false;
 
     // Set up auth state listener with stability enhancement
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -86,7 +124,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const now = Date.now();
         authStateChangeCount.current++;
         
-        console.log(`Auth state changed, event: ${event} (change #${authStateChangeCount.current})`);
+        console.log(`🔄 Auth state changed, event: ${event} (change #${authStateChangeCount.current})`);
         
         // Detect rapid auth state changes
         const timeSinceLastChange = now - lastAuthStateChange.current;
@@ -119,37 +157,46 @@ export function AuthProvider({ children }: AuthProviderProps) {
         } else {
           setUserRoles([]);
         }
-        setIsLoading(false);
+        
+        // Mark session as initialized (but don't complete loading yet)
+        if (!sessionInitialized.current) {
+          sessionInitialized.current = true;
+          console.log("📋 Session initialization marked complete");
+          
+          // Check if we can complete loading now
+          checkAndCompleteLoading();
+        }
       }
     );
 
-    // Initial session check happens after setting up the listener
+    // Initial session check with enhanced error handling
     const initializeAuth = async () => {
-      console.log("Initializing auth");
+      console.log("🔍 Initializing auth - checking existing session");
       try {
         const { data: { session: initialSession }, error } = await supabase.auth.getSession();
         
-        // ตรวจสอบข้อผิดพลาด refresh_token_not_found แต่ไม่ sign out ทันที
+        // Handle session retrieval errors
         if (error) {
-          console.warn('Warning fetching session:', error);
+          console.warn('⚠️ Warning fetching session:', error);
           
-          // เฉพาะ auth error ที่ร้ายแรงเท่านั้นที่จะ sign out
+          // Critical auth errors that require sign out
           if (error.message?.includes('invalid_grant') || 
               error.message?.includes('token_expired')) {
-            console.log('Critical auth error detected, signing out...');
+            console.log('🚨 Critical auth error detected, signing out...');
             await supabase.auth.signOut();
             setUser(null);
             setSession(null);
             setUserRoles([]);
-            setIsLoading(false);
+            sessionInitialized.current = true;
+            checkAndCompleteLoading();
             return;
           }
           
-          // สำหรับ error อื่นๆ ให้ log แต่ไม่ sign out
-          console.log('Non-critical auth error, continuing with current state');
+          // Non-critical errors - continue with current state
+          console.log('📝 Non-critical auth error, continuing with current state');
         }
         
-        console.log("Initial session retrieved:", !!initialSession);
+        console.log("📦 Initial session retrieved:", !!initialSession);
         
         // Enhanced initial session validation with throttling
         const validSession = await throttledValidateSession(initialSession);
@@ -160,35 +207,46 @@ export function AuthProvider({ children }: AuthProviderProps) {
         
         // If user is logged in, fetch roles from database
         if (validSession?.user) {
-          console.log("User is logged in, fetching roles");
+          console.log("👤 User is logged in, fetching roles");
           const roles = await fetchUserRoles(validSession.user.id);
-          console.log("Setting initial user roles:", roles);
+          console.log("🏷️ Setting initial user roles:", roles);
           setUserRoles(roles);
         }
-      } catch (error) {
-        console.warn('Warning checking session:', error);
         
-        // ไม่ sign out ทันที แต่ให้ continue ด้วย current state
-        console.log('Session check failed, but keeping current auth state');
+        // Mark session as initialized
+        sessionInitialized.current = true;
+        console.log("✅ Initial session check complete");
+        
+        // Check if we can complete loading now
+        checkAndCompleteLoading();
+        
+      } catch (error) {
+        console.warn('⚠️ Warning checking session:', error);
+        
+        // Handle session check failure gracefully
+        console.log('📝 Session check failed, but keeping current auth state');
         setUser(null);
         setSession(null);
         setUserRoles([]);
-      } finally {
-        setIsLoading(false);
-        console.log("Auth initialization complete");
+        sessionInitialized.current = true;
+        checkAndCompleteLoading();
       }
     };
 
+    // Run initialization after setting up listener
     initializeAuth();
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [throttledValidateSession, fetchUserRoles]);
+  }, [throttledValidateSession, fetchUserRoles, checkAndCompleteLoading]);
 
   const handleSignOut = async () => {
     await signOut();
     setUserRoles([]);
+    // Reset auth readiness on sign out
+    isAuthReady.current = false;
+    sessionInitialized.current = false;
   };
 
   const value = {
@@ -197,6 +255,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     userRoles,
     isLoading,
     signOut: handleSignOut,
+    // Export auth readiness for child components
+    isAuthReady: isAuthReady.current,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,3 +1,4 @@
+
 import { createContext, useContext } from "react";
 import { User, Session } from "@supabase/supabase-js";
 
@@ -7,6 +8,7 @@ export type AuthContextType = {
   userRoles: string[];
   isLoading: boolean;
   signOut: () => Promise<void>;
+  isAuthReady?: boolean; // Add auth readiness flag
 };
 
 export const AuthContext = createContext<AuthContextType>({
@@ -15,6 +17,7 @@ export const AuthContext = createContext<AuthContextType>({
   userRoles: [],
   isLoading: true,
   signOut: async () => {},
+  isAuthReady: false,
 });
 
 export const useAuth = () => useContext(AuthContext);
