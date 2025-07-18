@@ -115,8 +115,8 @@ export const GuestDeviceManagement = () => {
       const searchResultsWithNames = uniqueSearchDevices.map(device => {
         const setting = settingsData?.find(s => s.device_code === device.device_code);
         return {
-          device_code: device.device_code,
-          display_name: setting?.display_name
+          device_code: device.device_code as string,
+          display_name: setting?.display_name || device.device_code as string
         };
       });
 

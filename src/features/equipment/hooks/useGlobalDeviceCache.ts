@@ -11,14 +11,19 @@ export const useGlobalDeviceCache = () => {
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
 
+  // Stabilize query key - only change when user ID changes
+  const stableQueryKey = ['devices', user?.id];
+
   const deviceQuery = useQuery({
-    queryKey: ['devices', user?.id, isAdmin, isSuperAdmin],
+    queryKey: stableQueryKey,
     queryFn: () => fetchDevicesWithDetails(user?.id, isAdmin, isSuperAdmin),
     enabled: !!user,
-    staleTime: 30000, // ข้อมูล fresh นาน 30 วินาที
-    gcTime: 300000, // เก็บ cache นาน 5 นาที (React Query v5)
+    staleTime: 300000, // เพิ่มเป็น 5 นาที
+    gcTime: 600000, // เพิ่มเป็น 10 นาที
     refetchOnWindowFocus: false,
-    retry: 2,
+    refetchOnMount: false, // ไม่ refetch เมื่อ component mount
+    refetchOnReconnect: false, // ไม่ refetch เมื่อ network reconnect
+    retry: 1, // ลดจำนวน retry
   });
 
   const invalidateDevices = () => {
@@ -28,9 +33,9 @@ export const useGlobalDeviceCache = () => {
   const prefetchDevices = () => {
     if (user) {
       queryClient.prefetchQuery({
-        queryKey: ['devices', user.id, isAdmin, isSuperAdmin],
+        queryKey: ['devices', user.id],
         queryFn: () => fetchDevicesWithDetails(user.id, isAdmin, isSuperAdmin),
-        staleTime: 30000,
+        staleTime: 300000,
       });
     }
   };
@@ -53,7 +58,7 @@ export const useDeviceListOptimistic = (): DeviceInfo[] => {
   const isSuperAdmin = userRoles.includes('superadmin');
   
   // ลองหา cache ที่มีอยู่ก่อน
-  const cachedData = queryClient.getQueryData<DeviceInfo[]>(['devices', user?.id, isAdmin, isSuperAdmin]);
+  const cachedData = queryClient.getQueryData<DeviceInfo[]>(['devices', user?.id]);
   
   return cachedData || [];
 };
