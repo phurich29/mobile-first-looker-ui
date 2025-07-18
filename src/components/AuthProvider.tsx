@@ -73,106 +73,74 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [setIsLoading]);
 
   useEffect(() => {
-    console.log("🚀 Initializing AuthProvider (optimized)");
+    console.log("🚀 Single Client AuthProvider initialized");
     setIsLoading(true);
     isAuthReady.current = false;
     sessionInitialized.current = false;
 
-    // Set up simplified auth state listener
+    // Single auth state listener with aggressive debouncing
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
         const now = Date.now();
         
-        // Simple debouncing to prevent rapid-fire changes
-        if (now - lastAuthStateChange.current < AUTH_DEBOUNCE_DELAY) {
+        // Aggressive debouncing - prevent cascade
+        if (now - lastAuthStateChange.current < 150) {
           return;
         }
         lastAuthStateChange.current = now;
         
-        console.log(`🔄 Auth state: ${event}`);
+        console.log(`🔄 Auth: ${event}`);
         
-        // Simplified session validation
-        const validSession = await validateSessionIfNeeded(currentSession);
-        
-        // Update auth state immediately
-        setSession(validSession);
-        setUser(validSession?.user ?? null);
-        
-        // Fetch user roles if authenticated
-        if (validSession?.user) {
-          try {
-            const roles = await fetchUserRoles(validSession.user.id);
-            console.log("🏷️ User roles:", roles);
+        // Immediate state resolution
+        if (event === 'SIGNED_OUT') {
+          setUser(null);
+          setSession(null);
+          setUserRoles([]);
+          completeAuthInitialization();
+          return;
+        }
+
+        if (currentSession?.user) {
+          setUser(currentSession.user);
+          setSession(currentSession);
+          
+          // Fetch roles only once
+          if (!sessionInitialized.current) {
+            const roles = await fetchUserRoles(currentSession.user.id);
             setUserRoles(roles);
-          } catch (error) {
-            console.error("Error fetching roles:", error);
-            setUserRoles([]);
+            sessionInitialized.current = true;
           }
         } else {
+          setUser(null);
+          setSession(null);
           setUserRoles([]);
         }
         
-        // Mark as initialized and complete loading
-        if (!sessionInitialized.current) {
-          sessionInitialized.current = true;
-          console.log("📋 Session initialized");
-          completeAuthInitialization();
-        }
+        completeAuthInitialization();
       }
     );
 
-    // Initial session check
-    const initializeAuth = async () => {
-      console.log("🔍 Checking initial session");
-      try {
-        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.warn('⚠️ Session check warning:', error);
-          if (error.message?.includes('invalid_grant') || 
-              error.message?.includes('token_expired')) {
-            await supabase.auth.signOut();
-            setUser(null);
-            setSession(null);
-            setUserRoles([]);
-          }
-        }
-        
-        // Simple session processing
-        const validSession = await validateSessionIfNeeded(initialSession);
-        setSession(validSession);
-        setUser(validSession?.user ?? null);
-        
-        if (validSession?.user) {
-          const roles = await fetchUserRoles(validSession.user.id);
-          setUserRoles(roles);
-        }
-        
-        sessionInitialized.current = true;
-        completeAuthInitialization();
-        
-      } catch (error) {
-        console.warn('⚠️ Auth initialization error:', error);
-        setUser(null);
-        setSession(null);
-        setUserRoles([]);
-        sessionInitialized.current = true;
-        completeAuthInitialization();
+    // Simple initial session check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setUser(session.user);
+        setSession(session);
+        fetchUserRoles(session.user.id).then(setUserRoles);
       }
-    };
+      sessionInitialized.current = true;
+      completeAuthInitialization();
+    });
 
-    initializeAuth();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [validateSessionIfNeeded, fetchUserRoles, completeAuthInitialization]);
+    return () => subscription.unsubscribe();
+  }, [fetchUserRoles, completeAuthInitialization]);
 
   const handleSignOut = async () => {
-    await signOut();
+    setUser(null);
+    setSession(null);
     setUserRoles([]);
     isAuthReady.current = false;
     sessionInitialized.current = false;
+    await supabase.auth.signOut();
   };
 
   const value = {
