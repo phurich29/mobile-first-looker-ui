@@ -29,66 +29,77 @@ export const useDevicesQuery = () => {
   // Unified query key based on access mode
   const queryKey = useMemo(() => ['unified-devices', deviceAccessMode, user?.id], [deviceAccessMode, user?.id]);
 
-  // Single unified devices query - no more separate guest/auth queries
+  // Single unified devices query with circuit breaker and optimization
   const devicesQuery = useQuery({
     queryKey,
     queryFn: async (): Promise<DeviceInfo[]> => {
-      console.log(`📱 Fetching devices (mode: ${deviceAccessMode})...`);
+      const startTime = performance.now();
+      console.log(`📱 Fetching devices (mode: ${deviceAccessMode}) with optimizations...`);
       
       try {
+        let data, error;
+        
         if (deviceAccessMode === 'guest') {
-          // Use rate-limited function for guests
-          const { data, error } = await supabase.rpc('rate_limited_guest_devices');
-          
-          if (error) {
-            console.error('❌ Guest devices error:', error);
-            return []; // Graceful fallback
-          }
-          
-          const devices: DeviceInfo[] = (data || []).map((device: any) => ({
-            device_code: device.device_code,
-            display_name: device.display_name || device.device_code,
-            updated_at: device.updated_at || new Date().toISOString(),
-            deviceData: null
-          }));
-
-          console.log(`📱 Loaded ${devices.length} guest devices with rate limiting`);
-          return devices;
+          // Use super fast optimized function for guests
+          const result = await supabase.rpc('get_super_fast_guest_devices');
+          data = result.data;
+          error = result.error;
           
         } else {
-          // Use unified function for authenticated users (all modes)
-          const { data, error } = await supabase.rpc('get_devices_with_details', {
+          // Use super fast optimized function for authenticated users
+          const result = await supabase.rpc('get_super_fast_auth_devices', {
             user_id_param: user?.id || null,
             is_admin_param: isAdmin,
             is_superadmin_param: isSuperAdmin
           });
-          
-          if (error) {
-            console.error('❌ Authenticated devices error:', error);
-            return []; // Graceful fallback
-          }
-          
-          const devices: DeviceInfo[] = (data || []).map((device: any) => ({
-            device_code: device.device_code,
-            display_name: device.display_name || device.device_code,
-            updated_at: device.updated_at || new Date().toISOString(),
-            deviceData: null
-          }));
-
-          console.log(`📱 Loaded ${devices.length} authenticated devices (${deviceAccessMode})`);
-          return devices;
+          data = result.data;
+          error = result.error;
         }
+        
+        if (error) {
+          console.error(`❌ Optimized ${deviceAccessMode} devices error:`, error);
+          // Return empty array แทน throw เพื่อป้องกัน cascade failures
+          return [];
+        }
+        
+        const devices: DeviceInfo[] = (data || []).map((device: any) => ({
+          device_code: device.device_code,
+          display_name: device.display_name || device.device_code,
+          updated_at: device.updated_at || new Date().toISOString(),
+          deviceData: null
+        }));
+
+        const executionTime = performance.now() - startTime;
+        console.log(`📱 Loaded ${devices.length} ${deviceAccessMode} devices in ${executionTime.toFixed(2)}ms (optimized)`);
+        
+        // Log performance for monitoring
+        if (executionTime > 100) {
+          console.warn(`⚠️ Slow query detected: ${deviceAccessMode} devices took ${executionTime.toFixed(2)}ms`);
+        }
+        
+        return devices;
+        
       } catch (error) {
-        console.error('🚨 Unified device fetch error:', error);
-        return []; // Always return empty array, never throw
+        const executionTime = performance.now() - startTime;
+        console.error(`🚨 Optimized device fetch error (${executionTime.toFixed(2)}ms):`, error);
+        
+        // Circuit breaker pattern - return empty instead of throw
+        return [];
       }
     },
     enabled: isQueryEnabled,
-    retry: 1, // Minimal retries
-    retryDelay: 2000,
+    retry: (failureCount, error) => {
+      // Circuit breaker: stop retrying after 1 failure for optimized queries
+      if (failureCount >= 1) {
+        console.warn(`🔴 Circuit breaker opened for ${deviceAccessMode} devices query`);
+        return false;
+      }
+      return true;
+    },
+    retryDelay: 3000, // เพิ่ม delay ระหว่าง retries
     refetchOnWindowFocus: false,
-    staleTime: deviceAccessMode === 'guest' ? 120000 : 60000, // 2min for guest, 1min for auth
-    gcTime: deviceAccessMode === 'guest' ? 600000 : 300000,   // 10min for guest, 5min for auth
+    staleTime: deviceAccessMode === 'guest' ? 300000 : 180000, // 5min for guest, 3min for auth
+    gcTime: deviceAccessMode === 'guest' ? 900000 : 600000,   // 15min for guest, 10min for auth
   });
 
   // Simplified device count
