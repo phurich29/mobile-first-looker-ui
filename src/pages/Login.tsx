@@ -58,34 +58,7 @@ export default function Login() {
       setIsSubmitting(false);
     }
   };
-  
 
-  
-  // Helper function to initialize a user role if none exists (no longer needed as the trigger handles this)
-  const checkAndInitializeUserRole = async (userId: string) => {
-    try {
-      // Check if the user has any roles
-      const { data: roles, error: rolesError } = await supabase.rpc('get_user_roles', {
-        user_id: userId
-      });
-      
-      console.log("Checked roles for user:", userId, roles);
-      
-      // If no roles or error, the trigger should have already added the 'user' role
-      if (rolesError || !roles || roles.length === 0) {
-        console.log("No roles found, but trigger should have handled this");
-      }
-    } catch (error) {
-      console.error("Error in checkAndInitializeUserRole:", error);
-    }
-  };
-  
-  // If user just logged in, check and initialize role if needed
-  useEffect(() => {
-    if (user && !isLoading) {
-      checkAndInitializeUserRole(user.id);
-    }
-  }, [user, isLoading]);
   
   // If already logged in, redirect to home
   if (!isLoading && user) {
