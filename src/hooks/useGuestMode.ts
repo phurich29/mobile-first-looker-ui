@@ -10,9 +10,8 @@ export const useGuestMode = () => {
   const [stateChangeCount, setStateChangeCount] = useState(0);
   const [lastStateChange, setLastStateChange] = useState(Date.now());
   
-  // Debounce timer for stability with longer delay for post-refresh
-  const STABILITY_DELAY = 1500; // 1.5s delay for post-refresh scenarios
-  const POST_REFRESH_DELAY = 2500; // 2.5s for suspected post-refresh cases
+  // Debounce timer for stability
+  const STABILITY_DELAY = 500; // 500ms delay to ensure stable state
   const MAX_RAPID_CHANGES = 3; // Maximum rapid changes before blocking
   const RAPID_CHANGE_WINDOW = 2000; // 2 seconds window
   
@@ -38,11 +37,10 @@ export const useGuestMode = () => {
     return true;
   }, [lastStateChange, stateChangeCount]);
   
-  // Calculate current guest state with enhanced stability detection
+  // Calculate current guest state with stability detection
   useEffect(() => {
-    // Always wait for auth to finish loading first
     if (isLoading) {
-      console.log('🔄 Auth still loading, waiting...');
+      // Don't update state while loading
       return;
     }
     
@@ -58,27 +56,16 @@ export const useGuestMode = () => {
       return;
     }
     
-    // Detect post-refresh scenario (rapid state change after load)
-    const isPostRefresh = stateChangeCount >= 2 && (Date.now() - lastStateChange) < 3000;
-    const delayToUse = isPostRefresh ? POST_REFRESH_DELAY : STABILITY_DELAY;
+    console.log(`🔄 Guest state changing: ${stableGuestState} → ${currentGuestState}`);
     
-    console.log(`🔄 Guest state changing: ${stableGuestState} → ${currentGuestState} (delay: ${delayToUse}ms, post-refresh: ${isPostRefresh})`);
-    
-    // Set state with adaptive debouncing for stability
+    // Set state with debouncing for stability
     const timeoutId = setTimeout(() => {
-      // Double check auth state hasn't changed during timeout
-      if (isLoading) {
-        console.log('⚠️ Auth loading during timeout, skipping state update');
-        return;
-      }
-      
-      const finalState = !user && !isLoading;
-      setStableGuestState(finalState);
-      console.log(`✅ Guest state stabilized: ${finalState} (after ${delayToUse}ms)`);
-    }, delayToUse);
+      setStableGuestState(currentGuestState);
+      console.log(`✅ Guest state stabilized: ${currentGuestState}`);
+    }, STABILITY_DELAY);
     
     return () => clearTimeout(timeoutId);
-  }, [user, isLoading, stableGuestState, detectRapidChanges, stateChangeCount, lastStateChange]);
+  }, [user, isLoading, stableGuestState, detectRapidChanges]);
   
   // Reset rapid change counter periodically
   useEffect(() => {
