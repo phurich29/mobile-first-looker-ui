@@ -772,6 +772,14 @@ export type Database = {
         }
         Returns: undefined
       }
+      monitor_policy_performance: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          table_name: string
+          policy_count: number
+          avg_check_time_ms: number
+        }[]
+      }
       rate_limited_guest_devices: {
         Args: Record<PropertyKey, never>
         Returns: {
