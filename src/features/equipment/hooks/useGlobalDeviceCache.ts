@@ -10,20 +10,23 @@ export const useGlobalDeviceCache = () => {
   
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
+  const isGuest = !user;
 
-  // Stabilize query key - only change when user ID changes
-  const stableQueryKey = ['devices', user?.id];
+  // Use different cache keys for guests vs authenticated users
+  const queryKey = isGuest 
+    ? ['devices', 'guest'] 
+    : ['devices', user?.id];
 
   const deviceQuery = useQuery({
-    queryKey: stableQueryKey,
+    queryKey,
     queryFn: () => fetchDevicesWithDetails(user?.id, isAdmin, isSuperAdmin),
-    enabled: !!user,
-    staleTime: 300000, // เพิ่มเป็น 5 นาที
-    gcTime: 600000, // เพิ่มเป็น 10 นาที
+    enabled: true, // Always enabled for both guest and authenticated
+    staleTime: isGuest ? 600000 : 300000, // Guest cache longer (10 min vs 5 min)
+    gcTime: isGuest ? 1200000 : 600000, // Guest GC longer (20 min vs 10 min)
     refetchOnWindowFocus: false,
-    refetchOnMount: false, // ไม่ refetch เมื่อ component mount
-    refetchOnReconnect: false, // ไม่ refetch เมื่อ network reconnect
-    retry: 1, // ลดจำนวน retry
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    retry: 1,
   });
 
   const invalidateDevices = () => {
@@ -31,13 +34,12 @@ export const useGlobalDeviceCache = () => {
   };
 
   const prefetchDevices = () => {
-    if (user) {
-      queryClient.prefetchQuery({
-        queryKey: ['devices', user.id],
-        queryFn: () => fetchDevicesWithDetails(user.id, isAdmin, isSuperAdmin),
-        staleTime: 300000,
-      });
-    }
+    const key = isGuest ? ['devices', 'guest'] : ['devices', user?.id];
+    queryClient.prefetchQuery({
+      queryKey: key,
+      queryFn: () => fetchDevicesWithDetails(user?.id, isAdmin, isSuperAdmin),
+      staleTime: isGuest ? 600000 : 300000,
+    });
   };
 
   return {
@@ -56,9 +58,12 @@ export const useDeviceListOptimistic = (): DeviceInfo[] => {
   
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
+  const isGuest = !user;
   
   // ลองหา cache ที่มีอยู่ก่อน
-  const cachedData = queryClient.getQueryData<DeviceInfo[]>(['devices', user?.id]);
+  const cachedData = queryClient.getQueryData<DeviceInfo[]>(
+    isGuest ? ['devices', 'guest'] : ['devices', user?.id]
+  );
   
   return cachedData || [];
 };
