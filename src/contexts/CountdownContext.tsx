@@ -1,5 +1,6 @@
 
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { createContext, useContext, useCallback, useState, useEffect, useRef, ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface CountdownContextType {
   seconds: number;
@@ -9,127 +10,125 @@ interface CountdownContextType {
   toggle: () => void;
   reset: () => void;
   lastCompleteTime: number | null;
+  manualRefresh: () => void; // New manual refresh function
 }
 
 const CountdownContext = createContext<CountdownContextType | undefined>(undefined);
 
 interface CountdownProviderProps {
+  children: ReactNode;
   initialSeconds?: number;
   onComplete?: () => void;
-  children: React.ReactNode;
 }
 
-export const CountdownProvider: React.FC<CountdownProviderProps> = ({
-  initialSeconds = 60,
-  onComplete,
-  children
-}) => {
+export function CountdownProvider({ 
+  children, 
+  initialSeconds = 60, 
+  onComplete 
+}: CountdownProviderProps) {
   const [seconds, setSeconds] = useState(initialSeconds);
   const [isActive, setIsActive] = useState(true);
   const [lastCompleteTime, setLastCompleteTime] = useState<number | null>(null);
-  const intervalRef = useRef<number | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const onCompleteRef = useRef(onComplete);
-  const isMountedRef = useRef(true);
+  const queryClient = useQueryClient();
 
   // Update the ref when onComplete changes
   useEffect(() => {
     onCompleteRef.current = onComplete;
   }, [onComplete]);
 
-  const start = () => setIsActive(true);
-  const pause = () => setIsActive(false);
-  const toggle = () => setIsActive(prev => !prev);
-  
-  const reset = () => {
+  // Manual refresh function - no automatic cascade
+  const manualRefresh = useCallback(async () => {
+    console.log('🔄 Manual refresh triggered');
+    
+    // Only invalidate essential queries
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['devices-details'] }),
+      queryClient.invalidateQueries({ queryKey: ['guest-devices'] }),
+    ]);
+    
+    console.log('✅ Manual refresh completed');
+  }, [queryClient]);
+
+  const start = useCallback(() => {
+    setIsActive(true);
+  }, []);
+
+  const pause = useCallback(() => {
+    setIsActive(false);
+  }, []);
+
+  const toggle = useCallback(() => {
+    setIsActive(prev => !prev);
+  }, []);
+
+  const reset = useCallback(() => {
     setSeconds(initialSeconds);
-    if (onCompleteRef.current) {
-      const callback = onCompleteRef.current;
-      setTimeout(() => {
-        callback();
-      }, 0);
-    }
-    setLastCompleteTime(Date.now());
-  };
+  }, [initialSeconds]);
 
   useEffect(() => {
     if (isActive) {
-      console.log("⏰ Countdown timer started - interval:", initialSeconds, "seconds");
-      intervalRef.current = window.setInterval(() => {
+      intervalRef.current = setInterval(() => {
         setSeconds(currentSeconds => {
-          if (!isMountedRef.current) return currentSeconds;
-          
           if (currentSeconds <= 1) {
-            console.log("🔔 Countdown reached zero - executing callback");
-            if (onCompleteRef.current && isMountedRef.current) {
-              const callback = onCompleteRef.current;
-              setTimeout(() => {
-                if (isMountedRef.current) {
-                  console.log("🚀 Executing countdown completion callback");
-                  callback();
-                }
-              }, 0);
+            const completionTime = Date.now();
+            setLastCompleteTime(completionTime);
+            
+            console.log('🔔 Countdown completed at:', new Date(completionTime).toISOString());
+            
+            // Call completion callback but DON'T trigger automatic refresh
+            if (onCompleteRef.current) {
+              onCompleteRef.current();
             }
-            const completeTime = Date.now();
-            if (isMountedRef.current) {
-              setLastCompleteTime(completeTime);
-              console.log("✅ Countdown cycle completed at:", new Date(completeTime).toISOString());
-            }
+            
             return initialSeconds;
-          }
-          if (currentSeconds % 30 === 0) {
-            console.log("⏰ Countdown status:", currentSeconds, "seconds remaining");
           }
           return currentSeconds - 1;
         });
       }, 1000);
     } else if (intervalRef.current) {
-      console.log("⏸️ Countdown timer paused");
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
 
     return () => {
       if (intervalRef.current) {
-        console.log("🛑 Countdown timer cleanup");
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
     };
   }, [isActive, initialSeconds]);
 
-  // Cleanup on unmount
+  // Log countdown status less frequently to reduce console spam
   useEffect(() => {
-    return () => {
-      console.log("🛑 CountdownProvider unmounting - cleaning up");
-      isMountedRef.current = false;
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    };
-  }, []);
-
-  const value = {
-    seconds,
-    isActive,
-    start,
-    pause,
-    toggle,
-    reset,
-    lastCompleteTime
-  };
+    if (seconds % 30 === 0) { // Log every 30 seconds only
+      console.log(`⏰ Countdown status: ${seconds} seconds remaining`);
+    }
+  }, [seconds]);
 
   return (
-    <CountdownContext.Provider value={value}>
+    <CountdownContext.Provider
+      value={{
+        seconds,
+        isActive,
+        start,
+        pause,
+        toggle,
+        reset,
+        lastCompleteTime,
+        manualRefresh,
+      }}
+    >
       {children}
     </CountdownContext.Provider>
   );
-};
+}
 
-export const useGlobalCountdown = () => {
+export function useGlobalCountdown() {
   const context = useContext(CountdownContext);
   if (context === undefined) {
-    throw new Error('useGlobalCountdown must be used within a CountdownProvider');
+    throw new Error("useGlobalCountdown must be used within a CountdownProvider");
   }
   return context;
-};
+}

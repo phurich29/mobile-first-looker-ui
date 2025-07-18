@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/AuthProvider";
 import { useGuestMode } from "@/hooks/useGuestMode";
@@ -7,7 +8,7 @@ import { DeviceInfo } from "../types";
 import { useCallback, useRef, useState, useEffect, useMemo } from "react";
 
 /**
- * React Query hook for fetching devices with improved loading state management
+ * Optimized React Query hook with Lazy Loading approach
  */
 export const useDevicesQuery = () => {
   const { user, userRoles, isAuthReady } = useAuth();
@@ -16,103 +17,47 @@ export const useDevicesQuery = () => {
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
   
-  // Don't run queries until auth is stable
+  // Only run queries when auth is ready and stable
   const isQueryEnabled = isAuthReady && isStable;
   
-  // Loading state management
+  // Simplified loading state management
   const [isRefreshingState, setIsRefreshingState] = useState(false);
-  const [hasTimedOut, setHasTimedOut] = useState(false);
-  const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const queryStartTimeRef = useRef<number | null>(null);
-  
-  // Reduced maximum loading time: 8 seconds
-  const MAX_LOADING_TIME = 8000;
-  
-  // Reset timeout when query starts
-  const handleQueryStart = useCallback(() => {
-    console.log('📊 Query started - setting timeout');
-    queryStartTimeRef.current = Date.now();
-    setHasTimedOut(false);
-    setIsRefreshingState(true);
-    
-    // Clear existing timeout
-    if (loadingTimeoutRef.current) {
-      clearTimeout(loadingTimeoutRef.current);
-    }
-    
-    // Set new timeout
-    loadingTimeoutRef.current = setTimeout(() => {
-      console.warn('⚠️ Query timeout reached (15s)');
-      setHasTimedOut(true);
-      setIsRefreshingState(false);
-    }, MAX_LOADING_TIME);
-  }, []);
-  
-  // Clear timeout when query completes
-  const handleQueryComplete = useCallback(() => {
-    const duration = queryStartTimeRef.current ? Date.now() - queryStartTimeRef.current : 0;
-    console.log(`✅ Query completed in ${duration}ms`);
-    
-    if (loadingTimeoutRef.current) {
-      clearTimeout(loadingTimeoutRef.current);
-      loadingTimeoutRef.current = null;
-    }
-    
-    setIsRefreshingState(false);
-    queryStartTimeRef.current = null;
-  }, []);
-  
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (loadingTimeoutRef.current) {
-        clearTimeout(loadingTimeoutRef.current);
-      }
-    };
-  }, []);
   
   // Memoized query keys for stability
   const guestQueryKey = useMemo(() => ['guest-devices'], []);
   const authenticatedQueryKey = useMemo(() => ['devices-details', user?.id], [user?.id]);
 
-  // Guest devices query with auth stability check
+  // Basic devices query for guests - minimal data
   const guestDevicesQuery = useQuery({
     queryKey: guestQueryKey,
     queryFn: async (): Promise<DeviceInfo[]> => {
-      handleQueryStart();
-      console.log('📱 Fetching guest devices with cache...');
+      console.log('📱 Fetching basic guest devices...');
       
-      // Direct query - get guest-enabled devices
+      // Get guest-enabled devices (basic info only)
       const { data: guestDevicesData, error: guestError } = await supabase
         .from('guest_device_access')
         .select('device_code')
-        .eq('enabled', true);
+        .eq('enabled', true)
+        .limit(20); // Limit for performance
       
-      if (guestError) {
-        console.error('Error fetching guest devices:', guestError);
-        throw guestError;
-      }
-
-      if (!guestDevicesData || guestDevicesData.length === 0) {
-        console.log('No guest devices found');
-        return [];
-      }
+      if (guestError) throw guestError;
+      if (!guestDevicesData?.length) return [];
 
       const deviceCodes = guestDevicesData.map(d => d.device_code);
-      console.log('Guest device codes:', deviceCodes);
 
-      // Get device settings separately
+      // Get basic display names only
       const { data: settingsData } = await supabase
         .from('device_settings')
         .select('device_code, display_name')
         .in('device_code', deviceCodes);
 
-      // Get latest analysis data for each device
-      const { data: analysisData } = await supabase
+      // Get only latest timestamp (no full analysis data)
+      const { data: timestampData } = await supabase
         .from('rice_quality_analysis')
-        .select('device_code, created_at, *')
+        .select('device_code, created_at')
         .in('device_code', deviceCodes)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(deviceCodes.length);
 
       // Create maps
       const deviceSettings: Record<string, any> = {};
@@ -120,40 +65,38 @@ export const useDevicesQuery = () => {
         deviceSettings[setting.device_code] = setting;
       });
 
-      const latestDeviceData: Record<string, any> = {};
-      analysisData?.forEach(record => {
-        if (!latestDeviceData[record.device_code]) {
-          latestDeviceData[record.device_code] = record;
+      const latestTimestamps: Record<string, string> = {};
+      timestampData?.forEach(record => {
+        if (!latestTimestamps[record.device_code]) {
+          latestTimestamps[record.device_code] = record.created_at;
         }
       });
 
-      const enrichedDevices: DeviceInfo[] = guestDevicesData.map(device => ({
+      const basicDevices: DeviceInfo[] = guestDevicesData.map(device => ({
         device_code: device.device_code,
         display_name: deviceSettings[device.device_code]?.display_name || device.device_code,
-        updated_at: latestDeviceData[device.device_code]?.created_at || new Date().toISOString(),
-        deviceData: latestDeviceData[device.device_code] || null
+        updated_at: latestTimestamps[device.device_code] || new Date().toISOString(),
+        deviceData: null // No device data in basic loading
       }));
 
-      console.log(`📱 Fetched ${enrichedDevices.length} guest devices`);
-      handleQueryComplete();
-      return enrichedDevices;
+      console.log(`📱 Loaded basic info for ${basicDevices.length} guest devices`);
+      return basicDevices;
     },
     enabled: isQueryEnabled && isGuest,
-    retry: (failureCount) => failureCount < 2, // Max 2 retries
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
+    retry: 1, // Reduced retries
+    retryDelay: 1000,
     refetchOnWindowFocus: false,
-    staleTime: 20000, // Reduced from 30s to 20s
-    gcTime: 60000, // 1 minute garbage collection
+    staleTime: 30000, // 30 seconds stale time
+    gcTime: 120000, // 2 minutes garbage collection
   });
 
-  // Authenticated devices query with auth stability check
+  // Authenticated devices query - also lazy loaded
   const authenticatedDevicesQuery = useQuery({
     queryKey: authenticatedQueryKey,
     queryFn: async (): Promise<DeviceInfo[]> => {
-      handleQueryStart();
       if (!user?.id) return [];
       
-      console.log('🔐 Fetching authenticated devices...');
+      console.log('🔐 Fetching basic authenticated devices...');
       
       const deviceList = await fetchDevicesWithDetails(
         user.id,
@@ -161,69 +104,31 @@ export const useDevicesQuery = () => {
         isSuperAdmin
       );
 
-      if (deviceList.length === 0) {
-        console.log('🔐 No devices found for authenticated user');
-        return [];
-      }
+      if (deviceList.length === 0) return [];
 
-      // Get analysis data
-      const deviceCodes = deviceList.map(d => d.device_code);
-      const { data: analysisData } = await supabase
-        .from('rice_quality_analysis')
-        .select('*')
-        .in('device_code', deviceCodes)
-        .order('created_at', { ascending: false });
-
-      // Create map of latest device data
-      const latestDeviceData: Record<string, any> = {};
-      analysisData?.forEach(record => {
-        if (!latestDeviceData[record.device_code]) {
-          latestDeviceData[record.device_code] = record;
-        }
-      });
-
-      const enrichedDeviceList = deviceList.map(device => ({
+      // Return basic device info without analysis data initially
+      const basicDeviceList = deviceList.map(device => ({
         ...device,
-        deviceData: latestDeviceData[device.device_code] || null
+        deviceData: null // No device data in basic loading
       }));
 
-      console.log(`🔐 Fetched ${enrichedDeviceList.length} authenticated devices`);
-      handleQueryComplete();
-      return enrichedDeviceList;
+      console.log(`🔐 Loaded basic info for ${basicDeviceList.length} authenticated devices`);
+      return basicDeviceList;
     },
     enabled: isQueryEnabled && !!user && !isGuest,
-    retry: (failureCount) => failureCount < 2, // Max 2 retries
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
+    retry: 1, // Reduced retries
+    retryDelay: 1000,
     refetchOnWindowFocus: false,
-    staleTime: 15000, // Keep 15s for auth users
-    gcTime: 90000, // 1.5 minutes garbage collection
+    staleTime: 20000, // 20 seconds stale time
+    gcTime: 180000, // 3 minutes garbage collection
   });
 
-  // Monitor query state changes
-  useEffect(() => {
-    if (guestDevicesQuery.isError || authenticatedDevicesQuery.isError) {
-      console.error('❌ Query failed');
-      handleQueryComplete();
-    }
-    if (guestDevicesQuery.isSuccess || authenticatedDevicesQuery.isSuccess) {
-      console.log('✅ Query succeeded');
-      handleQueryComplete();
-    }
-  }, [guestDevicesQuery.isError, guestDevicesQuery.isSuccess, authenticatedDevicesQuery.isError, authenticatedDevicesQuery.isSuccess, handleQueryComplete]);
-
-  // Device count query with stability check
+  // Device count query - simplified
   const deviceCountQuery = useQuery({
-    queryKey: ['device-count', isGuest, isAuthReady],
+    queryKey: ['device-count', isGuest, user?.id],
     queryFn: async () => {
-      if (isGuest) {
-        return guestDevicesQuery.data?.length || 0;
-      }
-      
-      if (!user?.id) return 0;
-      
-      // Use the same logic as fetchDevicesWithDetails for consistency
-      const devices = await fetchDevicesWithDetails(user.id, isAdmin, isSuperAdmin);
-      return devices.length;
+      const activeQuery = isGuest ? guestDevicesQuery : authenticatedDevicesQuery;
+      return activeQuery.data?.length || 0;
     },
     enabled: isQueryEnabled,
     retry: 1,
@@ -233,28 +138,29 @@ export const useDevicesQuery = () => {
   // Return the appropriate query based on user type
   const activeQuery = isGuest ? guestDevicesQuery : authenticatedDevicesQuery;
   
-  // Enhanced refetch with timeout management
+  // Enhanced refetch with minimal loading state
   const enhancedRefetch = useCallback(async () => {
     console.log('🔄 Enhanced refetch triggered');
-    setHasTimedOut(false);
+    setIsRefreshingState(true);
     try {
-      return await activeQuery.refetch();
+      const result = await activeQuery.refetch();
+      return result;
     } catch (error) {
       console.error('❌ Enhanced refetch failed:', error);
-      handleQueryComplete();
       throw error;
+    } finally {
+      setIsRefreshingState(false);
     }
-  }, [activeQuery.refetch, handleQueryComplete]);
+  }, [activeQuery.refetch]);
   
   return {
     devices: activeQuery.data || [],
     isLoading: activeQuery.isLoading,
-    isRefreshing: isRefreshingState || (activeQuery.isFetching && !activeQuery.isLoading),
-    error: hasTimedOut ? new Error('Query timeout exceeded') : activeQuery.error,
+    isRefreshing: isRefreshingState || activeQuery.isFetching,
+    error: activeQuery.error,
     totalUniqueDevices: deviceCountQuery.data || 0,
     refetch: enhancedRefetch,
     isAdmin,
     isSuperAdmin,
-    hasTimedOut // New field to indicate timeout status
   };
 };

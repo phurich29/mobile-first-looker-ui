@@ -1,6 +1,5 @@
 
 import { AddDeviceForm } from "@/components/device-management/AddDeviceForm";
-import { DatabaseTable } from "@/components/DatabaseTable";
 import { DevicesHeader, DevicesGrid } from "@/features/equipment";
 import { AppLayout } from "@/components/layouts";
 import { DeviceHistoryTable } from "@/features/device-details/components/DeviceHistoryTable";
@@ -29,7 +28,7 @@ export default function Equipment() {
   // Memoize refresh handler to prevent recreating on every render
   const handleRefresh = useMemo(() => {
     return async () => {
-      console.log('🔄 Manual refresh triggered');
+      console.log('🔄 Manual refresh triggered from Equipment page');
       await refetch();
     };
   }, [refetch]);
@@ -50,7 +49,7 @@ export default function Equipment() {
         />
       </div>
       
-      {/* Add Device Form - Only for superadmin (not guests and not regular admins) */}
+      {/* Add Device Form - Only for superadmin */}
       {isSuperAdmin && !isGuest && (
         <div className="mb-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">เพิ่มอุปกรณ์ใหม่</h2>
@@ -58,7 +57,7 @@ export default function Equipment() {
         </div>
       )}
       
-      {/* Devices Grid - Show for both authenticated users and guests */}
+      {/* Devices Grid - Lazy loaded */}
       <DevicesGrid 
         devices={devices} 
         isAdmin={isAdmin && !isGuest} 
@@ -67,10 +66,12 @@ export default function Equipment() {
         onDeviceUpdated={handleRefresh} 
       />
 
-      {/* Device History Table - Show to all users including guests */}
-      <div className="mt-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-        <DeviceHistoryTable deviceIds={deviceIds} title="ประวัติอุปกรณ์" />
-      </div>
+      {/* Device History Table - Lazy loaded */}
+      {deviceIds.length > 0 && (
+        <div className="mt-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+          <DeviceHistoryTable deviceIds={deviceIds} title="ประวัติอุปกรณ์" lazy={true} />
+        </div>
+      )}
     </AppLayout>
   );
 }

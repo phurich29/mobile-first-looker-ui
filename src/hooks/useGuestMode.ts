@@ -1,55 +1,32 @@
 
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/AuthProvider';
-import { useState, useEffect, useMemo } from 'react';
 
 export const useGuestMode = () => {
-  const { user, userRoles, isLoading, isAuthReady } = useAuth();
-  
-  // Simple initialization state
+  const { user, isLoading, isAuthReady } = useAuth();
   const [isInitialized, setIsInitialized] = useState(false);
   
-  // Add timeout to prevent infinite waiting
+  // Immediate state resolution - no waiting
   useEffect(() => {
-    if (!isAuthReady || isLoading) {
-      // Set timeout to prevent infinite waiting
-      const timeout = setTimeout(() => {
-        if (!isInitialized) {
-          console.log('⚠️ useGuestMode timeout - forcing initialization');
-          setIsInitialized(true);
-        }
-      }, 3000); // 3 second timeout
-      
-      return () => clearTimeout(timeout);
-    }
-    
+    // Set immediate fallback state
     if (!isInitialized) {
       setIsInitialized(true);
-      console.log(`✅ useGuestMode initialized: user=${!!user}, isGuest=${!user}`);
     }
-  }, [isAuthReady, isLoading, user, isInitialized]);
+  }, [isInitialized]);
   
-  // Stable derived states with proper memoization
-  const derivedStates = useMemo(() => {
-    const isStable = isAuthReady && isInitialized;
-    const isGuest = isStable && !user;
-    const isAuthenticated = isStable && !!user;
-    
-    return { 
-      isGuest, 
-      isAuthenticated, 
-      isStable,
-      user: isStable ? user : null,
-      userRoles: isStable ? userRoles : []
-    };
-  }, [isAuthReady, isInitialized, user, userRoles]);
+  // Simple guest determination
+  const isGuest = !user && !isLoading && isAuthReady;
+  const isStable = isInitialized; // Simplified stability check
   
+  // Log only important state changes
+  useEffect(() => {
+    if (isStable) {
+      console.log(`👤 Guest mode: ${isGuest ? 'ENABLED' : 'DISABLED'}`);
+    }
+  }, [isGuest, isStable]);
+
   return {
-    isGuest: derivedStates.isGuest,
-    isAuthenticated: derivedStates.isAuthenticated,
-    user: derivedStates.user,
-    userRoles: derivedStates.userRoles,
-    isLoading: isLoading || !isAuthReady,
-    isStable: derivedStates.isStable,
-    isAuthReady
+    isGuest,
+    isStable,
   };
 };
