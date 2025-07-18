@@ -631,6 +631,15 @@ export type Database = {
           total_time_ms: number
         }[]
       }
+      check_database_health: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          check_name: string
+          status: string
+          execution_time_ms: number
+          details: string
+        }[]
+      }
       check_notification_thresholds: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -647,6 +656,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: {
           device_code: string
+          updated_at: string
+        }[]
+      }
+      get_devices_emergency_fallback: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          device_code: string
+          display_name: string
           updated_at: string
         }[]
       }
@@ -670,6 +687,14 @@ export type Database = {
           expired_cached: number
           oldest_cache: string
           newest_cache: string
+        }[]
+      }
+      get_guest_devices_fast: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          device_code: string
+          display_name: string
+          updated_at: string
         }[]
       }
       get_guest_devices_optimized: {
