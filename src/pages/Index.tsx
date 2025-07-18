@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/AuthProvider';
-import { useGlobalDeviceCache } from '@/features/equipment/hooks/useGlobalDeviceCache';
+import { useDevices } from '@/features/equipment/contexts/DeviceContext';
 import { LoadingScreen } from '@/features/device-details/components/LoadingScreen';
 
 const Index = () => {
   const navigate = useNavigate();
   const { isLoading, user } = useAuth();
-  const { devices: cachedDevices } = useGlobalDeviceCache();
+  const { devices: cachedDevices } = useDevices();
 
   useEffect(() => {
     // Wait for the authentication to be fully resolved before making any decisions.

@@ -1,6 +1,6 @@
 
 import { useAuth } from '@/components/AuthProvider';
-import { useGlobalDeviceCache } from '@/features/equipment/hooks/useGlobalDeviceCache';
+import { useDevices } from '@/features/equipment/contexts/DeviceContext';
 
 interface Device {
   device_code: string;
@@ -9,7 +9,7 @@ interface Device {
 
 export const useDeviceData = () => {
   const { user } = useAuth();
-  const { devices: cachedDevices, isLoading } = useGlobalDeviceCache();
+  const { devices: cachedDevices, isLoading } = useDevices();
 
   // Transform to match the expected interface
   const devices = cachedDevices.map(device => ({
