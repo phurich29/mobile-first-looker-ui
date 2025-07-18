@@ -1,5 +1,5 @@
 
-import { useEffect, ReactNode } from "react";
+import { useEffect, ReactNode, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthContext } from "./auth/AuthContext";
 import { useAuthSession } from "@/hooks/useAuthSession";
@@ -30,17 +30,77 @@ export function AuthProvider({ children }: AuthProviderProps) {
     fetchUserRoles,
   } = useUserRoles();
 
+  // Session stability tracking
+  const lastSessionValidation = useRef<number>(0);
+  const sessionValidationCount = useRef<number>(0);
+  const authStateChangeCount = useRef<number>(0);
+  const lastAuthStateChange = useRef<number>(Date.now());
+  
+  // Session validation throttling
+  const SESSION_VALIDATION_INTERVAL = 30000; // 30 seconds minimum between validations
+  const MAX_VALIDATIONS_PER_MINUTE = 3;
+  const AUTH_STABILITY_DELAY = 1000; // 1 second delay for auth state changes
+
+  // Enhanced session validation with throttling
+  const throttledValidateSession = useCallback(async (currentSession: any) => {
+    const now = Date.now();
+    
+    // Check if we're validating too frequently
+    if (now - lastSessionValidation.current < SESSION_VALIDATION_INTERVAL) {
+      console.log(`⏳ Session validation throttled (${now - lastSessionValidation.current}ms since last)`);
+      return currentSession;
+    }
+    
+    // Check validation rate limit
+    if (sessionValidationCount.current >= MAX_VALIDATIONS_PER_MINUTE) {
+      console.log(`🚫 Session validation rate limited (${sessionValidationCount.current} validations)`);
+      return currentSession;
+    }
+    
+    console.log(`🔍 Performing session validation (count: ${sessionValidationCount.current + 1})`);
+    
+    try {
+      const validSession = await validateAndRefreshSession(currentSession);
+      lastSessionValidation.current = now;
+      sessionValidationCount.current++;
+      
+      // Reset validation counter every minute
+      setTimeout(() => {
+        sessionValidationCount.current = Math.max(0, sessionValidationCount.current - 1);
+      }, 60000);
+      
+      return validSession;
+    } catch (error) {
+      console.error('Session validation failed:', error);
+      return currentSession;
+    }
+  }, [validateAndRefreshSession]);
+
   useEffect(() => {
-    console.log("Setting up AuthProvider");
+    console.log("Setting up AuthProvider with enhanced stability checks");
     setIsLoading(true);
 
-    // Set up auth state listener first - critical to avoid race conditions
+    // Set up auth state listener with stability enhancement
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
-        console.log("Auth state changed, event:", event);
+        const now = Date.now();
+        authStateChangeCount.current++;
         
-        // Re-enable session validation to ensure session is always fresh
-        const validSession = await validateAndRefreshSession(currentSession);
+        console.log(`Auth state changed, event: ${event} (change #${authStateChangeCount.current})`);
+        
+        // Detect rapid auth state changes
+        const timeSinceLastChange = now - lastAuthStateChange.current;
+        if (timeSinceLastChange < AUTH_STABILITY_DELAY) {
+          console.warn(`⚠️ Rapid auth state change detected (${timeSinceLastChange}ms), adding stability delay`);
+          
+          // Add delay for stability
+          await new Promise(resolve => setTimeout(resolve, AUTH_STABILITY_DELAY));
+        }
+        
+        lastAuthStateChange.current = now;
+        
+        // Throttled session validation
+        const validSession = await throttledValidateSession(currentSession);
         
         // Update session and user state with the validated session
         setSession(validSession);
@@ -91,8 +151,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         
         console.log("Initial session retrieved:", !!initialSession);
         
-        // Validate initial session
-        const validSession = await validateAndRefreshSession(initialSession);
+        // Enhanced initial session validation with throttling
+        const validSession = await throttledValidateSession(initialSession);
         
         // Update session and user state immediately
         setSession(validSession);
@@ -124,7 +184,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [throttledValidateSession, fetchUserRoles]);
 
   const handleSignOut = async () => {
     await signOut();
