@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { DeviceInfo } from "../types";
+import { roleCache } from "@/utils/auth/roleCache";
 
 export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean, isSuperAdmin?: boolean): Promise<DeviceInfo[]> => {
   console.log("Fetching devices with details using optimized database function...");
@@ -20,18 +21,32 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
       currentUser = user;
     }
 
-    // Check user role if not provided
+    // Check user role if not provided - use cache first
     let userIsSuperAdmin = isSuperAdmin;
     let userIsAdmin = isAdmin;
     
     if (userIsSuperAdmin === undefined || userIsAdmin === undefined) {
-      const { data: userRoles } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', currentUserId);
+      // Try to get roles from cache first
+      let userRoles = roleCache.get(currentUserId);
+      
+      // If not in cache, fetch from database
+      if (userRoles === null) {
+        console.log("🔄 Roles not in cache, fetching from database for device service");
+        const { data: rolesData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', currentUserId);
 
-      userIsSuperAdmin = userRoles?.some(role => role.role === 'superadmin') || false;
-      userIsAdmin = userRoles?.some(role => role.role === 'admin') || false;
+        userRoles = rolesData?.map(role => role.role) || [];
+        
+        // Cache the result
+        if (userRoles.length > 0) {
+          roleCache.set(currentUserId, userRoles);
+        }
+      }
+
+      userIsSuperAdmin = userRoles.includes('superadmin');
+      userIsAdmin = userRoles.includes('admin');
     }
 
     console.log(`User roles - isSuperAdmin: ${userIsSuperAdmin}, isAdmin: ${userIsAdmin}`);
@@ -117,14 +132,27 @@ export const fetchDeviceCount = async (): Promise<number> => {
       return 0;
     }
 
-    // Check user role
-    const { data: userRoles } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id);
+    // Check user role - use cache first
+    let userRoles = roleCache.get(user.id);
+    
+    // If not in cache, fetch from database
+    if (userRoles === null) {
+      console.log("🔄 Roles not in cache, fetching from database for device count");
+      const { data: rolesData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id);
 
-    const isSuperAdmin = userRoles?.some(role => role.role === 'superadmin');
-    const isAdmin = userRoles?.some(role => role.role === 'admin');
+      userRoles = rolesData?.map(role => role.role) || [];
+      
+      // Cache the result
+      if (userRoles.length > 0) {
+        roleCache.set(user.id, userRoles);
+      }
+    }
+
+    const isSuperAdmin = userRoles.includes('superadmin');
+    const isAdmin = userRoles.includes('admin');
 
     let count = 0;
 

@@ -27,6 +27,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     userRoles,
     setUserRoles,
     fetchUserRoles,
+    clearRolesCache,
   } = useUserRoles();
 
   useEffect(() => {
@@ -35,24 +36,34 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     // Set up auth state listener first - critical to avoid race conditions
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
+      (event, currentSession) => {
         console.log("🔄 Auth state changed, event:", event);
         
         // Simple session update without additional validation
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
-        // If user is logged in, fetch roles from database
+        // Handle user roles based on auth event
         if (currentSession?.user) {
-          try {
-            const roles = await fetchUserRoles(currentSession.user.id);
-            console.log("👤 Setting user roles after auth change:", roles);
-            setUserRoles(roles);
-          } catch (error) {
-            console.error("❌ Error fetching roles during auth change:", error);
-            setUserRoles([]);
+          // For SIGNED_IN event, fetch roles (cached or fresh)
+          if (event === 'SIGNED_IN') {
+            setTimeout(async () => {
+              try {
+                const roles = await fetchUserRoles(currentSession.user.id);
+                console.log("👤 Setting user roles after sign in:", roles);
+                setUserRoles(roles);
+              } catch (error) {
+                console.error("❌ Error fetching roles during sign in:", error);
+                setUserRoles([]);
+              }
+            }, 0);
           }
+          // For other events (TOKEN_REFRESHED), keep existing roles to avoid redundant calls
         } else {
+          // User signed out, clear everything
+          if (event === 'SIGNED_OUT') {
+            clearRolesCache();
+          }
           setUserRoles([]);
         }
         setIsLoading(false);
@@ -87,9 +98,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setSession(initialSession);
         setUser(initialSession?.user ?? null);
         
-        // If user is logged in, fetch roles from database
+        // If user is logged in, fetch roles from cache or database
         if (initialSession?.user) {
-          console.log("👤 User is logged in, fetching roles");
+          console.log("👤 User is logged in, checking roles");
           const roles = await fetchUserRoles(initialSession.user.id);
           console.log("🏷️ Setting initial user roles:", roles);
           setUserRoles(roles);
@@ -114,7 +125,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const handleSignOut = async () => {
     await signOut();
-    setUserRoles([]);
+    clearRolesCache();
   };
 
   const value = {
