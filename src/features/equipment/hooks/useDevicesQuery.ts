@@ -16,13 +16,13 @@ export const useDevicesQuery = () => {
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
   
-  // Guest devices query
+  // Guest devices query (no cache)
   const guestDevicesQuery = useQuery({
-    queryKey: ['guest-devices'],
+    queryKey: ['guest-devices-no-cache'],
     queryFn: async (): Promise<DeviceInfo[]> => {
-      console.log('📱 Fetching guest devices via React Query...');
+      console.log('📱 Fetching guest devices without cache...');
       
-      // Fetch guest-enabled devices directly from database
+      // Direct query without cache - get guest-enabled devices
       const { data: guestDevicesData, error: guestError } = await supabase
         .from('guest_device_access')
         .select('device_code')
@@ -39,17 +39,18 @@ export const useDevicesQuery = () => {
       }
 
       const deviceCodes = guestDevicesData.map(d => d.device_code);
+      console.log('Guest device codes:', deviceCodes);
 
-      // Get device settings
+      // Get device settings separately
       const { data: settingsData } = await supabase
         .from('device_settings')
         .select('device_code, display_name')
         .in('device_code', deviceCodes);
 
-      // Get analysis data for enrichment
+      // Get latest analysis data for each device
       const { data: analysisData } = await supabase
         .from('rice_quality_analysis')
-        .select('*')
+        .select('device_code, created_at, *')
         .in('device_code', deviceCodes)
         .order('created_at', { ascending: false });
 
@@ -66,14 +67,14 @@ export const useDevicesQuery = () => {
         }
       });
 
-      const enrichedDevices = guestDevicesData.map(device => ({
+      const enrichedDevices: DeviceInfo[] = guestDevicesData.map(device => ({
         device_code: device.device_code,
         display_name: deviceSettings[device.device_code]?.display_name || device.device_code,
         updated_at: latestDeviceData[device.device_code]?.created_at || new Date().toISOString(),
         deviceData: latestDeviceData[device.device_code] || null
       }));
 
-      console.log(`📱 React Query: Fetched ${enrichedDevices.length} guest devices`);
+      console.log(`📱 Fetched ${enrichedDevices.length} guest devices without cache`);
       return enrichedDevices;
     },
     enabled: isGuest,
