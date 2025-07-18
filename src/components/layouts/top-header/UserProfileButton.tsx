@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export const UserProfileButton: React.FC = () => {
-  const { isGuest } = useUnifiedPermissions();
+  const { isVisitor, isAuthenticated } = useUnifiedPermissions();
   const navigate = useNavigate();
 
   const handleProfileClick = () => {
@@ -23,9 +23,23 @@ export const UserProfileButton: React.FC = () => {
     navigate('/logout');
   };
 
-  // For guests, don't show anything
-  if (isGuest) {
-    return null;
+  const handleLogin = () => {
+    navigate('/auth/login');
+  };
+
+  // For visitors, show login button
+  if (isVisitor) {
+    return (
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        onClick={handleLogin}
+        className="text-white hover:bg-emerald-700/50"
+      >
+        <LogIn className="h-4 w-4 mr-2" />
+        เข้าสู่ระบบ
+      </Button>
+    );
   }
 
   // For authenticated users, show dropdown menu

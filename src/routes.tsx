@@ -9,7 +9,8 @@ import { cn } from "@/lib/utils";
 
 // Import pages directly (non-lazy for better performance on core pages)
 import Index from "./pages/Index";
-import Login from "./pages/Login";
+import { Login } from "./pages/auth/Login";
+import { Signup } from "./pages/auth/Signup";
 import Logout from "./pages/Logout";
 import NotFound from "./pages/NotFound";
 import Waiting from "./pages/Waiting";
@@ -130,11 +131,11 @@ export const router = createBrowserRouter([
         path: "logout",
         element: <Logout />,
       },
-      // Protected routes with guest access
+      // Protected routes with visitor access
       {
         path: "waiting",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowUnauthenticated={true}>
             <Waiting />
           </ProtectedRoute>
         ),
@@ -142,7 +143,7 @@ export const router = createBrowserRouter([
       {
         path: "equipment",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowUnauthenticated={true}>
             <Equipment />
           </ProtectedRoute>
         ),
@@ -158,7 +159,7 @@ export const router = createBrowserRouter([
       {
         path: "device/:deviceCode",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowUnauthenticated={true}>
             <DeviceDetails />
           </ProtectedRoute>
         ),
@@ -325,6 +326,10 @@ export const router = createBrowserRouter([
       {
         path: "login",
         element: <Login />,
+      },
+      {
+        path: "signup",
+        element: <Signup />,
       },
     ],
   },

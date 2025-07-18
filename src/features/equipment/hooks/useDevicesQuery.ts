@@ -13,7 +13,7 @@ import { useCallback, useRef, useState, useEffect, useMemo } from "react";
 export const useDevicesQuery = () => {
   const { user, isAuthReady } = useAuth();
   const { 
-    isGuest, 
+    isVisitor, 
     isAdmin, 
     isSuperAdmin, 
     isAuthenticated,
@@ -68,8 +68,8 @@ export const useDevicesQuery = () => {
     },
     retryDelay: 3000, // เพิ่ม delay ระหว่าง retries
     refetchOnWindowFocus: false,
-    staleTime: deviceAccessMode === 'guest' ? 300000 : 180000, // 5min for guest, 3min for auth
-    gcTime: deviceAccessMode === 'guest' ? 900000 : 600000,   // 15min for guest, 10min for auth
+    staleTime: deviceAccessMode === 'visitor' ? 300000 : 180000, // 5min for visitor, 3min for auth
+    gcTime: deviceAccessMode === 'visitor' ? 900000 : 600000,   // 15min for visitor, 10min for auth
   });
 
   // Simplified device count

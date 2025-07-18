@@ -3,22 +3,38 @@ import { supabase } from "@/integrations/supabase/client";
 import { DeviceInfo } from "../types";
 
 export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean, isSuperAdmin?: boolean): Promise<DeviceInfo[]> => {
-  console.log("Fetching devices with details using optimized database function...");
+  console.log("Fetching devices with details - supporting visitor mode...");
   
   try {
-    // Get current user if not provided
-    let currentUserId = userId;
-    let currentUser = null;
-    
-    if (!currentUserId) {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        console.log("No authenticated user found");
+    // ถ้าไม่มี userId แสดงว่าเป็น visitor ให้ใช้ guest device access
+    if (!userId) {
+      console.log("📡 Fetching visitor devices from guest_device_access");
+      
+      const { data, error } = await supabase.rpc('get_guest_devices_fast');
+      
+      if (error) {
+        console.error('🚨 Visitor device fetch error:', error);
         return [];
       }
-      currentUserId = user.id;
-      currentUser = user;
+
+      if (!data || !Array.isArray(data)) {
+        console.warn('⚠️ Invalid visitor device data:', data);
+        return [];
+      }
+
+      const devices: DeviceInfo[] = data.map((item: any) => ({
+        device_code: item.device_code || '',
+        display_name: item.display_name || item.device_code || 'ไม่ระบุชื่อ',
+        updated_at: item.updated_at || new Date().toISOString()
+      }));
+
+      console.log(`✅ Successfully fetched ${devices.length} visitor devices`);
+      return devices;
     }
+
+    // สำหรับผู้ใช้ที่ login แล้ว
+    let currentUserId = userId;
+    let currentUser = null;
 
     // Check user role if not provided
     let userIsSuperAdmin = isSuperAdmin;
