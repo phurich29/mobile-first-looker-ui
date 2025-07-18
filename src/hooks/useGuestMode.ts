@@ -1,94 +1,45 @@
 
 import { useAuth } from '@/components/AuthProvider';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 export const useGuestMode = () => {
-  const { user, userRoles, isLoading } = useAuth();
+  const { user, userRoles, isLoading, isAuthReady } = useAuth();
   
-  // State management for stable detection
-  const [stableGuestState, setStableGuestState] = useState<boolean | null>(null);
-  const [stateChangeCount, setStateChangeCount] = useState(0);
-  const [lastStateChange, setLastStateChange] = useState(Date.now());
+  // Simplified state management - wait for auth ready
+  const [isInitialized, setIsInitialized] = useState(false);
   
-  // Debounce timer for stability
-  const STABILITY_DELAY = 500; // 500ms delay to ensure stable state
-  const MAX_RAPID_CHANGES = 3; // Maximum rapid changes before blocking
-  const RAPID_CHANGE_WINDOW = 2000; // 2 seconds window
-  
-  // Detect rapid auth state changes
-  const detectRapidChanges = useCallback(() => {
-    const now = Date.now();
-    const timeSinceLastChange = now - lastStateChange;
-    
-    if (timeSinceLastChange < RAPID_CHANGE_WINDOW) {
-      setStateChangeCount(prev => prev + 1);
-    } else {
-      setStateChangeCount(1);
-    }
-    
-    setLastStateChange(now);
-    
-    // Block rapid changes
-    if (stateChangeCount >= MAX_RAPID_CHANGES) {
-      console.warn(`🚫 Rapid auth state changes detected (${stateChangeCount}), blocking for stability`);
-      return false;
-    }
-    
-    return true;
-  }, [lastStateChange, stateChangeCount]);
-  
-  // Calculate current guest state with stability detection
+  // Wait for AuthProvider to be ready before determining state
   useEffect(() => {
-    if (isLoading) {
-      // Don't update state while loading
+    if (!isAuthReady || isLoading) {
+      console.log(`🔄 Waiting for auth ready: isAuthReady=${isAuthReady}, isLoading=${isLoading}`);
       return;
     }
     
-    const currentGuestState = !user && !isLoading;
-    
-    // Check if state has actually changed
-    if (stableGuestState === currentGuestState) {
-      return;
+    // Auth is ready, we can now determine final state
+    if (!isInitialized) {
+      setIsInitialized(true);
+      console.log(`✅ useGuestMode initialized: user=${!!user}, isGuest=${!user}`);
     }
-    
-    // Check for rapid changes
-    if (!detectRapidChanges()) {
-      return;
-    }
-    
-    console.log(`🔄 Guest state changing: ${stableGuestState} → ${currentGuestState}`);
-    
-    // Set state with debouncing for stability
-    const timeoutId = setTimeout(() => {
-      setStableGuestState(currentGuestState);
-      console.log(`✅ Guest state stabilized: ${currentGuestState}`);
-    }, STABILITY_DELAY);
-    
-    return () => clearTimeout(timeoutId);
-  }, [user, isLoading, stableGuestState, detectRapidChanges]);
+  }, [isAuthReady, isLoading, user, isInitialized]);
   
-  // Reset rapid change counter periodically
-  useEffect(() => {
-    const resetInterval = setInterval(() => {
-      setStateChangeCount(0);
-    }, RAPID_CHANGE_WINDOW * 2);
-    
-    return () => clearInterval(resetInterval);
-  }, []);
+  // Calculate states based on auth readiness
+  const isGuest = isAuthReady && !isLoading && !user;
+  const isAuthenticated = isAuthReady && !isLoading && !!user;
+  const isStable = isAuthReady && isInitialized;
   
-  // Use stable state, fallback to calculated state for first load
-  const isGuest = stableGuestState !== null ? stableGuestState : (!user && !isLoading);
-  const isAuthenticated = !!user;
+  // Don't expose guest/auth states until AuthProvider is ready
+  if (!isAuthReady) {
+    console.log(`⏳ useGuestMode waiting for AuthProvider ready signal`);
+  }
   
   return {
-    isGuest,
-    isAuthenticated,
-    user,
-    userRoles,
-    isLoading,
-    // Additional stability info for debugging
-    isStable: stableGuestState !== null,
-    stateChangeCount,
-    lastStateChange
+    isGuest: isAuthReady ? isGuest : false,
+    isAuthenticated: isAuthReady ? isAuthenticated : false,
+    user: isAuthReady ? user : null,
+    userRoles: isAuthReady ? userRoles : [],
+    isLoading: isLoading || !isAuthReady,
+    // Stability info for debugging
+    isStable,
+    isAuthReady
   };
 };
