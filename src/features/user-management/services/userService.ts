@@ -1,6 +1,7 @@
 
 import { supabase, supabaseAdmin } from "@/integrations/supabase/client";
 import { User, UserRole } from "../types";
+import { userRoleService } from "@/utils/auth/userRoleService";
 
 /**
  * Fetch all users with their roles
@@ -14,26 +15,16 @@ export async function fetchUsers() {
     throw authError;
   }
   
-  // For each user, fetch their roles
-  const usersWithRoles = await Promise.all(
-    (authUsers?.users || []).map(async (authUser) => {
-      const { data: roles, error: rolesError } = await supabase.rpc(
-        'get_user_roles',
-        { user_id: authUser.id }
-      );
+  // Get roles for all users efficiently with batch caching
+  const userIds = (authUsers?.users || []).map(user => user.id);
+  const rolesMap = await userRoleService.getUsersWithRoles(userIds);
 
-      if (rolesError) {
-        console.error('Error fetching roles for user:', authUser.id, rolesError);
-      }
-      
-      return {
-        id: authUser.id,
-        email: authUser.email || 'unknown@example.com',
-        roles: roles || [],
-        last_sign_in_at: authUser.last_sign_in_at
-      };
-    })
-  );
+  const usersWithRoles = (authUsers?.users || []).map(authUser => ({
+    id: authUser.id,
+    email: authUser.email || 'unknown@example.com',
+    roles: (rolesMap[authUser.id] || []) as UserRole[],
+    last_sign_in_at: authUser.last_sign_in_at
+  }));
 
   return usersWithRoles;
 }
@@ -41,18 +32,8 @@ export async function fetchUsers() {
 /**
  * Get user roles for a specific user
  */
-export async function getUserRoles(userId: string) {
-  const { data: roles, error } = await supabase.rpc(
-    'get_user_roles',
-    { user_id: userId }
-  );
-  
-  if (error) {
-    console.error('Error fetching user roles:', error);
-    throw error;
-  }
-  
-  return roles || [];
+export async function getUserRoles(userId: string): Promise<UserRole[]> {
+  return await userRoleService.getUserRoles(userId);
 }
 
 /**
@@ -72,6 +53,9 @@ export async function addUserRole(userId: string, role: UserRole) {
     }
     throw error;
   }
+  
+  // Invalidate cache for this user
+  userRoleService.invalidateUserCache(userId);
 }
 
 /**
@@ -86,6 +70,9 @@ export async function removeUserRole(userId: string, role: UserRole) {
   if (error) {
     throw error;
   }
+  
+  // Invalidate cache for this user
+  userRoleService.invalidateUserCache(userId);
 }
 
 /**

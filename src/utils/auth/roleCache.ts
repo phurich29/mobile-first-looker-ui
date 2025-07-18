@@ -1,5 +1,7 @@
+type UserRole = 'admin' | 'superadmin' | 'user';
+
 interface CachedRoles {
-  roles: string[];
+  roles: UserRole[];
   timestamp: number;
   userId: string;
 }
@@ -9,7 +11,7 @@ const CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
 
 export const roleCache = {
   // Get cached roles for a user
-  get(userId: string): string[] | null {
+  get(userId: string): UserRole[] | null {
     try {
       const cached = localStorage.getItem(ROLES_CACHE_KEY);
       if (!cached) return null;
@@ -29,7 +31,7 @@ export const roleCache = {
   },
 
   // Set cached roles for a user
-  set(userId: string, roles: string[]): void {
+  set(userId: string, roles: UserRole[]): void {
     try {
       const cacheData: CachedRoles = {
         userId,
