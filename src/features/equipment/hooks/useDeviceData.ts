@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useGuestMode } from "@/hooks/useGuestMode";
 import { useToast } from "@/components/ui/use-toast";
@@ -19,6 +19,7 @@ export function useDeviceData() {
   const [totalUniqueDevices, setTotalUniqueDevices] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const isMountedRef = useMountedRef();
+  const abortControllerRef = useRef<AbortController | null>(null);
   
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
@@ -31,33 +32,48 @@ export function useDeviceData() {
     isSuperAdmin
   });
   const { fetchDeviceCount } = useDeviceCount();
+
+  // Create stable values for dependencies
+  const stableUserId = user?.id || '';
+  const stableIsGuest = isGuest;
+  const stableIsAdmin = isAdmin;
+  const stableIsSuperAdmin = isSuperAdmin;
   
-  // Main device fetching function
+  // Main device fetching function with proper dependencies
   const fetchDevices = useCallback(async () => {
     if (!isMountedRef.current) {
       console.log("🔧 Component unmounted, skipping device fetch");
       return;
     }
 
+    // Cancel previous request if exists
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Create new abort controller
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
+
     const startTime = Date.now();
     console.log("🔧 Starting device data fetch at:", new Date().toISOString());
     
     try {
-      if (isMountedRef.current) {
+      if (isMountedRef.current && !signal.aborted) {
         setIsRefreshing(true);
         setError(null);
       }
       
       let deviceList: DeviceInfo[] = [];
       
-      if (isGuest) {
+      if (stableIsGuest) {
         console.log("👤 Fetching devices for guest user");
         deviceList = await fetchGuestDevices();
-      } else if (user) {
+      } else if (stableUserId) {
         deviceList = await fetchAuthenticatedDevices();
       }
       
-      if (!isMountedRef.current) return;
+      if (!isMountedRef.current || signal.aborted) return;
       
       const fetchTime = Date.now() - startTime;
       console.log(`🔧 Device fetch completed in ${fetchTime}ms`);
@@ -67,24 +83,29 @@ export function useDeviceData() {
         timestamp: d.updated_at
       })));
       
-      if (isMountedRef.current) {
+      if (isMountedRef.current && !signal.aborted) {
         setDevices(deviceList);
       }
       
       // Count total unique devices (only for authenticated users)
-      if (!isGuest && user && isMountedRef.current) {
+      if (!stableIsGuest && stableUserId && isMountedRef.current && !signal.aborted) {
         const totalCount = await fetchDeviceCount();
-        if (isMountedRef.current) {
+        if (isMountedRef.current && !signal.aborted) {
           setTotalUniqueDevices(totalCount);
         }
-      } else if (isMountedRef.current) {
+      } else if (isMountedRef.current && !signal.aborted) {
         setTotalUniqueDevices(deviceList.length);
         console.log(`🔧 Guest devices count: ${deviceList.length}`);
       }
       
     } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log('🔧 Device fetch was aborted');
+        return;
+      }
+      
       console.error('Error fetching devices:', error);
-      if (isMountedRef.current) {
+      if (isMountedRef.current && !abortControllerRef.current?.signal.aborted) {
         setError(error instanceof Error ? error.message : "Unknown error");
         toast({
           title: "Error",
@@ -93,31 +114,72 @@ export function useDeviceData() {
         });
       }
     } finally {
-      if (isMountedRef.current) {
+      if (isMountedRef.current && !abortControllerRef.current?.signal.aborted) {
         setIsLoading(false);
         setIsRefreshing(false);
       }
     }
-  }, [user, isGuest, fetchGuestDevices, fetchAuthenticatedDevices, fetchDeviceCount, toast, isMountedRef]);
+  }, [
+    stableUserId, 
+    stableIsGuest, 
+    fetchGuestDevices, 
+    fetchAuthenticatedDevices, 
+    fetchDeviceCount, 
+    toast, 
+    isMountedRef
+  ]);
   
-  // Initial fetch
+  // Initial fetch with dependency on stable values
   useEffect(() => {
-    fetchDevices();
+    let timeoutId: NodeJS.Timeout;
+    
+    // Add a small delay to prevent rapid re-renders
+    timeoutId = setTimeout(() => {
+      fetchDevices();
+    }, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [fetchDevices]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   // Handler for manual refresh
   const handleRefresh = useCallback(async () => {
     await fetchDevices();
   }, [fetchDevices]);
-  
-  return {
+
+  // Memoize return values to prevent unnecessary re-renders
+  const returnValue = useMemo(() => ({
     devices,
     isLoading,
     isRefreshing,
     totalUniqueDevices,
     error,
     handleRefresh,
-    isAdmin,
-    isSuperAdmin
-  };
+    isAdmin: stableIsAdmin,
+    isSuperAdmin: stableIsSuperAdmin
+  }), [
+    devices,
+    isLoading,
+    isRefreshing,
+    totalUniqueDevices,
+    error,
+    handleRefresh,
+    stableIsAdmin,
+    stableIsSuperAdmin
+  ]);
+  
+  return returnValue;
 }

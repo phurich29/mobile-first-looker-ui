@@ -5,9 +5,10 @@ import { useDeviceData, DevicesHeader, DevicesGrid } from "@/features/equipment"
 import { AppLayout } from "@/components/layouts";
 import { DeviceHistoryTable } from "@/features/device-details/components/DeviceHistoryTable";
 import { useGuestMode } from "@/hooks/useGuestMode";
+import { useMemo } from "react";
 
 export default function Equipment() {
-    const {
+  const {
     devices,
     isLoading,
     isRefreshing,
@@ -19,6 +20,11 @@ export default function Equipment() {
   const {
     isGuest
   } = useGuestMode();
+  
+  // Memoize deviceIds to prevent unnecessary re-renders
+  const deviceIds = useMemo(() => {
+    return devices.map(d => d.device_code);
+  }, [devices]);
   
   return <AppLayout wideContent showFooterNav contentPaddingBottom="pb-32 md:pb-16">
       {/* Background decorative elements */}
@@ -41,8 +47,8 @@ export default function Equipment() {
           <DevicesGrid devices={devices} isAdmin={isAdmin && !isGuest} isLoading={isLoading} isSuperAdmin={isSuperAdmin && !isGuest} onDeviceUpdated={handleRefresh} />
 
           {/* Device History Table - Show to all users including guests */}
-                    <div className="mt-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-            <DeviceHistoryTable deviceIds={devices.map(d => d.device_code)} title="ประวัติอุปกรณ์" />
+          <div className="mt-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+            <DeviceHistoryTable deviceIds={deviceIds} title="ประวัติอุปกรณ์" />
           </div>
     </AppLayout>;
 }

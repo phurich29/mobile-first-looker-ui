@@ -1,3 +1,4 @@
+
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { DeviceInfo } from '../types';
@@ -11,7 +12,7 @@ interface UseAuthenticatedDevicesProps {
 }
 
 /**
- * Hook for fetching authenticated user devices
+ * Hook for fetching authenticated user devices with optimized queries
  */
 export function useAuthenticatedDevices({ userId, isAdmin, isSuperAdmin }: UseAuthenticatedDevicesProps) {
   const isMountedRef = useMountedRef();
@@ -25,7 +26,7 @@ export function useAuthenticatedDevices({ userId, isAdmin, isSuperAdmin }: UseAu
     try {
       console.log('🔐 Fetching devices for authenticated user...');
       
-      // Use the existing optimized function
+      // Use the optimized database function
       const deviceList = await fetchDevicesWithDetails(
         userId,
         isAdmin,
@@ -34,41 +35,43 @@ export function useAuthenticatedDevices({ userId, isAdmin, isSuperAdmin }: UseAu
       
       if (!isMountedRef.current) return [];
       
-      // เพิ่มข้อมูล deviceData สำหรับ authenticated users
-      if (deviceList.length > 0) {
-        const deviceCodes = deviceList.map(d => d.device_code);
-        
-        const { data: analysisData } = await supabase
-          .from('rice_quality_analysis')
-          .select('*')
-          .in('device_code', deviceCodes)
-          .order('created_at', { ascending: false });
-
-        if (!isMountedRef.current) return [];
-
-        const latestDeviceData: Record<string, any> = {};
-        analysisData?.forEach(record => {
-          if (!latestDeviceData[record.device_code]) {
-            latestDeviceData[record.device_code] = record;
-          }
-        });
-
-        const enrichedDeviceList = deviceList.map(device => {
-          const deviceAnalysisData = latestDeviceData[device.device_code];
-          console.log(`🔐 User device ${device.device_code} data:`, deviceAnalysisData);
-          
-          return {
-            ...device,
-            deviceData: deviceAnalysisData || null
-          };
-        });
-
-        console.log(`🔐 Fetched ${enrichedDeviceList.length} devices with data for authenticated user`);
-        return enrichedDeviceList;
+      if (deviceList.length === 0) {
+        console.log('🔐 No devices found for authenticated user');
+        return [];
       }
       
-      console.log('🔐 No devices found for authenticated user');
-      return deviceList;
+      // Get analysis data in a single query
+      const deviceCodes = deviceList.map(d => d.device_code);
+      
+      const { data: analysisData } = await supabase
+        .from('rice_quality_analysis')
+        .select('*')
+        .in('device_code', deviceCodes)
+        .order('created_at', { ascending: false });
+
+      if (!isMountedRef.current) return [];
+
+      // Create map of latest device data
+      const latestDeviceData: Record<string, any> = {};
+      analysisData?.forEach(record => {
+        if (!latestDeviceData[record.device_code]) {
+          latestDeviceData[record.device_code] = record;
+        }
+      });
+
+      const enrichedDeviceList = deviceList.map(device => {
+        const deviceAnalysisData = latestDeviceData[device.device_code];
+        console.log(`🔐 User device ${device.device_code} data:`, !!deviceAnalysisData);
+        
+        return {
+          ...device,
+          deviceData: deviceAnalysisData || null
+        };
+      });
+
+      console.log(`🔐 Fetched ${enrichedDeviceList.length} devices with data for authenticated user`);
+      return enrichedDeviceList;
+      
     } catch (error) {
       console.error('Error fetching authenticated devices:', error);
       throw error;
