@@ -49,6 +49,12 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
         return format(date, "dd MMMM yyyy HH:mm:ss น.", { locale: th });
       })()
     : "ไม่มีข้อมูล";
+
+  const handleDeviceClick = () => {
+    // Save last viewed device for both authenticated users and guests
+    localStorage.setItem('lastViewedDeviceCode', deviceCode);
+    console.log('💾 Saved last viewed device:', deviceCode);
+  };
   
   // Load users with their device access status
   const loadUsers = async () => {
@@ -319,14 +325,13 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
           </div>
           
           <div className="flex flex-col gap-2 mt-3">
-            
             <Button 
               variant="outline" 
               size="sm"
               className="w-full text-xs"
               asChild
             >
-              <Link to={`/device/${deviceCode}`}>
+              <Link to={`/device/${deviceCode}`} onClick={handleDeviceClick}>
                 <BarChart className="h-3 w-3 mr-1" />
                 ดูข้อมูล
               </Link>

@@ -10,7 +10,7 @@ interface EquipmentCardContentProps {
   lastUpdated: string | null;
   isAdmin: boolean;
   onEditClick: () => void;
-  deviceData?: any; // เพิ่ม prop สำหรับข้อมูลอุปกรณ์
+  deviceData?: any;
 }
 
 export function EquipmentCardContent({
@@ -23,6 +23,12 @@ export function EquipmentCardContent({
   const formattedTime = formatEquipmentTime(lastUpdated);
   const isRecent = isRecentUpdate(lastUpdated, deviceData);
   const timeClasses = getTimeClasses(isRecent);
+
+  const handleDeviceClick = () => {
+    // Save last viewed device for both authenticated users and guests
+    localStorage.setItem('lastViewedDeviceCode', deviceCode);
+    console.log('💾 Saved last viewed device:', deviceCode);
+  };
 
   return (
     <CardContent className="p-2 pt-1 sm:p-4 sm:pt-0">
@@ -48,9 +54,7 @@ export function EquipmentCardContent({
         >
           <Link
             to={`/device/${deviceCode}`}
-            onClick={() => {
-              localStorage.setItem('lastViewedDeviceCode', deviceCode);
-            }}
+            onClick={handleDeviceClick}
           >
             <BarChart className="h-3 w-3 mr-1" />
             ดูข้อมูล
@@ -65,7 +69,7 @@ export function EquipmentCardContent({
             onClick={onEditClick}
           >
             <Settings className="h-3.5 w-3.5" />
-          </Button>
+          </Link>
         )}
       </div>
     </CardContent>

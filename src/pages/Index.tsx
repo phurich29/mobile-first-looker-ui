@@ -5,6 +5,7 @@ import { useAuth } from '@/components/AuthProvider';
 import { useGuestMode } from '@/hooks/useGuestMode';
 import { useQuery } from '@tanstack/react-query';
 import { fetchDevicesWithDetails } from '@/features/equipment/services/deviceDataService';
+import { supabase } from '@/integrations/supabase/client';
 import { LoadingScreen } from '@/features/device-details/components/LoadingScreen';
 
 const Index = () => {
@@ -29,13 +30,34 @@ const Index = () => {
   // Safeguard against infinite redirects
   const MAX_REDIRECT_ATTEMPTS = 3;
   
-  // Only fetch devices for authenticated users, not guests
+  // Fetch devices for authenticated users
   const { data: accessibleDevices } = useQuery({
     queryKey: ['accessible-devices-check', user?.id, isAdmin, isSuperAdmin],
     queryFn: () => fetchDevicesWithDetails(user?.id, isAdmin, isSuperAdmin),
     enabled: !authLoading && !!user && isAuthenticated && !isGuest,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
+
+  // Fetch guest accessible devices
+  const { data: guestAccessibleDevices } = useQuery({
+    queryKey: ['guest-accessible-devices'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('guest_device_access')
+        .select('device_code')
+        .eq('enabled', true);
+      
+      if (error) {
+        console.error('Error fetching guest device access:', error);
+        return [];
+      }
+      
+      return data?.map(item => ({ device_code: item.device_code })) || [];
+    },
+    enabled: isGuest && !authLoading,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 
   useEffect(() => {
@@ -61,27 +83,44 @@ const Index = () => {
         isGuest,
         isAuthenticated,
         user: !!user,
-        accessibleDevices: accessibleDevices?.length
+        accessibleDevices: accessibleDevices?.length,
+        guestAccessibleDevices: guestAccessibleDevices?.length
       });
 
-      // For guests (visitors), always go to equipment page
+      const lastViewedDeviceCode = localStorage.getItem('lastViewedDeviceCode');
+      console.log('🔍 Checking last viewed device:', lastViewedDeviceCode);
+
+      // For guests (visitors)
       if (isGuest) {
-        console.log('👤 Guest user detected, redirecting to equipment');
+        console.log('👤 Guest user detected');
+        
+        if (lastViewedDeviceCode && guestAccessibleDevices) {
+          const hasGuestAccess = guestAccessibleDevices.some(d => d.device_code === lastViewedDeviceCode);
+          
+          if (hasGuestAccess) {
+            console.log('✅ Guest has access to last viewed device, redirecting');
+            setHasRedirected(true);
+            navigate(`/device/${lastViewedDeviceCode}`, { replace: true });
+            return;
+          } else {
+            console.warn(`❌ Guest access revoked for device ${lastViewedDeviceCode}, clearing and redirecting to equipment`);
+            localStorage.removeItem('lastViewedDeviceCode');
+          }
+        }
+        
+        console.log('📋 Guest redirecting to equipment page');
         setHasRedirected(true);
         navigate('/equipment', { replace: true });
         return;
       }
 
-      // For authenticated users, check last viewed device
+      // For authenticated users
       if (isAuthenticated && user) {
-        const lastViewedDeviceCode = localStorage.getItem('lastViewedDeviceCode');
-        console.log('🔍 Checking last viewed device:', lastViewedDeviceCode);
-
         if (lastViewedDeviceCode && accessibleDevices) {
           const hasAccess = accessibleDevices.some(d => d.device_code === lastViewedDeviceCode);
 
           if (hasAccess) {
-            console.log('✅ Access confirmed, redirecting to device page');
+            console.log('✅ Authenticated user has access, redirecting to device page');
             setHasRedirected(true);
             navigate(`/device/${lastViewedDeviceCode}`, { replace: true });
           } else {
@@ -119,6 +158,7 @@ const Index = () => {
     user,
     navigate,
     accessibleDevices,
+    guestAccessibleDevices,
     redirectAttempts,
     hasRedirected
   ]);
