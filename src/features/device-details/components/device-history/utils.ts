@@ -38,7 +38,7 @@ export const formatValue = (value: any): string => {
 
 // ลำดับคอลัมน์ที่ต้องการแสดง
 export const COLUMN_ORDER = [
-  'created_at', // เปลี่ยนจาก thai_datetime เป็น created_at
+  'created_at',
   'device_code',
   'class1',
   'class2',
@@ -63,7 +63,15 @@ export const COLUMN_ORDER = [
   'impurity_num',
   'paddy_rate',
   'whiteness',
-  'process_precision'
+  'process_precision',
+  // NEW COLUMNS
+  'mix_rate',
+  'sprout_rate',
+  'unripe_rate',
+  'brown_rice_rate',
+  'main_rate',
+  'mix_index',
+  'main_index'
 ];
 
 export const getColumnKeys = (data: RiceQualityData[]): string[] => {

@@ -207,6 +207,64 @@ export const formatAllItems = (allData: any[] | null): MeasurementItem[] => {
       percentageChange: calculateChange(latestData.process_precision, previousData?.process_precision),
       iconColor: "#9F9EA1",
       updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+    },
+
+    // NEW COLUMNS - Using column names as display names
+    {
+      symbol: "mix_rate",
+      name: "mix_rate",
+      price: latestData.mix_rate?.toString() || "0",
+      percentageChange: calculateChange(latestData.mix_rate, previousData?.mix_rate),
+      iconColor: "#4F46E5",
+      updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+    },
+    {
+      symbol: "sprout_rate",
+      name: "sprout_rate",
+      price: latestData.sprout_rate?.toString() || "0",
+      percentageChange: calculateChange(latestData.sprout_rate, previousData?.sprout_rate),
+      iconColor: "#059669",
+      updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+    },
+    {
+      symbol: "unripe_rate",
+      name: "unripe_rate",
+      price: latestData.unripe_rate?.toString() || "0",
+      percentageChange: calculateChange(latestData.unripe_rate, previousData?.unripe_rate),
+      iconColor: "#DC2626",
+      updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+    },
+    {
+      symbol: "brown_rice_rate",
+      name: "brown_rice_rate",
+      price: latestData.brown_rice_rate?.toString() || "0",
+      percentageChange: calculateChange(latestData.brown_rice_rate, previousData?.brown_rice_rate),
+      iconColor: "#A3A3A3",
+      updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+    },
+    {
+      symbol: "main_rate",
+      name: "main_rate",
+      price: latestData.main_rate?.toString() || "0",
+      percentageChange: calculateChange(latestData.main_rate, previousData?.main_rate),
+      iconColor: "#EA580C",
+      updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+    },
+    {
+      symbol: "mix_index",
+      name: "mix_index",
+      price: latestData.mix_index?.toString() || "0",
+      percentageChange: calculateChange(latestData.mix_index, previousData?.mix_index),
+      iconColor: "#7C3AED",
+      updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
+    },
+    {
+      symbol: "main_index",
+      name: "main_index",
+      price: latestData.main_index?.toString() || "0",
+      percentageChange: calculateChange(latestData.main_index, previousData?.main_index),
+      iconColor: "#0891B2",
+      updatedAt: new Date(latestData.created_at || latestData.thai_datetime)
     }
   ];
 };

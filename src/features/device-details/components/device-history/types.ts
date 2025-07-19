@@ -29,6 +29,14 @@ export interface RiceQualityData {
   paddy_rate: number | null;
   whiteness: number | null;
   process_precision: number | null;
+  // NEW COLUMNS
+  mix_rate: number | null;
+  sprout_rate: number | null;
+  unripe_rate: number | null;
+  brown_rice_rate: number | null;
+  main_rate: number | null;
+  mix_index: number | null;
+  main_index: number | null;
   [key: string]: any;
 }
 
