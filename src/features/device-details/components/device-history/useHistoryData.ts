@@ -56,10 +56,18 @@ export const useHistoryData = (deviceIds?: string[]) => {
         }
       }
       
-      // Add device_display_name to each row
+      // Add device_display_name and ensure all required fields exist with defaults
       const enhancedData = data?.map(item => ({
         ...item,
-        device_display_name: deviceNamesMap[item.device_code] || item.device_code
+        device_display_name: deviceNamesMap[item.device_code] || item.device_code,
+        // Add default values for new columns if they don't exist
+        mix_rate: item.mix_rate ?? null,
+        sprout_rate: item.sprout_rate ?? null,
+        unripe_rate: item.unripe_rate ?? null,
+        brown_rice_rate: item.brown_rice_rate ?? null,
+        main_rate: item.main_rate ?? null,
+        mix_index: item.mix_index ?? null,
+        main_index: item.main_index ?? null,
       }));
       
       return { data: enhancedData as RiceQualityData[], count: count || 0 };
