@@ -188,109 +188,51 @@ export default function Login() {
             <CardDescription className="text-center">เข้าสู่ระบบหรือลงทะเบียนเพื่อใช้งาน</CardDescription>
           </CardHeader>
           
-          <Tabs 
-            defaultValue="login" 
-            value={activeTab} 
-            onValueChange={setActiveTab}
-            className="w-full"
-          >
-            <TabsList className="grid grid-cols-2 mb-4 mx-4">
-              <TabsTrigger value="login">เข้าสู่ระบบ</TabsTrigger>
-              <TabsTrigger value="register">ลงทะเบียน</TabsTrigger>
-            </TabsList>
+          <form onSubmit={handleSignIn}>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">อีเมล</Label>
+                <Input 
+                  id="email"
+                  type="email"
+                  placeholder="อีเมลของคุณ"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="password">รหัสผ่าน</Label>
+                <Input 
+                  id="password"
+                  type="password"
+                  placeholder="รหัสผ่านของคุณ"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+            </CardContent>
             
-            <TabsContent value="login">
-              <form onSubmit={handleSignIn}>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="login-email">อีเมล</Label>
-                    <Input 
-                      id="login-email"
-                      type="email"
-                      placeholder="อีเมลของคุณ"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="login-password">รหัสผ่าน</Label>
-                    <Input 
-                      id="login-password"
-                      type="password"
-                      placeholder="รหัสผ่านของคุณ"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                </CardContent>
-                
-                <CardFooter>
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-emerald-600 hover:bg-emerald-700"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
-                  </Button>
-                </CardFooter>
-              </form>
-            </TabsContent>
-            
-            <TabsContent value="register">
-              <form onSubmit={handleSignUp}>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="register-email">อีเมล</Label>
-                    <Input 
-                      id="register-email"
-                      type="email"
-                      placeholder="อีเมลของคุณ"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="register-password">รหัสผ่าน</Label>
-                    <Input 
-                      id="register-password"
-                      type="password"
-                      placeholder="รหัสผ่านของคุณ"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="confirm-password">ยืนยันรหัสผ่าน</Label>
-                    <Input 
-                      id="confirm-password"
-                      type="password"
-                      placeholder="ยืนยันรหัสผ่านของคุณ"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                </CardContent>
-                
-                <CardFooter>
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-emerald-600 hover:bg-emerald-700"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "กำลังลงทะเบียน..." : "ลงทะเบียน"}
-                  </Button>
-                </CardFooter>
-              </form>
-            </TabsContent>
-          </Tabs>
+            <CardFooter className="flex flex-col gap-4">
+              <Button 
+                type="submit" 
+                className="w-full bg-sky-600 hover:bg-sky-700"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
+              </Button>
+              <Button 
+                type="button" 
+                variant="outline"
+                className="w-full"
+                onClick={() => navigate('/')}
+              >
+                กลับหน้าแรก
+              </Button>
+            </CardFooter>
+          </form>
         </Card>
       </div>
       
