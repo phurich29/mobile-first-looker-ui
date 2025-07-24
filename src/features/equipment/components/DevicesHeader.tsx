@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface DevicesHeaderProps {
   isRefreshing: boolean;
@@ -18,16 +19,17 @@ export function DevicesHeader({
   isSuperAdmin
 }: DevicesHeaderProps) {
   const isMobile = useIsMobile();
+  const { t } = useTranslation();
   
   return (
     <div className="flex justify-between items-center mb-4">
       <div>
-        <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-800 dark:text-white`}>อุปกรณ์</h1>
+        <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-800 dark:text-white`}>{t('device', 'equipment')}</h1>
         {isSuperAdmin && totalUniqueDevices > 0 && (
-          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-1">จำนวนอุปกรณ์ทั้งหมดในระบบ: {totalUniqueDevices} เครื่อง</p>
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-1">{t('device', 'totalDevicesInSystem')}: {totalUniqueDevices} {t('device', 'units')}</p>
         )}
         {!isSuperAdmin && (
-          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-1">แสดงเฉพาะอุปกรณ์ที่คุณได้รับสิทธิ์การเข้าถึง</p>
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-1">{t('device', 'authorizedDevicesOnly')}</p>
         )}
       </div>
       <Button 
@@ -38,7 +40,7 @@ export function DevicesHeader({
         disabled={isRefreshing}
       >
         <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
-        <span className="text-xs">รีเฟรช</span>
+        <span className="text-xs">{t('buttons', 'refresh')}</span>
       </Button>
     </div>
   );

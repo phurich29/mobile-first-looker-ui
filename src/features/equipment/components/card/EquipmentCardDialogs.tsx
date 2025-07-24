@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { UserAccessDialog } from "../access/UserAccessDialog";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface EquipmentCardDialogsProps {
   deviceCode: string;
@@ -26,6 +27,8 @@ export function EquipmentCardDialogs({
   onDisplayNameChange,
   onSaveDisplayName
 }: EquipmentCardDialogsProps) {
+  const { t } = useTranslation();
+  
   return (
     <>
       <UserAccessDialog
@@ -37,12 +40,12 @@ export function EquipmentCardDialogs({
       <Dialog open={isEditDialogOpen} onOpenChange={onEditDialogChange}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>แก้ไขชื่ออุปกรณ์</DialogTitle>
+            <DialogTitle>{t('device', 'editDeviceName')}</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="device-code">รหัสอุปกรณ์</Label>
+              <Label htmlFor="device-code">{t('device', 'deviceCode')}</Label>
               <Input
                 id="device-code"
                 value={deviceCode}
@@ -52,21 +55,21 @@ export function EquipmentCardDialogs({
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="display-name">ชื่อที่แสดง</Label>
+              <Label htmlFor="display-name">{t('device', 'deviceName')}</Label>
               <Input
                 id="display-name"
                 value={newDisplayName}
                 onChange={(e) => onDisplayNameChange(e.target.value)}
-                placeholder="ระบุชื่อที่ต้องการแสดง"
+                placeholder={t('device', 'deviceName')}
               />
             </div>
           </div>
           
           <DialogFooter>
             <Button variant="outline" onClick={() => onEditDialogChange(false)}>
-              ยกเลิก
+              {t('buttons', 'cancel')}
             </Button>
-            <Button onClick={onSaveDisplayName}>บันทึก</Button>
+            <Button onClick={onSaveDisplayName}>{t('buttons', 'save')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

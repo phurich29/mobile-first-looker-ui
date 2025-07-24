@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, X, Search } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface Device {
   device_code: string;
@@ -25,6 +26,7 @@ export function DeviceAccessSection({
   onRevokeAccess
 }: DeviceAccessSectionProps) {
   const [searchTerm, setSearchTerm] = useState("");
+  const { t } = useTranslation();
 
   if (isLoadingDevices) {
     return (
@@ -83,7 +85,7 @@ export function DeviceAccessSection({
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-3 w-3 text-gray-400" />
           <Input
-            placeholder="ค้นหาชื่ออุปกรณ์หรือรหัสอุปกรณ์..."
+            placeholder={t('device', 'searchDevices')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-8 h-8 text-xs"

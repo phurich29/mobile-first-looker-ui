@@ -7,6 +7,7 @@ import { DeviceHistoryTable } from "@/features/device-details/components/DeviceH
 import { useGuestMode } from "@/hooks/useGuestMode";
 import { useMemo } from "react";
 import { useDevicesQuery } from "@/features/equipment/hooks/useDevicesQuery";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function Equipment() {
   const {
@@ -20,6 +21,7 @@ export default function Equipment() {
   } = useDevicesQuery();
   
   const { isGuest } = useGuestMode();
+  const { t } = useTranslation();
   
   // Memoize deviceIds to prevent unnecessary re-renders
   const deviceIds = useMemo(() => {
@@ -54,7 +56,7 @@ export default function Equipment() {
       {/* Add Device Form - Only for superadmin (not guests and not regular admins) */}
       {isSuperAdmin && !isGuest && (
         <div className="mb-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">เพิ่มอุปกรณ์ใหม่</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{t('device', 'addNewDevice')}</h2>
           <AddDeviceForm onDeviceAdded={handleRefresh} />
         </div>
       )}
@@ -70,7 +72,7 @@ export default function Equipment() {
 
       {/* Device History Table - Show to all users including guests */}
       <div className="mt-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-        <DeviceHistoryTable deviceIds={deviceIds} title="ประวัติอุปกรณ์" />
+        <DeviceHistoryTable deviceIds={deviceIds} title={t('device', 'deviceHistory')} />
       </div>
     </AppLayout>
   );

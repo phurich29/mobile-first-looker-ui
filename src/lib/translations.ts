@@ -26,6 +26,13 @@ export const translations = {
     offline: { th: 'ออฟไลน์', en: 'Offline' },
     lastUpdate: { th: 'อัปเดตล่าสุด', en: 'Last Update' },
     deleteDevice: { th: 'ลบอุปกรณ์', en: 'Delete Device' },
+    totalDevicesInSystem: { th: 'จำนวนอุปกรณ์ทั้งหมดในระบบ', en: 'Total devices in system' },
+    authorizedDevicesOnly: { th: 'แสดงเฉพาะอุปกรณ์ที่คุณได้รับสิทธิ์การเข้าถึง', en: 'Showing only devices you have access to' },
+    addNewDevice: { th: 'เพิ่มอุปกรณ์ใหม่', en: 'Add New Device' },
+    deviceHistory: { th: 'ประวัติอุปกรณ์', en: 'Device History' },
+    editDeviceName: { th: 'แก้ไขชื่ออุปกรณ์', en: 'Edit Device Name' },
+    searchDevices: { th: 'ค้นหาชื่ออุปกรณ์หรือรหัสอุปกรณ์...', en: 'Search device name or code...' },
+    units: { th: 'เครื่อง', en: 'devices' },
   },
   profile: {
     profile: { th: 'ข้อมูลส่วนตัว', en: 'Profile' },
@@ -44,6 +51,8 @@ export const translations = {
     close: { th: 'ปิด', en: 'Close' },
     confirm: { th: 'ยืนยัน', en: 'Confirm' },
     back: { th: 'กลับ', en: 'Back' },
+    refresh: { th: 'รีเฟรช', en: 'Refresh' },
+    refreshPage: { th: 'รีเฟรชหน้าเว็บ', en: 'Refresh Page' },
   },
   general: {
     loading: { th: 'กำลังโหลด...', en: 'Loading...' },

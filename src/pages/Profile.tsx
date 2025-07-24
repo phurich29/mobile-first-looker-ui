@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { KeyRound, CheckCircle, AlertCircle } from "lucide-react";
 import { SharedLinksSection } from "@/components/profile/SharedLinksSection";
+import { useTranslation } from "@/hooks/useTranslation";
 const Profile = () => {
   const {
     user
@@ -18,6 +19,7 @@ const Profile = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const isMobile = useIsMobile();
+  const { t } = useTranslation();
   // isCollapsed state and its useEffect have been removed as AppLayout now handles sidebar state and content margins.
 
   // Format user data
@@ -56,7 +58,7 @@ const Profile = () => {
     )}>
         {/* Standard Page Title */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">ข้อมูลส่วนตัว</h1>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('profile', 'profile')}</h1>
         </div>
         
         <div className="relative">

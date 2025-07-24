@@ -10,10 +10,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export const UserProfileButton: React.FC = () => {
   const { isGuest, user } = useGuestMode();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleLoginClick = async () => {
     // สำหรับ guest: logout ก่อน (เผื่อมี session เก่าค้างอยู่) แล้วไปหน้า login
@@ -52,11 +54,11 @@ export const UserProfileButton: React.FC = () => {
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuItem onClick={handleProfileClick}>
           <User className="h-4 w-4 mr-2" />
-          ข้อมูลส่วนตัว
+          {t('profile', 'profile')}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleLogoutClick}>
           <LogIn className="h-4 w-4 mr-2" />
-          ออกจากระบบ
+          {t('login', 'logout')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -5,6 +5,7 @@ import { Monitor, Layout, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ROUTES } from "@/constants/routes";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface DeviceHeaderProps {
   deviceCode: string;
@@ -18,6 +19,7 @@ export const DeviceHeader: React.FC<DeviceHeaderProps> = ({
   onBack,
 }) => {
   const [deviceDisplayName, setDeviceDisplayName] = useState<string | null>(propDisplayName || null);
+  const { t } = useTranslation();
 
   // Fetch device display name if not provided as prop
   useEffect(() => {
@@ -64,18 +66,18 @@ export const DeviceHeader: React.FC<DeviceHeaderProps> = ({
               className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              กลับ
+              {t('buttons', 'back')}
             </Button>
           )}
           <div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-              ชื่ออุปกรณ์
+              {t('device', 'deviceName')}
             </p>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {deviceDisplayName || 'รายละเอียดอุปกรณ์'}
+              {deviceDisplayName || t('device', 'equipment')}
             </h1>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              รหัสอุปกรณ์: {deviceCode}
+              {t('device', 'deviceCode')}: {deviceCode}
             </p>
           </div>
         </div>
