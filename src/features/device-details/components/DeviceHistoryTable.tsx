@@ -77,7 +77,7 @@ export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps & { title?: st
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-emerald-800 dark:text-emerald-400">{title}</h3>
           <span className="text-sm text-gray-500 dark:text-gray-300">
-            แสดง {columnKeys.length} คอลัมน์ | รวม {totalCount} รายการ
+            {t('general', 'show')} {columnKeys.length} {t('general', 'columns')} | {t('general', 'total')} {totalCount} {t('general', 'items')}
           </span>
         </div>
 

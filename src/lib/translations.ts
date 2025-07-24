@@ -72,6 +72,7 @@ export const translations = {
     rows: { th: 'แถว', en: 'rows' },
     total: { th: 'รวม', en: 'Total' },
     items: { th: 'รายการ', en: 'items' },
+    columns: { th: 'คอลัมน์', en: 'columns' },
     page: { th: 'หน้า', en: 'Page' },
     of: { th: 'จาก', en: 'of' },
     viewData: { th: 'ดูข้อมูล', en: 'Detail' },
