@@ -2,6 +2,7 @@
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface ThresholdControlProps {
   id: string;
@@ -22,8 +23,10 @@ export const ThresholdControl = ({
   threshold,
   onThresholdChange,
   disabled,
-  helpText = "ค่าที่ยอมรับได้",
+  helpText,
 }: ThresholdControlProps) => {
+  const { t } = useTranslation();
+  const defaultHelpText = helpText || t('general', 'acceptableValue');
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
@@ -45,7 +48,7 @@ export const ThresholdControl = ({
           disabled={disabled || !thresholdEnabled}
           className="max-w-[120px]"
         />
-        <span className="text-sm text-muted-foreground">{helpText}</span>
+        <span className="text-sm text-muted-foreground">{defaultHelpText}</span>
       </div>
     </div>
   );

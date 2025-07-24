@@ -8,6 +8,7 @@ import ActiveNotificationsSummary from "./ActiveNotificationsSummary";
 import DialogHeader from "./DialogHeader";
 import DialogFooter from "./DialogFooter";
 import { NotificationSettingsState } from "../types";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface NotificationDialogContentProps {
   open: boolean;
@@ -39,6 +40,7 @@ export const NotificationDialogContent = ({
   setMaxThreshold,
   onSave
 }: NotificationDialogContentProps) => {
+  const { t } = useTranslation();
   const showWarning = settings.enabled && !settings.minEnabled && !settings.maxEnabled;
 
   return (
@@ -58,37 +60,37 @@ export const NotificationDialogContent = ({
         />
 
         <div className="border-t pt-4">
-          <p className="text-sm font-medium mb-4">ตั้งค่าเกณฑ์การแจ้งเตือน</p>
+          <p className="text-sm font-medium mb-4">{t('general', 'setThresholds')}</p>
           
           <div className="space-y-4">
             {/* Reordered - Max threshold is now above Min threshold */}
             <ThresholdControl
               id="max-enabled"
-              label="แจ้งเตือน เมื่อสูงกว่า"
+              label={t('general', 'notifyWhenHigherThan')}
               thresholdEnabled={settings.maxEnabled}
               onThresholdEnabledChange={setMaxEnabled}
               threshold={settings.maxThreshold}
               onThresholdChange={setMaxThreshold}
               disabled={!settings.enabled || loading}
-              helpText="ค่าสูงสุดที่ยอมรับได้"
+              helpText={t('general', 'maximumAcceptableValue')}
             />
             
             <ThresholdControl
               id="min-enabled"
-              label="แจ้งเตือน เมื่อต่ำกว่า"
+              label={t('general', 'notifyWhenLowerThan')}
               thresholdEnabled={settings.minEnabled}
               onThresholdEnabledChange={setMinEnabled}
               threshold={settings.minThreshold}
               onThresholdChange={setMinThreshold}
               disabled={!settings.enabled || loading}
-              helpText="ค่าต่ำสุดที่ยอมรับได้"
+              helpText={t('general', 'minimumAcceptableValue')}
             />
           </div>
         </div>
 
         <WarningAlert 
           visible={showWarning}
-          message="คุณได้เปิดใช้งานการแจ้งเตือน แต่ไม่ได้เปิดใช้งานเกณฑ์ใดๆ การแจ้งเตือนจะไม่ทำงานจนกว่าคุณจะเปิดใช้งานอย่างน้อยหนึ่งเกณฑ์"
+          message={t('general', 'warningNoThreshold')}
         />
       </div>
 
