@@ -8,15 +8,14 @@ interface EquipmentCardHeaderProps {
   displayName?: string;
   isSuperAdmin: boolean;
   onUsersClick: () => void;
-  onDeleteClick: () => void;
+
 }
 
 export function EquipmentCardHeader({
   deviceCode,
   displayName,
   isSuperAdmin,
-  onUsersClick,
-  onDeleteClick
+  onUsersClick
 }: EquipmentCardHeaderProps) {
   return (
     <CardHeader className="pb-1 p-2 sm:p-4">
@@ -43,15 +42,7 @@ export function EquipmentCardHeader({
                 >
                   <Users className="h-4 w-4" />
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                  onClick={onDeleteClick}
-                  title="ลบอุปกรณ์"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+
               </div>
             )}
           </div>

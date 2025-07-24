@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { EquipmentCardHeader } from "./EquipmentCardHeader";
 import { EquipmentCardContent } from "./EquipmentCardContent";
@@ -55,7 +54,6 @@ export function EquipmentCardContainer({
           displayName={displayName}
           isSuperAdmin={isSuperAdmin}
           onUsersClick={() => setIsUsersDialogOpen(true)}
-          onDeleteClick={() => setIsDeleteDialogOpen(true)}
         />
         
         <EquipmentCardContent
