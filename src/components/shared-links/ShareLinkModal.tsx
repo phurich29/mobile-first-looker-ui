@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Copy, Check, Download } from 'lucide-react';
 import { useSharedLinks } from '@/hooks/useSharedLinks';
 import { toast } from '@/hooks/use-toast';
+import { useTranslation } from '@/hooks/useTranslation';
 import QRCode from 'qrcode';
 
 interface ShareLinkModalProps {
@@ -33,6 +34,7 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
   const { createSharedLink, getPublicLink } = useSharedLinks();
+  const { t } = useTranslation();
 
   // Generate QR Code when shareUrl changes
   useEffect(() => {
@@ -86,13 +88,13 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
       link.click();
       
       toast({
-        title: 'สำเร็จ',
-        description: 'บันทึก QR Code เรียบร้อยแล้ว',
+        title: t('sharedLinks', 'successToast'),
+        description: t('sharedLinks', 'downloadQrSuccess'),
       });
     } catch (error) {
       toast({
-        title: 'ข้อผิดพลาด',
-        description: 'ไม่สามารถบันทึก QR Code ได้',
+        title: t('sharedLinks', 'errorToast'),
+        description: t('sharedLinks', 'downloadQrError'),
         variant: 'destructive',
       });
     }
@@ -101,8 +103,8 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
   const handleCreateLink = async () => {
     if (!title.trim()) {
       toast({
-        title: 'ข้อผิดพลาด',
-        description: 'กรุณากรอกชื่อลิงก์',
+        title: t('sharedLinks', 'errorToast'),
+        description: t('sharedLinks', 'linkNameRequired'),
         variant: 'destructive',
       });
       return;
@@ -115,14 +117,14 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
       const url = getPublicLink(result.share_token);
       setShareUrl(url);
       toast({
-        title: 'สำเร็จ',
-        description: 'สร้างลิงก์แชร์เรียบร้อยแล้ว',
+        title: t('sharedLinks', 'successToast'),
+        description: t('sharedLinks', 'createLinkSuccess'),
       });
     } catch (error: any) {
       console.error('Failed to create link:', error);
       toast({
-        title: 'ข้อผิดพลาด',
-        description: error?.message || 'ไม่สามารถสร้างลิงก์แชร์ได้',
+        title: t('sharedLinks', 'errorToast'),
+        description: error?.message || t('sharedLinks', 'createLinkError'),
         variant: 'destructive',
       });
     } finally {
@@ -135,14 +137,14 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       toast({
-        title: 'คัดลอกแล้ว',
-        description: 'ลิงก์ถูกคัดลอกไปยังคลิปบอร์ดแล้ว',
+        title: t('sharedLinks', 'linkCopied'),
+        description: t('sharedLinks', 'linkCopiedDescription'),
       });
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       toast({
-        title: 'ข้อผิดพลาด',
-        description: 'ไม่สามารถคัดลอกลิงก์ได้',
+        title: t('sharedLinks', 'errorToast'),
+        description: t('sharedLinks', 'copyLinkError'),
         variant: 'destructive',
       });
     }
@@ -159,9 +161,9 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>แชร์ข้อมูลการวิเคราะห์</DialogTitle>
+          <DialogTitle>{t('sharedLinks', 'shareAnalysisData')}</DialogTitle>
           <DialogDescription>
-            สร้างลิงก์สาธารณะเพื่อแชร์ข้อมูลการวิเคราะห์นี้ให้ผู้อื่นดู
+            {t('sharedLinks', 'shareAnalysisDescription')}
           </DialogDescription>
         </DialogHeader>
 
@@ -169,10 +171,10 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
           {!shareUrl ? (
             <>
               <div className="space-y-2">
-                <Label htmlFor="title">ชื่อลิงก์</Label>
+                <Label htmlFor="title">{t('sharedLinks', 'linkTitle')}</Label>
                 <Input
                   id="title"
-                  placeholder="เช่น ผลการวิเคราะห์ข้าวหอมมะลิ"
+                  placeholder={t('sharedLinks', 'linkTitlePlaceholder')}
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                 />
@@ -181,7 +183,7 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
           ) : (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>ลิงก์แชร์</Label>
+                <Label>{t('sharedLinks', 'shareUrl')}</Label>
                 <div className="flex items-center space-x-2">
                   <Input
                     value={shareUrl}
@@ -206,7 +208,7 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
               
               {/* QR Code Section */}
               <div className="space-y-2">
-                <Label>QR Code</Label>
+                <Label>{t('sharedLinks', 'qrCodeLabel')}</Label>
                 <div className="flex flex-col items-center space-y-3 p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900">
                   <canvas
                     ref={qrCanvasRef}
@@ -223,7 +225,7 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
                     className="gap-2"
                   >
                     <Download className="h-4 w-4" />
-                    บันทึก QR Code เป็น PNG
+                    {t('sharedLinks', 'downloadQrPng')}
                   </Button>
                 </div>
               </div>
@@ -235,15 +237,15 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
           {!shareUrl ? (
             <>
               <Button variant="outline" onClick={handleClose}>
-                ยกเลิก
+                {t('sharedLinks', 'cancel')}
               </Button>
               <Button onClick={handleCreateLink} disabled={loading}>
-                {loading ? 'กำลังสร้าง...' : 'สร้างลิงก์'}
+                {loading ? t('sharedLinks', 'creating') : t('sharedLinks', 'createLink')}
               </Button>
             </>
           ) : (
             <Button onClick={handleClose}>
-              เสร็จสิ้น
+              {t('sharedLinks', 'done')}
             </Button>
           )}
         </DialogFooter>
