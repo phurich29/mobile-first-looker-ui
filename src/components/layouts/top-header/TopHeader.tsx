@@ -59,9 +59,9 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             appName={appName}
           />
         ) : (
-          <h1 className="text-lg font-semibold truncate">
-            {pageTitle}
-          </h1>
+          <HeaderLogo 
+            appName={appName}
+          />
         )}
       </div>
 
