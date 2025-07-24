@@ -349,7 +349,7 @@ export const SharedLinksSection: React.FC = () => {
                   <div className="flex justify-end items-center gap-2 mt-2 sm:mt-0">
                     <div className="flex items-center gap-1 ml-auto">
                       <span className="text-xs text-muted-foreground">
-                        {link.is_active ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
+                        {link.is_active ? t('sharedLinks', 'enabled') : t('sharedLinks', 'disabled')}
                       </span>
                       <Switch
                         checked={link.is_active}
