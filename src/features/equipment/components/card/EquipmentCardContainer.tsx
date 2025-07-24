@@ -9,6 +9,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface EquipmentCardContainerProps {
   deviceCode: string;
@@ -34,6 +35,7 @@ export function EquipmentCardContainer({
   const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   
   const {
     isEditDialogOpen,
@@ -44,6 +46,7 @@ export function EquipmentCardContainer({
   } = useEquipmentCard(deviceCode, displayName, onDeviceUpdated);
 
   const handleDeleteConfirm = async () => {
+    console.log('🗑️ Starting device deletion for:', deviceCode);
     setIsDeleting(true);
     try {
       // ลบข้อมูลจาก device_settings
@@ -52,9 +55,11 @@ export function EquipmentCardContainer({
         .delete()
         .eq('device_code', deviceCode);
 
-      if (deviceSettingsError) {
-        throw deviceSettingsError;
-      }
+       if (deviceSettingsError) {
+         console.error('❌ Error deleting from device_settings:', deviceSettingsError);
+         throw deviceSettingsError;
+       }
+       console.log('✅ Successfully deleted from device_settings');
 
       // ลบข้อมูลจาก user_device_access
       const { error: userAccessError } = await supabase
@@ -62,9 +67,11 @@ export function EquipmentCardContainer({
         .delete()
         .eq('device_code', deviceCode);
 
-      if (userAccessError) {
-        console.warn('Warning deleting user device access:', userAccessError);
-      }
+       if (userAccessError) {
+         console.warn('⚠️ Warning deleting user device access:', userAccessError);
+       } else {
+         console.log('✅ Successfully deleted from user_device_access');
+       }
 
       // ลบข้อมูลจาก guest_device_access
       const { error: guestAccessError } = await supabase
@@ -72,9 +79,11 @@ export function EquipmentCardContainer({
         .delete()
         .eq('device_code', deviceCode);
 
-      if (guestAccessError) {
-        console.warn('Warning deleting guest device access:', guestAccessError);
-      }
+       if (guestAccessError) {
+         console.warn('⚠️ Warning deleting guest device access:', guestAccessError);
+       } else {
+         console.log('✅ Successfully deleted from guest_device_access');
+       }
 
       // แสดงข้อความสำเร็จ
       toast({
@@ -83,18 +92,35 @@ export function EquipmentCardContainer({
         variant: "default",
       });
 
-      setIsDeleteDialogOpen(false);
-      onDeviceUpdated?.();
-    } catch (error) {
-      console.error('Error deleting device:', error);
+       // Invalidate และ refetch React Query cache
+       console.log('🔄 Invalidating React Query cache...');
+       await queryClient.invalidateQueries({ 
+         queryKey: ['guest-devices-no-cache'] 
+       });
+       await queryClient.invalidateQueries({ 
+         queryKey: ['authenticated-devices'] 
+       });
+       await queryClient.invalidateQueries({ 
+         queryKey: ['device-count'] 
+       });
+       console.log('✅ React Query cache invalidated');
+
+       // เรียก callback เพื่อ refresh component
+       console.log('🔄 Calling onDeviceUpdated callback...');
+       setIsDeleteDialogOpen(false);
+       onDeviceUpdated?.();
+       console.log('✅ Device deletion completed successfully');
+     } catch (error) {
+       console.error('❌ Error deleting device:', error);
       toast({
         title: t('general', 'error'),
         description: `${t('general', 'error')} ไม่สามารถลบ${t('device', 'equipment')}ได้`,
         variant: "destructive",
       });
-    } finally {
-      setIsDeleting(false);
-    }
+     } finally {
+       console.log('🔄 Setting isDeleting to false');
+       setIsDeleting(false);
+     }
   };
 
   return (
