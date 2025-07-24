@@ -3,8 +3,11 @@ import { AppLayout } from "@/components/layouts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Leaf, BarChart3, Shield, Users, ExternalLink, Phone } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function AboutRiceflow() {
+  const { t } = useTranslation();
+  
   return (
     <AppLayout showFooterNav contentPaddingBottom="pb-32 md:pb-16">
       {/* Background decorative elements */}
@@ -15,10 +18,10 @@ export default function AboutRiceflow() {
         {/* Header Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-emerald-800 dark:text-emerald-400 mb-4">
-            รู้จัก Riceflow
+            {t('aboutRiceflow', 'title')}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            ระบบตรวจสอบคุณภาพข้าวอัจฉริยะที่จะช่วยยกระดับการจัดการข้าวของคุณ
+            {t('aboutRiceflow', 'subtitle')}
           </p>
         </div>
 
@@ -31,13 +34,13 @@ export default function AboutRiceflow() {
                   <BarChart3 className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <CardTitle className="text-emerald-800 dark:text-emerald-400">
-                  ตรวจสอบคุณภาพแบบเรียลไทม์
+                  {t('aboutRiceflow', 'realTimeQuality')}
                 </CardTitle>
               </div>
             </CardHeader>
             <CardContent>
               <p className="text-gray-600 dark:text-gray-300">
-                ติดตามคุณภาพข้าวแบบเรียลไทม์ด้วยเทคโนโลยีล้ำสมัย ตรวจสอบความชื้น ปริมาณเศษ และคุณภาพอื่นๆ
+                {t('aboutRiceflow', 'realTimeQualityDesc')}
               </p>
             </CardContent>
           </Card>
@@ -49,13 +52,13 @@ export default function AboutRiceflow() {
                   <Shield className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <CardTitle className="text-emerald-800 dark:text-emerald-400">
-                  ระบบแจ้งเตือนอัจฉริยะ
+                  {t('aboutRiceflow', 'smartAlerts')}
                 </CardTitle>
               </div>
             </CardHeader>
             <CardContent>
               <p className="text-gray-600 dark:text-gray-300">
-                รับการแจ้งเตือนทันทีเมื่อค่าคุณภาพข้าวเกินขีดจำกัดที่กำหนด ป้องกันปัญหาก่อนที่จะเกิดขึ้น
+                {t('aboutRiceflow', 'smartAlertsDesc')}
               </p>
             </CardContent>
           </Card>
@@ -67,13 +70,13 @@ export default function AboutRiceflow() {
                   <Leaf className="h-6 w-6 text-green-600 dark:text-green-400" />
                 </div>
                 <CardTitle className="text-emerald-800 dark:text-emerald-400">
-                  เป็นมิตรต่อสิ่งแวดล้อม
+                  {t('aboutRiceflow', 'ecoFriendly')}
                 </CardTitle>
               </div>
             </CardHeader>
             <CardContent>
               <p className="text-gray-600 dark:text-gray-300">
-                ช่วยลดการสูญเสียข้าวและเพิ่มประสิทธิภาพการจัดเก็บ ส่งผลดีต่อสิ่งแวดล้อมและต้นทุน
+                {t('aboutRiceflow', 'ecoFriendlyDesc')}
               </p>
             </CardContent>
           </Card>
@@ -85,13 +88,13 @@ export default function AboutRiceflow() {
                   <Users className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                 </div>
                 <CardTitle className="text-emerald-800 dark:text-emerald-400">
-                  ใช้งานง่าย
+                  {t('aboutRiceflow', 'easyToUse')}
                 </CardTitle>
               </div>
             </CardHeader>
             <CardContent>
               <p className="text-gray-600 dark:text-gray-300">
-                อินเทอร์เฟซที่ใช้งานง่าย เหมาะสำหรับทุกระดับผู้ใช้ ตั้งแต่เกษตรกรไปจนถึงผู้ประกอบการ
+                {t('aboutRiceflow', 'easyToUseDesc')}
               </p>
             </CardContent>
           </Card>
@@ -101,7 +104,7 @@ export default function AboutRiceflow() {
         <div className="mb-12">
           <img 
             src="/lovable-uploads/49e4e3a9-d748-4edf-bd4f-726dd0b9fde9.png" 
-            alt="เครื่องวิเคราะห์คุณภาพข้าว Panolyzer Rice Quality Analyzer" 
+            alt={t('aboutRiceflow', 'altText')} 
             className="w-full h-auto rounded-lg shadow-lg border border-gray-200 dark:border-gray-700"
           />
         </div>
@@ -110,19 +113,17 @@ export default function AboutRiceflow() {
         <Card className="bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-900/20 dark:to-blue-900/20 border border-emerald-200 dark:border-emerald-800/30">
           <CardContent className="p-8">
             <h2 className="text-2xl font-bold text-emerald-800 dark:text-emerald-400 mb-4 text-center">
-              ทำไมต้องเลือก Riceflow?
+              {t('aboutRiceflow', 'whyChoose')}
             </h2>
             <div className="space-y-4 text-gray-700 dark:text-gray-300">
               <p>
-                Riceflow คือระบบตรวจสอบคุณภาพข้าวที่พัฒนาขึ้นเพื่อช่วยเหลือเกษตรกรและผู้ประกอบการในอุตสาหกรรมข้าว
-                ให้สามารถจัดการคุณภาพข้าวได้อย่างมีประสิทธิภาพ
+                {t('aboutRiceflow', 'description1')}
               </p>
               <p>
-                ด้วยเทคโนโลยีการตรวจสอบแบบเรียลไทม์ คุณสามารถติดตามสถานะข้าวของคุณได้ตลอดเวลา
-                ไม่ว่าจะเป็นการตรวจสอบความชื้น การวิเคราะห์ปริมาณเศษ หรือการประเมินคุณภาพโดยรวม
+                {t('aboutRiceflow', 'description2')}
               </p>
               <p>
-                ระบบของเราช่วยให้คุณตัดสินใจได้อย่างรวดเร็วและแม่นยำ ลดการสูญเสีย และเพิ่มผลกำไรจากการขายข้าว
+                {t('aboutRiceflow', 'description3')}
               </p>
             </div>
           </CardContent>
@@ -131,10 +132,10 @@ export default function AboutRiceflow() {
         {/* Call to Action */}
         <div className="text-center mt-12">
           <h3 className="text-xl font-semibold text-emerald-800 dark:text-emerald-400 mb-4">
-            พร้อมเริ่มต้นแล้วหรือยัง?
+            {t('aboutRiceflow', 'readyToStart')}
           </h3>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
-            ติดต่อเราเพื่อสอบถามข้อมูลเพิ่มเติมและเริ่มใช้งาน Riceflow
+            {t('aboutRiceflow', 'contactUs')}
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -147,7 +148,7 @@ export default function AboutRiceflow() {
                 className="inline-flex items-center gap-2"
               >
                 <Phone className="h-5 w-5" />
-                โทร 064-6545636
+                {t('aboutRiceflow', 'callPhone')}
               </a>
             </Button>
             
@@ -162,7 +163,7 @@ export default function AboutRiceflow() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2"
               >
-                เข้าสู่เว็บไซต์
+                {t('aboutRiceflow', 'visitWebsite')}
                 <ExternalLink className="h-4 w-4" />
               </a>
             </Button>

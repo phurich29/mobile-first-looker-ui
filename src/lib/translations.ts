@@ -419,6 +419,27 @@ export const translations = {
     sharedOn: { th: 'แบ่งปันเมื่อ', en: 'Shared on' },
     riceFlow: { th: 'RiceFlow', en: 'RiceFlow' },
   },
+  aboutRiceflow: {
+    title: { th: 'รู้จัก Riceflow', en: 'About Riceflow' },
+    subtitle: { th: 'ระบบตรวจสอบคุณภาพข้าวอัจฉริยะที่จะช่วยยกระดับการจัดการข้าวของคุณ', en: 'Smart rice quality monitoring system that will elevate your rice management' },
+    realTimeQuality: { th: 'ตรวจสอบคุณภาพแบบเรียลไทม์', en: 'Real-time Quality Monitoring' },
+    realTimeQualityDesc: { th: 'ติดตามคุณภาพข้าวแบบเรียลไทม์ด้วยเทคโนโลยีล้ำสมัย ตรวจสอบความชื้น ปริมาณเศษ และคุณภาพอื่นๆ', en: 'Monitor rice quality in real-time with advanced technology. Check moisture, broken grain content, and other quality parameters' },
+    smartAlerts: { th: 'ระบบแจ้งเตือนอัจฉริยะ', en: 'Smart Alert System' },
+    smartAlertsDesc: { th: 'รับการแจ้งเตือนทันทีเมื่อค่าคุณภาพข้าวเกินขีดจำกัดที่กำหนด ป้องกันปัญหาก่อนที่จะเกิดขึ้น', en: 'Get instant alerts when rice quality exceeds set limits. Prevent problems before they occur' },
+    ecoFriendly: { th: 'เป็นมิตรต่อสิ่งแวดล้อม', en: 'Environmentally Friendly' },
+    ecoFriendlyDesc: { th: 'ช่วยลดการสูญเสียข้าวและเพิ่มประสิทธิภาพการจัดเก็บ ส่งผลดีต่อสิ่งแวดล้อมและต้นทุน', en: 'Reduce rice loss and improve storage efficiency. Benefits both environment and costs' },
+    easyToUse: { th: 'ใช้งานง่าย', en: 'Easy to Use' },
+    easyToUseDesc: { th: 'อินเทอร์เฟซที่ใช้งานง่าย เหมาะสำหรับทุกระดับผู้ใช้ ตั้งแต่เกษตรกรไปจนถึงผู้ประกอบการ', en: 'User-friendly interface suitable for all user levels, from farmers to business operators' },
+    altText: { th: 'เครื่องวิเคราะห์คุณภาพข้าว Panolyzer Rice Quality Analyzer', en: 'Panolyzer Rice Quality Analyzer Equipment' },
+    whyChoose: { th: 'ทำไมต้องเลือก Riceflow?', en: 'Why Choose Riceflow?' },
+    description1: { th: 'Riceflow คือระบบตรวจสอบคุณภาพข้าวที่พัฒนาขึ้นเพื่อช่วยเหลือเกษตรกรและผู้ประกอบการในอุตสาหกรรมข้าว ให้สามารถจัดการคุณภาพข้าวได้อย่างมีประสิทธิภาพ', en: 'Riceflow is a rice quality monitoring system developed to help farmers and operators in the rice industry manage rice quality efficiently' },
+    description2: { th: 'ด้วยเทคโนโลยีการตรวจสอบแบบเรียลไทม์ คุณสามารถติดตามสถานะข้าวของคุณได้ตลอดเวลา ไม่ว่าจะเป็นการตรวจสอบความชื้น การวิเคราะห์ปริมาณเศษ หรือการประเมินคุณภาพโดยรวม', en: 'With real-time monitoring technology, you can track your rice status at all times, whether checking moisture, analyzing broken grain content, or assessing overall quality' },
+    description3: { th: 'ระบบของเราช่วยให้คุณตัดสินใจได้อย่างรวดเร็วและแม่นยำ ลดการสูญเสีย และเพิ่มผลกำไรจากการขายข้าว', en: 'Our system helps you make quick and accurate decisions, reduce losses, and increase profits from rice sales' },
+    readyToStart: { th: 'พร้อมเริ่มต้นแล้วหรือยัง?', en: 'Ready to Get Started?' },
+    contactUs: { th: 'ติดต่อเราเพื่อสอบถามข้อมูลเพิ่มเติมและเริ่มใช้งาน Riceflow', en: 'Contact us for more information and start using Riceflow' },
+    callPhone: { th: 'โทร 064-6545636', en: 'Call 064-6545636' },
+    visitWebsite: { th: 'เข้าสู่เว็บไซต์', en: 'Visit Website' },
+  },
 } as const;
 
 export type TranslationKey = keyof typeof translations;
