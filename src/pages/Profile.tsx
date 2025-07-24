@@ -19,27 +19,27 @@ const Profile = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const isMobile = useIsMobile();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   // isCollapsed state and its useEffect have been removed as AppLayout now handles sidebar state and content margins.
 
   // Format user data
-  const userEmail = user?.email || "ไม่พบข้อมูลอีเมล";
-  const created = user?.created_at ? new Date(user.created_at).toLocaleDateString('th-TH', {
+  const userEmail = user?.email || t('profile', 'noEmailData');
+  const created = user?.created_at ? new Date(user.created_at).toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit'
-  }) : "ไม่พบข้อมูลวันที่";
+  }) : t('profile', 'noDateData');
 
   // Format last sign in time
-  const lastSignIn = user?.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString('th-TH', {
+  const lastSignIn = user?.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit'
-  }) : "ไม่มีข้อมูล";
+  }) : t('profile', 'noData');
 
   // Handle password success and errors
   const handlePasswordSuccess = () => {
@@ -71,26 +71,26 @@ const Profile = () => {
             {/* ข้อมูลผู้ใช้ Card */}
             <Card>
               <CardHeader>
-                <CardTitle>ข้อมูลผู้ใช้</CardTitle>
-                <CardDescription>ข้อมูลบัญชีผู้ใช้ของคุณ</CardDescription>
+                <CardTitle>{t('profile', 'userInfo')}</CardTitle>
+                <CardDescription>{t('profile', 'userInfoDescription')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">อีเมลผู้ใช้</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t('profile', 'userEmail')}</p>
                   <p className="text-base font-medium text-gray-900 dark:text-gray-100">{userEmail}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">เข้าสู่ระบบครั้งล่าสุด</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t('profile', 'lastSignIn')}</p>
                   <p className="text-base font-medium text-gray-900 dark:text-gray-100">{lastSignIn}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">สมัครเมื่อ</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t('profile', 'memberSince')}</p>
                   <p className="text-base font-medium text-gray-900 dark:text-gray-100">{created}</p>
                 </div>
               </CardContent>
               <CardFooter>
                 <Button onClick={() => setShowPasswordDialog(true)} variant="outline">
-                  <KeyRound className="w-4 h-4 mr-2" /> เปลี่ยนรหัสผ่าน
+                  <KeyRound className="w-4 h-4 mr-2" /> {t('profile', 'changePassword')}
                 </Button>
               </CardFooter>
             </Card>
