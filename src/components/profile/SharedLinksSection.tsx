@@ -371,14 +371,14 @@ export const SharedLinksSection: React.FC = () => {
                         className="flex items-center gap-1 w-full sm:w-auto justify-center"
                       >
                         <QrCode className="h-4 w-4" />
-                        แชร์ลิงค์
+                        {t('sharedLinks', 'shareLink')}
                       </Button>
                     </DialogTrigger>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button variant="destructive" size="sm" className="flex items-center gap-1 w-full sm:w-auto justify-center">
                         <Trash2 className="h-4 w-4" />
-                        ลบ
+                        {t('buttons', 'delete')}
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
