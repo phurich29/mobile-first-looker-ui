@@ -4,6 +4,7 @@ import { LoadingState } from "./LoadingState";
 import { ErrorState } from "./ErrorState";
 import { EmptyState } from "./EmptyState";
 import { NotificationSettingCard } from "./NotificationSettingCard";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface NotificationSettingsListProps {
   settings: NotificationSetting[];
@@ -18,6 +19,8 @@ export const NotificationSettingsList = ({
   error,
   onEditSetting
 }: NotificationSettingsListProps) => {
+  const { t } = useTranslation();
+  
   if (loading) {
     return <LoadingState />;
   }
@@ -33,8 +36,8 @@ export const NotificationSettingsList = ({
   return (
     <div className="space-y-3">
       <div className="mb-3 text-sm text-gray-700 dark:text-gray-300 flex justify-between font-medium">
-        <span>การแจ้งเตือนทั้งหมด ({settings.length} รายการ)</span>
-        <span>สถานะ</span>
+        <span>{t('mainMenu', 'allNotifications')} ({settings.length} {t('mainMenu', 'items')})</span>
+        <span>{t('mainMenu', 'status')}</span>
       </div>
       {settings.map((setting) => (
         <NotificationSettingCard 
