@@ -188,7 +188,7 @@ const AssistantContent = () => {
                     <div className="text-sm text-amber-900 space-y-2 bg-yellow-50/70 p-3 rounded border border-amber-600">
                       {selectedDevice ? <>
                           <div className="italic font-medium border-l-4 border-amber-600 pl-3">
-                            <TypewriterReport key={longJooReport || 'default-report'} text={longJooReport || `เรียน ท่านผู้มีเกียรติ จากการตรวจสอบอย่างละเอียด ข้าวของท่านจัดอยู่ในประเภท '${riceAnalysis.title}'`} />
+                            <TypewriterReport key={longJooReport || 'default-report'} text={longJooReport || `${t('assistant', 'defaultReport')} '${riceAnalysis.title}'`} />
                           </div>
                           <div className="bg-amber-100 p-2 rounded border border-amber-500 space-y-1">
                             <p className="flex items-center gap-2"><span className="text-amber-700">⚖️</span> {t('assistant', 'currentWhiteness')}: <span className="font-bold">{whitenessValue.toFixed(1)}</span></p>
