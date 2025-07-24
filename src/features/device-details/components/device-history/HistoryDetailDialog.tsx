@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Share } from "lucide-react";
-import { getColumnThaiName } from "@/lib/columnTranslations";
+import { getColumnTranslatedName } from "@/lib/columnTranslations";
 import { RiceQualityData } from './types';
 import { getDataCategories } from './dataCategories';
 import { formatCellValue } from './utils';
@@ -76,7 +76,7 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
                 index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-800' : 'bg-white dark:bg-gray-700/60'
               }`}>
                 <span className="text-gray-600 dark:text-gray-300 font-medium text-sm">
-                  {getColumnThaiName(field)}
+                  {getColumnTranslatedName(field, language)}
                 </span>
                 <span className="font-bold text-gray-900 dark:text-gray-100 text-sm">
                   {formatCellValue(field, data[field])}

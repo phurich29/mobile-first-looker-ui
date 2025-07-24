@@ -8,13 +8,13 @@ import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Share2, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
-import { getColumnThaiName } from "@/lib/columnTranslations";
+import { getColumnTranslatedName } from "@/lib/columnTranslations";
 import { getDataCategories } from "@/features/device-details/components/device-history/dataCategories";
 import { formatCellValue } from "@/features/device-details/components/device-history/utils";
 import { useTranslation } from "@/hooks/useTranslation";
 
 const PublicAnalysisView = () => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const { token } = useParams<{ token: string }>();
 
   const { data: sharedData, isLoading, error } = useQuery({
@@ -90,7 +90,7 @@ const PublicAnalysisView = () => {
                 index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-800' : 'bg-white dark:bg-gray-700/60'
               }`}>
                 <span className="text-gray-600 dark:text-gray-300 font-medium text-sm">
-                  {getColumnThaiName(field)}
+                  {getColumnTranslatedName(field, language)}
                 </span>
                 <span className="font-bold text-gray-900 dark:text-gray-100 text-sm">
                   {formatCellValue(field, data[field])}

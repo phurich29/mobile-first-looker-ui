@@ -1,7 +1,12 @@
 import { useTranslation } from "@/hooks/useTranslation";
 
+export const getColumnTranslatedName = (columnName: string, language: 'th' | 'en' = 'th'): string => {
+  const translations = language === 'en' ? columnTranslationsEn : columnTranslations;
+  return translations[columnName] || columnName;
+};
+
+// Keep for backward compatibility
 export const getColumnThaiName = (columnName: string): string => {
-  // We'll use this temporarily, but components should use useTranslation directly
   return columnTranslations[columnName] || columnName;
 };
 
@@ -87,4 +92,40 @@ export const columnTranslations: Record<string, string> = {
   main_rate: 'main_rate',
   mix_index: 'mix_index',
   main_index: 'main_index',
+};
+
+export const columnTranslationsEn: Record<string, string> = {
+  created_at: 'Date Recorded',
+  device_code: 'Device Code',
+  class1: 'Class 1 (>7.0mm)',
+  class2: 'Class 2 (>6.6-7.0mm)',
+  class3: 'Class 3 (>6.2-6.6mm)',
+  short_grain: 'Short Grain',
+  slender_kernel: 'Slender Kernel',
+  whole_kernels: 'Whole Kernels',
+  head_rice: 'Head Rice',
+  total_brokens: 'Total Broken',
+  small_brokens: 'Small Broken',
+  small_brokens_c1: 'Small Broken C1',
+  red_line_rate: 'Below Standard Color',
+  parboiled_red_line: 'Red Kernels',
+  parboiled_white_rice: 'Raw Rice',
+  honey_rice: 'Purple Kernels',
+  yellow_rice_rate: 'Yellow Kernels',
+  black_kernel: 'Black Kernels',
+  partly_black_peck: 'Partly Black & Black Spots',
+  partly_black: 'Partly Black',
+  imperfection_rate: 'Damaged Kernels',
+  sticky_rice_rate: 'Sticky Rice',
+  impurity_num: 'Other Kernels',
+  paddy_rate: 'Paddy (kernels/kg)',
+  whiteness: 'Whiteness',
+  process_precision: 'Milling Level',
+  mix_rate: 'Mix Rate',
+  sprout_rate: 'Sprout Rate',
+  unripe_rate: 'Unripe Rate',
+  brown_rice_rate: 'Brown Rice Rate',
+  main_rate: 'Main Rate',
+  mix_index: 'Mix Index',
+  main_index: 'Main Index',
 };
