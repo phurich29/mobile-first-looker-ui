@@ -178,7 +178,7 @@ const AssistantContent = () => {
                     <div className="absolute -bottom-2 left-4 w-6 h-4 bg-amber-700 rounded-b-full border-2 border-amber-900"></div>
                     <div className="absolute -bottom-2 right-4 w-6 h-4 bg-amber-700 rounded-b-full border-2 border-amber-900"></div>
                     
-                    <h4 className="font-bold text-amber-900 mb-3 text-lg border-b-2 border-amber-700 pb-2">📜 รายงานจากนักปราชญ์:</h4>
+                    <h4 className="font-bold text-amber-900 mb-3 text-lg border-b-2 border-amber-700 pb-2">📜 {t('assistant', 'scholarReport')}:</h4>
                     <div className="text-sm text-amber-900 space-y-2 bg-yellow-50/70 p-3 rounded border border-amber-600">
                       {selectedDevice ? <>
                           <div className="italic font-medium border-l-4 border-amber-600 pl-3">
