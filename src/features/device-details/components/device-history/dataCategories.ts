@@ -1,21 +1,21 @@
 
 import { DataCategory } from './types';
 
-export const DATA_CATEGORIES: Record<string, DataCategory> = {
+export const getDataCategories = (t: (category: string, key: string) => string): Record<string, DataCategory> => ({
   wholeGrain: {
-    title: "พื้นข้าวเต็มเมล็ด",
+    title: t('general', 'dataCategoryWholeGrain'),
     icon: "🌾",
     color: "bg-green-50 border-green-200",
     fields: ['class1', 'class2', 'class3', 'short_grain', 'slender_kernel']
   },
   composition: {
-    title: "ส่วนผสม",
+    title: t('general', 'dataCategoryComposition'),
     icon: "🔬",
     color: "bg-purple-50 border-purple-200", 
     fields: ['whole_kernels', 'head_rice', 'total_brokens', 'small_brokens', 'small_brokens_c1']
   },
   characteristics: {
-    title: "สิ่งเจือปน",
+    title: t('general', 'dataCategoryCharacteristics'),
     icon: "⚠️",
     color: "bg-orange-50 border-orange-200",
     fields: [
@@ -25,4 +25,4 @@ export const DATA_CATEGORIES: Record<string, DataCategory> = {
       'process_precision'
     ]
   }
-};
+});

@@ -9,10 +9,12 @@ import { ArrowLeft, Share2, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { getColumnThaiName } from "@/lib/columnTranslations";
-import { DATA_CATEGORIES } from "@/features/device-details/components/device-history/dataCategories";
+import { getDataCategories } from "@/features/device-details/components/device-history/dataCategories";
 import { formatCellValue } from "@/features/device-details/components/device-history/utils";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const PublicAnalysisView = () => {
+  const { t } = useTranslation();
   const { token } = useParams<{ token: string }>();
 
   const { data: sharedData, isLoading, error } = useQuery({
@@ -72,6 +74,7 @@ const PublicAnalysisView = () => {
 
   // Render categorized data with striped table style like HistoryDetailDialog
   const renderCategorizedData = (data: any) => {
+    const DATA_CATEGORIES = getDataCategories(t);
     return Object.entries(DATA_CATEGORIES).map(([categoryKey, category]) => {
       const categoryData = category.fields.filter(field => data[field] !== null && data[field] !== undefined);
       if (categoryData.length === 0) return null;

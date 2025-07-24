@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Share } from "lucide-react";
 import { getColumnThaiName } from "@/lib/columnTranslations";
 import { RiceQualityData } from './types';
-import { DATA_CATEGORIES } from './dataCategories';
+import { getDataCategories } from './dataCategories';
 import { formatCellValue } from './utils';
 import { supabase } from "@/integrations/supabase/client";
 import { ShareLinkModal } from "@/components/shared-links/ShareLinkModal";
@@ -60,6 +60,7 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
 
   // Render categorized data with striped table style
   const renderCategorizedData = (data: RiceQualityData) => {
+    const DATA_CATEGORIES = getDataCategories(t);
     return Object.entries(DATA_CATEGORIES).map(([categoryKey, category]) => {
       const categoryData = category.fields.filter(field => data[field] !== null && data[field] !== undefined);
       if (categoryData.length === 0) return null;
