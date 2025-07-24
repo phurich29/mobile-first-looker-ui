@@ -25,7 +25,6 @@ export const translations = {
     online: { th: 'ออนไลน์', en: 'Online' },
     offline: { th: 'ออฟไลน์', en: 'Offline' },
     lastUpdate: { th: 'อัปเดตล่าสุด', en: 'Last Update' },
-    manageUsers: { th: 'จัดการผู้ใช้', en: 'Manage Users' },
     deleteDevice: { th: 'ลบอุปกรณ์', en: 'Delete Device' },
   },
   profile: {

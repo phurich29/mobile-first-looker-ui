@@ -6,6 +6,9 @@ import { DeleteConfirmationDialog } from "./DeleteConfirmationDialog";
 import { UserAccessDialog } from "../access/UserAccessDialog";
 import { useEquipmentCard } from "./hooks/useEquipmentCard";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface EquipmentCardContainerProps {
   deviceCode: string;
@@ -28,6 +31,9 @@ export function EquipmentCardContainer({
 }: EquipmentCardContainerProps) {
   const [isUsersDialogOpen, setIsUsersDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { toast } = useToast();
+  const { t } = useTranslation();
   
   const {
     isEditDialogOpen,
@@ -37,13 +43,58 @@ export function EquipmentCardContainer({
     handleSaveDisplayName
   } = useEquipmentCard(deviceCode, displayName, onDeviceUpdated);
 
-  const handleDeleteConfirm = () => {
-    console.log(`Deleting device: ${deviceCode}`);
-    // Here you would typically call an API to delete the device
-    // For now, we'll just close the dialog
-    setIsDeleteDialogOpen(false);
-    // Optionally, call onDeviceUpdated to refresh the list
-    onDeviceUpdated?.();
+  const handleDeleteConfirm = async () => {
+    setIsDeleting(true);
+    try {
+      // ลบข้อมูลจาก device_settings
+      const { error: deviceSettingsError } = await supabase
+        .from('device_settings')
+        .delete()
+        .eq('device_code', deviceCode);
+
+      if (deviceSettingsError) {
+        throw deviceSettingsError;
+      }
+
+      // ลบข้อมูลจาก user_device_access
+      const { error: userAccessError } = await supabase
+        .from('user_device_access')
+        .delete()
+        .eq('device_code', deviceCode);
+
+      if (userAccessError) {
+        console.warn('Warning deleting user device access:', userAccessError);
+      }
+
+      // ลบข้อมูลจาก guest_device_access
+      const { error: guestAccessError } = await supabase
+        .from('guest_device_access')
+        .delete()
+        .eq('device_code', deviceCode);
+
+      if (guestAccessError) {
+        console.warn('Warning deleting guest device access:', guestAccessError);
+      }
+
+      // แสดงข้อความสำเร็จ
+      toast({
+        title: t('general', 'success'),
+        description: `${t('device', 'equipment')} ${displayName || deviceCode} ${t('buttons', 'delete')}สำเร็จ`,
+        variant: "default",
+      });
+
+      setIsDeleteDialogOpen(false);
+      onDeviceUpdated?.();
+    } catch (error) {
+      console.error('Error deleting device:', error);
+      toast({
+        title: t('general', 'error'),
+        description: `${t('general', 'error')} ไม่สามารถลบ${t('device', 'equipment')}ได้`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -54,6 +105,7 @@ export function EquipmentCardContainer({
           displayName={displayName}
           isSuperAdmin={isSuperAdmin}
           onUsersClick={() => setIsUsersDialogOpen(true)}
+          onDeleteClick={() => setIsDeleteDialogOpen(true)}
         />
         
         <EquipmentCardContent
@@ -72,6 +124,7 @@ export function EquipmentCardContainer({
           onOpenChange={setIsDeleteDialogOpen}
           onConfirm={handleDeleteConfirm}
           deviceName={displayName || deviceCode}
+          isLoading={isDeleting}
         />
       )}
 
