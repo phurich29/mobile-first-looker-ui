@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { TimeFrame } from './MeasurementHistory';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface HistoryFooterProps {
   timeFrame: TimeFrame;
@@ -11,13 +12,14 @@ const HistoryFooter: React.FC<HistoryFooterProps> = ({
   timeFrame,
   onTimeFrameChange
 }) => {
+  const { t } = useTranslation();
   const getTimeFrameText = (frame: TimeFrame): string => {
     switch (frame) {
-      case '1h': return '1 ชั่วโมง';
-      case '24h': return '24 ชั่วโมง';
-      case '7d': return '7 วัน';
-      case '30d': return '30 วัน';
-      default: return '24 ชั่วโมง';
+      case '1h': return t('general', 'oneHour');
+      case '24h': return t('general', 'twentyFourHours');
+      case '7d': return t('general', 'sevenDays');
+      case '30d': return t('general', 'thirtyDays');
+      default: return t('general', 'twentyFourHours');
     }
   };
 
