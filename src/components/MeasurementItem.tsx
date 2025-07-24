@@ -6,6 +6,7 @@ import { TimeDisplay } from "./measurement/TimeDisplay";
 import { NotificationText } from "./measurement/NotificationText";
 import { AlertBell } from "./measurement/AlertBell";
 import { MeasurementValue } from "./measurement/MeasurementValue";
+import { useTranslation } from "@/hooks/useTranslation";
 import "./notification-item-animation.css";
 
 type MeasurementItemProps = {
@@ -37,6 +38,8 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
   threshold,
   enabled = true,
 }) => {
+  const { t } = useTranslation();
+  
   // Use the measurement hook to manage states and fetch data
   const {
     valueToShow,
@@ -49,6 +52,51 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
     threshold,
     enabled
   });
+
+  // Get translated measurement name
+  const getTranslatedName = (measurementName: string) => {
+    // Try to get translation from measurements category first
+    const translations = {
+      'ชั้น 1 (>7.0mm)': 'class1',
+      'ชั้น 2 (>6.6-7.0mm)': 'class2',
+      'ชั้น 3 (>6.2-6.6mm)': 'class3',
+      'เมล็ดสั้น': 'short_grain',
+      'ข้าวลีบ': 'slender_kernel',
+      'เต็มเมล็ด': 'whole_kernels',
+      'ต้นข้าว': 'head_rice',
+      'ข้าวหักรวม': 'total_brokens',
+      'ปลายข้าว': 'small_brokens',
+      'ปลายข้าวC1': 'small_brokens_c1',
+      'สีต่ำกว่ามาตรฐาน': 'red_line_rate',
+      'เมล็ดแดง': 'parboiled_red_line',
+      'ข้าวดิบ': 'parboiled_white_rice',
+      'เมล็ดม่วง': 'honey_rice',
+      'เมล็ดเหลือง': 'yellow_rice_rate',
+      'เมล็ดดำ': 'black_kernel',
+      'ดำบางส่วน & จุดดำ': 'partly_black_peck',
+      'ดำบางส่วน': 'partly_black',
+      'เมล็ดเสีย': 'imperfection_rate',
+      'ข้าวเหนียว': 'sticky_rice_rate',
+      'เมล็ดอื่นๆ': 'impurity_num',
+      'ข้าวเปลือก(เมล็ด/กก.)': 'paddy_rate',
+      'ความขาว': 'whiteness',
+      'ระดับขัดสี': 'process_precision',
+      'อัตราส่วนผสม': 'mix_rate',
+      'อัตราการงอก': 'sprout_rate',
+      'อัตราการไม่สุก': 'unripe_rate',
+      'อัตราข้าวกล้อง': 'brown_rice_rate',
+      'อัตราหลัก': 'main_rate',
+      'ดัชนีผสม': 'mix_index',
+      'ดัชนีหลัก': 'main_index',
+    };
+
+    const translationKey = translations[measurementName];
+    if (translationKey) {
+      return t('measurements', translationKey as any);
+    }
+    
+    return measurementName;
+  };
   
   // กำหนดสีพื้นหลังตามประเภทของการวัด
   const bgColor = symbol.includes('BTC') ? 'bg-amber-50' : 
@@ -76,7 +124,7 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
           <div className="px-3 py-2 flex-1">
             <div className="flex flex-col">
               <div className="flex flex-col">
-                <h3 className="font-bold text-base text-gray-800 dark:text-gray-200">{name}</h3>
+                <h3 className="font-bold text-base text-gray-800 dark:text-gray-200">{getTranslatedName(name)}</h3>
                 <div className="flex items-center">
                   <span className="text-xs text-gray-500 dark:text-gray-400">{symbol}</span>
                   <NotificationText 
