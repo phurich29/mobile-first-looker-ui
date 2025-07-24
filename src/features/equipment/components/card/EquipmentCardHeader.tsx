@@ -27,7 +27,7 @@ export function EquipmentCardHeader({
         {/* Column 2: Text details and Badge */}
         <div className="flex-grow min-w-0">
           <div className="flex justify-between items-center">
-            <CardTitle className="text-sm font-bold text-gray-900 dark:text-white truncate">
+            <CardTitle className="text-sm font-bold text-gray-900 dark:text-white truncate pr-1">
               {displayName || deviceCode}
             </CardTitle>
             {isSuperAdmin && (
