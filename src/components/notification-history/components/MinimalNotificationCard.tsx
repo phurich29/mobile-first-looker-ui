@@ -27,17 +27,59 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
     const maxPattern = /ค่า "([^"]+)" \(([^)]+)\) สูงกว่าเกณฑ์ที่กำหนดไว้ \(([^)]+)\)/;
     const minPattern = /ค่า "([^"]+)" \(([^)]+)\) ต่ำกว่าเกณฑ์ที่กำหนดไว้ \(([^)]+)\)/;
     
+    // Function to translate rice type names
+    const translateRiceTypeName = (thaiName: string) => {
+      // Map of Thai rice type names to their translation keys
+      const riceTypeMap: { [key: string]: string } = {
+        'ชั้น 1 (>7.0mm)': t('measurements', 'class1'),
+        'ชั้น 2 (>6.6-7.0mm)': t('measurements', 'class2'),
+        'ชั้น 3 (>6.2-6.6mm)': t('measurements', 'class3'),
+        'เมล็ดสั้น': t('measurements', 'short_grain'),
+        'ข้าวลีบ': t('measurements', 'slender_kernel'),
+        'เต็มเมล็ด': t('measurements', 'whole_kernels'),
+        'ต้นข้าว': t('measurements', 'head_rice'),
+        'ข้าวหักรวม': t('measurements', 'total_brokens'),
+        'ปลายข้าว': t('measurements', 'small_brokens'),
+        'ปลายข้าวC1': t('measurements', 'small_brokens_c1'),
+        'สีต่ำกว่ามาตรฐาน': t('measurements', 'red_line_rate'),
+        'เมล็ดแดง': t('measurements', 'parboiled_red_line'),
+        'ข้าวดิบ': t('measurements', 'parboiled_white_rice'),
+        'เมล็ดม่วง': t('measurements', 'honey_rice'),
+        'เมล็ดเหลือง': t('measurements', 'yellow_rice_rate'),
+        'เมล็ดดำ': t('measurements', 'black_kernel'),
+        'ดำบางส่วน & จุดดำ': t('measurements', 'partly_black_peck'),
+        'ดำบางส่วน': t('measurements', 'partly_black'),
+        'เมล็ดเสีย': t('measurements', 'imperfection_rate'),
+        'ข้าวเหนียว': t('measurements', 'sticky_rice_rate'),
+        'เมล็ดอื่นๆ': t('measurements', 'impurity_num'),
+        'ข้าวเปลือก(เมล็ด/กก.)': t('measurements', 'paddy_rate'),
+        'ความขาว': t('measurements', 'whiteness'),
+        'ระดับขัดสี': t('measurements', 'process_precision'),
+        'อัตราส่วนผสม': t('measurements', 'mix_rate'),
+        'อัตราการงอก': t('measurements', 'sprout_rate'),
+        'อัตราการไม่สุก': t('measurements', 'unripe_rate'),
+        'อัตราข้าวกล้อง': t('measurements', 'brown_rice_rate'),
+        'อัตราหลัก': t('measurements', 'main_rate'),
+        'ดัชนีผสม': t('measurements', 'mix_index'),
+        'ดัชนีหลัก': t('measurements', 'main_index'),
+      };
+      
+      return riceTypeMap[thaiName] || thaiName;
+    };
+    
     const maxMatch = message.match(maxPattern);
     const minMatch = message.match(minPattern);
     
     if (maxMatch) {
       const [, riceTypeName, value, threshold] = maxMatch;
-      return `${t('notificationHistory', 'messageValue')} "${riceTypeName}" (${value}) ${t('notificationHistory', 'messageAboveThreshold')} (${threshold})`;
+      const translatedRiceTypeName = translateRiceTypeName(riceTypeName);
+      return `${t('notificationHistory', 'messageValue')} "${translatedRiceTypeName}" (${value}) ${t('notificationHistory', 'messageAboveThreshold')} (${threshold})`;
     }
     
     if (minMatch) {
       const [, riceTypeName, value, threshold] = minMatch;
-      return `${t('notificationHistory', 'messageValue')} "${riceTypeName}" (${value}) ${t('notificationHistory', 'messageBelowThreshold')} (${threshold})`;
+      const translatedRiceTypeName = translateRiceTypeName(riceTypeName);
+      return `${t('notificationHistory', 'messageValue')} "${translatedRiceTypeName}" (${value}) ${t('notificationHistory', 'messageBelowThreshold')} (${threshold})`;
     }
     
     return message; // Fallback to original message if pattern doesn't match
