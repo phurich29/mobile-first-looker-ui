@@ -9,8 +9,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export function DeviceDisplay() {
+  const { t } = useTranslation();
   const { userRoles } = useAuth();
   const {
     devices,
@@ -31,7 +33,7 @@ export function DeviceDisplay() {
           htmlFor="device-selector"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
         >
-          เลือกอุปกรณ์เพื่อดูข้อมูล
+          {t('assistant', 'selectDeviceToViewData')}
         </label>
         {devicesLoading ? (
           <Skeleton className="h-10 w-full" />
@@ -41,7 +43,7 @@ export function DeviceDisplay() {
             onValueChange={(value) => setSelectedDeviceCode(value || "")}
           >
             <SelectTrigger id="device-selector" className="w-full">
-              <SelectValue placeholder="เลือกอุปกรณ์..." />
+              <SelectValue placeholder={t('assistant', 'selectDeviceOption')} />
             </SelectTrigger>
             <SelectContent>
               {devices.length > 0 ? (
@@ -55,7 +57,7 @@ export function DeviceDisplay() {
                 ))
               ) : (
                 <div className="p-4 text-center text-sm text-gray-500">
-                  ไม่พบอุปกรณ์
+                  {t('assistant', 'noDevicesFound')}
                 </div>
               )}
             </SelectContent>

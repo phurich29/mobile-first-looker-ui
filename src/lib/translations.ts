@@ -126,7 +126,9 @@ export const translations = {
     trend: { th: 'แนวโน้ม', en: 'Trend' },
     cannotIdentify: { th: 'ไม่สามารถระบุได้', en: 'Cannot identify' },
     waitingMoreData: { th: 'รอข้อมูลเพิ่มเติม', en: 'Waiting for more data' },
-    selectDeviceForReport: { th: 'โปรดเลือกอุปกรณ์เพื่อรับฟังรายงานจากนักปราชญ์', en: 'Please select a device to receive the scholar\'s report' },
+    selectDeviceToViewData: { th: 'เลือกอุปกรณ์เพื่อดูข้อมูล', en: 'Select device to view data' },
+    selectDeviceOption: { th: 'เลือกอุปกรณ์...', en: 'Select device...' },
+    noDevicesFound: { th: 'ไม่พบอุปกรณ์', en: 'No devices found' },
   },
   buttons: {
     save: { th: 'บันทึก', en: 'Save' },
