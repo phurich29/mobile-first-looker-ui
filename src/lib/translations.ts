@@ -23,6 +23,16 @@ export const translations = {
     news: { th: 'ข่าวสาร', en: 'News' },
     aboutRiceflow: { th: 'เกี่ยวกับ Riceflow', en: 'About Riceflow' },
   },
+  riceTypes: {
+    // Common rice type translations
+    'ข้าวหอมมะลิ': { th: 'ข้าวหอมมะลิ', en: 'Jasmine Rice' },
+    'ข้าวเหนียว': { th: 'ข้าวเหนียว', en: 'Glutinous Rice' },
+    'ข้าวโพดหวาน': { th: 'ข้าวโพดหวาน', en: 'Sweet Corn' },
+    'ข้าวกล้อง': { th: 'ข้าวกล้อง', en: 'Brown Rice' },
+    'ข้าวขาว': { th: 'ข้าวขาว', en: 'White Rice' },
+    'ข้าวหอม': { th: 'ข้าวหอม', en: 'Fragrant Rice' },
+    'ข้าวสาร': { th: 'ข้าวสาร', en: 'Milled Rice' },
+  },
   login: {
     login: { th: 'เข้าสู่ระบบ', en: 'Login' },
     logout: { th: 'ออกจากระบบ', en: 'Logout' },

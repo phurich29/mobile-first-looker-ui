@@ -7,6 +7,7 @@ import { NotificationSettingsDialog } from "@/components/measurement-history/not
 import { saveNotificationSettings } from "@/components/measurement-history/api";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
+import { translations } from "@/lib/translations";
 
 interface NotificationSettingCardProps {
   setting: NotificationSetting;
@@ -18,11 +19,24 @@ export const NotificationSettingCard = ({
   onEdit 
 }: NotificationSettingCardProps) => {
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [isEnabled, setIsEnabled] = useState(setting.max_enabled || setting.min_enabled);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   
+  const translateRiceType = (riceTypeName: string): string => {
+    if (language === 'th') return riceTypeName;
+    
+    // Check if rice type has translation
+    const riceTranslations = translations.riceTypes as any;
+    if (riceTranslations[riceTypeName]) {
+      return riceTranslations[riceTypeName].en;
+    }
+    
+    // Fallback to original name if no translation
+    return riceTypeName;
+  };
+
   const handleEdit = () => {
     setIsDialogOpen(true);
   };
@@ -75,7 +89,7 @@ export const NotificationSettingCard = ({
               <h3 className="font-medium text-black dark:text-slate-100 text-sm truncate">
                 {setting.device_name || setting.device_code}
               </h3>
-              <p className="text-sm text-black dark:text-slate-300 truncate mt-1">{setting.rice_type_name}</p>
+              <p className="text-sm text-black dark:text-slate-300 truncate mt-1">{translateRiceType(setting.rice_type_name)}</p>
             </div>
             <Button 
               variant="ghost" 
