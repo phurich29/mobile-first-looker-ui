@@ -5,16 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Share2, Calendar } from "lucide-react";
+import { ArrowLeft, Share2, Calendar, Languages } from "lucide-react";
 import { format } from "date-fns";
-import { th } from "date-fns/locale";
+import { th, enUS } from "date-fns/locale";
 import { getColumnTranslatedName } from "@/lib/columnTranslations";
 import { getDataCategories } from "@/features/device-details/components/device-history/dataCategories";
 import { formatCellValue } from "@/features/device-details/components/device-history/utils";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const PublicAnalysisView = () => {
   const { t, language } = useTranslation();
+  const { toggleLanguage } = useLanguage();
   const { token } = useParams<{ token: string }>();
 
   const { data: sharedData, isLoading, error } = useQuery({
@@ -117,13 +119,13 @@ const PublicAnalysisView = () => {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-950">
         <div className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-lg mx-4">
           <div className="text-center py-8">
-            <h2 className="text-2xl font-bold text-red-600 mb-4">ลิงก์ไม่ถูกต้อง</h2>
+            <h2 className="text-2xl font-bold text-red-600 mb-4">{t('publicAnalysis', 'invalidLink')}</h2>
             <p className="text-muted-foreground mb-6">
               {error?.message === 'Shared link not found or inactive' 
-                ? 'ลิงก์นี้ไม่มีอยู่หรือถูกปิดใช้งานแล้ว'
+                ? t('publicAnalysis', 'linkNotFound')
                 : error?.message === 'Shared link has expired'
-                ? 'ลิงก์นี้หมดอายุแล้ว'
-                : 'เกิดข้อผิดพลาดในการโหลดข้อมูล'}
+                ? t('publicAnalysis', 'linkExpired')
+                : t('publicAnalysis', 'loadDataError')}
             </p>
 
           </div>
@@ -143,10 +145,24 @@ const PublicAnalysisView = () => {
             <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               {sharedLink.title}
             </h1>
-            <Badge variant="secondary" className="gap-2">
-              <Share2 className="w-4 h-4" />
-              แชร์สาธารณะ
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={toggleLanguage} 
+                className="flex items-center gap-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 min-h-[32px] px-2" 
+                title={language === 'th' ? 'Switch to English' : 'เปลี่ยนเป็นภาษาไทย'}
+              >
+                <Languages className="h-4 w-4" />
+                <span className="font-medium text-sm">
+                  {language === 'th' ? 'TH' : 'EN'}
+                </span>
+              </Button>
+              <Badge variant="secondary" className="gap-2">
+                <Share2 className="w-4 h-4" />
+                {t('publicAnalysis', 'publicShare')}
+              </Badge>
+            </div>
           </div>
           <Separator className="bg-gray-200 dark:bg-gray-700 mt-2" />
         </div>
@@ -157,29 +173,29 @@ const PublicAnalysisView = () => {
             <div className="flex-1">
               {deviceDisplayName && (
                 <div className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
-                  Name: {deviceDisplayName}
+                  {t('publicAnalysis', 'name')}: {deviceDisplayName}
                 </div>
               )}
               <div className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
-                Device Code: {analysis.device_code}
+                {t('publicAnalysis', 'deviceCode')}: {analysis.device_code}
               </div>
               {analysis.output && (
                 <div className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
-                  จำนวนเมล็ด: {analysis.output.toLocaleString()}
+                  {t('publicAnalysis', 'seedCount')}: {analysis.output.toLocaleString()}
                 </div>
               )}
               <div className="text-xs text-gray-500 dark:text-gray-400">
                 {analysis.thai_datetime ? (() => {
                   const dateObj = new Date(analysis.thai_datetime);
                   dateObj.setHours(dateObj.getHours() - 7);
-                  return dateObj.toLocaleString('th-TH', {
+                  return dateObj.toLocaleString(language === 'th' ? 'th-TH' : 'en-US', {
                     year: 'numeric', month: '2-digit', day: '2-digit',
                     hour: '2-digit', minute: '2-digit'
                   });
                 })() : (() => {
                   const dateObj = new Date(analysis.created_at);
                   dateObj.setHours(dateObj.getHours() - 7);
-                  return dateObj.toLocaleString('th-TH', {
+                  return dateObj.toLocaleString(language === 'th' ? 'th-TH' : 'en-US', {
                     year: 'numeric', month: '2-digit', day: '2-digit',
                     hour: '2-digit', minute: '2-digit'
                   });
@@ -187,7 +203,7 @@ const PublicAnalysisView = () => {
               </div>
             </div>
             <Badge variant="outline" className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-xs text-gray-800 dark:text-gray-200">
-              ID: {analysis.id}
+              {t('publicAnalysis', 'id')}: {analysis.id}
             </Badge>
           </div>
         </div>
@@ -202,10 +218,10 @@ const PublicAnalysisView = () => {
           <div className="flex items-center justify-between">
 
             <div className="text-right text-xs text-gray-500 dark:text-gray-400">
-              <div>แบ่งปันโดย: RiceFlow</div>
+              <div>{t('publicAnalysis', 'sharedBy')}: {t('publicAnalysis', 'riceFlow')}</div>
               <div className="flex items-center gap-1 mt-1">
                 <Calendar className="w-3 h-3" />
-                แบ่งปันเมื่อ: {format(new Date(sharedLink.created_at), 'dd/MM/yyyy HH:mm', { locale: th })}
+                {t('publicAnalysis', 'sharedOn')}: {format(new Date(sharedLink.created_at), 'dd/MM/yyyy HH:mm', { locale: language === 'th' ? th : enUS })}
               </div>
             </div>
           </div>

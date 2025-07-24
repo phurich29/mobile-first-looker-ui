@@ -380,7 +380,21 @@ export const translations = {
     main_index: { th: 'ดัชนีหลัก', en: 'Main Index' },
     recordDate: { th: 'วันที่บันทึก', en: 'Record Date' },
     deviceCode: { th: 'รหัสเครื่อง', en: 'Device Code' },
-  }
+  },
+  publicAnalysis: {
+    publicShare: { th: 'แชร์สาธารณะ', en: 'Public Share' },
+    invalidLink: { th: 'ลิงก์ไม่ถูกต้อง', en: 'Invalid Link' },
+    linkNotFound: { th: 'ลิงก์นี้ไม่มีอยู่หรือถูกปิดใช้งานแล้ว', en: 'This link does not exist or has been disabled' },
+    linkExpired: { th: 'ลิงก์นี้หมดอายุแล้ว', en: 'This link has expired' },
+    loadDataError: { th: 'เกิดข้อผิดพลาดในการโหลดข้อมูล', en: 'Error loading data' },
+    name: { th: 'Name', en: 'Name' },
+    deviceCode: { th: 'Device Code', en: 'Device Code' },
+    seedCount: { th: 'จำนวนเมล็ด', en: 'Seed Count' },
+    id: { th: 'ID', en: 'ID' },
+    sharedBy: { th: 'แบ่งปันโดย', en: 'Shared by' },
+    sharedOn: { th: 'แบ่งปันเมื่อ', en: 'Shared on' },
+    riceFlow: { th: 'RiceFlow', en: 'RiceFlow' },
+  },
 } as const;
 
 export type TranslationKey = keyof typeof translations;
