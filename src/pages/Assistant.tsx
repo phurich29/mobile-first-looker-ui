@@ -150,7 +150,7 @@ const AssistantContent = () => {
                   <div className="relative border-3 border-amber-800 rounded-lg p-4 bg-gradient-to-br from-amber-100 to-yellow-100 shadow-inner">
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-600 to-transparent"></div>
                     <div className="flex justify-between items-center mb-2">
-                      <span className="font-bold text-amber-900 text-lg">⚖️ ค่าความขาวปัจจุบัน:</span>
+                      <span className="font-bold text-amber-900 text-lg">⚖️ {t('assistant', 'currentWhiteness')}:</span>
                       <span className="text-2xl font-bold text-amber-800 bg-amber-200 px-3 py-1 rounded border-2 border-amber-700">{whitenessValue.toFixed(1)}</span>
                     </div>
                     
