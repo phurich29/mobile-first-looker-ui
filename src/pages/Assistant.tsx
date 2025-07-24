@@ -81,18 +81,18 @@ const AssistantContent = () => {
     }
     if (whitenessValue >= 40 && whitenessValue <= 45) {
       return {
-        title: "ข้าวขาว",
-        description: "ผลการตรวจสอบ: ข้าวของท่านจัดอยู่ในเกณฑ์คุณภาพข้าวขาว"
+        title: t('assistant', 'whiteRice'),
+        description: t('assistant', 'whiteRiceDescription')
       };
     } else if (whitenessValue >= 25 && whitenessValue <= 30) {
       return {
-        title: "ข้าวนึ่ง",
-        description: "ผลการตรวจสอบ: ข้าวของท่านจัดอยู่ในเกณฑ์คุณภาพข้าวนึ่ง"
+        title: t('assistant', 'parboiledRice'),
+        description: t('assistant', 'parboiledRiceDescription')
       };
     } else {
       return {
-        title: "ไม่สามารถระบุประเภท",
-        description: `ค่าความขาว ${whitenessValue.toFixed(1)} อยู่นอกเกณฑ์การจำแนกประเภทข้าว`
+        title: t('assistant', 'unknownType'),
+        description: `${t('assistant', 'unknownTypeDescription')} ${whitenessValue.toFixed(1)} ${t('assistant', 'unknownTypeDescription')}`
       };
     }
   }, [selectedDevice, whitenessValue]);
