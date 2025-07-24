@@ -6,12 +6,13 @@ import { PageHeader } from "./components/PageHeader";
 import { NotificationSettingsList } from "./components/NotificationSettingsList";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNotificationSettings } from "./hooks/useNotificationSettings";
-// Header and FooterNav are handled by AppLayout
+import { useTranslation } from "@/hooks/useTranslation";
 
 const NotificationSettings = () => {
   // const { user } = useAuth(); // If auth-specific elements are added
   // const [isCollapsed, setIsCollapsed] = useState(false); // If sidebar collapse is implemented
   const isMobile = useIsMobile();
+  const { t } = useTranslation();
   const { settings, loading, error, fetchSettings } = useNotificationSettings();
   
   return (
@@ -24,7 +25,7 @@ const NotificationSettings = () => {
         // Margin-left is handled by AppLayout
       )}>
         <div className="mx-auto max-w-4xl mb-6">
-          <PageHeader title="การตั้งค่าการแจ้งเตือน" />
+          <PageHeader title={t('mainMenu', 'notificationSettings')} />
           <NotificationSettingsList 
             settings={settings} 
             loading={loading} 

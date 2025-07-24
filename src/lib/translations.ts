@@ -4,6 +4,7 @@ export const translations = {
     device: { th: 'อุปกรณ์', en: 'Device' },
     profile: { th: 'ข้อมูลส่วนตัว', en: 'Profile' },
     notificationsHistory: { th: 'ประวัติการแจ้งเตือน', en: 'Notifications History' },
+    notificationSettings: { th: 'การตั้งค่าการแจ้งเตือน', en: 'Notification Settings' },
     userManagement: { th: 'จัดการผู้ใช้งาน', en: 'User Management' },
     ricePrice: { th: 'ราคาข้าว', en: 'Rice Price' },
     news: { th: 'ข่าวสาร', en: 'News' },
