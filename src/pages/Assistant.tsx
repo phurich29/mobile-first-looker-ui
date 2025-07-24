@@ -135,7 +135,7 @@ const AssistantContent = () => {
                 <div className="absolute inset-0 bg-gradient-to-r from-amber-900/20 to-transparent"></div>
                 <CardTitle className="relative text-center text-xl font-bold flex items-center justify-center gap-2 text-shadow">
                   <Bot className="h-6 w-6" />
-                  การจำแนกประเภทข้าว
+                  {t('assistant', 'riceClassification')}
                 </CardTitle>
                 {/* Decorative elements */}
                 <div className="absolute top-2 left-4 w-4 h-4 border-2 border-amber-300 rotate-45 bg-amber-600"></div>
