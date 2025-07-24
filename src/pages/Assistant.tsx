@@ -308,10 +308,10 @@ const AssistantContent = () => {
                 <h4 className="font-bold text-amber-900 mb-3 text-lg">📝 {t('assistant', 'notes')}</h4>
                 <div className="text-sm text-amber-900 space-y-2 bg-yellow-50/70 p-3 rounded border border-amber-600">
                   <p className="leading-relaxed">
-                    *%ข้าวต้น คิดจากข้าวเต็ม+ข้าวต้นหลังจากการขัดขาว/ขัดมัน ที่ยังไม่ได้หักข้าวดีดออกจาการยิงสี
+                    {t('assistant', 'noteHeadRice')}
                   </p>
                   <p className="leading-relaxed">
-                    ** การคำนวณหาบ คิดจากการหักข้าวดีดออกจากการยิงสี 10% ของข้าวต้นแล้ว
+                    {t('assistant', 'noteHaabCalculation')}
                   </p>
                 </div>
               </div>

@@ -130,6 +130,8 @@ export const translations = {
     selectDeviceOption: { th: 'เลือกอุปกรณ์...', en: 'Select device...' },
     noDevicesFound: { th: 'ไม่พบอุปกรณ์', en: 'No devices found' },
     notes: { th: 'หมายเหตุ', en: 'Notes' },
+    noteHeadRice: { th: '*%ข้าวต้น คิดจากข้าวเต็ม+ข้าวต้นหลังจากการขัดขาว/ขัดมัน ที่ยังไม่ได้หักข้าวดีดออกจาการยิงสี', en: '*%Head rice calculated from whole kernels + head rice after polishing/milling, before removing broken rice from color sorting' },
+    noteHaabCalculation: { th: '** การคำนวณหาบ คิดจากการหักข้าวดีดออกจากการยิงสี 10% ของข้าวต้นแล้ว', en: '** Haab calculation is based on deducting 10% broken rice from color sorting of head rice' },
   },
   buttons: {
     save: { th: 'บันทึก', en: 'Save' },
