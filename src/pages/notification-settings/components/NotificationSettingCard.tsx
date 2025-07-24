@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { NotificationSettingsDialog } from "@/components/measurement-history/notification-settings";
 import { saveNotificationSettings } from "@/components/measurement-history/api";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface NotificationSettingCardProps {
   setting: NotificationSetting;
@@ -17,6 +18,7 @@ export const NotificationSettingCard = ({
   onEdit 
 }: NotificationSettingCardProps) => {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [isEnabled, setIsEnabled] = useState(setting.max_enabled || setting.min_enabled);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -44,18 +46,18 @@ export const NotificationSettingCard = ({
       
       // แสดงข้อความแจ้งเตือนว่าบันทึกสำเร็จ
       toast({
-        title: checked ? "เปิดการแจ้งเตือนแล้ว" : "ปิดการแจ้งเตือนแล้ว",
+        title: checked ? t('mainMenu', 'notificationEnabled') : t('mainMenu', 'notificationDisabled'),
         description: checked ? 
-          "ระบบจะแจ้งเตือนเมื่อค่าเกินเกณฑ์ที่กำหนด" : 
-          "ระบบจะไม่แจ้งเตือนสำหรับอุปกรณ์นี้",
+          t('mainMenu', 'systemWillAlert') : 
+          t('mainMenu', 'systemWillNotAlert'),
       });
     } catch (error) {
       // กรณีเกิดข้อผิดพลาด
       console.error("เกิดข้อผิดพลาดในการบันทึกการตั้งค่า:", error);
       setIsEnabled(!checked); // คืนค่าสถานะเดิม
       toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถบันทึกการตั้งค่าได้ กรุณาลองใหม่อีกครั้ง",
+        title: t('mainMenu', 'error'),
+        description: t('mainMenu', 'saveSettingsError'),
         variant: "destructive"
       });
     } finally {
@@ -81,25 +83,25 @@ export const NotificationSettingCard = ({
               onClick={handleEdit}
               className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 p-1 h-auto min-w-[40px] text-xs ml-1"
             >
-              แก้ไข
+              {t('mainMenu', 'edit')}
             </Button>
           </div>
           
           <div className="border-t border-gray-100 pt-2 mt-2 text-sm space-y-2">
             {setting.max_enabled && (
               <p className="flex items-center gap-2">
-                <span className="text-black dark:text-slate-300 font-medium">เตือนเมื่อสูงกว่า:</span>
+                <span className="text-black dark:text-slate-300 font-medium">{t('mainMenu', 'alertWhenHigherThan')}</span>
                 <span className="font-bold text-red-600 dark:text-red-400 text-base">{setting.max_threshold}</span>
               </p>
             )}
             {setting.min_enabled && (
               <p className="flex items-center gap-2">
-                <span className="text-black dark:text-slate-300 font-medium">เตือนเมื่อต่ำกว่า:</span>
+                <span className="text-black dark:text-slate-300 font-medium">{t('mainMenu', 'alertWhenLowerThan')}</span>
                 <span className="font-bold text-amber-600 dark:text-amber-400 text-base">{setting.min_threshold}</span>
               </p>
             )}
             {!setting.max_enabled && !setting.min_enabled && (
-              <p className="text-black dark:text-slate-400 italic text-sm">ไม่มีเกณฑ์การแจ้งเตือน</p>
+              <p className="text-black dark:text-slate-400 italic text-sm">{t('mainMenu', 'noAlertCriteria')}</p>
             )}
           </div>
         </div>
