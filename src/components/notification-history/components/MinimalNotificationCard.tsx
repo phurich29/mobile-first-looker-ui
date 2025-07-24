@@ -6,6 +6,7 @@ import { Eye, Clock, AlertTriangle, Blend, Circle, Wheat } from "lucide-react";
 import { formatBangkokTime } from "@/components/measurement-history/api";
 import { Notification } from "../types";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/hooks/useTranslation";
 interface MinimalNotificationCardProps {
   notification: Notification;
   onViewDetails: (deviceCode: string, riceTypeId: string) => void;
@@ -14,6 +15,7 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
   notification,
   onViewDetails
 }) => {
+  const { t } = useTranslation();
   // Adjust timestamp by subtracting 7 hours to correct timezone issue
   const originalDate = new Date(notification.timestamp);
   originalDate.setHours(originalDate.getHours() - 7);
@@ -95,7 +97,7 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
                   {notification.rice_type_id}
                 </h3>
                 <Badge variant="outline" className={cn("text-xs w-fit", getThresholdColor(notification.threshold_type))}>
-                  {notification.threshold_type === 'max' ? 'เกินค่าสูงสุด' : 'ต่ำกว่าค่าต่ำสุด'}
+                  {notification.threshold_type === 'max' ? t('notificationHistory', 'maxThreshold') : t('notificationHistory', 'minThreshold')}
                 </Badge>
               </div>
             </div>
@@ -131,7 +133,7 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
             {notification.notification_count > 1 && (
               <div className="flex items-center space-x-1">
                 <span className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full text-xs whitespace-nowrap">
-                  {notification.notification_count} ครั้ง
+                  {notification.notification_count} {t('notificationHistory', 'times')}
                 </span>
               </div>
             )}
@@ -144,8 +146,8 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
             className="text-xs hover:bg-purple-50 dark:hover:bg-purple-900/30 text-slate-950 dark:text-slate-50 px-2 sm:px-3 flex-shrink-0 self-start sm:self-center"
           >
             <Eye className="h-3 w-3 mr-1" />
-            <span className="hidden sm:inline">ดูข้อมูล</span>
-            <span className="sm:hidden">ดู</span>
+            <span className="hidden sm:inline">{t('notificationHistory', 'viewDetails')}</span>
+            <span className="sm:hidden">{t('notificationHistory', 'viewShort')}</span>
           </Button>
         </div>
       </div>

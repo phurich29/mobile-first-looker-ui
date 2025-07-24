@@ -89,6 +89,11 @@ export const translations = {
     checkShort: { th: 'ตรวจ', en: 'Check' },
     refresh: { th: 'รีเฟรช', en: 'Refresh' },
     refreshShort: { th: 'รีฟ', en: 'Ref' },
+    maxThreshold: { th: 'เกินค่าสูงสุด', en: 'Above Maximum' },
+    minThreshold: { th: 'ต่ำกว่าค่าต่ำสุด', en: 'Below Minimum' },
+    times: { th: 'ครั้ง', en: 'times' },
+    viewDetails: { th: 'ดูข้อมูล', en: 'View Details' },
+    viewShort: { th: 'ดู', en: 'View' },
   },
   dataCategories: {
     wholegrain: { th: 'พื้นข้าวเต็มเมล็ด', en: 'Whole Grain Rice' },
