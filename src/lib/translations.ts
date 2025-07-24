@@ -82,6 +82,13 @@ export const translations = {
   notificationHistory: {
     title: { th: 'ประวัติการแจ้งเตือน', en: 'Notification History' },
     description: { th: 'แสดงประวัติการแจ้งเตือนที่เกิดจากการตรวจพบค่าที่เกินเกณฑ์ที่กำหนดไว้', en: 'Displays notification history from detected values exceeding set thresholds' },
+    notifications: { th: 'การแจ้งเตือน', en: 'Notifications' },
+    total: { th: 'ทั้งหมด', en: 'Total' },
+    items: { th: 'รายการ', en: 'items' },
+    check: { th: 'ตรวจสอบ', en: 'Check' },
+    checkShort: { th: 'ตรวจ', en: 'Check' },
+    refresh: { th: 'รีเฟรช', en: 'Refresh' },
+    refreshShort: { th: 'รีฟ', en: 'Ref' },
   },
   dataCategories: {
     wholegrain: { th: 'พื้นข้าวเต็มเมล็ด', en: 'Whole Grain Rice' },

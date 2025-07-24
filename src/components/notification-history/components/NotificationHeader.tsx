@@ -2,6 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, Bell, Search } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface NotificationHeaderProps {
   totalCount: number;
@@ -18,6 +19,8 @@ export function NotificationHeader({
   isCheckingNotifications,
   isFetching
 }: NotificationHeaderProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-emerald-200/50 dark:border-gray-700/50 rounded-lg p-3 sm:p-4 shadow-sm gap-3 sm:gap-0">
       <div className="flex items-center space-x-3 min-w-0 flex-1">
@@ -26,10 +29,10 @@ export function NotificationHeader({
         </div>
         <div className="min-w-0 flex-1">
           <h2 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-gray-100 truncate">
-            การแจ้งเตือน
+            {t('notificationHistory', 'notifications')}
           </h2>
           <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">
-            ทั้งหมด {totalCount} รายการ
+            {t('notificationHistory', 'total')} {totalCount} {t('notificationHistory', 'items')}
           </p>
         </div>
       </div>
@@ -47,8 +50,8 @@ export function NotificationHeader({
           ) : (
             <Search className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
           )}
-          <span className="hidden sm:inline">ตรวจสอบ</span>
-          <span className="sm:hidden">ตรวจ</span>
+          <span className="hidden sm:inline">{t('notificationHistory', 'check')}</span>
+          <span className="sm:hidden">{t('notificationHistory', 'checkShort')}</span>
         </Button>
         
         <Button
@@ -63,8 +66,8 @@ export function NotificationHeader({
           ) : (
             <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
           )}
-          <span className="hidden sm:inline">รีเฟรช</span>
-          <span className="sm:hidden">รีฟ</span>
+          <span className="hidden sm:inline">{t('notificationHistory', 'refresh')}</span>
+          <span className="sm:hidden">{t('notificationHistory', 'refreshShort')}</span>
         </Button>
       </div>
     </div>
