@@ -55,11 +55,11 @@ export function EquipmentCardContainer({
         .delete()
         .eq('device_code', deviceCode);
 
-       if (deviceSettingsError) {
-         console.error('❌ Error deleting from device_settings:', deviceSettingsError);
-         throw deviceSettingsError;
-       }
-       console.log('✅ Successfully deleted from device_settings');
+      if (deviceSettingsError) {
+        console.error('❌ Error deleting from device_settings:', deviceSettingsError);
+        throw deviceSettingsError;
+      }
+      console.log('✅ Successfully deleted from device_settings');
 
       // ลบข้อมูลจาก user_device_access
       const { error: userAccessError } = await supabase
@@ -67,11 +67,11 @@ export function EquipmentCardContainer({
         .delete()
         .eq('device_code', deviceCode);
 
-       if (userAccessError) {
-         console.warn('⚠️ Warning deleting user device access:', userAccessError);
-       } else {
-         console.log('✅ Successfully deleted from user_device_access');
-       }
+      if (userAccessError) {
+        console.warn('⚠️ Warning deleting user device access:', userAccessError);
+      } else {
+        console.log('✅ Successfully deleted from user_device_access');
+      }
 
       // ลบข้อมูลจาก guest_device_access
       const { error: guestAccessError } = await supabase
@@ -79,11 +79,11 @@ export function EquipmentCardContainer({
         .delete()
         .eq('device_code', deviceCode);
 
-       if (guestAccessError) {
-         console.warn('⚠️ Warning deleting guest device access:', guestAccessError);
-       } else {
-         console.log('✅ Successfully deleted from guest_device_access');
-       }
+      if (guestAccessError) {
+        console.warn('⚠️ Warning deleting guest device access:', guestAccessError);
+      } else {
+        console.log('✅ Successfully deleted from guest_device_access');
+      }
 
       // แสดงข้อความสำเร็จ
       toast({
@@ -92,53 +92,52 @@ export function EquipmentCardContainer({
         variant: "default",
       });
 
-       // Invalidate และ refetch React Query cache ด้วย query keys ที่ถูกต้อง
-       console.log('🔄 Invalidating React Query cache...');
-       
-       // Invalidate guest devices query
-       await queryClient.invalidateQueries({ 
-         queryKey: ['guest-devices-no-cache'] 
-       });
-       
-       // Invalidate authenticated devices query (ใช้ wildcard เพื่อจับทุก variation)
-       await queryClient.invalidateQueries({ 
-         queryKey: ['authenticated-devices'] 
-       });
-       
-       // Invalidate device count query 
-       await queryClient.invalidateQueries({ 
-         queryKey: ['device-count'] 
-       });
-       
-       // Force refetch ทันที
-       await queryClient.refetchQueries({ 
-         queryKey: ['guest-devices-no-cache'] 
-       });
-       await queryClient.refetchQueries({ 
-         queryKey: ['authenticated-devices'] 
-       });
-       await queryClient.refetchQueries({ 
-         queryKey: ['device-count'] 
-       });
-       
-       console.log('✅ React Query cache invalidated and refetched');
+      // ปิด dialog ทันที
+      setIsDeleteDialogOpen(false);
 
-       // เรียก callback เพื่อ refresh component
-       console.log('🔄 Calling onDeviceUpdated callback...');
-       setIsDeleteDialogOpen(false);
-       onDeviceUpdated?.();
-       console.log('✅ Device deletion completed successfully');
-     } catch (error) {
-       console.error('❌ Error deleting device:', error);
+      // Invalidate React Query cache แบบ aggressive
+      console.log('🔄 Invalidating React Query cache...');
+      
+      // ใช้ removeQueries เพื่อลบ cache ทันที
+      queryClient.removeQueries({ 
+        queryKey: ['guest-devices-no-cache'] 
+      });
+      queryClient.removeQueries({ 
+        queryKey: ['authenticated-devices'] 
+      });
+      queryClient.removeQueries({ 
+        queryKey: ['device-count'] 
+      });
+
+      // Force refetch ทันที
+      await queryClient.refetchQueries({ 
+        queryKey: ['guest-devices-no-cache'] 
+      });
+      await queryClient.refetchQueries({ 
+        queryKey: ['authenticated-devices'] 
+      });
+      await queryClient.refetchQueries({ 
+        queryKey: ['device-count'] 
+      });
+
+      console.log('✅ React Query cache removed and refetched');
+
+      // เรียก callback เพื่อ refresh component
+      console.log('🔄 Calling onDeviceUpdated callback...');
+      onDeviceUpdated?.();
+      console.log('✅ Device deletion completed successfully');
+      
+    } catch (error) {
+      console.error('❌ Error deleting device:', error);
       toast({
         title: t('general', 'error'),
         description: `${t('general', 'error')} ไม่สามารถลบ${t('device', 'equipment')}ได้`,
         variant: "destructive",
       });
-     } finally {
-       console.log('🔄 Setting isDeleting to false');
-       setIsDeleting(false);
-     }
+    } finally {
+      console.log('🔄 Setting isDeleting to false');
+      setIsDeleting(false);
+    }
   };
 
   return (
