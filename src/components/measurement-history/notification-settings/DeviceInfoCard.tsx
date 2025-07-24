@@ -3,12 +3,14 @@ import { Bell, Smartphone } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface DeviceInfoCardProps {
   deviceCode: string;
 }
 
 export const DeviceInfoCard = ({ deviceCode }: DeviceInfoCardProps) => {
+  const { t } = useTranslation();
   const [displayName, setDisplayName] = useState<string | null>(null);
 
   // Fetch device display name from device_settings
@@ -46,7 +48,7 @@ export const DeviceInfoCard = ({ deviceCode }: DeviceInfoCardProps) => {
           {displayName && (
             <p className="text-sm font-medium">Name : {displayName}</p>
           )}
-          <p className="text-sm font-medium">รหัสอุปกรณ์</p>
+          <p className="text-sm font-medium">{t('general', 'deviceCode')}</p>
           <p className="text-sm text-gray-500">{deviceCode}</p>
         </div>
       </div>
@@ -56,7 +58,7 @@ export const DeviceInfoCard = ({ deviceCode }: DeviceInfoCardProps) => {
         className="flex items-center gap-1 text-xs px-2 py-1 bg-gray-200 text-black rounded-md hover:bg-gray-300 transition-colors"
       >
         <Bell className="h-3 w-3" />
-        <span>ดูการแจ้งเตือน</span>
+        <span>{t('general', 'viewNotifications')}</span>
       </Link>
     </div>
   );

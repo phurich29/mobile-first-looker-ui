@@ -257,6 +257,8 @@ export const translations = {
     historyStatsMaximum: { th: 'สูงสุด:', en: 'Max:' },
     notificationSettings: { th: 'ตั้งค่าแจ้งเตือน', en: 'Notification Settings' },
     notificationSettingsFor: { th: 'ตั้งค่าการแจ้งเตือน', en: 'Notification Settings for' },
+    deviceCode: { th: 'รหัสอุปกรณ์', en: 'Device Code' },
+    viewNotifications: { th: 'ดูการแจ้งเตือน', en: 'View Notifications' },
     tryAgain: { th: 'ลองใหม่', en: 'Try Again' },
     errorLoadingData: { th: 'เกิดข้อผิดพลาดในการโหลดข้อมูล', en: 'Error loading data' },
   },
