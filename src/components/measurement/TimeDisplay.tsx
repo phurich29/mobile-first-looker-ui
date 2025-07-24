@@ -1,11 +1,13 @@
 
 import React from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface TimeDisplayProps {
   updatedAt?: Date;
 }
 
 export const TimeDisplay: React.FC<TimeDisplayProps> = ({ updatedAt }) => {
+  const { language } = useTranslation();
   // Format the Bangkok time (+7)
   const formatBangkokTime = (date?: Date): { thaiDate: string; thaiTime: string } => {
     if (!date) return { thaiDate: "ไม่มีข้อมูล", thaiTime: "ไม่มีข้อมูล" };
@@ -38,7 +40,7 @@ export const TimeDisplay: React.FC<TimeDisplayProps> = ({ updatedAt }) => {
       {updatedAt ? (
         <>
           <div className="font-medium text-gray-700">{formatBangkokTime(updatedAt).thaiDate}</div>
-          <div className="text-gray-500">{formatBangkokTime(updatedAt).thaiTime} น.</div>
+          <div className="text-gray-500">{formatBangkokTime(updatedAt).thaiTime}{language === 'th' ? ' น.' : ''}</div>
         </>
       ) : (
         <div className="text-gray-500">"ไม่มีข้อมูล"</div>
