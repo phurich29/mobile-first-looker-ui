@@ -76,6 +76,12 @@ export const translations = {
     page: { th: 'หน้า', en: 'Page' },
     of: { th: 'จาก', en: 'of' },
     viewData: { th: 'ดูข้อมูล', en: 'Detail' },
+    tryAgain: { th: 'ลองใหม่', en: 'Try Again' },
+    errorLoadingData: { th: 'เกิดข้อผิดพลาดในการโหลดข้อมูล', en: 'Error loading data' },
+  },
+  notificationHistory: {
+    title: { th: 'ประวัติการแจ้งเตือน', en: 'Notification History' },
+    description: { th: 'แสดงประวัติการแจ้งเตือนที่เกิดจากการตรวจพบค่าที่เกินเกณฑ์ที่กำหนดไว้', en: 'Displays notification history from detected values exceeding set thresholds' },
   },
   dataCategories: {
     wholegrain: { th: 'พื้นข้าวเต็มเมล็ด', en: 'Whole Grain Rice' },

@@ -5,9 +5,11 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { NotificationHistoryList } from "@/components/notification-history/NotificationHistoryList";
 import { BackgroundImage } from "@/components/graph-monitor/BackgroundImage";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const NotificationHistory: React.FC = () => {
   const isMobile = useIsMobile();
+  const { t } = useTranslation();
 
   return (
     <AppLayout showFooterNav={true}>
@@ -15,9 +17,9 @@ const NotificationHistory: React.FC = () => {
       <div className={cn("relative z-10")}>
         <div className="mx-auto max-w-7xl">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">ประวัติการแจ้งเตือน</h1>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('notificationHistory', 'title')}</h1>
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-1">
-              แสดงประวัติการแจ้งเตือนที่เกิดจากการตรวจพบค่าที่เกินเกณฑ์ที่กำหนดไว้
+              {t('notificationHistory', 'description')}
             </p>
           </div>
 

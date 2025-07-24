@@ -11,8 +11,10 @@ import { NotificationPagination } from "./components/NotificationPagination";
 import { useNotificationHistory } from "./hooks/useNotificationHistory";
 import { useQueryClient } from "@tanstack/react-query";
 import { RealtimePayload } from "./types";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export const NotificationHistoryList = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const {
@@ -87,13 +89,13 @@ export const NotificationHistoryList = () => {
     return (
       <div className="text-center py-8">
         <div className="text-red-600 mb-4">
-          เกิดข้อผิดพลาดในการโหลดข้อมูล
+          {t('general', 'errorLoadingData')}
         </div>
         <button 
           onClick={handleRefresh}
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
         >
-          ลองใหม่
+          {t('general', 'tryAgain')}
         </button>
       </div>
     );
