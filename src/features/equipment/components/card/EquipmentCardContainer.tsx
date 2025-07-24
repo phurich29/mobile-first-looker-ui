@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { EquipmentCardHeader } from "./EquipmentCardHeader";
 import { EquipmentCardContent } from "./EquipmentCardContent";
 import { EquipmentCardDialogs } from "./EquipmentCardDialogs";
+import { DeleteConfirmationDialog } from "./DeleteConfirmationDialog";
 import { UserAccessDialog } from "../access/UserAccessDialog";
 import { useEquipmentCard } from "./hooks/useEquipmentCard";
 import { useState } from "react";
@@ -27,6 +28,7 @@ export function EquipmentCardContainer({
   deviceData
 }: EquipmentCardContainerProps) {
   const [isUsersDialogOpen, setIsUsersDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   
   const {
     isEditDialogOpen,
@@ -36,6 +38,15 @@ export function EquipmentCardContainer({
     handleSaveDisplayName
   } = useEquipmentCard(deviceCode, displayName, onDeviceUpdated);
 
+  const handleDeleteConfirm = () => {
+    console.log(`Deleting device: ${deviceCode}`);
+    // Here you would typically call an API to delete the device
+    // For now, we'll just close the dialog
+    setIsDeleteDialogOpen(false);
+    // Optionally, call onDeviceUpdated to refresh the list
+    onDeviceUpdated?.();
+  };
+
   return (
     <>
       <Card className="duration-300 border border-gray-200 dark:border-gray-700 bg-emerald-100 dark:bg-emerald-800 bg-[linear-gradient(rgba(255,255,255,0.98),rgba(255,255,255,0.98)),url('/lovable-uploads/6b12828f-a844-4f45-be72-ca664963430d.png')] dark:bg-[linear-gradient(rgba(30,41,59,0.98),rgba(30,41,59,0.98)),url('/lovable-uploads/6b12828f-a844-4f45-be72-ca664963430d.png')] bg-repeat shadow-none">
@@ -44,6 +55,7 @@ export function EquipmentCardContainer({
           displayName={displayName}
           isSuperAdmin={isSuperAdmin}
           onUsersClick={() => setIsUsersDialogOpen(true)}
+          onDeleteClick={() => setIsDeleteDialogOpen(true)}
         />
         
         <EquipmentCardContent
@@ -55,6 +67,16 @@ export function EquipmentCardContainer({
         />
       </Card>
       
+      {/* Delete Confirmation Dialog for Super Admin */}
+      {isSuperAdmin && (
+        <DeleteConfirmationDialog
+          isOpen={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+          onConfirm={handleDeleteConfirm}
+          deviceName={displayName || deviceCode}
+        />
+      )}
+
       {/* User Access Dialog for Super Admin */}
       {isSuperAdmin && (
         <UserAccessDialog
