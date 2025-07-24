@@ -4,7 +4,7 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/riceflowicon_launcher"
-        android:label="@string/riceflowicon_foreground"
+        android:label="@mipmap/riceflowicon_foreground"
         android:roundIcon="@mipmap/riceflowicon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
