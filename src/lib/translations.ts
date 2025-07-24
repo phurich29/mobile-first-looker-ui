@@ -145,6 +145,8 @@ export const translations = {
     selectDeviceForReport: { th: 'โปรดเลือกอุปกรณ์เพื่อรับฟังรายงานจากนักปราชญ์', en: 'Please select a device to receive the scholar\'s report' },
   },
   userManagement: {
+    title: { th: 'จัดการผู้ใช้งาน', en: 'User Management' },
+    addNewUser: { th: 'เพิ่มผู้ใช้ใหม่', en: 'Add New User' },
     currentUserRights: { th: 'สิทธิ์ปัจจุบันของคุณ', en: 'Your Current Permissions' },
     additionalRights: { th: 'สิทธิ์เพิ่มเติม', en: 'additional permissions' },
     rightsDetails: { th: 'รายละเอียดสิทธิ์:', en: 'Permission Details:' },

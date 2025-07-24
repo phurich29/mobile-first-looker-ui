@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, UserPlus } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { useUserManagement } from "@/features/user-management/hooks/useUserManagement";
+import { useTranslation } from "@/hooks/useTranslation";
 import { UserTable } from "@/features/user-management/components/UserTable";
 import { AddUserDialog } from "@/features/user-management/components/AddUserDialog";
 import { ResetPasswordDialog } from "@/features/user-management/components/ResetPasswordDialog";
@@ -17,6 +18,7 @@ import { GuestDeviceManagement } from "@/features/user-management/components/Gue
 
 export default function UserManagement() {
   const { user, userRoles, isLoading } = useAuth();
+  const { t } = useTranslation();
   const {
     users,
     setUsers,
@@ -64,7 +66,7 @@ export default function UserManagement() {
       <div className="flex-1 w-full pb-24 space-y-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold dark:text-gray-100">จัดการผู้ใช้งาน</h1>
+            <h1 className="text-2xl font-bold dark:text-gray-100">{t('userManagement', 'title')}</h1>
           </div>
           
           <Button 
@@ -73,7 +75,7 @@ export default function UserManagement() {
             className="bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-700 dark:hover:bg-emerald-800"
           >
             <UserPlus className="h-4 w-4 mr-2" />
-            เพิ่มผู้ใช้ใหม่
+            {t('userManagement', 'addNewUser')}
           </Button>
         </div>
 
