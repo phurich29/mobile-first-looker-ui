@@ -97,6 +97,10 @@ export const translations = {
     messageAboveThreshold: { th: 'สูงกว่าเกณฑ์ที่กำหนดไว้', en: 'above the set threshold' },
     messageBelowThreshold: { th: 'ต่ำกว่าเกณฑ์ที่กำหนดไว้', en: 'below the set threshold' },
     messageValue: { th: 'ค่า', en: 'Value' },
+    showing: { th: 'แสดง', en: 'Showing' },
+    to: { th: 'ถึง', en: 'to' },
+    from: { th: 'จากทั้งหมด', en: 'of' },
+    entries: { th: 'รายการ', en: 'entries' },
   },
   dataCategories: {
     wholegrain: { th: 'พื้นข้าวเต็มเมล็ด', en: 'Whole Grain Rice' },
