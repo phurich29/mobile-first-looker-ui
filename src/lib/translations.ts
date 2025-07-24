@@ -94,6 +94,9 @@ export const translations = {
     times: { th: 'ครั้ง', en: 'times' },
     viewDetails: { th: 'ดูข้อมูล', en: 'View Details' },
     viewShort: { th: 'ดู', en: 'View' },
+    messageAboveThreshold: { th: 'สูงกว่าเกณฑ์ที่กำหนดไว้', en: 'above the set threshold' },
+    messageBelowThreshold: { th: 'ต่ำกว่าเกณฑ์ที่กำหนดไว้', en: 'below the set threshold' },
+    messageValue: { th: 'ค่า', en: 'Value' },
   },
   dataCategories: {
     wholegrain: { th: 'พื้นข้าวเต็มเมล็ด', en: 'Whole Grain Rice' },

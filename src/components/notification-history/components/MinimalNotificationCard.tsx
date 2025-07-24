@@ -15,7 +15,34 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
   notification,
   onViewDetails
 }) => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+
+  // Function to translate notification messages
+  const translateNotificationMessage = (message: string) => {
+    if (language === 'th') return message;
+    
+    // Pattern: ค่า "rice_type_name" (value) สูงกว่าเกณฑ์ที่กำหนดไว้ (threshold)
+    // Pattern: ค่า "rice_type_name" (value) ต่ำกว่าเกณฑ์ที่กำหนดไว้ (threshold)
+    
+    const maxPattern = /ค่า "([^"]+)" \(([^)]+)\) สูงกว่าเกณฑ์ที่กำหนดไว้ \(([^)]+)\)/;
+    const minPattern = /ค่า "([^"]+)" \(([^)]+)\) ต่ำกว่าเกณฑ์ที่กำหนดไว้ \(([^)]+)\)/;
+    
+    const maxMatch = message.match(maxPattern);
+    const minMatch = message.match(minPattern);
+    
+    if (maxMatch) {
+      const [, riceTypeName, value, threshold] = maxMatch;
+      return `${t('notificationHistory', 'messageValue')} "${riceTypeName}" (${value}) ${t('notificationHistory', 'messageAboveThreshold')} (${threshold})`;
+    }
+    
+    if (minMatch) {
+      const [, riceTypeName, value, threshold] = minMatch;
+      return `${t('notificationHistory', 'messageValue')} "${riceTypeName}" (${value}) ${t('notificationHistory', 'messageBelowThreshold')} (${threshold})`;
+    }
+    
+    return message; // Fallback to original message if pattern doesn't match
+  };
+
   // Adjust timestamp by subtracting 7 hours to correct timezone issue
   const originalDate = new Date(notification.timestamp);
   originalDate.setHours(originalDate.getHours() - 7);
@@ -114,7 +141,7 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
         {/* Message Section */}
         <div className="w-full">
           <p className="text-xs text-gray-600 dark:text-gray-400 break-words whitespace-normal leading-relaxed">
-            {notification.notification_message}
+            {translateNotificationMessage(notification.notification_message)}
           </p>
         </div>
         
