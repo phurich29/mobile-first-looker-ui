@@ -2,6 +2,7 @@
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { UserRow } from "./UserRow";
 import { User, UserRole } from "../types";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface UserTableProps {
   users: User[];
@@ -24,12 +25,13 @@ export function UserTable({
   onOpenDeleteDialog,
   onChangeUserRole
 }: UserTableProps) {
+  const { t } = useTranslation();
   return (
     <Table>
       <TableHeader>
         <TableRow className="dark:border-slate-700">
-          <TableHead className="text-xs font-medium text-gray-900 dark:text-gray-200">ผู้ใช้งาน</TableHead>
-          <TableHead className="text-xs font-medium text-gray-900 dark:text-gray-200 text-right">การดำเนินการ</TableHead>
+          <TableHead className="text-xs font-medium text-gray-900 dark:text-gray-200">{t('userManagement', 'userTableUser')}</TableHead>
+          <TableHead className="text-xs font-medium text-gray-900 dark:text-gray-200 text-right">{t('userManagement', 'userTableActions')}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

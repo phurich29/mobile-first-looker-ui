@@ -181,6 +181,8 @@ export const translations = {
     removeDeviceSuccess: { th: 'ลบอุปกรณ์สำเร็จ', en: 'Device removed successfully' },
     deviceRemoved: { th: 'ถูกนำออกจากรายการแล้ว', en: 'has been removed from the list' },
     errorRemovingDevice: { th: 'ไม่สามารถลบอุปกรณ์ได้', en: 'Unable to remove device' },
+    userTableUser: { th: 'ผู้ใช้งาน', en: 'User' },
+    userTableActions: { th: 'การดำเนินการ', en: 'Actions' },
     roles: {
       user: { th: 'ผู้ใช้ทั่วไป', en: 'General User' },
       admin: { th: 'ผู้ดูแลระบบ', en: 'Administrator' },
