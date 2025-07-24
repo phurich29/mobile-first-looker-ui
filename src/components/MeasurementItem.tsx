@@ -67,6 +67,7 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
       'ข้าวหักรวม': 'total_brokens',
       'ปลายข้าว': 'small_brokens',
       'ปลายข้าวC1': 'small_brokens_c1',
+      'ปลายข้าว C1': 'small_brokens_c1',
       'สีต่ำกว่ามาตรฐาน': 'red_line_rate',
       'เมล็ดแดง': 'parboiled_red_line',
       'ข้าวดิบ': 'parboiled_white_rice',
