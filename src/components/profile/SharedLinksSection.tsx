@@ -29,8 +29,10 @@ import {
 import { Label } from '@/components/ui/label';
 import { Copy, Edit, Trash2, ExternalLink, Check, QrCode, Download } from 'lucide-react';
 import QRCode from 'qrcode';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export const SharedLinksSection: React.FC = () => {
+  const { t, language } = useTranslation();
   const { sharedLinks, loading, updateSharedLink, deleteSharedLink, getPublicLink } = useSharedLinks();
   const [editingLink, setEditingLink] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
@@ -107,13 +109,13 @@ export const SharedLinksSection: React.FC = () => {
       link.click();
       
       toast({
-        title: 'สำเร็จ',
-        description: 'บันทึก QR Code เรียบร้อยแล้ว',
+        title: t('sharedLinks', 'successToast'),
+        description: t('sharedLinks', 'downloadQrSuccess'),
       });
     } catch (error) {
       toast({
-        title: 'ข้อผิดพลาด',
-        description: 'ไม่สามารถบันทึก QR Code ได้',
+        title: t('sharedLinks', 'errorToast'),
+        description: t('sharedLinks', 'downloadQrError'),
         variant: 'destructive',
       });
     }
@@ -125,8 +127,8 @@ export const SharedLinksSection: React.FC = () => {
       await navigator.clipboard.writeText(url);
       setCopiedLinks(prev => new Set([...prev, shareToken]));
       toast({
-        title: 'คัดลอกแล้ว',
-        description: 'ลิงก์ถูกคัดลอกไปยังคลิปบอร์ดแล้ว',
+        title: t('sharedLinks', 'copySuccess'),
+        description: t('sharedLinks', 'copySuccessDescription'),
       });
       setTimeout(() => {
         setCopiedLinks(prev => {
@@ -137,8 +139,8 @@ export const SharedLinksSection: React.FC = () => {
       }, 2000);
     } catch (error) {
       toast({
-        title: 'ข้อผิดพลาด',
-        description: 'ไม่สามารถคัดลอกลิงก์ได้',
+        title: t('sharedLinks', 'errorToast'),
+        description: t('sharedLinks', 'copyError'),
         variant: 'destructive',
       });
     }
@@ -148,13 +150,13 @@ export const SharedLinksSection: React.FC = () => {
     const result = await updateSharedLink(id, { is_active: !currentStatus });
     if (result) {
       toast({
-        title: 'อัปเดตสำเร็จ',
-        description: `ลิงก์ถูก${!currentStatus ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}แล้ว`,
+        title: t('sharedLinks', 'updateSuccess'),
+        description: !currentStatus ? t('sharedLinks', 'linkActivated') : t('sharedLinks', 'linkDeactivated'),
       });
     } else {
       toast({
-        title: 'ข้อผิดพลาด',
-        description: 'ไม่สามารถอัปเดตสถานะลิงก์ได้',
+        title: t('sharedLinks', 'errorToast'),
+        description: t('sharedLinks', 'updateStatusError'),
         variant: 'destructive',
       });
     }
@@ -163,8 +165,8 @@ export const SharedLinksSection: React.FC = () => {
   const handleEditTitle = async (id: string) => {
     if (!editTitle.trim()) {
       toast({
-        title: 'ข้อผิดพลาด',
-        description: 'กรุณากรอกชื่อลิงก์',
+        title: t('sharedLinks', 'errorToast'),
+        description: t('sharedLinks', 'enterLinkNameError'),
         variant: 'destructive',
       });
       return;
@@ -173,15 +175,15 @@ export const SharedLinksSection: React.FC = () => {
     const result = await updateSharedLink(id, { title: editTitle.trim() });
     if (result) {
       toast({
-        title: 'อัปเดตสำเร็จ',
-        description: 'ชื่อลิงก์ถูกอัปเดตแล้ว',
+        title: t('sharedLinks', 'updateSuccess'),
+        description: t('sharedLinks', 'updateNameSuccess'),
       });
       setEditingLink(null);
       setEditTitle('');
     } else {
       toast({
-        title: 'ข้อผิดพลาด',
-        description: 'ไม่สามารถอัปเดตชื่อลิงก์ได้',
+        title: t('sharedLinks', 'errorToast'),
+        description: t('sharedLinks', 'updateNameError'),
         variant: 'destructive',
       });
     }
@@ -191,13 +193,13 @@ export const SharedLinksSection: React.FC = () => {
     const success = await deleteSharedLink(id);
     if (success) {
       toast({
-        title: 'ลบสำเร็จ',
-        description: 'ลิงก์ถูกลบแล้ว',
+        title: t('sharedLinks', 'deleteSuccess'),
+        description: t('sharedLinks', 'linkDeleted'),
       });
     } else {
       toast({
-        title: 'ข้อผิดพลาด',
-        description: 'ไม่สามารถลบลิงก์ได้',
+        title: t('sharedLinks', 'errorToast'),
+        description: t('sharedLinks', 'deleteError'),
         variant: 'destructive',
       });
     }
@@ -209,7 +211,7 @@ export const SharedLinksSection: React.FC = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('th-TH', {
+    return new Date(dateString).toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -222,12 +224,12 @@ export const SharedLinksSection: React.FC = () => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>ลิงก์แชร์ของฉัน</CardTitle>
-          <CardDescription>จัดการลิงก์แชร์ข้อมูลการวิเคราะห์ของคุณ</CardDescription>
+          <CardTitle>{t('sharedLinks', 'title')}</CardTitle>
+          <CardDescription>{t('sharedLinks', 'description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
-            <div className="text-muted-foreground">กำลังโหลด...</div>
+            <div className="text-muted-foreground">{t('sharedLinks', 'loading')}</div>
           </div>
         </CardContent>
       </Card>
@@ -237,13 +239,13 @@ export const SharedLinksSection: React.FC = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>ลิงก์แชร์ของฉัน</CardTitle>
-        <CardDescription>จัดการลิงก์แชร์ข้อมูลการวิเคราะห์ของคุณ</CardDescription>
+        <CardTitle>{t('sharedLinks', 'title')}</CardTitle>
+        <CardDescription>{t('sharedLinks', 'description')}</CardDescription>
       </CardHeader>
       <CardContent>
         {sharedLinks.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            ยังไม่มีลิงก์แชร์
+            {t('sharedLinks', 'noSharedLinks')}
           </div>
         ) : (
           <div className="space-y-4">
@@ -308,15 +310,15 @@ export const SharedLinksSection: React.FC = () => {
                         </Dialog>
                       </div>
                       <Badge variant={link.is_active ? "default" : "secondary"}>
-                        {link.is_active ? 'ใช้งานได้' : 'ปิดใช้งาน'}
+                        {link.is_active ? t('sharedLinks', 'active') : t('sharedLinks', 'inactive')}
                       </Badge>
                     </div>
                     <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1.5 mb-3">
                       <p className="text-xs text-muted-foreground">
-                        สร้างเมื่อ: {formatDate(link.created_at)}
+                        {t('sharedLinks', 'createdAt')}: {formatDate(link.created_at)}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        อัปเดตล่าสุด: {formatDate(link.updated_at)}
+                        {t('sharedLinks', 'lastUpdated')}: {formatDate(link.updated_at)}
                       </p>
                     </div>
                     
