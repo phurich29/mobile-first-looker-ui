@@ -148,6 +148,27 @@ export const translations = {
     currentUserRights: { th: 'สิทธิ์ปัจจุบันของคุณ', en: 'Your Current Permissions' },
     additionalRights: { th: 'สิทธิ์เพิ่มเติม', en: 'additional permissions' },
     rightsDetails: { th: 'รายละเอียดสิทธิ์:', en: 'Permission Details:' },
+    roles: {
+      user: { th: 'ผู้ใช้ทั่วไป', en: 'General User' },
+      admin: { th: 'ผู้ดูแลระบบ', en: 'Administrator' },
+      superadmin: { th: 'ผู้ดูแลระบบสูงสุด', en: 'Super Administrator' }
+    },
+    permissions: {
+      viewRiceAnalysis: { th: 'ดูข้อมูลการวิเคราะห์คุณภาพข้าวของอุปกรณ์ที่ได้รับสิทธิ์', en: 'View rice quality analysis data for authorized devices' },
+      personalNotifications: { th: 'ตั้งค่าการแจ้งเตือนส่วนตัว', en: 'Set personal notification preferences' },
+      viewHistory: { th: 'ดูประวัติการวัด', en: 'View measurement history' },
+      manageUsers: { th: 'จัดการผู้ใช้อื่น', en: 'Manage other users' },
+      manageNews: { th: 'จัดการข่าวสาร', en: 'Manage news' },
+      allUserRights: { th: 'สิทธิ์ทั้งหมดของ User', en: 'All User permissions' },
+      manageNewsAdvanced: { th: 'จัดการข่าวสาร (เพิ่ม/แก้ไข/ลบ)', en: 'Manage news (add/edit/delete)' },
+      manageDeviceAccess: { th: 'จัดการสิทธิ์การเข้าถึงอุปกรณ์ของผู้ใช้', en: 'Manage user device access permissions' },
+      viewAllDevices: { th: 'ดูข้อมูลอุปกรณ์ทั้งหมด', en: 'View all device data' },
+      manageSuperadmin: { th: 'จัดการผู้ใช้ Superadmin', en: 'Manage Superadmin users' },
+      allAdminRights: { th: 'สิทธิ์ทั้งหมดของ Admin', en: 'All Administrator permissions' },
+      manageAllUsers: { th: 'จัดการผู้ใช้ทั้งหมด (เพิ่ม/ลบ/แก้ไข)', en: 'Manage all users (add/delete/edit)' },
+      changeUserRoles: { th: 'เปลี่ยนสิทธิ์ผู้ใช้ (รวมถึง Admin และ Superadmin)', en: 'Change user permissions (including Admin and Superadmin)' },
+      accessAllData: { th: 'เข้าถึงข้อมูลทั้งหมดในระบบ', en: 'Access all system data' }
+    }
   },
   buttons: {
     save: { th: 'บันทึก', en: 'Save' },

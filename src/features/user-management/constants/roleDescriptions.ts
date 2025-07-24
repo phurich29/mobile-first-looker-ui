@@ -1,5 +1,6 @@
 
 import { Shield, Users, Newspaper, TrendingUp, Bell, BarChart3, Settings } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export interface RolePermission {
   icon: any;
@@ -117,4 +118,94 @@ export const getCurrentUserHighestRole = (roles: string[]): string => {
   if (roles.includes('admin')) return 'admin';
   if (roles.includes('user')) return 'user';
   return 'user'; // default fallback
+};
+
+// Updated function that returns translated role descriptions
+export const getTranslatedRoleDescription = (role: string): RoleDescription | null => {
+  const { t } = useTranslation();
+  
+  const baseRole = ROLE_DESCRIPTIONS[role];
+  if (!baseRole) return null;
+
+  const translatedPermissions: RolePermission[] = role === 'user' ? [
+    {
+      icon: BarChart3,
+      description: t('userManagement', 'permissions.viewRiceAnalysis' as any),
+      allowed: true
+    },
+    {
+      icon: Bell,
+      description: t('userManagement', 'permissions.personalNotifications' as any),
+      allowed: true
+    },
+    {
+      icon: TrendingUp,
+      description: t('userManagement', 'permissions.viewHistory' as any),
+      allowed: true
+    },
+    {
+      icon: Users,
+      description: t('userManagement', 'permissions.manageUsers' as any),
+      allowed: false
+    },
+    {
+      icon: Newspaper,
+      description: t('userManagement', 'permissions.manageNews' as any),
+      allowed: false
+    }
+  ] : role === 'admin' ? [
+    {
+      icon: BarChart3,
+      description: t('userManagement', 'permissions.allUserRights' as any),
+      allowed: true
+    },
+    {
+      icon: Newspaper,
+      description: t('userManagement', 'permissions.manageNewsAdvanced' as any),
+      allowed: true
+    },
+    {
+      icon: Settings,
+      description: t('userManagement', 'permissions.manageDeviceAccess' as any),
+      allowed: true
+    },
+    {
+      icon: BarChart3,
+      description: t('userManagement', 'permissions.viewAllDevices' as any),
+      allowed: true
+    },
+    {
+      icon: Shield,
+      description: t('userManagement', 'permissions.manageSuperadmin' as any),
+      allowed: false
+    }
+  ] : [
+    {
+      icon: Shield,
+      description: t('userManagement', 'permissions.allAdminRights' as any),
+      allowed: true
+    },
+    {
+      icon: Users,
+      description: t('userManagement', 'permissions.manageAllUsers' as any),
+      allowed: true
+    },
+    {
+      icon: Settings,
+      description: t('userManagement', 'permissions.changeUserRoles' as any),
+      allowed: true
+    },
+    {
+      icon: BarChart3,
+      description: t('userManagement', 'permissions.accessAllData' as any),
+      allowed: true
+    }
+  ];
+
+  return {
+    name: t('userManagement', `roles.${role}` as any),
+    color: baseRole.color,
+    bgColor: baseRole.bgColor,
+    permissions: translatedPermissions
+  };
 };

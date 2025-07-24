@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, X, User } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
-import { getRoleDescription, getCurrentUserHighestRole } from "../constants/roleDescriptions";
+import { getTranslatedRoleDescription, getCurrentUserHighestRole } from "../constants/roleDescriptions";
 import { useTranslation } from "@/hooks/useTranslation";
 
 export function CurrentUserRoleCard() {
@@ -11,7 +11,7 @@ export function CurrentUserRoleCard() {
   const { userRoles } = useAuth();
   
   const highestRole = getCurrentUserHighestRole(userRoles);
-  const roleDescription = getRoleDescription(highestRole);
+  const roleDescription = getTranslatedRoleDescription(highestRole);
   
   if (!roleDescription) {
     return null;
