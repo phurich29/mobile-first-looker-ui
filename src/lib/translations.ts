@@ -86,6 +86,12 @@ export const translations = {
     noData: { th: 'ไม่มีข้อมูลสำหรับการคำนวณ', en: 'No data available for calculation' },
     deviceName: { th: 'ชื่ออุปกรณ์', en: 'Device Name' },
     kernelCount: { th: 'จำนวนเมล็ด', en: 'Kernel Count' },
+    totalRicePercentage: { th: '%ข้าวต้น + %เต็มเมล็ด', en: '%Head Rice + %Whole Kernels' },
+    headRice: { th: 'ข้าวต้น', en: 'Head Rice' },
+    wholeKernels: { th: 'เต็มเมล็ด', en: 'Whole Kernels' },
+    yield: { th: 'ผลผลิต', en: 'Yield' },
+    haab: { th: 'หาบ', en: 'Haab' },
+    fromOneTonPaddy: { th: 'จากข้าวเปลือก 1 ตัน', en: 'From 1 ton of paddy' },
   },
   measurements: {
     class1: { th: 'ชั้น 1 (>7.0mm)', en: 'Class 1' },
