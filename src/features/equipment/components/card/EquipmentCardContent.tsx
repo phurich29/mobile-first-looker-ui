@@ -21,8 +21,8 @@ export function EquipmentCardContent({
   onEditClick,
   deviceData
 }: EquipmentCardContentProps) {
-  const { t } = useTranslation();
-  const formattedTime = formatEquipmentTime(lastUpdated);
+  const { t, language } = useTranslation();
+  const formattedTime = formatEquipmentTime(lastUpdated, language);
   const isRecent = isRecentUpdate(lastUpdated, deviceData);
   const timeClasses = getTimeClasses(isRecent);
 

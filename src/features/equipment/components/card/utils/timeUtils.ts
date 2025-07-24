@@ -1,14 +1,21 @@
 
 import { format } from "date-fns";
-import { th } from "date-fns/locale";
+import { th, enUS } from "date-fns/locale";
 
-export const formatEquipmentTime = (lastUpdated: string | null) => {
-  if (!lastUpdated || lastUpdated === "-") return "ไม่มีข้อมูล";
+export const formatEquipmentTime = (lastUpdated: string | null, language: 'th' | 'en' = 'th') => {
+  if (!lastUpdated || lastUpdated === "-") {
+    return language === 'th' ? "ไม่มีข้อมูล" : "No data";
+  }
   
   const date = new Date(lastUpdated);
   // เพิ่มเวลาอีก 7 ชั่วโมง
   date.setHours(date.getHours() + 7);
-  return format(date, "dd MMM yy HH:mm น.", { locale: th });
+  
+  if (language === 'en') {
+    return format(date, "dd MMM yy HH:mm", { locale: enUS });
+  } else {
+    return format(date, "dd MMM yy HH:mm น.", { locale: th });
+  }
 };
 
 export const isRecentUpdate = (lastUpdated: string | null, deviceData?: any): boolean => {
