@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { BarChart, Settings, Clock, Circle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { formatEquipmentTime, isRecentUpdate, getTimeClasses } from "./utils/timeUtils";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface EquipmentCardContentProps {
   deviceCode: string;
@@ -20,6 +21,7 @@ export function EquipmentCardContent({
   onEditClick,
   deviceData
 }: EquipmentCardContentProps) {
+  const { t } = useTranslation();
   const formattedTime = formatEquipmentTime(lastUpdated);
   const isRecent = isRecentUpdate(lastUpdated, deviceData);
   const timeClasses = getTimeClasses(isRecent);
@@ -57,7 +59,7 @@ export function EquipmentCardContent({
             onClick={handleDeviceClick}
           >
             <BarChart className="h-3 w-3 mr-1" />
-            ดูข้อมูล
+            {t('general', 'viewData')}
           </Link>
         </Button>
         

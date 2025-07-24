@@ -71,6 +71,7 @@ export const translations = {
     items: { th: 'รายการ', en: 'items' },
     page: { th: 'หน้า', en: 'Page' },
     of: { th: 'จาก', en: 'of' },
+    viewData: { th: 'ดูข้อมูล', en: 'Detail' },
   },
   dataCategories: {
     wholegrain: { th: 'พื้นข้าวเต็มเมล็ด', en: 'Whole Grain Rice' },
