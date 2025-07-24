@@ -92,18 +92,36 @@ export function EquipmentCardContainer({
         variant: "default",
       });
 
-       // Invalidate และ refetch React Query cache
+       // Invalidate และ refetch React Query cache ด้วย query keys ที่ถูกต้อง
        console.log('🔄 Invalidating React Query cache...');
+       
+       // Invalidate guest devices query
        await queryClient.invalidateQueries({ 
          queryKey: ['guest-devices-no-cache'] 
        });
+       
+       // Invalidate authenticated devices query (ใช้ wildcard เพื่อจับทุก variation)
        await queryClient.invalidateQueries({ 
          queryKey: ['authenticated-devices'] 
        });
+       
+       // Invalidate device count query 
        await queryClient.invalidateQueries({ 
          queryKey: ['device-count'] 
        });
-       console.log('✅ React Query cache invalidated');
+       
+       // Force refetch ทันที
+       await queryClient.refetchQueries({ 
+         queryKey: ['guest-devices-no-cache'] 
+       });
+       await queryClient.refetchQueries({ 
+         queryKey: ['authenticated-devices'] 
+       });
+       await queryClient.refetchQueries({ 
+         queryKey: ['device-count'] 
+       });
+       
+       console.log('✅ React Query cache invalidated and refetched');
 
        // เรียก callback เพื่อ refresh component
        console.log('🔄 Calling onDeviceUpdated callback...');
