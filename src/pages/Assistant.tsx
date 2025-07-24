@@ -248,22 +248,22 @@ const AssistantContent = () => {
                   </DialogHeader>
                   <div className="space-y-4 p-4">
                     <div className="space-y-2">
-                      <Label htmlFor="wholeKernels" className="text-amber-900 font-bold">%ข้าวเต็มเมล็ด</Label>
+                      <Label htmlFor="wholeKernels" className="text-amber-900 font-bold">{t('assistant', 'wholeKernelsLabel')}</Label>
                       <Input
                         id="wholeKernels"
                         type="number"
-                        placeholder="ใส่เปอร์เซ็นต์ข้าวเต็มเมล็ด"
+                        placeholder={t('assistant', 'enterWholeKernels')}
                         value={wholeKernelsInput}
                         onChange={(e) => setWholeKernelsInput(e.target.value)}
                         className="border-2 border-amber-600 focus:border-amber-800 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="headRice" className="text-amber-900 font-bold">%ต้นข้าว</Label>
+                      <Label htmlFor="headRice" className="text-amber-900 font-bold">{t('assistant', 'headRiceLabel')}</Label>
                       <Input
                         id="headRice"
                         type="number"
-                        placeholder="ใส่เปอร์เซ็นต์ข้าวต้น"
+                        placeholder={t('assistant', 'enterHeadRice')}
                         value={headRiceInput}
                         onChange={(e) => setHeadRiceInput(e.target.value)}
                         className="border-2 border-amber-600 focus:border-amber-800 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
@@ -272,17 +272,17 @@ const AssistantContent = () => {
                     
                     {(wholeKernelsInput || headRiceInput) && (
                       <div className="mt-6 space-y-4 p-4 bg-gradient-to-br from-amber-100 to-yellow-100 rounded-lg border-2 border-amber-700">
-                        <h3 className="text-lg font-bold text-amber-900 text-center">📊 ผลการคำนวณ</h3>
+                        <h3 className="text-lg font-bold text-amber-900 text-center">📊 {t('assistant', 'calculationResults')}</h3>
                         
                         <div className="space-y-2">
                           <div className="flex justify-between items-center p-2 bg-amber-200 rounded border border-amber-600">
-                            <span className="font-bold text-amber-900">%ข้าวต้น+%เต็มเมล็ด =</span>
+                            <span className="font-bold text-amber-900">{t('assistant', 'totalPercentage')}</span>
                             <span className="text-lg font-bold text-amber-800">{calculateResults().totalPercent}%</span>
                           </div>
                           
                           <div className="flex justify-between items-center p-2 bg-amber-200 rounded border border-amber-600">
-                            <span className="font-bold text-amber-900">ผลหาบ:</span>
-                            <span className="text-lg font-bold text-amber-800">{calculateResults().yieldHaab} หาบ</span>
+                            <span className="font-bold text-amber-900">{t('assistant', 'yieldResult')}:</span>
+                            <span className="text-lg font-bold text-amber-800">{calculateResults().yieldHaab} {t('assistant', 'haab')}</span>
                           </div>
                         </div>
                       </div>
