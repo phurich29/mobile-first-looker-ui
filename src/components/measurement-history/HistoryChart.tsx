@@ -14,6 +14,7 @@ import {
 } from "recharts";
 import { calculateAverage, formatBangkokTime, getTimeFrameHours } from './api';
 import { GraphStyleOptions, HistoryItem, TimeFrame } from './types';
+import { useTranslation } from '@/hooks/useTranslation';
 
 
 
@@ -28,14 +29,15 @@ type HistoryChartProps = {
 };
 
 const HistoryChart: React.FC<HistoryChartProps> = ({ 
-  historyData, 
-  isLoading, 
+  historyData,
+  isLoading,
   dataKey,
   error,
-  unit,
-  timeFrame = '24h',
+  unit = "",
+  timeFrame = "24h",
   styleOptions = {}
 }) => {
+  const { t } = useTranslation();
   // สไตล์เริ่มต้น - ถ้าไม่ระบุให้ใช้แบบเส้นธรรมดา
   const graphStyle = styleOptions.graphStyle || 'line';
   const barColor = styleOptions.barColor || '#9b87f5';
@@ -134,8 +136,8 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
                   if (active && payload && payload.length) {
                     return (
                       <div className="bg-white dark:bg-gray-800 p-2 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg dark:text-white">
-                        <p className="text-xs font-medium">{`เวลา: ${payload[0].payload.time} น.`}</p>
-                        <p className="text-xs font-medium" style={{ color: barColor }}>{`ค่า: ${payload[0].value}%`}</p>
+                        <p className="text-xs font-medium">{`${t('general', 'time')} ${payload[0].payload.time} น.`}</p>
+                        <p className="text-xs font-medium" style={{ color: barColor }}>{`${t('general', 'value')} ${payload[0].value}%`}</p>
                         <p className="text-xs text-gray-500">{payload[0].payload.date}</p>
                       </div>
                     );
@@ -149,7 +151,7 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
                 strokeDasharray="3 3"
                 label={{
                   position: 'top',
-                  value: `ค่าเฉลี่ย: ${average.toFixed(2)}%\n(ช่วง ${(average * 0.95).toFixed(2)} - ${(average * 1.05).toFixed(2)}%)`,
+                  value: `${t('general', 'average')} ${average.toFixed(2)}%\n(${t('general', 'range')} ${(average * 0.95).toFixed(2)} - ${(average * 1.05).toFixed(2)}%)`,
                   fill: lineColor,
                   fontSize: 12,
                   offset: 0,
@@ -198,8 +200,8 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
                   if (active && payload && payload.length) {
                     return (
                       <div className="bg-white dark:bg-gray-800 p-2 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg dark:text-white">
-                        <p className="text-xs font-medium">{`เวลา: ${payload[0].payload.time} น.`}</p>
-                        <p className="text-xs font-medium" style={{ color: barColor }}>{`ค่า: ${payload[0].value}%`}</p>
+                        <p className="text-xs font-medium">{`${t('general', 'time')} ${payload[0].payload.time} น.`}</p>
+                        <p className="text-xs font-medium" style={{ color: barColor }}>{`${t('general', 'value')} ${payload[0].value}%`}</p>
                         <p className="text-xs text-gray-500">{payload[0].payload.date}</p>
                       </div>
                     );
@@ -213,7 +215,7 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
                 strokeDasharray="3 3"
                 label={{
                   position: 'top',
-                  value: `ค่าเฉลี่ย: ${average.toFixed(2)}%\n(ช่วง ${(average * 0.95).toFixed(2)} - ${(average * 1.05).toFixed(2)}%)`,
+                  value: `${t('general', 'average')} ${average.toFixed(2)}%\n(${t('general', 'range')} ${(average * 0.95).toFixed(2)} - ${(average * 1.05).toFixed(2)}%)`,
                   fill: lineColor,
                   fontSize: 12,
                   offset: 0,
