@@ -200,7 +200,7 @@ const AssistantContent = () => {
                   <div className="relative border-3 border-amber-800 rounded-lg p-3 sm:p-4 bg-gradient-to-br from-amber-100 to-yellow-100 shadow-inner">
                     <div className="flex justify-between items-center gap-2">
                       <div>
-                        <h4 className="font-bold text-amber-900 text-sm sm:text-base lg:text-lg flex-shrink-0">%ข้าวต้น + %เต็มเมล็ด =</h4>
+                        <h4 className="font-bold text-amber-900 text-sm sm:text-base lg:text-lg flex-shrink-0">{t('assistant', 'totalPercentage')}</h4>
                         {selectedDevice && (
                           <p className="text-xs text-amber-800/80 mt-1">
                             (%ข้าวต้น: {headRiceValue.toFixed(2)}% + %เต็มเมล็ด: {wholeKernelsValue.toFixed(2)}%)
