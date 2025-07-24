@@ -41,7 +41,7 @@ export const TabsHeader: React.FC<TabsHeaderProps> = ({ activeTab }) => {
   return (
     <TabsList 
       ref={tabsListRef}
-      className="flex overflow-x-auto whitespace-nowrap mb-4 md:grid md:grid-cols-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] cursor-grab select-none"
+      className="flex overflow-x-auto whitespace-nowrap mb-4 md:grid md:grid-cols-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] cursor-grab select-none gap-1"
       onMouseDown={handleMouseDown}
       onMouseLeave={handleMouseLeaveOrUp}
       onMouseUp={handleMouseLeaveOrUp}
@@ -49,28 +49,28 @@ export const TabsHeader: React.FC<TabsHeaderProps> = ({ activeTab }) => {
     >
       <TabsTrigger 
         value="wholegrain" 
-        className="text-xs md:text-sm"
+        className="text-xs md:text-sm flex-shrink-0 min-w-fit px-2 py-1.5"
         data-active={activeTab === "wholegrain"}
       >
         {t('dataCategories', 'wholegrain')}
       </TabsTrigger>
       <TabsTrigger 
         value="ingredients" 
-        className="text-xs md:text-sm"
+        className="text-xs md:text-sm flex-shrink-0 min-w-fit px-2 py-1.5"
         data-active={activeTab === "ingredients"}
       >
         {t('dataCategories', 'ingredients')}
       </TabsTrigger>
       <TabsTrigger 
         value="impurities" 
-        className="text-xs md:text-sm"
+        className="text-xs md:text-sm flex-shrink-0 min-w-fit px-2 py-1.5"
         data-active={activeTab === "impurities"}
       >
         {t('dataCategories', 'impurities')}
       </TabsTrigger>
       <TabsTrigger 
         value="all" 
-        className="text-xs md:text-sm"
+        className="text-xs md:text-sm flex-shrink-0 min-w-fit px-2 py-1.5"
         data-active={activeTab === "all"}
       >
         {t('dataCategories', 'allData')}
