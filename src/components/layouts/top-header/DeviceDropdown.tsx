@@ -11,6 +11,7 @@ import {
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useGuestMode } from '@/hooks/useGuestMode';
 import { supabase } from '@/integrations/supabase/client';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface Device {
   device_code: string;
@@ -30,7 +31,8 @@ export const DeviceDropdown: React.FC<DeviceDropdownProps> = ({
   const { deviceCode: deviceCodeFromUrl } = useParams<{ deviceCode?: string }>();
   const location = useLocation();
   const { isGuest } = useGuestMode();
-  const [selectedDeviceName, setSelectedDeviceName] = useState<string>("เลือกอุปกรณ์");
+  const { t } = useTranslation();
+  const [selectedDeviceName, setSelectedDeviceName] = useState<string>(t('device', 'selectDevice'));
   const [guestDevices, setGuestDevices] = useState<Device[]>([]);
   const [isLoadingGuestDevices, setIsLoadingGuestDevices] = useState(false);
 
@@ -84,12 +86,12 @@ export const DeviceDropdown: React.FC<DeviceDropdownProps> = ({
 
   useEffect(() => {
     if (isLoading) {
-      setSelectedDeviceName("กำลังโหลด...");
+      setSelectedDeviceName(t('general', 'loading'));
       return;
     }
 
     if (displayDevices.length === 0) {
-      setSelectedDeviceName(isGuest ? "ไม่มีอุปกรณ์สำหรับ Guest" : "ไม่มีอุปกรณ์"); 
+      setSelectedDeviceName(isGuest ? t('device', 'noDevicesForGuest') : t('device', 'noDevices')); 
       return;
     }
 
@@ -98,12 +100,12 @@ export const DeviceDropdown: React.FC<DeviceDropdownProps> = ({
       if (currentDevice) {
         setSelectedDeviceName(currentDevice.display_name || currentDevice.device_code);
       } else {
-        setSelectedDeviceName("เลือกอุปกรณ์");
+        setSelectedDeviceName(t('device', 'selectDevice'));
       }
     } else {
-      setSelectedDeviceName("เลือกอุปกรณ์");
+      setSelectedDeviceName(t('device', 'selectDevice'));
     }
-  }, [deviceCodeFromUrl, displayDevices, isLoading, isGuest]);
+  }, [deviceCodeFromUrl, displayDevices, isLoading, isGuest, t]);
 
   const handleDeviceSelect = (newDeviceCode: string) => {
     const currentPathname = location.pathname;

@@ -33,6 +33,9 @@ export const translations = {
     editDeviceName: { th: 'แก้ไขชื่ออุปกรณ์', en: 'Edit Device Name' },
     searchDevices: { th: 'ค้นหาชื่ออุปกรณ์หรือรหัสอุปกรณ์...', en: 'Search device name or code...' },
     units: { th: 'เครื่อง', en: 'devices' },
+    selectDevice: { th: 'เลือกอุปกรณ์', en: 'Select Device' },
+    noDevicesForGuest: { th: 'ไม่มีอุปกรณ์สำหรับ Guest', en: 'No devices for Guest' },
+    noDevices: { th: 'ไม่มีอุปกรณ์', en: 'No devices' },
   },
   profile: {
     profile: { th: 'ข้อมูลส่วนตัว', en: 'Profile' },
