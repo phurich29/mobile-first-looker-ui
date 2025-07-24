@@ -34,7 +34,7 @@ export function UserRow({
   onOpenResetDialog,
   onOpenDeleteDialog
 }: UserRowProps) {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const { userRoles } = useAuth();
   
@@ -95,7 +95,7 @@ export function UserRow({
             <div className="flex flex-col">
               <span className="font-medium text-xs dark:text-gray-100">{user.email}</span>
               <span className="text-[10px] text-gray-500 dark:text-gray-400">
-                {t('userManagement', 'lastSignIn')} {formatDate(user.last_sign_in_at)}
+                {t('userManagement', 'lastSignIn')} {formatDate(user.last_sign_in_at, language)}
               </span>
             </div>
             <div className="flex flex-wrap gap-1 mt-1">
