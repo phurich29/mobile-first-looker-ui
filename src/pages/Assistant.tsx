@@ -185,14 +185,14 @@ const AssistantContent = () => {
                             <TypewriterReport key={longJooReport || 'default-report'} text={longJooReport || `เรียน ท่านผู้มีเกียรติ จากการตรวจสอบอย่างละเอียด ข้าวของท่านจัดอยู่ในประเภท '${riceAnalysis.title}'`} />
                           </div>
                           <div className="bg-amber-100 p-2 rounded border border-amber-500 space-y-1">
-                            <p className="flex items-center gap-2"><span className="text-amber-700">⚖️</span> ค่าความขาว: <span className="font-bold">{whitenessValue.toFixed(1)}</span></p>
-                            <p className="flex items-center gap-2"><span className="text-amber-700">🎯</span> การจำแนก: <span className="font-bold">{riceAnalysis.title}</span> - {classificationDetails || 'รอข้อมูลเพิ่มเติม'}</p>
-                            <p className="flex items-center gap-2"><span className="text-amber-700">📈</span> แนวโน้ม: <span className="font-bold">{trend || 'ไม่สามารถระบุได้'}</span></p>
+                            <p className="flex items-center gap-2"><span className="text-amber-700">⚖️</span> {t('assistant', 'currentWhiteness')}: <span className="font-bold">{whitenessValue.toFixed(1)}</span></p>
+                            <p className="flex items-center gap-2"><span className="text-amber-700">🎯</span> {t('assistant', 'classification')}: <span className="font-bold">{riceAnalysis.title}</span> - {classificationDetails || t('assistant', 'waitingMoreData')}</p>
+                            <p className="flex items-center gap-2"><span className="text-amber-700">📈</span> {t('assistant', 'trend')}: <span className="font-bold">{trend || t('assistant', 'cannotIdentify')}</span></p>
                           </div>
                         </> : <div className="italic font-medium border-l-4 border-amber-600 pl-3">
                           <TypewriterReport key="no-device-selected" text="โปรดเลือกอุปกรณ์เพื่อรับฟังรายงานจากนักปราชญ์" />
                         </div>}
-                      <p className="italic text-amber-700 mt-3 text-center font-semibold border-t border-amber-600 pt-2">"ข้าพเจ้าขอรับใช้ด้วยความเคารพ" 🙏</p>
+                      <p className="italic text-amber-700 mt-3 text-center font-semibold border-t border-amber-600 pt-2">"{t('assistant', 'respectfullyServe')}" 🙏</p>
                     </div>
                   </div>
 
