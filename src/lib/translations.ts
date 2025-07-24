@@ -256,6 +256,7 @@ export const translations = {
     historyStatsMinimum: { th: 'ต่ำสุด:', en: 'Min:' },
     historyStatsMaximum: { th: 'สูงสุด:', en: 'Max:' },
     notificationSettings: { th: 'ตั้งค่าแจ้งเตือน', en: 'Notification Settings' },
+    notificationSettingsFor: { th: 'ตั้งค่าการแจ้งเตือน', en: 'Notification Settings for' },
     tryAgain: { th: 'ลองใหม่', en: 'Try Again' },
     errorLoadingData: { th: 'เกิดข้อผิดพลาดในการโหลดข้อมูล', en: 'Error loading data' },
   },
