@@ -13,6 +13,7 @@ import { useDeviceManagement } from "./hooks/useDeviceManagement";
 import { DeviceAccessSection } from "./DeviceAccessSection";
 import { PasswordChangeSection } from "./PasswordChangeSection";
 import { RoleManagementSection } from "./RoleManagementSection";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface UserRowProps {
   user: User;
@@ -33,6 +34,7 @@ export function UserRow({
   onOpenResetDialog,
   onOpenDeleteDialog
 }: UserRowProps) {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const { userRoles } = useAuth();
   
@@ -93,7 +95,7 @@ export function UserRow({
             <div className="flex flex-col">
               <span className="font-medium text-xs dark:text-gray-100">{user.email}</span>
               <span className="text-[10px] text-gray-500 dark:text-gray-400">
-                เข้าสู่ระบบล่าสุด: {formatDate(user.last_sign_in_at)}
+                {t('userManagement', 'lastSignIn')} {formatDate(user.last_sign_in_at)}
               </span>
             </div>
             <div className="flex flex-wrap gap-1 mt-1">
@@ -110,7 +112,7 @@ export function UserRow({
                   {role}
                 </Badge>
               )) : (
-                <span className="text-gray-400 text-[10px] italic dark:text-gray-500">ไม่มีสิทธิ์</span>
+                <span className="text-gray-400 text-[10px] italic dark:text-gray-500">{t('userManagement', 'noPermissions')}</span>
               )}
             </div>
           </div>
@@ -125,7 +127,7 @@ export function UserRow({
                 disabled={isProcessing}
                 className="bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-700 dark:hover:bg-emerald-800 text-[10px] h-6 px-1"
               >
-                อนุมัติ
+                {t('userManagement', 'approve')}
               </Button>
             )}
             
@@ -154,9 +156,9 @@ export function UserRow({
             className="w-full"
           >
             <CollapsibleContent className="p-4 border-t dark:border-slate-700 space-y-2">
-              <h4 className="text-sm font-medium dark:text-gray-200">แก้ไขข้อมูล: {user.email}</h4>
+              <h4 className="text-sm font-medium dark:text-gray-200">{t('userManagement', 'editData')} {user.email}</h4>
               <div>
-                <label htmlFor={`displayName-${user.id}`} className="text-xs text-gray-600 dark:text-gray-400">ชื่อที่แสดง:</label>
+                <label htmlFor={`displayName-${user.id}`} className="text-xs text-gray-600 dark:text-gray-400">{t('userManagement', 'displayName')}</label>
                 <input 
                   id={`displayName-${user.id}`}
                   type="text" 
@@ -168,7 +170,7 @@ export function UserRow({
 
               {/* Device Access Management Section */}
               <div className="mt-4 pt-4 border-t dark:border-slate-600">
-                <h5 className="text-xs font-semibold mb-2 dark:text-gray-300">จัดการอุปกรณ์ที่เข้าถึงได้:</h5>
+                <h5 className="text-xs font-semibold mb-2 dark:text-gray-300">{t('userManagement', 'manageDeviceAccess')}</h5>
                 <DeviceAccessSection
                   availableDevices={availableDevices}
                   userDevices={userDevices}
@@ -202,10 +204,10 @@ export function UserRow({
 
               <div className="flex justify-end space-x-2 mt-4 pt-4 border-t dark:border-slate-600">
                 <Button size="sm" variant="ghost" onClick={handleCancel} className="text-xs h-7 dark:text-gray-300 dark:hover:bg-slate-700">
-                  ยกเลิก
+                  {t('buttons', 'cancel')}
                 </Button>
                 <Button size="sm" onClick={() => { setIsEditing(false); }} className="text-xs h-7 bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-700 dark:hover:bg-emerald-800">
-                  บันทึก
+                  {t('buttons', 'save')}
                 </Button>
               </div>
             </CollapsibleContent>

@@ -183,6 +183,12 @@ export const translations = {
     errorRemovingDevice: { th: 'ไม่สามารถลบอุปกรณ์ได้', en: 'Unable to remove device' },
     userTableUser: { th: 'ผู้ใช้งาน', en: 'User' },
     userTableActions: { th: 'การดำเนินการ', en: 'Actions' },
+    lastSignIn: { th: 'เข้าสู่ระบบล่าสุด:', en: 'Last sign in:' },
+    noPermissions: { th: 'ไม่มีสิทธิ์', en: 'No permissions' },
+    approve: { th: 'อนุมัติ', en: 'Approve' },
+    editData: { th: 'แก้ไขข้อมูล:', en: 'Edit data:' },
+    displayName: { th: 'ชื่อที่แสดง:', en: 'Display name:' },
+    manageDeviceAccess: { th: 'จัดการอุปกรณ์ที่เข้าถึงได้:', en: 'Manage accessible devices:' },
     roles: {
       user: { th: 'ผู้ใช้ทั่วไป', en: 'General User' },
       admin: { th: 'ผู้ดูแลระบบ', en: 'Administrator' },
