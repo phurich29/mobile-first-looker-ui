@@ -266,6 +266,8 @@ export const translations = {
     enabledButNoThreshold: { th: 'เปิดใช้งานแล้วแต่ยังไม่ได้กำหนดเกณฑ์', en: 'Enabled but no threshold set' },
     notifyWhen: { th: 'แจ้งเตือนเมื่อ:', en: 'Notify when:' },
     or: { th: 'หรือ', en: 'or' },
+    enableNotifications: { th: 'เปิดใช้งานการแจ้งเตือน', en: 'Enable Notifications' },
+    enableNotificationsDescription: { th: 'เปิดใช้งานการแจ้งเตือนสำหรับค่าวัดนี้', en: 'Enable notifications for this measurement' },
     tryAgain: { th: 'ลองใหม่', en: 'Try Again' },
     errorLoadingData: { th: 'เกิดข้อผิดพลาดในการโหลดข้อมูล', en: 'Error loading data' },
   },

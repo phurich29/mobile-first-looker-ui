@@ -1,6 +1,7 @@
 
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface NotificationToggleProps {
   enabled: boolean;
@@ -13,12 +14,13 @@ export const NotificationToggle = ({
   onChange, 
   disabled = false 
 }: NotificationToggleProps) => {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center justify-between">
       <div className="space-y-0.5">
-        <Label htmlFor="notification-enabled">เปิดใช้งานการแจ้งเตือน</Label>
+        <Label htmlFor="notification-enabled">{t('general', 'enableNotifications')}</Label>
         <p className="text-sm text-muted-foreground">
-          เปิดใช้งานการแจ้งเตือนสำหรับค่าวัดนี้
+          {t('general', 'enableNotificationsDescription')}
         </p>
       </div>
       <Switch
