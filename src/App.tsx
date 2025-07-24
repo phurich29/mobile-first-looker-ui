@@ -3,6 +3,7 @@ import { RouterProvider } from "react-router-dom";
 import { router } from "./routes";
 import { AuthProvider } from "./components/AuthProvider";
 import { CountdownProvider } from "./contexts/CountdownContext";
+import { LanguageProvider } from "./contexts/LanguageContext";
 import { PWAProvider } from "./contexts/PWAContext";
 import { PWAInstallBanner } from "./components/PWAInstallBanner";
 import { PWADebugComponent } from "./components/PWADebugComponent";
@@ -52,17 +53,19 @@ function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider defaultTheme="light">
-          <PWAProvider>
-            <CountdownProvider initialSeconds={60} onComplete={handleGlobalCountdownComplete}>
-              <AuthProvider>
-                <RouterProvider router={router} />
-                <PWAInstallBanner />
-                <PWADebugComponent />
-                <CountdownDebugger />
-                <Toaster />
-              </AuthProvider>
-            </CountdownProvider>
-          </PWAProvider>
+          <LanguageProvider>
+            <PWAProvider>
+              <CountdownProvider initialSeconds={60} onComplete={handleGlobalCountdownComplete}>
+                <AuthProvider>
+                  <RouterProvider router={router} />
+                  <PWAInstallBanner />
+                  <PWADebugComponent />
+                  <CountdownDebugger />
+                  <Toaster />
+                </AuthProvider>
+              </CountdownProvider>
+            </PWAProvider>
+          </LanguageProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </ErrorBoundary>

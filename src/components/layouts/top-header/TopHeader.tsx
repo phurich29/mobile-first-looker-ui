@@ -56,8 +56,6 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         {/* Page Title or Logo */}
         {isMobile ? (
           <HeaderLogo 
-            logoSrc={logoSrc}
-            logoAlt={logoAlt}
             appName={appName}
           />
         ) : (
