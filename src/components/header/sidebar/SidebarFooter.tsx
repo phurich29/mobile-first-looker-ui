@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
 import { useAuth } from "@/components/AuthProvider";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface SidebarFooterProps {
   user: any | null;
@@ -13,6 +14,7 @@ interface SidebarFooterProps {
 
 export const SidebarFooter = ({ user, isCollapsed, isMobile }: SidebarFooterProps) => {
   const { signOut } = useAuth();
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     try {
@@ -43,7 +45,7 @@ export const SidebarFooter = ({ user, isCollapsed, isMobile }: SidebarFooterProp
                   )}
                 >
                   <LogOut className="h-5 w-5" />
-                  <span className="text-sm">ออกจากระบบ</span>
+                  <span className="text-sm">{t("login", "logout")}</span>
                 </button>
               </div>
               <div className="flex items-center space-x-2">
