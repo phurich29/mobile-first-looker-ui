@@ -37,6 +37,7 @@ export const MinimalNotificationCard: React.FC<MinimalNotificationCardProps> = (
         'เมล็ดสั้น': t('measurements', 'short_grain'),
         'ข้าวลีบ': t('measurements', 'slender_kernel'),
         'เต็มเมล็ด': t('measurements', 'whole_kernels'),
+        'เมล็ดเต็ม': t('measurements', 'whole_kernels'),
         'ต้นข้าว': t('measurements', 'head_rice'),
         'ข้าวหักรวม': t('measurements', 'total_brokens'),
         'ปลายข้าว': t('measurements', 'small_brokens'),
