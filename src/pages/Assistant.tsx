@@ -202,9 +202,9 @@ const AssistantContent = () => {
                       <div>
                         <h4 className="font-bold text-amber-900 text-sm sm:text-base lg:text-lg flex-shrink-0">{t('assistant', 'totalPercentage')}</h4>
                         {selectedDevice && (
-                          <p className="text-xs text-amber-800/80 mt-1">
-                            (%ข้าวต้น: {headRiceValue.toFixed(2)}% + %เต็มเมล็ด: {wholeKernelsValue.toFixed(2)}%)
-                          </p>
+          <p className="text-xs text-amber-800/80 mt-1">
+            ({t('assistant', 'headRicePercentage')}: {headRiceValue.toFixed(2)}% + {t('assistant', 'wholeKernelsPercentage')}: {wholeKernelsValue.toFixed(2)}%)
+          </p>
                         )}
                       </div>
                       <span className="text-lg sm:text-xl lg:text-3xl font-bold text-amber-800 bg-amber-200 px-2 sm:px-3 lg:px-4 py-1 sm:py-2 rounded-lg border-2 border-amber-700 shadow-inner flex-shrink-0">
