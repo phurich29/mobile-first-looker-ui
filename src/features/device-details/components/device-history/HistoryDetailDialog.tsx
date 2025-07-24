@@ -13,6 +13,7 @@ import { formatCellValue } from './utils';
 import { supabase } from "@/integrations/supabase/client";
 import { ShareLinkModal } from "@/components/shared-links/ShareLinkModal";
 import { DeviceCalculationSummary } from "../DeviceCalculationSummary";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface HistoryDetailDialogProps {
   selectedRow: RiceQualityData | null;
@@ -23,6 +24,7 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
   selectedRow,
   onClose
 }) => {
+  const { t, language } = useTranslation();
   const [deviceDisplayName, setDeviceDisplayName] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
 
@@ -93,7 +95,7 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
         <DialogHeader className="pb-2 pt-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              Rice Quality Analysis Details
+              {t('general', 'historyDetailTitle')}
             </DialogTitle>
             {selectedRow && (
               <Button
@@ -103,7 +105,7 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
                 className="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white"
               >
                 <Share className="h-4 w-4 mr-2" />
-                สร้าง Link สำหรับแชร์
+                {t('general', 'createShareLink')}
               </Button>
             )}
           </div>
@@ -118,29 +120,31 @@ export const HistoryDetailDialog: React.FC<HistoryDetailDialogProps> = ({
                 <div className="flex-1">
                   {deviceDisplayName && (
                     <div className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
-                      Name : {deviceDisplayName}
+                      {t('general', 'deviceDisplayName')} {deviceDisplayName}
                     </div>
                   )}
                   <div className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
-                    Device Code: {selectedRow.device_code}
+                    {t('general', 'deviceCodeLabel')} {selectedRow.device_code}
                   </div>
                   {selectedRow.output && (
                     <div className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
-                      จำนวนเมล็ด: {selectedRow.output.toLocaleString()}
+                      {t('general', 'kernelCount')} {selectedRow.output.toLocaleString()}
                     </div>
                   )}
                   <div className="text-xs text-gray-500 dark:text-gray-400">
                     {selectedRow.thai_datetime ? (() => {
                       const dateObj = new Date(selectedRow.thai_datetime);
                       dateObj.setHours(dateObj.getHours() - 7);
-                      return dateObj.toLocaleString('th-TH', {
+                      const locale = language === 'en' ? 'en-US' : 'th-TH';
+                      return dateObj.toLocaleString(locale, {
                         year: 'numeric', month: '2-digit', day: '2-digit',
                         hour: '2-digit', minute: '2-digit'
                       });
                     })() : (() => {
                       const dateObj = new Date(selectedRow.created_at);
                       dateObj.setHours(dateObj.getHours() - 7);
-                      return dateObj.toLocaleString('th-TH', {
+                      const locale = language === 'en' ? 'en-US' : 'th-TH';
+                      return dateObj.toLocaleString(locale, {
                         year: 'numeric', month: '2-digit', day: '2-digit',
                         hour: '2-digit', minute: '2-digit'
                       });
