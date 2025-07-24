@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { PlusCircle } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface AddDeviceFormProps {
   onDeviceAdded: () => Promise<void>;
@@ -15,6 +16,7 @@ export function AddDeviceForm({ onDeviceAdded }: AddDeviceFormProps) {
   const [deviceCode, setDeviceCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleAddDevice = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,7 +105,7 @@ export function AddDeviceForm({ onDeviceAdded }: AddDeviceFormProps) {
             className="h-7 text-xs px-2 py-0"
           >
             <PlusCircle className="h-3 w-3 mr-0.5" />
-            เพิ่ม
+            {t('buttons', 'add')}
           </Button>
         </form>
       </CardContent>
