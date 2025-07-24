@@ -305,7 +305,7 @@ const AssistantContent = () => {
                 <div className="absolute bottom-1 left-1 w-3 h-3 bg-amber-600 rotate-45"></div>
                 <div className="absolute bottom-1 right-1 w-3 h-3 bg-amber-600 rotate-45"></div>
                 
-                <h4 className="font-bold text-amber-900 mb-3 text-lg">📝 หมายเหตุ</h4>
+                <h4 className="font-bold text-amber-900 mb-3 text-lg">📝 {t('assistant', 'notes')}</h4>
                 <div className="text-sm text-amber-900 space-y-2 bg-yellow-50/70 p-3 rounded border border-amber-600">
                   <p className="leading-relaxed">
                     *%ข้าวต้น คิดจากข้าวเต็ม+ข้าวต้นหลังจากการขัดขาว/ขัดมัน ที่ยังไม่ได้หักข้าวดีดออกจาการยิงสี

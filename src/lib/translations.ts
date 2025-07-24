@@ -129,6 +129,7 @@ export const translations = {
     selectDeviceToViewData: { th: 'เลือกอุปกรณ์เพื่อดูข้อมูล', en: 'Select device to view data' },
     selectDeviceOption: { th: 'เลือกอุปกรณ์...', en: 'Select device...' },
     noDevicesFound: { th: 'ไม่พบอุปกรณ์', en: 'No devices found' },
+    notes: { th: 'หมายเหตุ', en: 'Notes' },
   },
   buttons: {
     save: { th: 'บันทึก', en: 'Save' },
