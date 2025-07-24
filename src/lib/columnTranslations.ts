@@ -1,4 +1,7 @@
+import { useTranslation } from "@/hooks/useTranslation";
+
 export const getColumnThaiName = (columnName: string): string => {
+  // We'll use this temporarily, but components should use useTranslation directly
   return columnTranslations[columnName] || columnName;
 };
 

@@ -8,6 +8,7 @@ import { MeasurementTabs } from "./MeasurementTabs";
 import { DeviceCalculationSummary } from "./DeviceCalculationSummary";
 import { NotificationSetting } from "../types";
 import { lazy } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 // Lazy load the DeviceHistoryTable component
 const DeviceHistoryTable = lazy(() => import("./DeviceHistoryTable").then(module => ({
@@ -46,6 +47,7 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
   onMeasurementClick
 }) => {
   const isMobile = useIsMobile();
+  const { t } = useTranslation();
 
   return (
     <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-4'}>
@@ -95,7 +97,7 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
             <div className="mt-8 bg-white/70 dark:bg-gray-800/40 p-5 rounded-xl border border-gray-100 dark:border-gray-800/30 shadow-md backdrop-blur-sm">
               <Suspense fallback={
                 <div className="bg-white rounded-lg shadow-sm p-6 mb-4">
-                  <h3 className="text-lg font-semibold mb-4">ประวัติข้อมูลทั้งหมด</h3>
+                  <h3 className="text-lg font-semibold mb-4">{t('dataCategories', 'historyTitle')}</h3>
                   <div className="flex justify-center items-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
                   </div>

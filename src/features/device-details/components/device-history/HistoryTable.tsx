@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { getColumnThaiName } from "@/lib/columnTranslations";
+import { useMeasurementTranslations } from "@/lib/measurementTranslations";
 import { RiceQualityData } from './types';
 import { formatCellValue, getColumnKeys } from './utils';
 import { useDragScroll } from "@/utils/dragUtils";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface HistoryTableProps {
   historyData: RiceQualityData[];
@@ -31,6 +33,8 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
   onItemsPerPageChange,
   onRowClick
 }) => {
+  const { t } = useTranslation();
+  const { getColumnTranslation } = useMeasurementTranslations();
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragState, dragHandlers] = useDragScroll(containerRef);
   // Get all column keys and create custom order: วันที่บันทึก, ชื่ออุปกรณ์, รหัสเครื่อง, จำนวนเมล็ด, then rest
@@ -43,7 +47,7 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
   if (!historyData || historyData.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500 dark:text-gray-300">
-        ไม่พบข้อมูลประวัติสำหรับอุปกรณ์นี้
+        {t('general', 'noData')}
       </div>
     );
   }
@@ -68,10 +72,10 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
               {columnKeys.map((key) => {
                 // Custom header for device_display_name and output
                 const displayName = key === 'device_display_name' 
-                  ? 'ชื่ออุปกรณ์' 
+                  ? t('dataCategories', 'deviceName')
                   : key === 'output'
-                  ? 'จำนวนเมล็ด'
-                  : getColumnThaiName(key);
+                  ? t('dataCategories', 'kernelCount')
+                  : getColumnTranslation(key);
                 
                 return (
                   <TableHead 
@@ -115,7 +119,7 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
       {/* Row limit controls - moved to bottom */}
       <div className="flex justify-between items-center mt-1.5 text-xs">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">แสดง:</span>
+          <span className="text-sm text-gray-600">{t('general', 'show')}:</span>
           <Select 
             value={itemsPerPage.toString()} 
             onValueChange={(value) => onItemsPerPageChange(parseInt(value))}
@@ -130,10 +134,10 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
               <SelectItem value="500">500</SelectItem>
             </SelectContent>
           </Select>
-          <span className="text-sm text-gray-600">แถว</span>
+          <span className="text-sm text-gray-600">{t('general', 'rows')}</span>
         </div>
         <div className="text-xs text-gray-500">
-          รวม {totalCount} รายการ
+          {t('general', 'total')} {totalCount} {t('general', 'items')}
         </div>
       </div>
 
@@ -141,7 +145,7 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
       {totalPages > 1 && (
         <div className="flex items-center justify-between mt-0.5 px-0.5 text-[10px]">
           <div className="text-[10px] text-gray-500">
-            หน้า {currentPage} จาก {totalPages}
+            {t('general', 'page')} {currentPage} {t('general', 'of')} {totalPages}
           </div>
           <div className="flex items-center gap-1.5">
             <Button

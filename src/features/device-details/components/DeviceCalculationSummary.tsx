@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { calculateYieldInHaab } from "@/utils/calculations";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface DeviceCalculationSummaryProps {
   allData: any[] | null;
@@ -11,6 +12,8 @@ export const DeviceCalculationSummary: React.FC<DeviceCalculationSummaryProps> =
   allData,
   isLoading
 }) => {
+  const { t } = useTranslation();
+  
   // Get the latest data entry
   const latestData = allData && allData.length > 0 ? allData[0] : null;
   
@@ -24,7 +27,7 @@ export const DeviceCalculationSummary: React.FC<DeviceCalculationSummaryProps> =
     return (
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">สรุปผลการคำนวณ</CardTitle>
+          <CardTitle className="text-lg font-semibold">{t('dataCategories', 'calculationSummary')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex justify-center items-center py-4">
@@ -39,10 +42,10 @@ export const DeviceCalculationSummary: React.FC<DeviceCalculationSummaryProps> =
     return (
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">สรุปผลการคำนวณ</CardTitle>
+          <CardTitle className="text-lg font-semibold">{t('dataCategories', 'calculationSummary')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">ไม่มีข้อมูลสำหรับการคำนวณ</p>
+          <p className="text-muted-foreground">{t('dataCategories', 'noData')}</p>
         </CardContent>
       </Card>
     );
@@ -52,7 +55,7 @@ export const DeviceCalculationSummary: React.FC<DeviceCalculationSummaryProps> =
     <Card className="mb-6 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-emerald-800 dark:text-emerald-200">
-          สรุปผลการคำนวณ
+          {t('dataCategories', 'calculationSummary')}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">

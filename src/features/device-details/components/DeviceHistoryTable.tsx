@@ -6,8 +6,11 @@ import { HistoryTable } from "./device-history/HistoryTable";
 import { HistoryDetailDialog } from "./device-history/HistoryDetailDialog";
 import { RiceQualityData } from "./device-history/types";
 import { getColumnKeys } from "./device-history/utils";
+import { useTranslation } from "@/hooks/useTranslation";
 
-export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps & { title?: string }> = ({ deviceIds, title = "ประวัติข้อมูลทั้งหมด" }) => {
+export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps & { title?: string }> = ({ deviceIds, title }) => {
+  const { t } = useTranslation();
+  const actualTitle = title || t('dataCategories', 'historyTitle');
   const [selectedRow, setSelectedRow] = useState<RiceQualityData | null>(null);
   
   const {

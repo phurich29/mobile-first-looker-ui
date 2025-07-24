@@ -1,12 +1,14 @@
 
 import React, { useRef, useState, MouseEvent } from "react";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface TabsHeaderProps {
   activeTab: string;
 }
 
 export const TabsHeader: React.FC<TabsHeaderProps> = ({ activeTab }) => {
+  const { t } = useTranslation();
   const tabsListRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -50,28 +52,28 @@ export const TabsHeader: React.FC<TabsHeaderProps> = ({ activeTab }) => {
         className="text-xs md:text-sm"
         data-active={activeTab === "wholegrain"}
       >
-        พื้นข้าวเต็มเมล็ด
+        {t('dataCategories', 'wholegrain')}
       </TabsTrigger>
       <TabsTrigger 
         value="ingredients" 
         className="text-xs md:text-sm"
         data-active={activeTab === "ingredients"}
       >
-        ส่วนผสม
+        {t('dataCategories', 'ingredients')}
       </TabsTrigger>
       <TabsTrigger 
         value="impurities" 
         className="text-xs md:text-sm"
         data-active={activeTab === "impurities"}
       >
-        สิ่งเจือปน
+        {t('dataCategories', 'impurities')}
       </TabsTrigger>
       <TabsTrigger 
         value="all" 
         className="text-xs md:text-sm"
         data-active={activeTab === "all"}
       >
-        ทั้งหมด
+        {t('dataCategories', 'allData')}
       </TabsTrigger>
     </TabsList>
   );
