@@ -26,7 +26,13 @@ const AssistantContent = () => {
   const {
     selectedDevice
   } = useAssistant();
-  const longJooPhrases = ["มีอะไรให้ลุงช่วยมั้ยหลาน", "ข้าวล็อตนี้ดูดีนะ... อยากรู้รายละเอียดเพิ่มมั้ย?", "กดดูรายงานสิ ลุงวิเคราะห์ไว้ให้หมดแล้ว", `ค่าความขาว ${selectedDevice?.deviceData?.whiteness?.toFixed(1) || '...'} ถือว่าใช้ได้เลย`, "อยากให้ลุงดูอะไรเป็นพิเศษ บอกได้เลยนะ"];
+  const longJooPhrases = [
+    t('assistant', 'longJooPhrase1'),
+    t('assistant', 'longJooPhrase2'), 
+    t('assistant', 'longJooPhrase3'),
+    `${t('assistant', 'longJooPhrase4')} ${selectedDevice?.deviceData?.whiteness?.toFixed(1) || '...'} ${t('assistant', 'longJooPhrase4Suffix')}`,
+    t('assistant', 'longJooPhrase5')
+  ];
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [wholeKernelsInput, setWholeKernelsInput] = useState('');
   const [headRiceInput, setHeadRiceInput] = useState('');
@@ -113,11 +119,11 @@ const AssistantContent = () => {
                 <div className="flex items-start gap-4">
                   
                   <div className="flex-1">
-                    <h3 className="font-bold text-amber-300">หลงจู๊</h3>
+                    <h3 className="font-bold text-amber-300">{t('assistant', 'longJooCharacterName')}</h3>
                     <p className="text-amber-50 italic">"{longJooPhrases[phraseIndex]}"</p>
                   </div>
                 </div>
-                <span className="absolute bottom-2 right-3 text-xs text-amber-400/50 group-hover:text-amber-400 transition-colors">- คลิกเพื่อคุยต่อ -</span>
+                <span className="absolute bottom-2 right-3 text-xs text-amber-400/50 group-hover:text-amber-400 transition-colors">- {t('assistant', 'clickToContinueChat')} -</span>
               </div>
             </div>
           </div>
