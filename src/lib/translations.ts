@@ -144,6 +144,11 @@ export const translations = {
     longJooPhrase5: { th: 'อยากให้ลุงดูอะไรเป็นพิเศษ บอกได้เลยนะ', en: 'Let me know if you want me to check anything special' },
     selectDeviceForReport: { th: 'โปรดเลือกอุปกรณ์เพื่อรับฟังรายงานจากนักปราชญ์', en: 'Please select a device to receive the scholar\'s report' },
   },
+  userManagement: {
+    currentUserRights: { th: 'สิทธิ์ปัจจุบันของคุณ', en: 'Your Current Permissions' },
+    additionalRights: { th: 'สิทธิ์เพิ่มเติม', en: 'additional permissions' },
+    rightsDetails: { th: 'รายละเอียดสิทธิ์:', en: 'Permission Details:' },
+  },
   buttons: {
     save: { th: 'บันทึก', en: 'Save' },
     cancel: { th: 'ยกเลิก', en: 'Cancel' },

@@ -4,8 +4,10 @@ import { Badge } from "@/components/ui/badge";
 import { Check, X, User } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { getRoleDescription, getCurrentUserHighestRole } from "../constants/roleDescriptions";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export function CurrentUserRoleCard() {
+  const { t } = useTranslation();
   const { userRoles } = useAuth();
   
   const highestRole = getCurrentUserHighestRole(userRoles);
@@ -23,14 +25,14 @@ export function CurrentUserRoleCard() {
             <User className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
           </div>
           <div>
-            <CardTitle className="text-lg dark:text-gray-100">สิทธิ์ปัจจุบันของคุณ</CardTitle>
+            <CardTitle className="text-lg dark:text-gray-100">{t('userManagement', 'currentUserRights')}</CardTitle>
             <div className="flex items-center gap-2 mt-1">
               <Badge className={`${roleDescription.bgColor} ${roleDescription.color} hover:${roleDescription.bgColor}/80`}>
                 {roleDescription.name}
               </Badge>
               {userRoles.length > 1 && (
                 <span className="text-sm text-gray-500 dark:text-gray-400">
-                  (+{userRoles.length - 1} สิทธิ์เพิ่มเติม)
+                  (+{userRoles.length - 1} {t('userManagement', 'additionalRights')})
                 </span>
               )}
             </div>
@@ -40,7 +42,7 @@ export function CurrentUserRoleCard() {
       
       <CardContent className="pt-0">
         <div className="grid gap-3">
-          <h4 className="font-medium text-sm text-gray-700 dark:text-gray-300 mb-2">รายละเอียดสิทธิ์:</h4>
+          <h4 className="font-medium text-sm text-gray-700 dark:text-gray-300 mb-2">{t('userManagement', 'rightsDetails')}</h4>
           <div className="space-y-2">
             {roleDescription.permissions.map((permission, index) => (
               <div key={index} className="flex items-start gap-3 p-2 rounded-lg bg-gray-50 dark:bg-slate-700/50">
