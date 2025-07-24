@@ -12,6 +12,7 @@ import { MessageCircle, Bot, HelpCircle, Calculator } from "lucide-react";
 import { isRecentUpdate } from "@/features/equipment/components/card/utils/timeUtils";
 import { useTypewriter } from '@/hooks/useTypewriter';
 import { calculateYieldInHaab } from "@/utils/calculations";
+import { useTranslation } from "@/hooks/useTranslation";
 const TypewriterReport = ({
   text
 }: {
@@ -21,6 +22,7 @@ const TypewriterReport = ({
   return <p>"{displayedText}"</p>;
 };
 const AssistantContent = () => {
+  const { t } = useTranslation();
   const {
     selectedDevice
   } = useAssistant();
@@ -73,8 +75,8 @@ const AssistantContent = () => {
   const riceAnalysis = useMemo(() => {
     if (!selectedDevice) {
       return {
-        title: "รอการวิเคราะห์",
-        description: "กรุณาเลือกอุปกรณ์เพื่อดูผลการตรวจสอบ"
+        title: t('assistant', 'waitingAnalysis'),
+        description: t('assistant', 'selectDevice')
       };
     }
     if (whitenessValue >= 40 && whitenessValue <= 45) {
