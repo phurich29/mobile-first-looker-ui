@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Smartphone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface HistoryHeaderProps {
   name: string;
@@ -27,6 +28,7 @@ const HistoryHeader: React.FC<HistoryHeaderProps> = ({
   notificationEnabled = false,
   deviceCode
 }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState<string | null>(null);
   
@@ -68,10 +70,10 @@ const HistoryHeader: React.FC<HistoryHeaderProps> = ({
             <h3 className="text-lg font-medium text-gray-800">{name}</h3>
           </div>
           <p className="text-sm text-gray-500">
-            ค่าเฉลี่ย: <span className="font-medium text-emerald-600">{average.toFixed(2)}{unit}</span>
+            {t('general', 'historyStatsAverage')} <span className="font-medium text-emerald-600">{average.toFixed(2)}{unit}</span>
             {' '}
-            (ต่ำสุด: <span className="font-medium text-blue-600">{min.toFixed(2)}{unit}</span>, 
-            สูงสุด: <span className="font-medium text-red-600">{max.toFixed(2)}{unit}</span>)
+            ({t('general', 'historyStatsMinimum')} <span className="font-medium text-blue-600">{min.toFixed(2)}{unit}</span>, 
+            {t('general', 'historyStatsMaximum')} <span className="font-medium text-red-600">{max.toFixed(2)}{unit}</span>)
           </p>
         </div>
         
@@ -82,7 +84,7 @@ const HistoryHeader: React.FC<HistoryHeaderProps> = ({
           onClick={onOpenSettings}
         >
           <Settings className={`h-4 w-4 ${notificationEnabled ? "text-orange-500" : "text-gray-500"}`} />
-          <span className="hidden sm:inline">ตั้งค่าแจ้งเตือน</span>
+          <span className="hidden sm:inline">{t('general', 'notificationSettings')}</span>
           <span className={`ml-1 h-2 w-2 rounded-full ${notificationEnabled ? "bg-orange-500" : "bg-gray-400"}`}></span>
         </Button>
       </div>
