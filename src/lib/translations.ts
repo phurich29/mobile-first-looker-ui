@@ -54,6 +54,7 @@ export const translations = {
     search: { th: 'ค้นหา', en: 'Search' },
     filter: { th: 'กรอง', en: 'Filter' },
     language: { th: 'ภาษา', en: 'Language' },
+    notifications: { th: 'แจ้งเตือน', en: 'Notifications' },
     thai: { th: 'ไทย', en: 'Thai' },
     english: { th: 'อังกฤษ', en: 'English' },
   }

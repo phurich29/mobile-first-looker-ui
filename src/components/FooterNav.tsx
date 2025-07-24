@@ -7,11 +7,13 @@ import { useAuth } from "./AuthProvider";
 import { useGuestMode } from "@/hooks/useGuestMode";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export const FooterNav = () => {
   const { user } = useAuth();
   const { isGuest } = useGuestMode();
   const isMobile = useIsMobile();
+  const { t } = useTranslation();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
   
@@ -40,22 +42,22 @@ export const FooterNav = () => {
           <nav className="flex justify-around items-center h-full">
             <NavLink to="/" className={({ isActive }) => cn("flex flex-col items-center justify-center w-1/4 h-full", isActive && "font-bold")}>
               <Home className="h-5 w-5 text-white mb-1" />
-              <span className="text-xs text-white font-medium">หน้าแรก</span>
+              <span className="text-xs text-white font-medium">{t('mainMenu', 'home')}</span>
             </NavLink>
             
             <NavLink to="/equipment" className={({ isActive }) => cn("flex flex-col items-center justify-center w-1/4 h-full", isActive && "font-bold")}>
               <PackageOpen className="h-5 w-5 text-white mb-1" />
-              <span className="text-xs text-white font-medium">อุปกรณ์</span>
+              <span className="text-xs text-white font-medium">{t('mainMenu', 'device')}</span>
             </NavLink>
             
             <NavLink to="/about-riceflow" className={({ isActive }) => cn("flex flex-col items-center justify-center w-1/4 h-full", isActive && "font-bold")}>
               <Wheat className="h-5 w-5 text-white mb-1" />
-              <span className="text-xs text-white font-medium">รู้จัก Riceflow</span>
+              <span className="text-xs text-white font-medium">{t('mainMenu', 'aboutRiceflow')}</span>
             </NavLink>
             
             <NavLink to="/auth/login" className={({ isActive }) => cn("flex flex-col items-center justify-center w-1/4 h-full", isActive && "font-bold")}>
               <LogIn className="h-5 w-5 text-white mb-1" />
-              <span className="text-xs text-white font-medium">เข้าสู่ระบบ</span>
+              <span className="text-xs text-white font-medium">{t('login', 'login')}</span>
             </NavLink>
           </nav>
         </div>
@@ -70,38 +72,38 @@ export const FooterNav = () => {
         <nav className="flex justify-around items-center h-full">
           <NavLink to="/" className={({ isActive }) => cn("flex flex-col items-center justify-center w-1/4 h-full", isActive && "font-bold")}>
             <Home className="h-5 w-5 text-white mb-1" />
-            <span className="text-xs text-white font-medium">หน้าแรก</span>
+            <span className="text-xs text-white font-medium">{t('mainMenu', 'home')}</span>
           </NavLink>
           
           {isAuthenticated && isAuthorized ? (
             <>
               <NavLink to="/equipment" className={({ isActive }) => cn("flex flex-col items-center justify-center w-1/4 h-full", isActive && "font-bold")}>
                 <PackageOpen className="h-5 w-5 text-white mb-1" />
-                <span className="text-xs text-white font-medium">อุปกรณ์</span>
+                <span className="text-xs text-white font-medium">{t('mainMenu', 'device')}</span>
               </NavLink>
               
               <NavLink to="/notifications" className={({ isActive }) => cn("flex flex-col items-center justify-center w-1/4 h-full", isActive && "font-bold")}>
                 <Bell className="h-5 w-5 text-white mb-1" />
-                <span className="text-xs text-white font-medium">แจ้งเตือน</span>
+                <span className="text-xs text-white font-medium">{t('general', 'notifications')}</span>
               </NavLink>
             </>
           ) : (
             <>
               <NavLink to="/rice-prices" className={({ isActive }) => cn("flex flex-col items-center justify-center w-1/4 h-full", isActive && "font-bold")}>
                 <Wheat className="h-5 w-5 text-white mb-1" />
-                <span className="text-xs text-white font-medium">ราคาข้าว</span>
+                <span className="text-xs text-white font-medium">{t('mainMenu', 'ricePrice')}</span>
               </NavLink>
               
               <NavLink to="/news" className={({ isActive }) => cn("flex flex-col items-center justify-center w-1/4 h-full", isActive && "font-bold")}>
                 <Wheat className="h-5 w-5 text-white mb-1" />
-                <span className="text-xs text-white font-medium">ข่าวสาร</span>
+                <span className="text-xs text-white font-medium">{t('mainMenu', 'news')}</span>
               </NavLink>
             </>
           )}
           
           <NavLink to={isAuthenticated ? "/profile" : "/auth/login"} className={({ isActive }) => cn("flex flex-col items-center justify-center w-1/4 h-full", isActive && "font-bold")}>
             <User className="h-5 w-5 text-white mb-1" />
-            <span className="text-xs text-white font-medium">{isAuthenticated ? "โปรไฟล์" : "เข้าสู่ระบบ"}</span>
+            <span className="text-xs text-white font-medium">{isAuthenticated ? t('mainMenu', 'profile') : t('login', 'login')}</span>
           </NavLink>
         </nav>
       </div>

@@ -4,6 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useActivePath } from "./sidebar-utils";
 import { SidebarMenuItem } from "./SidebarMenuItem";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface SidebarMenuProps {
   isCollapsed: boolean;
@@ -14,6 +15,7 @@ interface SidebarMenuProps {
 
 export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarMenuProps) => {
   const { isActive } = useActivePath();
+  const { t } = useTranslation();
   
   // ตรวจสอบว่าผู้ใช้มีสิทธิ์ในการเข้าถึงหน้าจัดการผู้ใช้งานหรือไม่
   const canAccessUserManagement = userRoles.includes('admin') || userRoles.includes('superadmin');
@@ -37,7 +39,7 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
         <SidebarMenuItem 
           path="/" 
           icon={Home}
-          label="หน้าหลัก"
+          label={t('mainMenu', 'home')}
           isActive={isActive("/")}
           isCollapsed={isCollapsed}
         />
@@ -45,7 +47,7 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
         <SidebarMenuItem 
           path="/equipment" 
           icon={Settings}
-          label="อุปกรณ์"
+          label={t('mainMenu', 'device')}
           isActive={isActive("/equipment")}
           isCollapsed={isCollapsed}
         />
@@ -55,7 +57,7 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
           <SidebarMenuItem 
             path="/about-riceflow" 
             icon={Wheat}
-            label="รู้จัก Riceflow"
+            label={t('mainMenu', 'aboutRiceflow')}
             isActive={isActive("/about-riceflow")}
             isCollapsed={isCollapsed}
           />
@@ -66,7 +68,7 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
           <SidebarMenuItem 
             path="/notification-history" 
             icon={History}
-            label="ประวัติการแจ้งเตือน"
+            label={t('mainMenu', 'notificationsHistory')}
             isActive={isActive("/notification-history")}
             isCollapsed={isCollapsed}
           />
@@ -77,7 +79,7 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
           <SidebarMenuItem 
             path="/profile" 
             icon={User}
-            label="ข้อมูลส่วนตัว"
+            label={t('mainMenu', 'profile')}
             isActive={isActive("/profile")}
             isCollapsed={isCollapsed}
           />
@@ -88,7 +90,7 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
           <SidebarMenuItem 
             path="/user-management" 
             icon={Users}
-            label="จัดการผู้ใช้งาน"
+            label={t('mainMenu', 'userManagement')}
             isActive={isActive("/user-management")}
             isCollapsed={isCollapsed}
           />
@@ -100,7 +102,7 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
           <SidebarMenuItem 
             path="/auth/login" 
             icon={User}
-            label="เข้าสู่ระบบ"
+            label={t('login', 'login')}
             isActive={isActive("/auth/login")}
             isCollapsed={isCollapsed}
           />
