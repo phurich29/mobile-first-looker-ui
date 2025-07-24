@@ -46,9 +46,33 @@ export function EquipmentCardContainer({
   } = useEquipmentCard(deviceCode, displayName, onDeviceUpdated);
 
   const handleDeleteConfirm = async () => {
-    console.log('🗑️ Starting device deletion for:', deviceCode);
+    console.log('🗑️ Starting complete device deletion for:', deviceCode);
     setIsDeleting(true);
     try {
+      // ลบข้อมูลจาก rice_quality_analysis ก่อน (ข้อมูลหลัก)
+      const { error: analysisError } = await supabase
+        .from('rice_quality_analysis')
+        .delete()
+        .eq('device_code', deviceCode);
+
+      if (analysisError) {
+        console.error('❌ Error deleting from rice_quality_analysis:', analysisError);
+        throw analysisError;
+      }
+      console.log('✅ Successfully deleted from rice_quality_analysis');
+
+      // ลบข้อมูลจาก notification_settings  
+      const { error: notificationError } = await supabase
+        .from('notification_settings')
+        .delete()
+        .eq('device_code', deviceCode);
+
+      if (notificationError) {
+        console.warn('⚠️ Warning deleting notification settings:', notificationError);
+      } else {
+        console.log('✅ Successfully deleted from notification_settings');
+      }
+
       // ลบข้อมูลจาก device_settings
       const { error: deviceSettingsError } = await supabase
         .from('device_settings')
