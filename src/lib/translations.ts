@@ -142,6 +142,7 @@ export const translations = {
     longJooPhrase4: { th: 'ค่าความขาว', en: 'Whiteness value' },
     longJooPhrase4Suffix: { th: 'ถือว่าใช้ได้เลย', en: 'is quite acceptable' },
     longJooPhrase5: { th: 'อยากให้ลุงดูอะไรเป็นพิเศษ บอกได้เลยนะ', en: 'Let me know if you want me to check anything special' },
+    selectDeviceForReport: { th: 'โปรดเลือกอุปกรณ์เพื่อรับฟังรายงานจากนักปราชญ์', en: 'Please select a device to receive the scholar\'s report' },
   },
   buttons: {
     save: { th: 'บันทึก', en: 'Save' },

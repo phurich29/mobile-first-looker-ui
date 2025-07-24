@@ -196,7 +196,7 @@ const AssistantContent = () => {
                             <p className="flex items-center gap-2"><span className="text-amber-700">📈</span> {t('assistant', 'trend')}: <span className="font-bold">{trend || t('assistant', 'cannotIdentify')}</span></p>
                           </div>
                         </> : <div className="italic font-medium border-l-4 border-amber-600 pl-3">
-                          <TypewriterReport key="no-device-selected" text="โปรดเลือกอุปกรณ์เพื่อรับฟังรายงานจากนักปราชญ์" />
+                          <TypewriterReport key="no-device-selected" text={t('assistant', 'selectDeviceForReport')} />
                         </div>}
                       <p className="italic text-amber-700 mt-3 text-center font-semibold border-t border-amber-600 pt-2">"{t('assistant', 'respectfullyServe')}" 🙏</p>
                     </div>
