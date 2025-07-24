@@ -324,7 +324,7 @@ export const SharedLinksSection: React.FC = () => {
                     
                     <div className="mt-2 bg-muted/30 p-3 rounded-md">
                       <p className="text-xs font-medium mb-2">
-                        QR Code ที่สร้างขึ้นคือเมื่อสแกนจะส่งไปยังลิงค์นี้:
+                        {t('sharedLinks', 'qrCodeDescription')}
                       </p>
                       <div className="flex flex-wrap items-center gap-2 bg-background p-2 rounded border">
                         <span className="text-sm text-muted-foreground break-all flex-1 min-w-[200px]">
