@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Eye, EyeOff, Settings, Search, Trash2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface Device {
   device_code: string;
@@ -20,6 +21,7 @@ interface GuestDeviceAccess {
 }
 
 export const GuestDeviceManagement = () => {
+  const { t } = useTranslation();
   const [devices, setDevices] = useState<Device[]>([]);
   const [guestAccess, setGuestAccess] = useState<GuestDeviceAccess[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -70,8 +72,8 @@ export const GuestDeviceManagement = () => {
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถโหลดข้อมูลอุปกรณ์ได้",
+        title: t('general', 'error'),
+        description: t('userManagement', 'errorLoadingDevices'),
         variant: "destructive",
       });
     } finally {
@@ -82,8 +84,8 @@ export const GuestDeviceManagement = () => {
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
       toast({
-        title: "กรุณากรอกข้อมูล",
-        description: "กรุณากรอกรหัสอุปกรณ์ที่ต้องการค้นหา",
+        title: t('userManagement', 'pleaseEnterData'),
+        description: t('userManagement', 'pleaseEnterDeviceCode'),
         variant: "destructive",
       });
       return;
@@ -124,20 +126,20 @@ export const GuestDeviceManagement = () => {
 
       if (searchResultsWithNames.length === 0) {
         toast({
-          title: "ไม่พบผลลัพธ์",
-          description: "ไม่พบอุปกรณ์ที่ตรงกับคำค้นหา",
+          title: t('userManagement', 'noSearchResults'),
+          description: t('userManagement', 'noDevicesMatchSearch'),
         });
       } else {
         toast({
-          title: "ค้นหาสำเร็จ",
-          description: `พบอุปกรณ์ ${searchResultsWithNames.length} รายการ`,
+          title: t('userManagement', 'searchSuccess'),
+          description: `${t('device', 'totalDevicesInSystem')} ${searchResultsWithNames.length} ${t('userManagement', 'devicesFound')}`,
         });
       }
     } catch (error) {
       console.error('Error searching devices:', error);
       toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถค้นหาอุปกรณ์ได้",
+        title: t('general', 'error'),
+        description: t('userManagement', 'errorSearching'),
         variant: "destructive",
       });
     } finally {
@@ -150,8 +152,8 @@ export const GuestDeviceManagement = () => {
     const existingDevice = devices.find(d => d.device_code === device.device_code);
     if (existingDevice) {
       toast({
-        title: "อุปกรณ์มีอยู่แล้ว",
-        description: "อุปกรณ์นี้อยู่ในรายการแล้ว",
+        title: t('userManagement', 'deviceExists'),
+        description: t('userManagement', 'deviceExistsDescription'),
       });
       return;
     }
@@ -172,8 +174,8 @@ export const GuestDeviceManagement = () => {
       if (error) throw error;
 
       toast({
-        title: "เพิ่มอุปกรณ์สำเร็จ",
-        description: `เพิ่มอุปกรณ์ ${device.device_code} แล้ว`,
+        title: t('userManagement', 'addDeviceSuccess'),
+        description: `${t('userManagement', 'add')} ${device.device_code} ${t('userManagement', 'deviceAdded')}`,
       });
     } catch (error) {
       // Revert UI on error
@@ -183,8 +185,8 @@ export const GuestDeviceManagement = () => {
 
       console.error('Error adding device to guest access:', error);
       toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถเพิ่มอุปกรณ์ได้",
+        title: t('general', 'error'),
+        description: t('userManagement', 'errorAddingDevice'),
         variant: "destructive",
       });
     }
@@ -213,8 +215,8 @@ export const GuestDeviceManagement = () => {
       if (error) throw error;
 
       toast({
-        title: "อัพเดทสำเร็จ",
-        description: `สิทธิ์การเข้าถึงของอุปกรณ์ ${deviceCode} ถูกปรับปรุงแล้ว`,
+        title: t('userManagement', 'updateSuccess'),
+        description: `${deviceCode} ${t('userManagement', 'accessRightsUpdated')}`,
       });
 
     } catch (error) {
@@ -222,8 +224,8 @@ export const GuestDeviceManagement = () => {
       setGuestAccess(originalGuestAccess);
       console.error('Error updating guest access:', error);
       toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถบันทึกการตั้งค่าได้",
+        title: t('general', 'error'),
+        description: t('userManagement', 'errorSavingSettings'),
         variant: "destructive",
       });
     }
@@ -246,8 +248,8 @@ export const GuestDeviceManagement = () => {
       if (error) throw error;
 
       toast({
-        title: "ลบอุปกรณ์สำเร็จ",
-        description: `อุปกรณ์รหัส ${deviceCode} ถูกนำออกจากรายการแล้ว`,
+        title: t('userManagement', 'removeDeviceSuccess'),
+        description: `${deviceCode} ${t('userManagement', 'deviceRemoved')}`,
       });
 
     } catch (error) {
@@ -257,8 +259,8 @@ export const GuestDeviceManagement = () => {
 
       console.error('Error removing device:', error);
       toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถลบอุปกรณ์ได้",
+        title: t('general', 'error'),
+        description: t('userManagement', 'errorRemovingDevice'),
         variant: "destructive",
       });
     }
@@ -272,7 +274,7 @@ export const GuestDeviceManagement = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-emerald-800 dark:text-emerald-400">
             <Settings className="h-5 w-5" />
-            จัดการข้อมูลสำหรับผู้เยี่ยมชม (Guest)
+            {t('userManagement', 'guestDeviceManagement')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -289,13 +291,13 @@ export const GuestDeviceManagement = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-emerald-800 dark:text-emerald-400">
           <Settings className="h-5 w-5" />
-          จัดการข้อมูลสำหรับผู้เยี่ยมชม (Guest)
+          {t('userManagement', 'guestDeviceManagement')}
         </CardTitle>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          เลือกอุปกรณ์ที่ต้องการให้ผู้เยี่ยมชม (Guest) สามารถเห็นข้อมูลได้
+          {t('userManagement', 'guestDescription')}
         </p>
         <div className="text-sm text-emerald-600 dark:text-emerald-400">
-          เลือกแล้ว: {enabledCount} จาก {devices.length} อุปกรณ์
+          {t('userManagement', 'selectedDevices')} {enabledCount} {t('userManagement', 'fromDevices')} {devices.length} {t('userManagement', 'devices')}
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -303,13 +305,13 @@ export const GuestDeviceManagement = () => {
         <div className="space-y-4 p-4 border rounded-lg bg-gray-50 dark:bg-gray-800/50 dark:border-gray-700">
           <div className="space-y-2">
             <Label htmlFor="search-device" className="text-sm font-medium">
-              ค้นหาอุปกรณ์เพิ่มเติม
+              {t('userManagement', 'searchAdditionalDevices')}
             </Label>
             <div className="flex gap-2">
               <Input
                 id="search-device"
                 type="text"
-                placeholder="กรอกรหัสอุปกรณ์..."
+                placeholder={t('userManagement', 'enterDeviceCode')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
@@ -321,7 +323,7 @@ export const GuestDeviceManagement = () => {
                 className="bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-700 dark:hover:bg-emerald-800"
               >
                 <Search className="h-4 w-4 mr-2" />
-                {isSearching ? "กำลังค้นหา..." : "ค้นหา"}
+                {isSearching ? t('userManagement', 'searching') : t('userManagement', 'search')}
               </Button>
             </div>
           </div>
@@ -329,7 +331,7 @@ export const GuestDeviceManagement = () => {
           {/* Search Results */}
           {searchResults.length > 0 && (
             <div className="space-y-2">
-              <Label className="text-sm font-medium">ผลลัพธ์การค้นหา</Label>
+              <Label className="text-sm font-medium">{t('userManagement', 'searchResults')}</Label>
               <div className="space-y-2 max-h-40 overflow-y-auto">
                 {searchResults.map((device) => (
                   <div
@@ -347,7 +349,7 @@ export const GuestDeviceManagement = () => {
                       onClick={() => handleAddDeviceFromSearch(device)}
                       className="bg-blue-600 hover:bg-blue-700 text-white"
                     >
-                      เพิ่ม
+                      {t('userManagement', 'add')}
                     </Button>
                   </div>
                 ))}
@@ -411,7 +413,7 @@ export const GuestDeviceManagement = () => {
 
         {devices.length === 0 && (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-            ไม่พบอุปกรณ์ในระบบ
+            {t('userManagement', 'noDevicesFound')}
           </div>
         )}
 
