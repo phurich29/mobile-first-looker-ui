@@ -31,7 +31,7 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
         <SidebarMenuItem 
           path="/assistant"
           icon={() => <img src="/lovable-uploads/14fdbf4f-5cb3-4905-b737-a0478e16d12b.png" alt="AI Assistant" className="h-5 w-5 rounded-full" />}
-          label="หลงจู๊ Ai assistant"
+          label={t('assistant', 'aiAssistantMenuItem')}
           isActive={isActive("/assistant")}
           isCollapsed={isCollapsed}
         />

@@ -144,6 +144,7 @@ export const translations = {
     longJooPhrase5: { th: 'อยากให้ลุงดูอะไรเป็นพิเศษ บอกได้เลยนะ', en: 'Let me know if you want me to check anything special' },
     selectDeviceForReport: { th: 'โปรดเลือกอุปกรณ์เพื่อรับฟังรายงานจากนักปราชญ์', en: 'Please select a device to receive the scholar\'s report' },
     defaultReport: { th: 'เรียน ท่านผู้มีเกียรติ จากการตรวจสอบอย่างละเอียด ข้าวของท่านจัดอยู่ในประเภท', en: 'Dear honored one, from detailed examination, your rice is classified as' },
+    aiAssistantMenuItem: { th: 'หลงจู๊ Ai assistant', en: 'Long Joo Ai Assistant' },
   },
   userManagement: {
     title: { th: 'จัดการผู้ใช้งาน', en: 'User Management' },
