@@ -49,28 +49,28 @@ export const TabsHeader: React.FC<TabsHeaderProps> = ({ activeTab }) => {
     >
       <TabsTrigger 
         value="wholegrain" 
-        className="text-xs md:text-sm flex-shrink-0 min-w-max px-4 py-2"
+        className="text-xs md:text-sm flex-shrink-0 min-w-fit px-2 py-1.5"
         data-active={activeTab === "wholegrain"}
       >
         {t('dataCategories', 'wholegrain')}
       </TabsTrigger>
       <TabsTrigger 
         value="ingredients" 
-        className="text-xs md:text-sm flex-shrink-0 min-w-max px-4 py-2"
+        className="text-xs md:text-sm flex-shrink-0 min-w-fit px-2 py-1.5"
         data-active={activeTab === "ingredients"}
       >
         {t('dataCategories', 'ingredients')}
       </TabsTrigger>
       <TabsTrigger 
         value="impurities" 
-        className="text-xs md:text-sm flex-shrink-0 min-w-max px-4 py-2"
+        className="text-xs md:text-sm flex-shrink-0 min-w-fit px-2 py-1.5"
         data-active={activeTab === "impurities"}
       >
         {t('dataCategories', 'impurities')}
       </TabsTrigger>
       <TabsTrigger 
         value="all" 
-        className="text-xs md:text-sm flex-shrink-0 min-w-max px-4 py-2"
+        className="text-xs md:text-sm flex-shrink-0 min-w-fit px-2 py-1.5"
         data-active={activeTab === "all"}
       >
         {t('dataCategories', 'allData')}
