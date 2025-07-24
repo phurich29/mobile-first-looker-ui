@@ -218,7 +218,7 @@ const AssistantContent = () => {
                     <div className="flex justify-between items-center gap-2">
                       <h4 className="font-bold text-amber-900 text-sm sm:text-base lg:text-lg flex-shrink-0">🌾 {t('assistant', 'yieldHaab')}:</h4>
                       <span className="text-lg sm:text-xl lg:text-3xl font-bold text-amber-800 bg-amber-200 px-2 sm:px-3 lg:px-4 py-1 sm:py-2 rounded-lg border-2 border-amber-700 shadow-inner flex-shrink-0">
-                        {selectedDevice ? `${yieldInHaab.toFixed(2)} หาบ` : 'N/A'}
+                        {selectedDevice ? `${yieldInHaab.toFixed(2)} ${t('assistant', 'haab')}` : 'N/A'}
                       </span>
                     </div>
                   </div>
