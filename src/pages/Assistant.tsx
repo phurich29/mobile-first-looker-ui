@@ -171,7 +171,7 @@ const AssistantContent = () => {
                         {riceAnalysis.description}
                       </p>
                       {selectedDevice && confidence && valueRange && <div className="mt-3 text-sm text-amber-700 bg-amber-100 p-2 rounded border border-amber-600">
-                          🎯 ความเชื่อมั่น: {confidence}% | 📏 ช่วงค่า: {valueRange}
+                          🎯 {t('assistant', 'confidence')}: {confidence}% | 📏 {t('assistant', 'valueRange')}: {valueRange}
                         </div>}
                     </div>
                   </div>
@@ -242,7 +242,7 @@ const AssistantContent = () => {
                 <DialogTrigger asChild>
                   <Button className="w-full bg-gradient-to-br from-amber-600 to-amber-700 text-white font-bold py-3 px-6 rounded-lg border-2 border-amber-900 shadow-[0_4px_#78350f] hover:-translate-y-0.5 hover:shadow-[0_6px_#78350f] active:translate-y-0.5 active:shadow-none transition-all duration-150">
                     <Calculator className="w-5 h-5 mr-2" />
-                    หลงจู๊ Calculator
+                    {t('assistant', 'calculator')}
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px] bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-800">
