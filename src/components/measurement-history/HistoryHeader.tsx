@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Smartphone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "@/hooks/useTranslation";
+import { getColumnTranslatedName } from "@/lib/columnTranslations";
 
 interface HistoryHeaderProps {
   name: string;
@@ -28,7 +29,8 @@ const HistoryHeader: React.FC<HistoryHeaderProps> = ({
   notificationEnabled = false,
   deviceCode
 }) => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+  const translatedName = getColumnTranslatedName(name, language);
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState<string | null>(null);
   
@@ -67,7 +69,7 @@ const HistoryHeader: React.FC<HistoryHeaderProps> = ({
       <div className="flex items-center justify-between">
         <div>
           <div className="mb-1">
-            <h3 className="text-lg font-medium text-gray-800">{name}</h3>
+            <h3 className="text-lg font-medium text-gray-800">{translatedName}</h3>
           </div>
           <p className="text-sm text-gray-500">
             {t('general', 'historyStatsAverage')} <span className="font-medium text-emerald-600">{average.toFixed(2)}{unit}</span>
