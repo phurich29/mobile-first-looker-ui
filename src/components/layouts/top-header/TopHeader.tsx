@@ -48,7 +48,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         isMobile ? '' : (isCollapsed ? 'md:pl-[100px]' : 'md:pl-[276px]'),
         isMobile ? '' : 'md:pr-6'
       )}
-      style={isMobile ? { paddingTop: 'max(env(safe-area-inset-top), 0.5rem)' } : undefined}
+      style={isMobile ? { paddingTop: 'max(env(safe-area-inset-top), 1rem)' } : undefined}
     >
       {/* Left Section */}
       <div className="flex items-center gap-3">
