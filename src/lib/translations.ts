@@ -28,6 +28,9 @@ export const translations = {
     noDataSelected: { th: 'ไม่มีข้อมูลที่เลือก', en: 'No Data Selected' },
     addGraphDescription: { th: 'คลิกที่ปุ่ม "Add Graph" เพื่อเลือกอุปกรณ์และค่าที่ต้องการแสดงบนกราฟ', en: 'Click the "Add Graph" button to select device and values to display on the graph' },
     addGraph: { th: 'Add Graph', en: 'Add Graph' },
+    alertWhenLowerThanSimple: { th: 'เตือนเมื่อต่ำกว่า', en: 'Alert when lower than' },
+    alertWhenHigherThanSimple: { th: 'เตือนเมื่อสูงกว่า', en: 'Alert when higher than' },
+    alertWhenOutsideRange: { th: 'เตือนเมื่อนอกช่วง', en: 'Alert when outside range' },
   },
   riceTypes: {
     // Common rice type translations
