@@ -15,6 +15,7 @@ import { GraphHeader } from "@/components/graph-summary/GraphHeader";
 import { useGraphData } from "@/components/graph-summary/useGraphData";
 import { useGraphSummaryPreferences } from "@/components/graph-summary/hooks/useGraphSummaryPreferences";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "@/hooks/useTranslation";
 
 // Define colors for the chart lines
 const colors = [
@@ -35,6 +36,7 @@ const DeviceGraphSummary = () => {
   const isMobile = useIsMobile();
   const { goBack } = useAppNavigation();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [selectorOpen, setSelectorOpen] = useState(false);
   const [deviceNames, setDeviceNames] = useState<Record<string, string>>({});
   const [deviceDisplayName, setDeviceDisplayName] = useState<string | null>(null);
@@ -200,11 +202,11 @@ const DeviceGraphSummary = () => {
                 <ArrowLeft className="h-3.5 w-3.5" />
               </Button>
               <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-                Graph Summary
+                {t('mainMenu', 'graphSummary')}
               </h1>
             </div>
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              เปรียบเทียบข้อมูลจากอุปกรณ์ <strong className="text-gray-900 dark:text-gray-100">{deviceDisplayName ? `${deviceDisplayName} (${deviceCode})` : deviceCode}</strong> ในกราฟเดียวกัน
+              {t('mainMenu', 'compareDeviceData')} <strong className="text-gray-900 dark:text-gray-100">{deviceDisplayName ? `${deviceDisplayName} (${deviceCode})` : deviceCode}</strong> {t('mainMenu', 'inSameGraph')}
             </p>
           </div>
           

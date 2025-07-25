@@ -22,6 +22,9 @@ export const translations = {
     ricePrice: { th: 'ราคาข้าว', en: 'Rice Price' },
     news: { th: 'ข่าวสาร', en: 'News' },
     aboutRiceflow: { th: 'เกี่ยวกับ Riceflow', en: 'About Riceflow' },
+    graphSummary: { th: 'Graph Summary', en: 'Graph Summary' },
+    compareDeviceData: { th: 'เปรียบเทียบข้อมูลจากอุปกรณ์', en: 'Compare data from device' },
+    inSameGraph: { th: 'ในกราฟเดียวกัน', en: 'in the same graph' },
   },
   riceTypes: {
     // Common rice type translations
