@@ -25,6 +25,9 @@ export const translations = {
     graphSummary: { th: 'Graph Summary', en: 'Graph Summary' },
     compareDeviceData: { th: 'เปรียบเทียบข้อมูลจากอุปกรณ์', en: 'Compare data from device' },
     inSameGraph: { th: 'ในกราฟเดียวกัน', en: 'in the same graph' },
+    noDataSelected: { th: 'ไม่มีข้อมูลที่เลือก', en: 'No Data Selected' },
+    addGraphDescription: { th: 'คลิกที่ปุ่ม "Add Graph" เพื่อเลือกอุปกรณ์และค่าที่ต้องการแสดงบนกราฟ', en: 'Click the "Add Graph" button to select device and values to display on the graph' },
+    addGraph: { th: 'Add Graph', en: 'Add Graph' },
   },
   riceTypes: {
     // Common rice type translations
