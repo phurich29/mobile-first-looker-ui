@@ -37,7 +37,7 @@ export const FooterNav = () => {
   // เมนูสำหรับ Guest (4 เมนู)
   if (isGuest) {
     return (
-      <div className="fixed bottom-0 left-0 right-0 z-50">
+      <div className="fixed left-0 right-0 z-50" style={{ bottom: 'max(env(safe-area-inset-bottom), 0.5rem)' }}>
         <div className="bg-emerald-600 dark:bg-emerald-800 h-16 rounded-t-2xl shadow-lg backdrop-blur-sm">
           <nav className="flex justify-around items-center h-full">
             <NavLink to="/" className={({ isActive }) => cn("flex flex-col items-center justify-center w-1/4 h-full", isActive && "font-bold")}>
@@ -67,7 +67,7 @@ export const FooterNav = () => {
   
   // เมนูสำหรับผู้ใช้ที่ login แล้ว (เหมือนเดิม)
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50">
+    <div className="fixed left-0 right-0 z-50" style={{ bottom: 'max(env(safe-area-inset-bottom), 0.5rem)' }}>
       <div className="bg-emerald-600 dark:bg-emerald-800 h-16 rounded-t-2xl shadow-lg backdrop-blur-sm">
         <nav className="flex justify-around items-center h-full">
           <NavLink to="/" className={({ isActive }) => cn("flex flex-col items-center justify-center w-1/4 h-full", isActive && "font-bold")}>
