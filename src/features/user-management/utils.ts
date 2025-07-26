@@ -1,29 +1,42 @@
 
 // Format date for display
-export const formatDate = (dateString?: string | null, language: 'th' | 'en' = 'th'): string => {
+export const formatDate = (dateString?: string | null, language: 'th' | 'en' | 'zh' = 'th'): string => {
   if (!dateString) {
-    return language === 'th' ? "ไม่เคยเข้าสู่ระบบ" : "Never signed in";
+    switch (language) {
+      case 'en': return "Never signed in";
+      case 'zh': return "从未登录";
+      default: return "ไม่เคยเข้าสู่ระบบ";
+    }
   }
   
   const date = new Date(dateString);
   
-  if (language === 'en') {
-    return new Intl.DateTimeFormat('en-US', {
-      day: 'numeric',
-      month: 'short',
-      year: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    }).format(date);
-  } else {
-    return new Intl.DateTimeFormat('th-TH', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
+  switch (language) {
+    case 'en':
+      return new Intl.DateTimeFormat('en-US', {
+        day: 'numeric',
+        month: 'short',
+        year: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).format(date);
+    case 'zh':
+      return new Intl.DateTimeFormat('zh-CN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(date);
+    default:
+      return new Intl.DateTimeFormat('th-TH', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(date);
   }
 };
 
