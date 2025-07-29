@@ -404,7 +404,7 @@ export const translations = {
     impurity_num: { th: 'เมล็ดอื่นๆ', en: 'Other Grains', zh: '其他米粒' },
     paddy_rate: { th: 'ข้าวเปลือก(เมล็ด/กก.)', en: 'Paddy Rate (grains/kg)', zh: '稻谷 (粒/公斤)' },
     whiteness: { th: 'ความขาว', en: 'Whiteness', zh: '白度' },
-    process_precision: { th: 'ระดับขัดสี', en: 'Process Precision', zh: '碾米级别' },
+    process_precision: { th: 'ระดับขัดสี', en: 'Process Precision', zh: '大米等级' },
     mix_rate: { th: 'อัตราส่วนผสม', en: 'Mix Rate', zh: '混合率' },
     sprout_rate: { th: 'อัตราการงอก', en: 'Sprout Rate', zh: '发芽率' },
     unripe_rate: { th: 'อัตราการไม่สุก', en: 'Unripe Rate', zh: '未熟率' },

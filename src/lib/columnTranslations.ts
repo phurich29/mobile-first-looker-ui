@@ -161,7 +161,7 @@ export const columnTranslationsZh: Record<string, string> = {
   impurity_num: '其他米粒',
   paddy_rate: '稻谷 (粒/公斤)',
   whiteness: '白度',
-  process_precision: '碾米级别',
+  process_precision: '大米等级',
   mix_rate: '混合率',
   sprout_rate: '发芽率',
   unripe_rate: '未熟率',
