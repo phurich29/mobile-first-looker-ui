@@ -158,7 +158,7 @@ export const columnTranslationsZh: Record<string, string> = {
   partly_black: '部分黑色',
   imperfection_rate: '损坏米粒',
   sticky_rice_rate: '糯米',
-  impurity_num: '其他米粒',
+  impurity_num: '杂质',
   paddy_rate: '稻谷 (粒/公斤)',
   whiteness: '白度',
   process_precision: '大米等级',
