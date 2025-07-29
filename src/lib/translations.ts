@@ -396,7 +396,7 @@ export const translations = {
     parboiled_white_rice: { th: 'ข้าวดิบ', en: 'White Rice', zh: '生米' },
     honey_rice: { th: 'เมล็ดม่วง', en: 'Honey Rice', zh: '紫米粒' },
     yellow_rice_rate: { th: 'เมล็ดเหลือง', en: 'Yellow Rice Rate', zh: '黄米粒' },
-    black_kernel: { th: 'เมล็ดดำ', en: 'Black Kernel', zh: '黑米粒' },
+    black_kernel: { th: 'เมล็ดดำ', en: 'Black Kernel', zh: '黑粒米' },
     partly_black_peck: { th: 'ดำบางส่วน & จุดดำ', en: 'Partly Black & Black Spots', zh: '黑斑及黑点米' },
     partly_black: { th: 'ดำบางส่วน', en: 'Partly Black', zh: '黑斑米' },
     imperfection_rate: { th: 'เมล็ดเสีย', en: 'Imperfection Rate', zh: '不完善' },
