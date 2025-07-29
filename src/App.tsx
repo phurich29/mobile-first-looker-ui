@@ -19,7 +19,7 @@ import OneSignal from 'react-onesignal';
 function App() {
   useEffect(() => {
     OneSignal.init({
-      appId: process.env.REACT_APP_ONESIGNAL_APP_ID || "",
+      appId: import.meta.env.VITE_ONESIGNAL_APP_ID || "",
       allowLocalhostAsSecureOrigin: true,
       safari_web_id: "web.onesignal.auto.XXXXXX", // คงไว้ตามเดิม
       notifyButton: {
