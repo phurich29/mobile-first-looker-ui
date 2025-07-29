@@ -150,7 +150,7 @@ export const columnTranslationsZh: Record<string, string> = {
   small_brokens_c1: '小碎米C1',
   red_line_rate: '低于标准颜色',
   parboiled_red_line: '红米粒',
-  parboiled_white_rice: '生米',
+  parboiled_white_rice: '白米',
   honey_rice: '紫米粒',
   yellow_rice_rate: '黄',
   black_kernel: '黑粒米',
