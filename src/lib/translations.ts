@@ -377,7 +377,7 @@ export const translations = {
     headRice: { th: 'ข้าวต้น', en: 'Head Rice', zh: '头米' },
     wholeKernels: { th: 'เต็มเมล็ด', en: 'Whole Kernels', zh: '整粒' },
     yield: { th: 'ผลผลิต', en: 'Yield', zh: '产量' },
-    haab: { th: 'หาบ', en: 'Haab', zh: '担' },
+    haab: { th: 'หาบ', en: 'Haab', zh: '吨' },
     fromOneTonPaddy: { th: 'จากข้าวเปลือก 1 ตัน', en: 'From 1 ton of paddy', zh: '来自1吨稻谷' },
   },
   measurements: {
