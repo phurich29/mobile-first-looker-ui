@@ -19,8 +19,9 @@ import OneSignal from 'react-onesignal';
 function App() {
   useEffect(() => {
     OneSignal.init({
-      appId: "YOUR_APP_ID_HERE", // ใส่ App ID จาก Dashboard
-      safari_web_id: "web.onesignal.auto.XXXXXX",
+      appId: process.env.REACT_APP_ONESIGNAL_APP_ID || "",
+      allowLocalhostAsSecureOrigin: true,
+      safari_web_id: "web.onesignal.auto.XXXXXX", // คงไว้ตามเดิม
       notifyButton: {
         enable: true,
         prenotify: true,
