@@ -2,17 +2,20 @@ import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+  apiKey: "AIzaSyD0LzVIlcdwOfT8woWkjwSMUVHRcqII2XY",
+  authDomain: "pushnotificationriceflow.firebaseapp.com",
+  projectId: "pushnotificationriceflow",
+  storageBucket: "pushnotificationriceflow.firebasestorage.app",
+  messagingSenderId: "277653837166",
+  appId: "1:277653837166:web:1ca1f799d4ae4d75461d7f",
+  measurementId: "G-ZFQ7BM77F0"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+
+// VAPID Key for FCM (Get this from Firebase Console > Project Settings > Cloud Messaging > Web Push certificates)
+const VAPID_KEY = "BMbbJ62A6UCQjbG3VML0KRiNEInlZchMg9ts5mm08eiZwyv3X77N7d0xhFDZzEc00282CvQs2hp0BBFTg0QPIVU"; // Replace with your actual VAPID key
 
 // Initialize Firebase Cloud Messaging and get a reference to the service
 let messaging: any = null;
@@ -29,7 +32,7 @@ export const getFCMToken = async (): Promise<string | null> => {
     if (!messaging) return null;
     
     const token = await getToken(messaging, {
-      vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY
+      vapidKey: VAPID_KEY
     });
     
     if (token) {
