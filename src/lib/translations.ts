@@ -372,7 +372,7 @@ export const translations = {
     calculationSummary: { th: 'สรุปผลการคำนวณ', en: 'Calculation Summary', zh: '计算摘要' },
     noData: { th: 'ไม่มีข้อมูลสำหรับการคำนวณ', en: 'No data available for calculation', zh: '无可用于计算的数据' },
     deviceName: { th: 'ชื่ออุปกรณ์', en: 'Device Name', zh: '设备名称' },
-    kernelCount: { th: 'จำนวนเมล็ด', en: 'Kernel Count', zh: '颗粒数' },
+    kernelCount: { th: 'จำนวนเมล็ด', en: 'Kernel Count', zh: '总粒数' },
     totalRicePercentage: { th: '%ข้าวต้น + %เต็มเมล็ด', en: '%Head Rice + %Whole Kernels', zh: '%头米 + %整粒' },
     headRice: { th: 'ข้าวต้น', en: 'Head Rice', zh: '头米' },
     wholeKernels: { th: 'เต็มเมล็ด', en: 'Whole Kernels', zh: '整粒' },
