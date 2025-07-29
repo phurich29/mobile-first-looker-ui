@@ -144,7 +144,7 @@ export const columnTranslationsZh: Record<string, string> = {
   short_grain: '短粒',
   slender_kernel: '细长粒',
   whole_kernels: '整粒',
-  head_rice: '头米',
+  head_rice: '米尖破碎',
   total_brokens: '总碎米',
   small_brokens: '小碎米',
   small_brokens_c1: '小碎米C1',

@@ -387,7 +387,7 @@ export const translations = {
     short_grain: { th: 'เมล็ดสั้น', en: 'Short Grain', zh: '短粒' },
     slender_kernel: { th: 'ข้าวลีบ', en: 'Slender Kernel', zh: '细长粒' },
     whole_kernels: { th: 'เต็มเมล็ด', en: 'Whole Kernels', zh: '整粒' },
-    head_rice: { th: 'ต้นข้าว', en: 'Head Rice', zh: '头米' },
+    head_rice: { th: 'ต้นข้าว', en: 'Head Rice', zh: '米尖破碎' },
     total_brokens: { th: 'ข้าวหักรวม', en: 'Total Brokens', zh: '总碎米' },
     small_brokens: { th: 'ปลายข้าว', en: 'Small Brokens', zh: '小碎米' },
     small_brokens_c1: { th: 'ปลายข้าวC1', en: 'Small Brokens C1', zh: '小碎米C1' },
