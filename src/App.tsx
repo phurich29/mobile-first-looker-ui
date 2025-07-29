@@ -16,44 +16,59 @@ import { ThemeProvider } from "./components/theme/ThemeProvider";
 import { useEffect } from "react";
 import OneSignal from 'react-onesignal';
 
+// Create QueryClient outside component to prevent recreation on every render
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
 function App() {
   useEffect(() => {
-    OneSignal.init({
-      appId: import.meta.env.VITE_ONESIGNAL_APP_ID || "",
-      allowLocalhostAsSecureOrigin: true,
-      safari_web_id: "web.onesignal.auto.XXXXXX", // คงไว้ตามเดิม
-      notifyButton: {
-        enable: true,
-        prenotify: true,
-        showCredit: false,
-        text: {
-          'tip.state.unsubscribed': 'Subscribe to notifications',
-          'tip.state.subscribed': "You're subscribed to notifications",
-          'tip.state.blocked': "You've blocked notifications",
-          'message.prenotify': 'Click to subscribe to notifications',
-          'message.action.subscribed': 'Thanks for subscribing!',
-          'message.action.subscribing': 'Subscribing...',
-          'message.action.resubscribed': "You're subscribed to notifications",
-          'message.action.unsubscribed': 'You will no longer receive notifications',
-          'dialog.main.title': 'Manage Site Notifications',
-          'dialog.main.button.subscribe': 'SUBSCRIBE',
-          'dialog.main.button.unsubscribe': 'UNSUBSCRIBE',
-          'dialog.blocked.title': 'Unblock Notifications',
-          'dialog.blocked.message': "Follow these instructions to allow notifications:"
-        }
-      },
-    });
-  }, []);
+    // Only initialize OneSignal if App ID is provided
+    const appId = import.meta.env.VITE_ONESIGNAL_APP_ID;
+    
+    if (!appId) {
+      console.warn('OneSignal: VITE_ONESIGNAL_APP_ID is not set in environment variables');
+      return;
+    }
 
-  // Create a client
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: 1,
-        refetchOnWindowFocus: false,
-      },
-    },
-  });
+    try {
+      OneSignal.init({
+        appId: appId,
+        allowLocalhostAsSecureOrigin: true,
+        // Remove safari_web_id if not configured properly
+        // safari_web_id: "web.onesignal.auto.XXXXXX", // Replace with actual Safari Web ID from OneSignal Dashboard
+        notifyButton: {
+          enable: true,
+          prenotify: true,
+          showCredit: false,
+          text: {
+            'tip.state.unsubscribed': 'Subscribe to notifications',
+            'tip.state.subscribed': "You're subscribed to notifications",
+            'tip.state.blocked': "You've blocked notifications",
+            'message.prenotify': 'Click to subscribe to notifications',
+            'message.action.subscribed': 'Thanks for subscribing!',
+            'message.action.subscribing': 'Subscribing...',
+            'message.action.resubscribed': "You're subscribed to notifications",
+            'message.action.unsubscribed': 'You will no longer receive notifications',
+            'dialog.main.title': 'Manage Site Notifications',
+            'dialog.main.button.subscribe': 'SUBSCRIBE',
+            'dialog.main.button.unsubscribe': 'UNSUBSCRIBE',
+            'dialog.blocked.title': 'Unblock Notifications',
+            'dialog.blocked.message': "Follow these instructions to allow notifications:"
+          }
+        },
+      });
+      
+      console.log('OneSignal initialized successfully');
+    } catch (error) {
+      console.error('OneSignal initialization failed:', error);
+    }
+  }, []);
 
   const handleGlobalCountdownComplete = () => {
     const currentTime = new Date().toISOString();
