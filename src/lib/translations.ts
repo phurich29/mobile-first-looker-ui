@@ -385,7 +385,7 @@ export const translations = {
     class2: { th: 'ชั้น 2 (>6.6-7.0mm)', en: 'Class 2 (>6.6-7.0mm)', zh: '二级 (>6.6-7.0mm)' },
     class3: { th: 'ชั้น 3 (>6.2-6.6mm)', en: 'Class 3 (>6.2-6.6mm)', zh: '三级 (>6.2-6.6mm)' },
     short_grain: { th: 'เมล็ดสั้น', en: 'Short Grain', zh: '短粒' },
-    slender_kernel: { th: 'ข้าวลีบ', en: 'Slender Kernel', zh: '细长粒' },
+    slender_kernel: { th: 'ข้าวลีบ', en: 'Slender Kernel', zh: '窄米' },
     whole_kernels: { th: 'เต็มเมล็ด', en: 'Whole Kernels', zh: '整粒' },
     head_rice: { th: 'ต้นข้าว', en: 'Head Rice', zh: '米尖破碎' },
     total_brokens: { th: 'ข้าวหักรวม', en: 'Total Brokens', zh: '总碎米' },

@@ -142,7 +142,7 @@ export const columnTranslationsZh: Record<string, string> = {
   class2: '二级 (>6.6-7.0mm)',
   class3: '三级 (>6.2-6.6mm)',
   short_grain: '短粒',
-  slender_kernel: '细长粒',
+  slender_kernel: '窄米',
   whole_kernels: '整粒',
   head_rice: '米尖破碎',
   total_brokens: '总碎米',
