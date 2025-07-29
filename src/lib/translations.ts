@@ -392,7 +392,7 @@ export const translations = {
     small_brokens: { th: 'ปลายข้าว', en: 'Small Brokens', zh: '小碎米' },
     small_brokens_c1: { th: 'ปลายข้าวC1', en: 'Small Brokens C1', zh: '小碎米C1' },
     red_line_rate: { th: 'สีต่ำกว่ามาตรฐาน', en: 'Red Line Rate', zh: '低于标准颜色' },
-    parboiled_red_line: { th: 'เมล็ดแดง', en: 'Red Kernel', zh: '红米粒' },
+    parboiled_red_line: { th: 'เมล็ดแดง', en: 'Red Kernel', zh: '红线米' },
     parboiled_white_rice: { th: 'ข้าวดิบ', en: 'White Rice', zh: '白米' },
     honey_rice: { th: 'เมล็ดม่วง', en: 'Honey Rice', zh: '紫米粒' },
     yellow_rice_rate: { th: 'เมล็ดเหลือง', en: 'Yellow Rice Rate', zh: '黄' },
