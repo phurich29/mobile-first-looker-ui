@@ -13,8 +13,37 @@ import { Toaster } from "@/components/ui/toaster";
 import { toast } from "@/components/ui/use-toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./components/theme/ThemeProvider";
+import { useEffect } from "react";
+import OneSignal from 'react-onesignal';
 
 function App() {
+  useEffect(() => {
+    OneSignal.init({
+      appId: "YOUR_APP_ID_HERE", // ใส่ App ID จาก Dashboard
+      safari_web_id: "web.onesignal.auto.XXXXXX",
+      notifyButton: {
+        enable: true,
+        prenotify: true,
+        showCredit: false,
+        text: {
+          'tip.state.unsubscribed': 'Subscribe to notifications',
+          'tip.state.subscribed': "You're subscribed to notifications",
+          'tip.state.blocked': "You've blocked notifications",
+          'message.prenotify': 'Click to subscribe to notifications',
+          'message.action.subscribed': 'Thanks for subscribing!',
+          'message.action.subscribing': 'Subscribing...',
+          'message.action.resubscribed': "You're subscribed to notifications",
+          'message.action.unsubscribed': 'You will no longer receive notifications',
+          'dialog.main.title': 'Manage Site Notifications',
+          'dialog.main.button.subscribe': 'SUBSCRIBE',
+          'dialog.main.button.unsubscribe': 'UNSUBSCRIBE',
+          'dialog.blocked.title': 'Unblock Notifications',
+          'dialog.blocked.message': "Follow these instructions to allow notifications:"
+        }
+      },
+    });
+  }, []);
+
   // Create a client
   const queryClient = new QueryClient({
     defaultOptions: {
