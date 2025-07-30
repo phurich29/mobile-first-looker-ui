@@ -27,46 +27,78 @@ const queryClient = new QueryClient({
 
 function App() {
   useEffect(() => {
-    // Only initialize OneSignal if App ID is provided
-    const appId = import.meta.env.VITE_ONESIGNAL_APP_ID;
-    
-    if (!appId) {
-      console.warn('OneSignal: VITE_ONESIGNAL_APP_ID is not set in environment variables');
-      return;
-    }
-
-    try {
-      OneSignal.init({
-        appId: appId,
-        allowLocalhostAsSecureOrigin: true,
-        // Remove safari_web_id if not configured properly
-        // safari_web_id: "web.onesignal.auto.XXXXXX", // Replace with actual Safari Web ID from OneSignal Dashboard
-        notifyButton: {
-          enable: true,
-          prenotify: true,
-          showCredit: false,
-          text: {
-            'tip.state.unsubscribed': 'Subscribe to notifications',
-            'tip.state.subscribed': "You're subscribed to notifications",
-            'tip.state.blocked': "You've blocked notifications",
-            'message.prenotify': 'Click to subscribe to notifications',
-            'message.action.subscribed': 'Thanks for subscribing!',
-            'message.action.subscribing': 'Subscribing...',
-            'message.action.resubscribed': "You're subscribed to notifications",
-            'message.action.unsubscribed': 'You will no longer receive notifications',
-            'dialog.main.title': 'Manage Site Notifications',
-            'dialog.main.button.subscribe': 'SUBSCRIBE',
-            'dialog.main.button.unsubscribe': 'UNSUBSCRIBE',
-            'dialog.blocked.title': 'Unblock Notifications',
-            'dialog.blocked.message': "Follow these instructions to allow notifications:"
-          }
-        },
-      });
+    const initializeOneSignal = async () => {
+      // Only initialize OneSignal if App ID is provided
+      const appId = import.meta.env.VITE_ONESIGNAL_APP_ID;
       
-      console.log('OneSignal initialized successfully');
-    } catch (error) {
-      console.error('OneSignal initialization failed:', error);
-    }
+      if (!appId) {
+        console.warn('OneSignal: VITE_ONESIGNAL_APP_ID is not set in environment variables');
+        return;
+      }
+
+      try {
+        console.log('🔔 Initializing OneSignal with App ID:', appId);
+        
+        await OneSignal.init({
+          appId: appId,
+          allowLocalhostAsSecureOrigin: true,
+          autoRegister: true,
+          autoResubscribe: true,
+          notifyButton: {
+            enable: true,
+            prenotify: true,
+            showCredit: false,
+            text: {
+              'tip.state.unsubscribed': 'คลิกเพื่อรับการแจ้งเตือน',
+              'tip.state.subscribed': "คุณได้สมัครรับการแจ้งเตือนแล้ว",
+              'tip.state.blocked': "คุณได้บล็อกการแจ้งเตือน",
+              'message.prenotify': 'คลิกเพื่อสมัครรับการแจ้งเตือน',
+              'message.action.subscribed': 'ขอบคุณที่สมัครรับการแจ้งเตือน!',
+              'message.action.subscribing': 'กำลังสมัคร...',
+              'message.action.resubscribed': "คุณได้สมัครรับการแจ้งเตือนแล้ว",
+              'message.action.unsubscribed': 'คุณจะไม่ได้รับการแจ้งเตือนอีกต่อไป',
+              'dialog.main.title': 'จัดการการแจ้งเตือน',
+              'dialog.main.button.subscribe': 'สมัครรับ',
+              'dialog.main.button.unsubscribe': 'ยกเลิก',
+              'dialog.blocked.title': 'ยกเลิกการบล็อกการแจ้งเตือน',
+              'dialog.blocked.message': "ทำตามขั้นตอนเหล่านี้เพื่ออนุญาตการแจ้งเตือน:"
+            }
+          },
+        });
+        
+        console.log('✅ OneSignal initialized successfully');
+        
+        // Check subscription status
+        const isSubscribed = await OneSignal.User.PushSubscription.optedIn;
+        console.log('📱 OneSignal subscription status:', isSubscribed);
+        
+        // Get user ID if subscribed
+        if (isSubscribed) {
+          const userId = OneSignal.User.onesignalId;
+          console.log('👤 OneSignal User ID:', userId);
+        }
+        
+        // Show success toast
+        toast({
+          title: "OneSignal พร้อมใช้งาน",
+          description: "ระบบการแจ้งเตือนพร้อมทำงานแล้ว",
+          variant: "default",
+        });
+        
+      } catch (error) {
+        console.error('❌ OneSignal initialization failed:', error);
+        toast({
+          title: "เกิดข้อผิดพลาด",
+          description: "ไม่สามารถเริ่มต้นระบบการแจ้งเตือนได้",
+          variant: "destructive",
+        });
+      }
+    };
+
+    // Initialize OneSignal after a short delay to ensure DOM is ready
+    const timer = setTimeout(initializeOneSignal, 1000);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   const handleGlobalCountdownComplete = () => {
