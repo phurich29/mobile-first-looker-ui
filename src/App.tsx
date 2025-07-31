@@ -146,6 +146,9 @@ function App() {
   const startPermissionMonitoring = () => {
     console.log('🔍 Starting permission monitoring...');
     
+    // ประกาศตัวแปรก่อนใช้งาน
+    let monitoringInterval: NodeJS.Timeout;
+    
     const checkPermission = async () => {
       if (typeof Notification !== 'undefined') {
         const currentPermission = Notification.permission;
@@ -175,7 +178,9 @@ function App() {
             }, 1000);
             
             // หยุดการตรวจสอบเมื่อสำเร็จแล้ว
-            clearInterval(monitoringInterval);
+            if (monitoringInterval) {
+              clearInterval(monitoringInterval);
+            }
             
             // ทดสอบส่งการแจ้งเตือนผ่าน OneSignal API โดยตรง (debug เท่านั้น)
             try {
@@ -205,13 +210,22 @@ function App() {
     };
     
     // ตรวจสอบทุก 2 วินาที
-    const monitoringInterval = setInterval(checkPermission, 2000);
+    monitoringInterval = setInterval(checkPermission, 2000);
     
     // หยุดการตรวจสอบหลังจาก 30 วินาที
     setTimeout(() => {
-      clearInterval(monitoringInterval);
+      if (monitoringInterval) {
+        clearInterval(monitoringInterval);
+      }
       console.log('🔍 Permission monitoring stopped after 30 seconds');
     }, 30000);
+    
+    // Return cleanup function
+    return () => {
+      if (monitoringInterval) {
+        clearInterval(monitoringInterval);
+      }
+    };
   };
   
   useEffect(() => {
@@ -245,8 +259,24 @@ function App() {
             enable: true,
             displayPredicate: () => true, // แสดงปุ่ม Bell Icon เสมอ
             size: 'medium',
-            theme: 'default',
             position: 'bottom-right',
+            prenotify: true,
+            showCredit: false,
+            text: {
+              'tip.state.unsubscribed': 'Subscribe to notifications',
+              'tip.state.subscribed': "You're subscribed to notifications",
+              'tip.state.blocked': "You've blocked notifications",
+              'message.prenotify': 'Click to subscribe to notifications',
+              'message.action.subscribing': 'Subscribing...',
+              'message.action.subscribed': "Thanks for subscribing!",
+              'message.action.resubscribed': "You're subscribed to notifications",
+              'message.action.unsubscribed': "You won't receive notifications again",
+              'dialog.main.title': 'Manage Site Notifications',
+              'dialog.main.button.subscribe': 'SUBSCRIBE',
+              'dialog.main.button.unsubscribe': 'UNSUBSCRIBE',
+              'dialog.blocked.title': 'Unblock Notifications',
+              'dialog.blocked.message': "Follow these instructions to allow notifications:"
+            }
           },
           persistNotification: true, // เก็บการแจ้งเตือนไว้จนกว่าจะกดปิด
         });
