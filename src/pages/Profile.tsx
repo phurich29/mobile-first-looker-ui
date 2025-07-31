@@ -4,7 +4,6 @@ import { AppLayout } from "@/components/layouts/app-layout";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { PasswordDialog } from "@/components/profile/PasswordDialog";
 import { FeedbackDialogs } from "@/components/profile/FeedbackDialogs";
-import { OneSignalSettings } from "@/components/OneSignalSettings";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -98,9 +97,6 @@ const Profile = () => {
             
             {/* ลิงก์แชร์ของฉัน Section */}
             <SharedLinksSection />
-            
-            {/* OneSignal Push Notifications Section */}
-            <OneSignalSettings />
             
           </div>
         </div>

@@ -1,4 +1,3 @@
-
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes";
 import { AuthProvider } from "./components/AuthProvider";
@@ -8,6 +7,7 @@ import { PWAProvider } from "./contexts/PWAContext";
 import { PWAInstallBanner } from "./components/PWAInstallBanner";
 import { PWADebugComponent } from "./components/PWADebugComponent";
 import { CountdownDebugger } from "./components/CountdownDebugger";
+import { FCMDebugComponent } from "./components/FCMDebugComponent";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Toaster } from "@/components/ui/toaster";
 import { toast } from "@/components/ui/use-toast";
@@ -16,6 +16,16 @@ import { ThemeProvider } from "./components/theme/ThemeProvider";
 import { useEffect } from "react";
 import { Capacitor } from "@capacitor/core";
 import { useFCM } from "./hooks/useFCM";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDO5lYCkbXExFEmf3x7H1WSC6qiE2W-Jrs",
+  authDomain: "riceflow-958a2.firebaseapp.com",
+  projectId: "riceflow-958a2",
+  storageBucket: "riceflow-958a2.firebasestorage.app",
+  messagingSenderId: "1043235929904",
+  appId: "1:1043235929904:web:c455598cba730e3af292f5",
+  measurementId: "G-BZGJVXZ6LE",
+};
 
 function App() {
   // Create a client
@@ -32,23 +42,22 @@ function App() {
   const {
     isInitialized: fcmInitialized,
     token: fcmToken,
-    error: fcmError
+    error: fcmError,
   } = useFCM({
     autoSendToServer: true,
-    userId: 'current-user-id', // Replace with actual user ID from auth context
+    // userId: 'current-user-id', // Replace with actual user ID from auth context
     onTokenReceived: (token) => {
-      console.log('🔔 FCM Token received:', token);
-      toast({
-        title: "Push Notifications",
-        description: "Successfully registered for push notifications",
-      });
+      console.log("🔔 FCM Token received:", token);
     },
     onNotificationReceived: (notification) => {
-      console.log('🔔 Notification received:', notification);
-      // Additional handling for received notifications
+      console.log("🔔 Notification received:", notification);
+      toast({
+        title: notification.title || "New Notification",
+        description: notification.body || "You have a new notification",
+      });
     },
     onNotificationOpened: (notification) => {
-      console.log('🔔 Notification opened:', notification);
+      console.log("🔔 Notification opened:", notification);
       // Handle navigation or actions when notification is tapped
       if (notification.data?.route) {
         // Navigate to specific route if provided in notification data
@@ -56,26 +65,48 @@ function App() {
       }
     },
     onError: (error) => {
-      console.error('🔔 FCM Error:', error);
+      console.error("🔔 FCM Error:", error);
       toast({
         title: "Notification Error",
         description: "Failed to setup push notifications",
         variant: "destructive",
       });
-    }
+    },
   });
 
   // Register service worker for FCM
   useEffect(() => {
     const registerServiceWorker = async () => {
-      if (!Capacitor.isNativePlatform() && 'serviceWorker' in navigator) {
+      if (!Capacitor.isNativePlatform() && "serviceWorker" in navigator) {
         try {
+          console.log("🔔 Registering Firebase messaging service worker...");
           // Register Firebase messaging service worker
-          const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-          console.log('🔔 Firebase messaging service worker registered:', registration);
+          const registration = await navigator.serviceWorker.register(
+            "/firebase-messaging-sw.js",
+            {
+              scope: "/",
+            }
+          );
+          console.log(
+            "🔔 Firebase messaging service worker registered successfully:",
+            registration.scope
+          );
+
+          // Wait for the service worker to be ready
+          await navigator.serviceWorker.ready;
+          console.log("🔔 Service worker is ready");
         } catch (error) {
-          console.error('🔔 Service worker registration failed:', error);
+          console.error("🔔 Service worker registration failed:", error);
+          toast({
+            title: "Service Worker Error",
+            description: "Failed to register push notification service",
+            variant: "destructive",
+          });
         }
+      } else {
+        console.log(
+          "🔔 Service worker registration skipped (native platform or not supported)"
+        );
       }
     };
 
@@ -85,13 +116,16 @@ function App() {
   // Log FCM status
   useEffect(() => {
     if (fcmInitialized) {
-      console.log('🔔 FCM initialized successfully');
+      console.log("🔔 FCM initialized successfully");
       if (fcmToken) {
-        console.log('🔔 FCM Token available:', fcmToken.substring(0, 20) + '...');
+        console.log(
+          "🔔 FCM Token available:",
+          fcmToken.substring(0, 20) + "..."
+        );
       }
     }
     if (fcmError) {
-      console.error('🔔 FCM Error:', fcmError);
+      console.error("🔔 FCM Error:", fcmError);
     }
   }, [fcmInitialized, fcmToken, fcmError]);
 
@@ -99,23 +133,26 @@ function App() {
     const currentTime = new Date().toISOString();
     console.log("🕐 Global countdown complete at:", currentTime);
     console.log("🔄 Triggering data refresh across all components");
-    
+
     // Log query client state before invalidation
     const queryCache = queryClient.getQueryCache();
     const allQueries = queryCache.getAll();
     console.log("📊 Query cache state before refresh:", {
       totalQueries: allQueries.length,
-      notificationQueries: allQueries.filter(q => q.queryKey[0] === 'notifications').length,
-      deviceQueries: allQueries.filter(q => q.queryKey[0] === 'devices').length
+      notificationQueries: allQueries.filter(
+        (q) => q.queryKey[0] === "notifications"
+      ).length,
+      deviceQueries: allQueries.filter((q) => q.queryKey[0] === "devices")
+        .length,
     });
-    
+
     // Invalidate queries that should refresh on the global timer
-    const invalidatedQueries = ['notifications', 'devices', 'measurements'];
-    invalidatedQueries.forEach(queryKey => {
+    const invalidatedQueries = ["notifications", "devices", "measurements"];
+    invalidatedQueries.forEach((queryKey) => {
       const result = queryClient.invalidateQueries({ queryKey: [queryKey] });
       console.log(`🔄 Invalidated ${queryKey} queries:`, result);
     });
-    
+
     console.log("✅ Global countdown refresh completed");
   };
 
@@ -125,12 +162,16 @@ function App() {
         <ThemeProvider defaultTheme="light">
           <LanguageProvider>
             <PWAProvider>
-              <CountdownProvider initialSeconds={60} onComplete={handleGlobalCountdownComplete}>
+              <CountdownProvider
+                initialSeconds={60}
+                onComplete={handleGlobalCountdownComplete}
+              >
                 <AuthProvider>
                   <RouterProvider router={router} />
                   <PWAInstallBanner />
                   <PWADebugComponent />
                   <CountdownDebugger />
+                  <FCMDebugComponent />
                   <Toaster />
                 </AuthProvider>
               </CountdownProvider>

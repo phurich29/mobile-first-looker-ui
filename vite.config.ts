@@ -109,13 +109,11 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       external: [
         // Mark React Native as external to prevent bundling issues
-        'react-native',
-        'react-native-onesignal'
+        'react-native'
       ],
       output: {
         globals: {
-          'react-native': 'ReactNative',
-          'react-native-onesignal': 'OneSignal'
+          'react-native': 'ReactNative'
         }
       }
     }
@@ -128,8 +126,7 @@ export default defineConfig(({ mode }) => ({
   optimizeDeps: {
     exclude: [
       // Exclude React Native packages from dependency optimization
-      'react-native',
-      'react-native-onesignal'
+      'react-native'
     ]
   }
 }));

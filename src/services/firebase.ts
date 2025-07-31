@@ -3,14 +3,14 @@ import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage, type Messaging } from 'firebase/messaging';
 import { Capacitor } from '@capacitor/core';
 
-// Firebase configuration
+// Firebase configuration - Replace with your actual values
 const firebaseConfig = {
-  apiKey: "AIzaSyD8J2uKgF-7yO3RnK4Qg2l1M6vH0wX9ZcQ",
-  authDomain: "riceflow-958a2.firebaseapp.com",
-  projectId: "riceflow-958a2",
-  storageBucket: "riceflow-958a2.firebasestorage.app",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abc123def456"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyD8J2uKgF-7yO3RnK4Qg2l1M6vH0wX9ZcQ",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "riceflow-958a2.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "riceflow-958a2",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "riceflow-958a2.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "123456789012",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:123456789012:web:abc123def456"
 };
 
 // Initialize Firebase
@@ -38,8 +38,10 @@ export const getFCMToken = async (): Promise<string | null> => {
   }
 
   try {
+    const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY || 'BNxV4F2o8KxJ3hL9mN1pQ2rS4tU6vW8xY0zA1bC3dE5fG7hI9jK0lM2nO4pQ6rS8tU0vW2xY4zA6bC8dE0fG2hI4';
+    
     const currentToken = await getToken(messaging, {
-      vapidKey: 'BNxV4F2o8KxJ3hL9mN1pQ2rS4tU6vW8xY0zA1bC3dE5fG7hI9jK0lM2nO4pQ6rS8tU0vW2xY4zA6bC8dE0fG2hI4'
+      vapidKey: vapidKey
     });
     
     if (currentToken) {

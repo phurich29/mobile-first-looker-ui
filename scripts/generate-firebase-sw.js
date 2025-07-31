@@ -1,18 +1,30 @@
-// firebase-messaging-sw.js - Auto-generated
+// Script to generate firebase config for service worker at build time
+import { writeFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Read environment variables
+const firebaseConfig = {
+  apiKey: process.env.VITE_FIREBASE_API_KEY || "AIzaSyD8J2uKgF-7yO3RnK4Qg2l1M6vH0wX9ZcQ",
+  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN || "riceflow-958a2.firebaseapp.com",
+  projectId: process.env.VITE_FIREBASE_PROJECT_ID || "riceflow-958a2",
+  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET || "riceflow-958a2.firebasestorage.app",
+  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "123456789012",
+  appId: process.env.VITE_FIREBASE_APP_ID || "1:123456789012:web:abc123def456"
+};
+
+// Generate service worker content
+const serviceWorkerContent = `// firebase-messaging-sw.js - Auto-generated
 
 // Import Firebase scripts
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
 
 // Firebase configuration - Auto-generated from environment variables
-const firebaseConfig = {
-  "apiKey": "AIzaSyD8J2uKgF-7yO3RnK4Qg2l1M6vH0wX9ZcQ",
-  "authDomain": "riceflow-958a2.firebaseapp.com",
-  "projectId": "riceflow-958a2",
-  "storageBucket": "riceflow-958a2.firebasestorage.app",
-  "messagingSenderId": "123456789012",
-  "appId": "1:123456789012:web:abc123def456"
-};
+const firebaseConfig = ${JSON.stringify(firebaseConfig, null, 2)};
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -74,3 +86,11 @@ self.addEventListener('notificationclick', (event) => {
     })
   );
 });
+`;
+
+// Write to public directory
+const outputPath = join(__dirname, '..', 'public', 'firebase-messaging-sw.js');
+writeFileSync(outputPath, serviceWorkerContent, 'utf8');
+
+console.log('✅ Firebase service worker generated with current environment configuration');
+console.log('📍 Written to:', outputPath);

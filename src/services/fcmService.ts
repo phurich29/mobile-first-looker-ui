@@ -51,19 +51,40 @@ export class FCMService {
   }
 
   private async initializeWeb(): Promise<void> {
+    console.log('🔔 Initializing FCM for web platform...');
+    
+    // Check if notifications are supported
+    if (!('Notification' in window)) {
+      throw new Error('This browser does not support notifications');
+    }
+
     // Request notification permission
     const permission = await Notification.requestPermission();
+    console.log('🔔 Notification permission:', permission);
     
     if (permission === 'granted') {
-      // Get FCM token for web
-      this.registrationToken = await getFCMToken();
-      
-      // Setup foreground message listener
-      onForegroundMessage((payload) => {
-        this.handleForegroundMessage(payload);
-      });
+      try {
+        // Get FCM token for web
+        this.registrationToken = await getFCMToken();
+        console.log('🔔 FCM token obtained:', this.registrationToken ? 'Yes' : 'No');
+        
+        if (this.registrationToken) {
+          this.onTokenReceived?.(this.registrationToken);
+        }
+        
+        // Setup foreground message listener
+        const unsubscribe = onForegroundMessage((payload) => {
+          console.log('🔔 Foreground message received:', payload);
+          this.handleForegroundMessage(payload);
+        });
+        
+        console.log('🔔 Foreground message listener setup complete');
+      } catch (error) {
+        console.error('🔔 Error getting FCM token or setting up listeners:', error);
+        throw error;
+      }
     } else {
-      throw new Error('Notification permission not granted');
+      throw new Error(`Notification permission ${permission}`);
     }
   }
 
@@ -95,25 +116,33 @@ export class FCMService {
   }
 
   private handleForegroundMessage(payload: any): void {
-    console.log('Foreground message received:', payload);
+    console.log('🔔 Handling foreground message:', payload);
     
-    // Show notification if the app is in foreground
+    // Call the notification received callback first
+    this.onNotificationReceived?.(payload);
+    
+    // Show browser notification if the app is in foreground and browser supports it
     if ('Notification' in window && Notification.permission === 'granted') {
       const notification = new Notification(payload.notification?.title || 'New Message', {
         body: payload.notification?.body || '',
         icon: payload.notification?.icon || '/favicon.ico',
         badge: payload.notification?.badge,
-        data: payload.data
+        data: payload.data,
+        tag: payload.data?.tag || 'fcm-notification'
       });
 
       notification.onclick = () => {
+        console.log('🔔 Browser notification clicked');
         window.focus();
         notification.close();
         this.onNotificationOpened?.(payload);
       };
+      
+      // Auto close after 5 seconds
+      setTimeout(() => {
+        notification.close();
+      }, 5000);
     }
-    
-    this.onNotificationReceived?.(payload);
   }
 
   // Get the registration token
