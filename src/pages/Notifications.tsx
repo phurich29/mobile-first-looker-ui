@@ -3,10 +3,12 @@ import React, { useEffect } from "react"; // Added useEffect
 import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
 // Header and FooterNav are handled by AppLayout
 import { NotificationList } from "@/components/NotificationList";
+import { NotificationManager } from "@/components/NotificationManager";
 import { useAuth } from "@/components/AuthProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
-import { Clock, Settings } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Clock, Settings, Bell, Smartphone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -109,8 +111,43 @@ const Notifications = () => {
             </div>
           </div>
           
-          <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
-            <NotificationList />
+          <div className="bg-white rounded-lg shadow-sm">
+            <Tabs defaultValue="notifications" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 lg:grid-cols-2">
+                <TabsTrigger value="notifications" className="flex items-center gap-2">
+                  <Bell className="h-4 w-4" />
+                  <span>การแจ้งเตือน</span>
+                </TabsTrigger>
+                <TabsTrigger value="push-settings" className="flex items-center gap-2">
+                  <Smartphone className="h-4 w-4" />
+                  <span>Push Notifications</span>
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="notifications" className="p-4 md:p-6">
+                <div className="space-y-4">
+                  <div>
+                    <h2 className="text-lg font-semibold mb-2">การแจ้งเตือนในระบบ</h2>
+                    <p className="text-gray-600 text-sm mb-4">
+                      การแจ้งเตือนจากระบบและอุปกรณ์ที่เชื่อมต่อ
+                    </p>
+                  </div>
+                  <NotificationList />
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="push-settings" className="p-4 md:p-6">
+                <div className="space-y-4">
+                  <div>
+                    <h2 className="text-lg font-semibold mb-2">Push Notification Settings</h2>
+                    <p className="text-gray-600 text-sm mb-4">
+                      จัดการการแจ้งเตือนแบบ Push สำหรับอุปกรณ์ของคุณ
+                    </p>
+                  </div>
+                  <NotificationManager />
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>

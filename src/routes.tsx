@@ -33,6 +33,7 @@ import AboutRiceflow from "./pages/AboutRiceflow";
 import DeviceAccessManagement from "./pages/DeviceAccessManagement";
 import Assistant from "./pages/Assistant";
 import PublicAnalysisView from "./pages/PublicAnalysisView";
+import { FCMTestPage } from "./pages/FCMTestPage";
 
 // Device-specific graph pages
 import DeviceGraphMonitor from "./pages/DeviceGraphMonitor";
@@ -249,6 +250,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowGuest={true}>
             <Assistant />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "fcm-test",
+        element: (
+          <ProtectedRoute allowGuest={true}>
+            <FCMTestPage />
           </ProtectedRoute>
         ),
       },

@@ -8,7 +8,13 @@ const config: CapacitorConfig = {
     PushNotifications: {
       presentationOptions: ["badge", "sound", "alert"],
     },
+    FirebaseMessaging: {
+      deliveryMetrics: true
+    }
   },
+  server: {
+    androidScheme: 'https'
+  }
 };
 
 export default config;
