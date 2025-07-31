@@ -244,8 +244,10 @@ function App() {
         await OneSignal.init({
           appId: appId,
           allowLocalhostAsSecureOrigin: true,
-          autoRegister: true, // เปิดให้ OneSignal จัดการ registration เอง
+          autoRegister: false, // ปิดเพื่อควบคุม registration เอง
           autoResubscribe: true,
+          // เพิ่ม Debug Mode เพื่อดู log ใน console
+          debug: true,
           serviceWorkerParam: {
             scope: '/'
           },
@@ -283,6 +285,26 @@ function App() {
         
         console.log('✅ OneSignal initialized successfully');
         
+        // 🔥 Manual Registration เพื่อให้แน่ใจว่า Service Worker ทำงาน
+        try {
+          // ตรวจสอบ Service Worker ก่อน
+          if ('serviceWorker' in navigator) {
+            const registration = await navigator.serviceWorker.getRegistration();
+            console.log('🔧 Service Worker registration:', registration);
+            
+            if (registration) {
+              console.log('✅ Service Worker is registered');
+            } else {
+              console.log('⚠️ Service Worker not found, OneSignal will handle it');
+            }
+          }
+          
+          await OneSignal.User.PushSubscription.optIn();
+          console.log('🔔 Manual registration successful');
+        } catch (regError) {
+          console.log('⚠️ Manual registration failed, will try later:', regError);
+        }
+        
         // ตั้งค่า external_id หรือ user_id เพื่อให้รับการแจ้งเตือนได้
         const userId = `user_${Date.now()}`; // ใช้เวลาเป็น unique ID หากไม่มีระบบ login
         await OneSignal.login(userId);
@@ -295,6 +317,37 @@ function App() {
           environment: 'localhost'
         });
         console.log('🏷️ Added user tags for targeting');
+        
+        // 🔥 เพิ่ม Event Listeners สำหรับ Push Notifications
+        OneSignal.Notifications.addEventListener('click', (event) => {
+          console.log('🔔 Notification clicked:', event);
+          // Handle notification click
+        });
+        
+        OneSignal.Notifications.addEventListener('foregroundWillDisplay', (event) => {
+          console.log('🔔 Foreground notification will display:', event);
+          // Notification received while app is in foreground
+          event.preventDefault(); // ป้องกันไม่ให้แสดง notification ซ้ำ
+          
+          // แสดง toast แทน
+          const notification = event.notification;
+          toast({
+            title: notification.title || "📱 การแจ้งเตือนใหม่",
+            description: notification.body || "คุณมีการแจ้งเตือนใหม่จาก RiceFlow",
+            variant: "default",
+          });
+        });
+        
+        OneSignal.Notifications.addEventListener('permissionChange', (granted) => {
+          console.log('🔔 Permission changed:', granted);
+          if (granted) {
+            toast({
+              title: "✅ เปิดการแจ้งเตือนสำเร็จ!",
+              description: "คุณจะได้รับการแจ้งเตือนจาก RiceFlow แล้ว",
+              variant: "default",
+            });
+          }
+        });
         
         // รอให้ OneSignal สร้าง onesignalId ให้สมบูรณ์ (แบบไม่บล็อก UI)
         const waitForOnesignalId = async () => {
@@ -346,7 +399,7 @@ function App() {
           // แสดงป๊อปอัพหลังจากโหลดหน้าเว็บเสร็จ
           setTimeout(() => {
             setShowNotificationPopup(true);
-          }, 1500);
+          }, 3000); // แสดงหลังจาก 3 วินาที
         } else if (permission === 'denied') {
           // ผู้ใช้เคยปฏิเสธแล้ว - แต่ยังให้โอกาสขออนุญาตใหม่
           console.log('🚫 Notifications are blocked, but showing popup anyway.');

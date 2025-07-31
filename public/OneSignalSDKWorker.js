@@ -4,6 +4,9 @@ importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 // Service Worker for OneSignal Push Notifications
 const CACHE_NAME = 'onesignal-cache-v1';
 
+// 🔥 Force notification display
+const FORCE_SHOW_NOTIFICATIONS = true;
+
 // Install event
 self.addEventListener('install', function(event) {
   console.log('OneSignal Service Worker installing...');
@@ -77,29 +80,36 @@ self.addEventListener('push', function(event) {
     // ถ้าพาร์สข้อมูลไม่ได้ ก็ยังคงใช้การแจ้งเตือนเริ่มต้น
   }
   
-  // แสดงการแจ้งเตือนทุกครั้ง ไม่ว่าจะมีข้อมูลหรือไม่ก็ตาม
+  // 🔥 แสดงการแจ้งเตือนแบบบังคับ - ต้องแสดงทุกครั้ง!
   event.waitUntil(
-    self.registration.showNotification(title, options)
-      .then(() => console.log('🔔🔔🔔 Notification shown successfully'))
-      .catch(error => console.error('❌❌❌ Error showing notification:', error))
-      .then(() => {
-        // ยืนยันว่าแสดงแล้วโดยส่งข้อมูลไปยัง client
-        return self.clients.matchAll({
-          includeUncontrolled: true,
-          type: 'window'
-        }).then(clients => {
-          if (clients && clients.length) {
-            clients.forEach(client => {
-              client.postMessage({
-                type: 'NOTIFICATION_DISPLAYED',
-                title: title,
-                options: options,
-                timestamp: Date.now()
-              });
-            });
-          }
+    Promise.resolve().then(() => {
+      console.log('🚀 Forcing notification display:', title, options);
+      return self.registration.showNotification(title, options);
+    })
+    .then(() => {
+      console.log('✅✅✅ Notification displayed successfully:', title);
+      // ส่งข้อความกลับไปยัง main thread
+      return self.clients.matchAll();
+    })
+    .then(clients => {
+      clients.forEach(client => {
+        client.postMessage({
+          type: 'NOTIFICATION_DISPLAYED',
+          title: title,
+          body: options.body,
+          timestamp: Date.now()
         });
-      })
+      });
+    })
+    .catch((error) => {
+      console.error('❌❌❌ Failed to show notification:', error);
+      // แม้ error ก็ยังพยายามแสดง notification อีกครั้ง
+      return self.registration.showNotification('RiceFlow Alert', {
+        body: 'คุณมีการแจ้งเตือนใหม่!',
+        icon: '/favicon.ico',
+        tag: 'fallback-notification-' + Date.now()
+      });
+    })
   );
 });
 

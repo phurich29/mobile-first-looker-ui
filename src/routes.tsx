@@ -35,6 +35,7 @@ import Assistant from "./pages/Assistant";
 import PublicAnalysisView from "./pages/PublicAnalysisView";
 import FCMTestPage from "./pages/FCMTestPage";
 import { NotificationSenderPage } from "./pages/NotificationSenderPage";
+import { OneSignalTestPage } from "./components/OneSignalTestPage";
 
 // Device-specific graph pages
 import DeviceGraphMonitor from "./pages/DeviceGraphMonitor";
@@ -325,6 +326,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute requiredRoles={["admin"]}>
             <NotificationSenderPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "onesignal-test",
+        element: (
+          <ProtectedRoute allowGuest={true}>
+            <OneSignalTestPage />
           </ProtectedRoute>
         ),
       },
