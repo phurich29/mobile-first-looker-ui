@@ -37,8 +37,8 @@ export const FooterNav = () => {
   // เมนูสำหรับ Guest (4 เมนู)
   if (isGuest) {
     return (
-      <div className="fixed left-0 right-0 z-50" style={{ bottom: 'max(env(safe-area-inset-bottom), 0.5rem)' }}>
-        <div className="bg-emerald-600 dark:bg-emerald-800 h-16 rounded-t-2xl shadow-lg backdrop-blur-sm">
+    <div className="fixed left-0 right-0 bottom-0 z-50">
+      <div className="bg-emerald-600 dark:bg-emerald-800 h-16 shadow-lg backdrop-blur-sm" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
           <nav className="flex justify-around items-center h-full">
             <NavLink to="/" className={({ isActive }) => cn("flex flex-col items-center justify-center w-1/4 h-full", isActive && "font-bold")}>
               <Home className="h-5 w-5 text-white mb-1" />
@@ -67,8 +67,8 @@ export const FooterNav = () => {
   
   // เมนูสำหรับผู้ใช้ที่ login แล้ว (เหมือนเดิม)
   return (
-    <div className="fixed left-0 right-0 z-50" style={{ bottom: 'max(env(safe-area-inset-bottom), 0.5rem)' }}>
-      <div className="bg-emerald-600 dark:bg-emerald-800 h-16 rounded-t-2xl shadow-lg backdrop-blur-sm">
+    <div className="fixed left-0 right-0 bottom-0 z-50">
+      <div className="bg-emerald-600 dark:bg-emerald-800 h-16 shadow-lg backdrop-blur-sm" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <nav className="flex justify-around items-center h-full">
           <NavLink to="/" className={({ isActive }) => cn("flex flex-col items-center justify-center w-1/4 h-full", isActive && "font-bold")}>
             <Home className="h-5 w-5 text-white mb-1" />

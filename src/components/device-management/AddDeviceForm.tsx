@@ -23,8 +23,8 @@ export function AddDeviceForm({ onDeviceAdded }: AddDeviceFormProps) {
     
     if (!deviceCode.trim()) {
       toast({
-        title: "ข้อมูลไม่ครบถ้วน",
-        description: "กรุณากรอกรหัสอุปกรณ์",
+        title: t('general', 'error'),
+        description: t('userManagement', 'pleaseEnterDeviceCode'),
         variant: "destructive",
       });
       return;
@@ -60,13 +60,13 @@ export function AddDeviceForm({ onDeviceAdded }: AddDeviceFormProps) {
         }
         
         toast({
-          title: "เพิ่มอุปกรณ์สำเร็จ",
-          description: `เพิ่มอุปกรณ์รหัส ${deviceCode} เรียบร้อยแล้ว`,
+          title: t('general', 'success'),
+          description: `${t('userManagement', 'addDeviceSuccess')} ${deviceCode}`,
         });
       } else {
         toast({
-          title: "ข้อมูลซ้ำ",
-          description: `อุปกรณ์รหัส ${deviceCode} มีอยู่ในระบบแล้ว`,
+          title: t('userManagement', 'deviceExists'),
+          description: `${t('device', 'deviceCode')} ${deviceCode} ${t('userManagement', 'deviceExistsDescription')}`,
         });
       }
       
@@ -77,8 +77,8 @@ export function AddDeviceForm({ onDeviceAdded }: AddDeviceFormProps) {
     } catch (error) {
       console.error("Error adding device:", error);
       toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถเพิ่มอุปกรณ์ได้",
+        title: t('general', 'error'),
+        description: t('userManagement', 'errorAddingDevice'),
         variant: "destructive",
       });
     } finally {
@@ -92,7 +92,7 @@ export function AddDeviceForm({ onDeviceAdded }: AddDeviceFormProps) {
         <form onSubmit={handleAddDevice} className="flex items-center gap-1">
           <Input
             id="device-code"
-            placeholder="รหัสอุปกรณ์..."
+            placeholder={t('userManagement', 'enterDeviceCode')}
             value={deviceCode}
             onChange={(e) => setDeviceCode(e.target.value)}
             disabled={isLoading}

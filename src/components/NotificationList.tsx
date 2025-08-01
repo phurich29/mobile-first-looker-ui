@@ -8,6 +8,7 @@ import { RefreshCw, Bell, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
+import NotificationButton from './NotificationButton';
 
 export const NotificationList = () => {
   const { user } = useAuth();
@@ -108,6 +109,8 @@ export const NotificationList = () => {
           </Button>
         </div>
       </div>
+
+      <NotificationButton userId={user?.id} />
 
       <div 
         className={`bg-white dark:bg-gray-800 ${!isMobile && 'rounded-xl border border-gray-200 dark:border-gray-600'} cursor-pointer`} 

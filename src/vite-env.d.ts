@@ -1,6 +1,18 @@
 
 /// <reference types="vite/client" />
 
+// Define ImportMeta interface for environment variables
+interface ImportMetaEnv {
+  readonly VITE_ONESIGNAL_APP_ID: string
+  readonly VITE_SUPABASE_URL: string
+  readonly VITE_SUPABASE_ANON_KEY: string
+  // add more env variables as needed
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}
+
 // Define a type for history data items to be used across the application
 interface HistoryDataItem {
   [key: string]: any;

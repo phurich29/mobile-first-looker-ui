@@ -1,7 +1,12 @@
 import { useTranslation } from "@/hooks/useTranslation";
 
-export const getColumnTranslatedName = (columnName: string, language: 'th' | 'en' = 'th'): string => {
-  const translations = language === 'en' ? columnTranslationsEn : columnTranslations;
+export const getColumnTranslatedName = (columnName: string, language: 'th' | 'en' | 'zh' = 'th'): string => {
+  let translations;
+  switch (language) {
+    case 'en': translations = columnTranslationsEn; break;
+    case 'zh': translations = columnTranslationsZh; break;
+    default: translations = columnTranslations; break;
+  }
   return translations[columnName] || columnName;
 };
 
@@ -128,4 +133,40 @@ export const columnTranslationsEn: Record<string, string> = {
   main_rate: 'Main Rate',
   mix_index: 'Mix Index',
   main_index: 'Main Index',
+};
+
+export const columnTranslationsZh: Record<string, string> = {
+  created_at: '记录日期',
+  device_code: '设备代码',
+  class1: '一级 (>7.0mm)',
+  class2: '二级 (>6.6-7.0mm)',
+  class3: '三级 (>6.2-6.6mm)',
+  short_grain: '短粒',
+  slender_kernel: '窄米',
+  whole_kernels: '整粒',
+  head_rice: '米尖破碎',
+  total_brokens: '总碎米',
+  small_brokens: '小碎米',
+  small_brokens_c1: '小碎米C1',
+  red_line_rate: '低于标准颜色',
+  parboiled_red_line: '红线米',
+  parboiled_white_rice: '白米',
+  honey_rice: '紫米粒',
+  yellow_rice_rate: '黄',
+  black_kernel: '黑粒米',
+  partly_black_peck: '黑斑及黑点米',
+  partly_black: '黑斑米',
+  imperfection_rate: '不完善',
+  sticky_rice_rate: '糯米',
+  impurity_num: '杂质',
+  paddy_rate: '稻谷 (粒/公斤)',
+  whiteness: '白度',
+  process_precision: '大米等级',
+  mix_rate: '混合率',
+  sprout_rate: '发芽率',
+  unripe_rate: '未熟率',
+  brown_rice_rate: '糙米率',
+  main_rate: '主要率',
+  mix_index: '混合指数',
+  main_index: '主要指数',
 };

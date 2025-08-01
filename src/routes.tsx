@@ -33,7 +33,13 @@ import AboutRiceflow from "./pages/AboutRiceflow";
 import DeviceAccessManagement from "./pages/DeviceAccessManagement";
 import Assistant from "./pages/Assistant";
 import PublicAnalysisView from "./pages/PublicAnalysisView";
+<<<<<<< HEAD
 import { FCMTestPage } from "./pages/FCMTestPage";
+=======
+import FCMTestPage from "./pages/FCMTestPage";
+import { NotificationSenderPage } from "./pages/NotificationSenderPage";
+import { OneSignalTestPage } from "./components/OneSignalTestPage";
+>>>>>>> e443fae84cc3472e014a505b09ab7122ce88219e
 
 // Device-specific graph pages
 import DeviceGraphMonitor from "./pages/DeviceGraphMonitor";
@@ -316,6 +322,22 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <NotificationHistory />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "notification-sender",
+        element: (
+          <ProtectedRoute requiredRoles={["admin"]}>
+            <NotificationSenderPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "onesignal-test",
+        element: (
+          <ProtectedRoute allowGuest={true}>
+            <OneSignalTestPage />
           </ProtectedRoute>
         ),
       },
