@@ -159,7 +159,20 @@ export class FCMService {
   // Send token to your server
   async sendTokenToServer(token: string, userId?: string): Promise<void> {
     try {
-      // Replace with your actual API endpoint
+      // Skip sending to server if no backend API is available
+      console.log('🔔 FCM Token obtained (not sent to server - no backend configured):', token.substring(0, 30) + '...');
+      
+      // Store token locally for debugging/testing purposes
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('fcm_token', token);
+        localStorage.setItem('fcm_token_timestamp', new Date().toISOString());
+      }
+      
+      console.log('🔔 FCM Token stored locally successfully');
+      return; // Skip actual server call
+      
+      // Uncomment below when you have a backend API endpoint
+      /*
       const response = await fetch('/api/fcm/register', {
         method: 'POST',
         headers: {
@@ -178,9 +191,11 @@ export class FCMService {
       }
 
       console.log('Token sent to server successfully');
+      */
     } catch (error) {
-      console.error('Error sending token to server:', error);
-      throw error;
+      console.error('Error handling FCM token:', error);
+      // Don't throw error to prevent breaking the FCM initialization
+      console.warn('🔔 FCM token handling failed, but FCM will continue to work for local notifications');
     }
   }
 

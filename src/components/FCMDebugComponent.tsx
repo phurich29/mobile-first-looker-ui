@@ -27,10 +27,14 @@ export const FCMDebugComponent: React.FC = () => {
     }
   });
 
-  const handleTestNotification = () => {
-    testFCMNotification((notification) => {
-      console.log('🔔 Test notification triggered:', notification);
-    });
+  const handleTestNotification = async () => {
+    try {
+      await testFCMNotification((notification) => {
+        console.log('🔔 Test notification triggered:', notification);
+      });
+    } catch (error) {
+      console.error('🔔 Error testing notification:', error);
+    }
   };
 
   const handleCheckStatus = () => {
