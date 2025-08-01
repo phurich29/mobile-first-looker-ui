@@ -17,6 +17,7 @@ import { useEffect } from "react";
 import { Capacitor } from "@capacitor/core";
 import { useFCM } from "./hooks/useFCM";
 
+// for web app, ensure you have firebase-messaging-sw.js in public folder
 const firebaseConfig = {
   apiKey: "AIzaSyDO5lYCkbXExFEmf3x7H1WSC6qiE2W-Jrs",
   authDomain: "riceflow-958a2.firebaseapp.com",
