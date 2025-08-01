@@ -78,7 +78,8 @@ function App() {
   // Register service worker for FCM
   useEffect(() => {
     const registerServiceWorker = async () => {
-      if (!Capacitor.isNativePlatform() && "serviceWorker" in navigator) {
+      // Register Service Worker only in production builds to avoid HMR reload loops in dev
+      if (process.env.NODE_ENV === "production" && !Capacitor.isNativePlatform() && "serviceWorker" in navigator) {
         try {
           console.log("🔔 Registering Firebase messaging service worker...");
           // Register Firebase messaging service worker
