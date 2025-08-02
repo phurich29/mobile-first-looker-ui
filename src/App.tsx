@@ -420,7 +420,7 @@ const App: React.FC = () => {
           // แสดง popup ให้ผู้ใช้ลองขออนุญาตใหม่
           setTimeout(() => {
             setShowNotificationPopup(true);
-          }, 1500);
+          }, 3000);
           
           // แสดงข้อความแนะนำเพิ่มเติม
           toast({
@@ -443,12 +443,7 @@ const App: React.FC = () => {
           }
         }
         
-        // Show success toast
-        toast({
-          title: "OneSignal พร้อมใช้งาน",
-          description: "ระบบการแจ้งเตือนพร้อมทำงานแล้ว",
-          variant: "default",
-        });
+        // OneSignal initialized successfully (no toast notification)
         
       } catch (error) {
         console.error('❌ OneSignal initialization failed:', error);

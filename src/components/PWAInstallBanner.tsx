@@ -16,14 +16,13 @@ export const PWAInstallBanner: React.FC = () => {
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
 
   useEffect(() => {
-    if (canInstall || needRefresh) {
-      const timer = setTimeout(() => {
-        setIsVisible(true);
-      }, 2000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [canInstall, needRefresh]);
+    // แสดง PWA Install Banner เสมอ (ไม่ต้องรอ canInstall)
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 5000); // แสดงหลังจาก 5 วินาที (หลังจาก notification popup)
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleInstall = async () => {
     if (isIOS) {
@@ -50,7 +49,7 @@ export const PWAInstallBanner: React.FC = () => {
     setShowIOSInstructions(false);
   };
 
-  if (!isVisible || (!canInstall && !needRefresh)) {
+  if (!isVisible) {
     return null;
   }
 

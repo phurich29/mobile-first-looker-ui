@@ -161,11 +161,12 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
       // Update service worker
       updateServiceWorker(true);
       
-      // Force a hard reload after a short delay
-      setTimeout(() => {
-        console.log('Force reloading application...');
-        window.location.reload();
-      }, 1000);
+      // Show success message instead of force reload
+      toast({
+        title: 'แอปได้รับการอัปเดตแล้ว',
+        description: 'การเปลี่ยนแปลงจะมีผลในการเปิดครั้งถัดไป',
+        variant: 'default',
+      });
       
     } catch (error) {
       console.error('Error during update process:', error);
