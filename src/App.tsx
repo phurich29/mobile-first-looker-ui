@@ -236,6 +236,11 @@ const App: React.FC = () => {
   };
   
   useEffect(() => {
+    const shouldInitializeOneSignal = () => {
+      // Temporarily disable OneSignal to avoid errors
+      return false;
+    };
+
     const initializeOneSignal = async () => {
       // Check if OneSignal should be initialized based on config
       if (!shouldInitializeOneSignal()) {
@@ -243,11 +248,22 @@ const App: React.FC = () => {
         return;
       }
 
-      // Only initialize OneSignal if App ID is provided
-      const appId = '1061c7a8-e7ac-480c-9e2b-eb4b4b92e30a'; // Hardcoded Production App ID for stability
-      
+      // Dynamically select OneSignal App ID based on hostname for stability
+      let appId = '';
+      const hostname = window.location.hostname;
+
+      if (hostname === 'localhost') {
+        // Development App ID for localhost
+        appId = 'c77413d4-0f7d-4fe0-b7eb-99b132e451e0';
+        console.log('🔔 OneSignal: Using Development App ID for localhost');
+      } else if (hostname === 'setup.riceflow.app') {
+        // Production App ID for the live site
+        appId = '1061c7a8-e7ac-480c-9e2b-eb4b4b92e30a';
+        console.log('🔔 OneSignal: Using Production App ID for setup.riceflow.app');
+      }
+
       if (!appId) {
-        console.warn('OneSignal: App ID is not set');
+        console.error(`OneSignal Error: Hostname "${hostname}" is not configured. OneSignal will not be initialized.`);
         return;
       }
 
