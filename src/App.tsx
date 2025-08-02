@@ -13,10 +13,11 @@ import { Toaster } from "@/components/ui/toaster";
 import { toast } from "@/components/ui/use-toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./components/theme/ThemeProvider";
-<<<<<<< HEAD
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Capacitor } from "@capacitor/core";
+import OneSignal from 'react-onesignal';
 import { useFCM } from "./hooks/useFCM";
+import { NotificationPermissionPopup } from '@/components/NotificationPermissionPopup';
 
 // for web app, ensure you have firebase-messaging-sw.js in public folder
 const firebaseConfig = {
@@ -28,10 +29,6 @@ const firebaseConfig = {
   appId: "1:1043235929904:web:c455598cba730e3af292f5",
   measurementId: "G-BZGJVXZ6LE",
 };
-=======
-import { useEffect, useState } from "react";
-import OneSignal from 'react-onesignal';
-import { NotificationPermissionPopup } from '@/components/NotificationPermissionPopup';
 
 // Create QueryClient outside component to prevent recreation on every render
 const queryClient = new QueryClient({
@@ -42,9 +39,9 @@ const queryClient = new QueryClient({
     },
   },
 });
->>>>>>> e443fae84cc3472e014a505b09ab7122ce88219e
 
-function App() {
+const App: React.FC = () => {
+
   const [showNotificationPopup, setShowNotificationPopup] = useState(false);
   
   // ฟังก์ชันสำหรับจัดการการยอมรับการแจ้งเตือน
@@ -165,7 +162,7 @@ function App() {
     console.log('🔍 Starting permission monitoring...');
     
     // ประกาศตัวแปรก่อนใช้งาน
-    let monitoringInterval: NodeJS.Timeout;
+        let monitoringInterval: ReturnType<typeof setInterval>;
     
     const checkPermission = async () => {
       if (typeof Notification !== 'undefined') {
@@ -592,34 +589,37 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider defaultTheme="light">
-          <LanguageProvider>
+      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+        <LanguageProvider>
+          <CountdownProvider>
             <PWAProvider>
-              <CountdownProvider
-                initialSeconds={60}
-                onComplete={handleGlobalCountdownComplete}
-              >
-                <AuthProvider>
+              <AuthProvider>
+                <QueryClientProvider client={queryClient}>
                   <RouterProvider router={router} />
-                  <PWAInstallBanner />
-                  <PWADebugComponent />
-                  <CountdownDebugger />
-                  <FCMDebugComponent />
                   <Toaster />
-                  <NotificationPermissionPopup 
-                    isOpen={showNotificationPopup}
-                    onAccept={handleAcceptNotification}
-                    onDecline={handleDeclineNotification}
-                  />
-                </AuthProvider>
-              </CountdownProvider>
+                  <PWAInstallBanner />
+                  {showNotificationPopup && (
+                    <NotificationPermissionPopup
+                      isOpen={showNotificationPopup}
+                      onAccept={handleAcceptNotification}
+                      onDecline={handleDeclineNotification}
+                    />
+                  )}
+                  {import.meta.env.VITE_DEBUG_MODE === "true" && (
+                    <>
+                      <PWADebugComponent />
+                      <CountdownDebugger />
+                      <FCMDebugComponent />
+                    </>
+                  )}
+                </QueryClientProvider>
+              </AuthProvider>
             </PWAProvider>
-          </LanguageProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
+          </CountdownProvider>
+        </LanguageProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
-}
+};
 
 export default App;

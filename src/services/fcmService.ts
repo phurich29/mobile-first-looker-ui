@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { PushNotifications, type PushNotificationSchema, type ActionPerformed, type PushNotificationToken } from '@capacitor/push-notifications';
-import { getFCMToken, onForegroundMessage } from './firebase';
+import { getFCMToken, onMessageListener } from '@/lib/firebase';
 
 export interface NotificationPayload {
   title: string;
@@ -73,9 +73,11 @@ export class FCMService {
         }
         
         // Setup foreground message listener
-        const unsubscribe = onForegroundMessage((payload) => {
+        onMessageListener().then((payload: any) => {
           console.log('🔔 Foreground message received:', payload);
           this.handleForegroundMessage(payload);
+        }).catch(error => {
+          console.error('Error setting up message listener:', error);
         });
         
         console.log('🔔 Foreground message listener setup complete');

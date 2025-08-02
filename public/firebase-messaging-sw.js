@@ -1,24 +1,21 @@
-<<<<<<< HEAD
-// firebase-messaging-sw.js - Auto-generated
+/*
+ * Firebase Messaging Service Worker
+ * 
+ * This script handles background push notifications for Firebase Cloud Messaging (FCM).
+ * It uses Firebase SDK v10.7.1 and the production configuration for 'pushnotificationriceflow'.
+ * 
+ * Key functionalities:
+ * - Initializes Firebase app and messaging.
+ * - Listens for incoming messages when the app is in the background.
+ * - Displays a notification to the user with dynamic content from the payload.
+ * - Handles notification click events to open or focus the application window.
+ */
 
-// Import Firebase scripts
+// Import and configure the Firebase SDK (using v10.7.1 for latest features and security)
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
 
-// Firebase configuration - Auto-generated from environment variables
-const firebaseConfig = {
-  "apiKey": "AIzaSyD8J2uKgF-7yO3RnK4Qg2l1M6vH0wX9ZcQ",
-  "authDomain": "riceflow-958a2.firebaseapp.com",
-  "projectId": "riceflow-958a2",
-  "storageBucket": "riceflow-958a2.firebasestorage.app",
-  "messagingSenderId": "123456789012",
-  "appId": "1:123456789012:web:abc123def456"
-=======
-// Import and configure the Firebase SDK
-importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js');
-
-// Your Firebase configuration
+// Your production Firebase configuration for 'pushnotificationriceflow'
 const firebaseConfig = {
   apiKey: "AIzaSyD0LzVIlcdwOfT8woWkjwSMUVHRcqII2XY",
   authDomain: "pushnotificationriceflow.firebaseapp.com",
@@ -26,42 +23,27 @@ const firebaseConfig = {
   storageBucket: "pushnotificationriceflow.firebasestorage.app",
   messagingSenderId: "277653837166",
   appId: "1:277653837166:web:1ca1f799d4ae4d75461d7f"
->>>>>>> e443fae84cc3472e014a505b09ab7122ce88219e
 };
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-<<<<<<< HEAD
-// Get messaging instance
-=======
 // Retrieve an instance of Firebase Messaging so that it can handle background messages
->>>>>>> e443fae84cc3472e014a505b09ab7122ce88219e
 const messaging = firebase.messaging();
 
 // Handle background messages
 messaging.onBackgroundMessage((payload) => {
-<<<<<<< HEAD
-  console.log('🔔 Received background message:', payload);
+  console.log('🔔 [firebase-messaging-sw.js] Received background message:', payload);
 
+  // Construct the notification with data from the payload
   const notificationTitle = payload.notification?.title || 'New Message';
   const notificationOptions = {
-    body: payload.notification?.body || '',
-    icon: payload.notification?.icon || '/favicon.ico',
-    badge: '/favicon.ico',
-    data: payload.data,
-    tag: payload.data?.tag || 'default',
-=======
-  console.log('Received background message:', payload);
-  
-  const notificationTitle = payload.notification?.title || 'New Message';
-  const notificationOptions = {
-    body: payload.notification?.body || 'You have a new notification',
-    icon: payload.notification?.icon || '/icon-192x192.png',
-    badge: '/badge-72x72.png',
-    tag: 'notification-tag',
->>>>>>> e443fae84cc3472e014a505b09ab7122ce88219e
-    requireInteraction: true,
+    body: payload.notification?.body || 'You have a new notification.',
+    icon: payload.notification?.icon || '/icon-192x192.png', // Default icon
+    badge: payload.data?.badge || '/badge-72x72.png', // Custom badge from data or default
+    data: payload.data, // Pass along all data from the payload
+    tag: payload.data?.tag || 'default-notification-tag', // Use a tag to group or replace notifications
+    requireInteraction: true, // Keep the notification visible until the user interacts with it
     actions: [
       {
         action: 'open',
@@ -74,50 +56,45 @@ messaging.onBackgroundMessage((payload) => {
     ]
   };
 
-<<<<<<< HEAD
+  // The service worker should return the promise from showNotification
   return self.registration.showNotification(notificationTitle, notificationOptions);
-=======
-  self.registration.showNotification(notificationTitle, notificationOptions);
->>>>>>> e443fae84cc3472e014a505b09ab7122ce88219e
 });
 
-// Handle notification click
+// Handle notification click events
 self.addEventListener('notificationclick', (event) => {
-<<<<<<< HEAD
-  console.log('🔔 Notification clicked:', event);
+  console.log('🔔 [firebase-messaging-sw.js] Notification clicked:', event);
   
+  // Always close the notification when it's clicked
   event.notification.close();
 
+  // Do nothing if the 'close' action was clicked
   if (event.action === 'close') {
     return;
   }
 
-  // Open or focus the app
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      // If app is already open, focus it
-      for (const client of clientList) {
-        if (client.url.includes(self.location.origin) && 'focus' in client) {
-          return client.focus();
-        }
+  // This function handles opening or focusing the app window
+  const openOrFocusClient = async () => {
+    const clientList = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+
+    // Determine the URL to open, default to root
+    const urlToOpen = event.notification.data?.url || '/';
+
+    // If a client window is already open, focus it
+    for (const client of clientList) {
+      // Check if the client URL matches and the client can be focused
+      if (client.url.includes(self.location.origin) && 'focus' in client) {
+        console.log('🔔 Focusing existing client...');
+        return client.focus();
       }
-      
-      // If app is not open, open it
-      if (clients.openWindow) {
-        return clients.openWindow('/');
-      }
-    })
-  );
-=======
-  console.log('Notification clicked:', event);
-  
-  event.notification.close();
-  
-  if (event.action === 'open' || !event.action) {
-    // Open the app
-    event.waitUntil(
-      clients.openWindow('/')
-    );
-  }
->>>>>>> e443fae84cc3472e014a505b09ab7122ce88219e
+    }
+    
+    // If no client window is found, open a new one
+    if (clients.openWindow) {
+      console.log(`🔔 Opening new window at: ${urlToOpen}`);
+      return clients.openWindow(urlToOpen);
+    }
+  };
+
+  // Use waitUntil to ensure the browser doesn't terminate the service worker before the async operation completes
+  event.waitUntil(openOrFocusClient());
 });
