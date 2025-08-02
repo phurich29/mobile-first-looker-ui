@@ -8,6 +8,7 @@
     "build": "npm run generate-firebase-sw && vite build",
     "build:dev": "npm run generate-firebase-sw && vite build --mode development",
     "build:production": "vite build --mode production",
+    "build:deploy": "node scripts/build-production.js",
     "generate-firebase-sw": "node scripts/generate-firebase-sw.js",
     "lint": "eslint .",
     "preview": "vite preview",
