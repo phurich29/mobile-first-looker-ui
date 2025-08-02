@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => ({
     componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: 'script',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'lovable-uploads/*.png'],
       manifest: {
         name: 'Riceflow Setup - Rice Quality Analyzer',
@@ -57,6 +58,8 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB limit
         // Exclude Supabase auth endpoints from caching

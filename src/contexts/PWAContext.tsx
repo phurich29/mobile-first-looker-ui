@@ -33,6 +33,9 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
     return `${Date.now()}`;
   });
   
+  // Disable PWA features in production to prevent popup
+  const isProduction = window.location.hostname === 'setup.riceflow.app';
+  
   const {
     needRefresh: [needRefresh, setNeedRefresh],
     offlineReady: [offlineReady, setOfflineReady],
@@ -46,25 +49,29 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
     },
     onNeedRefresh() {
       console.log('SW needs refresh');
-      setNeedRefresh(true);
-      toast({
-        title: 'อัปเดตใหม่พร้อมใช้งาน',
-        description: 'การอัปเดตนี้จะทำให้คุณต้องเข้าสู่ระบบใหม่',
-        duration: 0, // Don't auto-dismiss
-        action: (
-          <button
-            onClick={() => handleUpdate()}
-            className="bg-emerald-600 text-white px-3 py-1 rounded text-sm hover:bg-emerald-700"
-          >
-            อัปเดตเลย
-          </button>
-        ),
-      });
+      if (!isProduction) {
+        setNeedRefresh(true);
+        toast({
+          title: 'อัปเดตใหม่พร้อมใช้งาน',
+          description: 'การอัปเดตนี้จะทำให้คุณต้องเข้าสู่ระบบใหม่',
+          duration: 0, // Don't auto-dismiss
+          action: (
+            <button
+              onClick={() => handleUpdate()}
+              className="bg-emerald-600 text-white px-3 py-1 rounded text-sm hover:bg-emerald-700"
+            >
+              อัปเดตเลย
+            </button>
+          ),
+        });
+      }
     },
     onOfflineReady() {
       console.log('SW offline ready');
-      setOfflineReady(true);
-      // Completely disable offline ready popup - no toast notification
+      if (!isProduction) {
+        setOfflineReady(true);
+      }
+      // Completely disable offline ready popup in production
     },
   });
 
