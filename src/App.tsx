@@ -244,7 +244,7 @@ const App: React.FC = () => {
       }
 
       // Only initialize OneSignal if App ID is provided
-      const appId = import.meta.env.VITE_ONESIGNAL_APP_ID;
+      const appId = import.meta.env.VITE_ONESIGNAL_APP_ID || 'c77413d4-0f7d-4fe0-b7eb-99b132e451e0';
       
       if (!appId) {
         console.warn('OneSignal: VITE_ONESIGNAL_APP_ID is not set in environment variables');
