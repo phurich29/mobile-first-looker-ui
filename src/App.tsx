@@ -66,12 +66,52 @@ const App: React.FC = () => {
               variant: "default",
             });
             
-            // ส่งการแจ้งเตือนทดสอบ
+            // ส่ง browser notification ทดสอบ (ปรับปรุงให้สมบูรณ์ยิ่งขึ้น)
             setTimeout(() => {
-              new Notification('🎉 ยินดีต้อนรับสู่ RiceFlow!', {
+              console.log('🔔 Sending welcome browser notification...');
+              
+              const notification = new Notification('🎉 ยินดีต้อนรับสู่ RiceFlow!', {
                 body: 'คุณได้เปิดใช้งานการแจ้งเตือนแล้ว จะได้รับข้อมูลอัพเดททันที',
-                icon: '/favicon.ico'
+                icon: '/favicon.ico',
+                badge: '/favicon.ico',
+                tag: 'riceflow-welcome-accept',
+                requireInteraction: true, // ให้ notification ค้างอยู่จนกว่าจะคลิก
+                silent: false,
+                data: {
+                  url: window.location.href,
+                  timestamp: Date.now(),
+                  type: 'welcome-accept',
+                  source: 'user-accept'
+                }
               });
+              
+              // จัดการคลิก notification
+              notification.onclick = function(event) {
+                console.log('🔔 Welcome notification clicked!');
+                event.preventDefault();
+                window.focus(); // โฟกัสไปที่หน้าเว็บ
+                notification.close(); // ปิด notification
+                
+                // แสดง toast เมื่อคลิก
+                toast({
+                  title: "👋 สวัสดี!",
+                  description: "ขอบคุณที่คลิก notification!",
+                  variant: "default",
+                });
+              };
+              
+              // จัดการ error ถ้ามี
+              notification.onerror = function(event) {
+                console.error('❌ Browser notification error:', event);
+              };
+              
+              // ปิด notification อัตโนมัติหลัง 15 วินาที
+              setTimeout(() => {
+                notification.close();
+                console.log('🔔 Welcome notification auto-closed after 15 seconds');
+              }, 15000);
+              
+              console.log('✅ Welcome browser notification sent successfully!');
             }, 2000);
             
           } catch (optInError) {
@@ -460,14 +500,28 @@ const App: React.FC = () => {
           console.log('❌ Error waiting for OneSignal ID:', error);
         });
         
-        // ตรวจสอบสิทธิ์การแจ้งเตือนจากเบราว์เซอร์
-        const permission = typeof Notification !== 'undefined' ? Notification.permission : 'default';
-        console.log('🔐 Browser notification permission:', permission);
+        // 🔥 FORCE แสดง notification popup ในทุกสถานการณ์ (บังคับแสดง)
+        console.log('🔔 FORCE showing notification popup in 3 seconds...');
+        console.log('🔔 Current showNotificationPopup state:', showNotificationPopup);
         
-        if (permission === 'default') {
-          // ยังไม่เคยถามสิทธิ์ - แสดงป๊อปอัพขออนุญาต
-          console.log('🔔 Requesting notification permission...');
+        // แสดง popup ทันทีหลังจาก OneSignal พร้อม (บังคับแสดง)
+        const forceShowPopup = () => {
+          console.log('🔔 FORCE popup display now! Setting state to true...');
+          setShowNotificationPopup(true);
+          console.log('🔔 Popup state should now be true');
+        };
+        
+        // ใช้ setTimeout หลายครั้งเพื่อให้แน่ใจว่าจะเด้ง
+        setTimeout(forceShowPopup, 3000);
+        setTimeout(forceShowPopup, 4000);
+        setTimeout(forceShowPopup, 5000);
+        
+        // ตรวจสอบสิทธิ์การแจ้งเตือนจากเบราว์เซอร์ (แบบ async)
+        setTimeout(async () => {
+          const permission = typeof Notification !== 'undefined' ? Notification.permission : 'default';
+          console.log('🔐 Browser notification permission:', permission);
           
+<<<<<<< HEAD
           // แสดงป๊อปอัพหลังจากโหลดหน้าเว็บเสร็จ
           setTimeout(() => {
             console.log('🔔 Showing notification popup...');
@@ -496,13 +550,105 @@ const App: React.FC = () => {
           // แสดง popup เพื่อแจ้งให้ทราบว่าระบบพร้อมใช้งาน (ไม่ต้องตรวจสอบ subscription)
           setTimeout(() => {
             console.log('🔔 Showing success notification popup...');
+=======
+          if (permission === 'default') {
+            // ยังไม่เคยถามสิทธิ์ - แสดงข้อความแนะนำ
+            console.log('🔔 Permission is default - user needs to grant permission');
+            
+>>>>>>> parent of fadcf91 (Reverted to commit 302f089ee0d1a6df9636870b7fdcf3005e1f4bb1)
             toast({
-              title: "✅ ระบบการแจ้งเตือนพร้อมใช้งาน!",
-              description: "คุณจะได้รับการแจ้งเตือนจาก RiceFlow แล้ว",
+              title: "🔔 เปิดการแจ้งเตือน",
+              description: "กดปุ่ม 'อนุญาต' เพื่อรับการแจ้งเตือนจาก RiceFlow",
               variant: "default",
             });
-          }, 1000);
-        }
+          } else if (permission === 'denied') {
+            // ผู้ใช้เคยปฏิเสธแล้ว - แสดงคำแนะนำ
+            console.log('🚫 Notifications are blocked - showing help message');
+            
+            toast({
+              title: "💡 เปิดการแจ้งเตือน",
+              description: "คลิกปุ่ม 'อนุญาต' เพื่อเปิดใช้งานการแจ้งเตือน หรือตั้งค่าในเบราว์เซอร์",
+              variant: "default",
+            });
+          } else if (permission === 'granted') {
+            // ได้รับอนุญาตแล้ว - ตรวจสอบสถานะ subscription
+            console.log('✅ Permission already granted');
+            
+            // ตรวจสอบสถานะการสมัครรับการแจ้งเตือน
+            let isSubscribed = false;
+            try {
+              isSubscribed = await OneSignal.User.PushSubscription.optedIn;
+              console.log('📱 OneSignal subscription status:', isSubscribed);
+            } catch (error) {
+              console.log('⚠️ Could not check OneSignal subscription status:', error);
+            }
+            
+            if (!isSubscribed) {
+              console.log('🔔 Permission granted but not subscribed, subscribing...');
+              try {
+                if (typeof OneSignal !== 'undefined' && OneSignal.User) {
+                  await OneSignal.User.PushSubscription.optIn();
+                  console.log('✅ Successfully subscribed to OneSignal');
+                }
+              } catch (error) {
+                console.log('❌ Failed to subscribe:', error);
+              }
+            } else {
+              try {
+                if (typeof OneSignal !== 'undefined' && OneSignal.User) {
+                  const userId = OneSignal.User.onesignalId;
+                  console.log('👤 OneSignal User ID:', userId);
+                }
+              } catch (error) {
+                console.log('⚠️ Could not get OneSignal User ID:', error);
+              }
+            }
+            
+            // แสดง browser notification จริง (system notification)
+            setTimeout(() => {
+              console.log('🔔 Showing browser notification...');
+              
+              // แสดง browser notification จริง
+              if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+                const notification = new Notification('🎉 ยินดีต้อนรับสู่ RiceFlow!', {
+                  body: 'คุณได้เปิดใช้งานการแจ้งเตือนแล้ว จะได้รับข้อมูลอัพเดททันที',
+                  icon: '/favicon.ico',
+                  badge: '/favicon.ico',
+                  tag: 'riceflow-welcome',
+                  requireInteraction: true, // ให้ notification ค้างอยู่จนกว่าจะคลิก
+                  silent: false,
+                  data: {
+                    url: window.location.href,
+                    timestamp: Date.now(),
+                    type: 'welcome'
+                  }
+                });
+                
+                // จัดการคลิก notification
+                notification.onclick = function(event) {
+                  console.log('🔔 Browser notification clicked!');
+                  event.preventDefault();
+                  window.focus(); // โฟกัสไปที่หน้าเว็บ
+                  notification.close(); // ปิด notification
+                };
+                
+                // ปิด notification อัตโนมัติหลัง 10 วินาที
+                setTimeout(() => {
+                  notification.close();
+                }, 10000);
+                
+                console.log('✅ Browser notification displayed successfully!');
+              }
+              
+              // แสดง toast เพิ่มเติมด้วย
+              toast({
+                title: "✅ ระบบการแจ้งเตือนพร้อมใช้งาน!",
+                description: "คุณจะได้รับการแจ้งเตือนจาก RiceFlow แล้ว",
+                variant: "default",
+              });
+            }, 1000);
+          }
+        }, 3000); // ตรวจสอบหลังจาก popup แสดงแล้ว
 
       } catch (error) {
         console.error('❌ OneSignal initialization failed:', error);
@@ -517,7 +663,23 @@ const App: React.FC = () => {
     // Initialize OneSignal after a short delay to ensure DOM is ready
     const timer = setTimeout(initializeOneSignal, 1000);
     
-    return () => clearTimeout(timer);
+    // 🔥 BACKUP FORCE POPUP - ในกรณีที่ OneSignal ไม่ทำงาน
+    const backupPopupTimer = setTimeout(() => {
+      console.log('🔥 BACKUP FORCE POPUP - แสดง popup บังคับ!');
+      setShowNotificationPopup(true);
+    }, 2000); // แสดงหลัง 2 วินาที
+    
+    // 🔥 ULTIMATE FORCE POPUP - แสดงทุก 5 วินาที
+    const ultimatePopupTimer = setTimeout(() => {
+      console.log('🔥 ULTIMATE FORCE POPUP - แสดง popup อันติม!');
+      setShowNotificationPopup(true);
+    }, 5000);
+    
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(backupPopupTimer);
+      clearTimeout(ultimatePopupTimer);
+    };
   }, []);
 
   // Initialize FCM notifications only if configured
