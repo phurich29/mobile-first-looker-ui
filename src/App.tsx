@@ -522,6 +522,7 @@ const App: React.FC = () => {
           console.log('🔐 Browser notification permission:', permission);
           
 <<<<<<< HEAD
+<<<<<<< HEAD
           // แสดงป๊อปอัพหลังจากโหลดหน้าเว็บเสร็จ
           setTimeout(() => {
             console.log('🔔 Showing notification popup...');
@@ -551,10 +552,15 @@ const App: React.FC = () => {
           setTimeout(() => {
             console.log('🔔 Showing success notification popup...');
 =======
+=======
+>>>>>>> parent of fadcf91 (Reverted to commit 302f089ee0d1a6df9636870b7fdcf3005e1f4bb1)
           if (permission === 'default') {
             // ยังไม่เคยถามสิทธิ์ - แสดงข้อความแนะนำ
             console.log('🔔 Permission is default - user needs to grant permission');
             
+<<<<<<< HEAD
+>>>>>>> parent of fadcf91 (Reverted to commit 302f089ee0d1a6df9636870b7fdcf3005e1f4bb1)
+=======
 >>>>>>> parent of fadcf91 (Reverted to commit 302f089ee0d1a6df9636870b7fdcf3005e1f4bb1)
             toast({
               title: "🔔 เปิดการแจ้งเตือน",
