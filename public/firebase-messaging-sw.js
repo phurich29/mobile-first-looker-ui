@@ -15,7 +15,7 @@
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
 
-// Your production Firebase configuration for 'pushnotificationriceflow'
+// Firebase configuration - must match the config in src/lib/firebase.ts
 const firebaseConfig = {
   apiKey: "AIzaSyD0LzVIlcdwOfT8woWkjwSMUVHRcqII2XY",
   authDomain: "pushnotificationriceflow.firebaseapp.com",

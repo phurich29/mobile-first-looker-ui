@@ -1,14 +1,14 @@
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
+// Firebase configuration - using the same config as in firebase-messaging-sw.js
 const firebaseConfig = {
   apiKey: "AIzaSyD0LzVIlcdwOfT8woWkjwSMUVHRcqII2XY",
   authDomain: "pushnotificationriceflow.firebaseapp.com",
   projectId: "pushnotificationriceflow",
   storageBucket: "pushnotificationriceflow.firebasestorage.app",
   messagingSenderId: "277653837166",
-  appId: "1:277653837166:web:1ca1f799d4ae4d75461d7f",
-  measurementId: "G-ZFQ7BM77F0"
+  appId: "1:277653837166:web:1ca1f799d4ae4d75461d7f"
 };
 
 // Initialize Firebase
