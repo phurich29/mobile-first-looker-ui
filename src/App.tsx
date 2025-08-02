@@ -19,16 +19,7 @@ import OneSignal from 'react-onesignal';
 import { useFCM } from "./hooks/useFCM";
 import { NotificationPermissionPopup } from '@/components/NotificationPermissionPopup';
 
-// for web app, ensure you have firebase-messaging-sw.js in public folder
-const firebaseConfig = {
-  apiKey: "AIzaSyDO5lYCkbXExFEmf3x7H1WSC6qiE2W-Jrs",
-  authDomain: "riceflow-958a2.firebaseapp.com",
-  projectId: "riceflow-958a2",
-  storageBucket: "riceflow-958a2.firebasestorage.app",
-  messagingSenderId: "1043235929904",
-  appId: "1:1043235929904:web:c455598cba730e3af292f5",
-  measurementId: "G-BZGJVXZ6LE",
-};
+// Firebase config is now handled by src/lib/firebase.ts
 
 // Create QueryClient outside component to prevent recreation on every render
 const queryClient = new QueryClient({
@@ -508,7 +499,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const registerServiceWorker = async () => {
       // Register Service Worker only in production builds to avoid HMR reload loops in dev
-      if (process.env.NODE_ENV === "production" && !Capacitor.isNativePlatform() && "serviceWorker" in navigator) {
+      if (import.meta.env.PROD && !Capacitor.isNativePlatform() && "serviceWorker" in navigator) {
         try {
           console.log("🔔 Registering Firebase messaging service worker...");
           // Register Firebase messaging service worker
