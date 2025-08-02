@@ -51,8 +51,13 @@ const App: React.FC = () => {
         
         if (browserPermission === 'granted') {
           try {
-            await OneSignal.User.PushSubscription.optIn();
-            console.log('✅ Successfully subscribed to OneSignal!');
+            // Check if OneSignal is available before calling
+            if (typeof OneSignal !== 'undefined' && OneSignal.User) {
+              await OneSignal.User.PushSubscription.optIn();
+              console.log('✅ Successfully subscribed to OneSignal!');
+            } else {
+              console.log('⚠️ OneSignal not ready yet, but browser permission granted');
+            }
             
             // แสดงข้อความสำเร็จ
             toast({
@@ -165,9 +170,13 @@ const App: React.FC = () => {
           console.log('✅ Permission granted! Subscribing to OneSignal...');
           
           try {
-            // Subscribe กับ OneSignal
-            await OneSignal.User.PushSubscription.optIn();
-            console.log('✅ Successfully subscribed to OneSignal!');
+            // Subscribe กับ OneSignal (with safety check)
+            if (typeof OneSignal !== 'undefined' && OneSignal.User) {
+              await OneSignal.User.PushSubscription.optIn();
+              console.log('✅ Successfully subscribed to OneSignal!');
+            } else {
+              console.log('⚠️ OneSignal not ready in monitoring function');
+            }
             
             // แสดงข้อความสำเร็จ
             toast({
@@ -191,10 +200,12 @@ const App: React.FC = () => {
             
             // ทดสอบส่งการแจ้งเตือนผ่าน OneSignal API โดยตรง (debug เท่านั้น)
             try {
-              const playerId = OneSignal.User.onesignalId;
-              if (playerId) {
-                console.log('📱 Sending test notification to player_id:', playerId);
-                // Note: ควรมีฟังก์ชัน API call ไปยัง backend เพื่อส่งการแจ้งเตือนจริง
+              if (typeof OneSignal !== 'undefined' && OneSignal.User) {
+                const playerId = OneSignal.User.onesignalId;
+                if (playerId) {
+                  console.log('📱 Sending test notification to player_id:', playerId);
+                  // Note: ควรมีฟังก์ชัน API call ไปยัง backend เพื่อส่งการแจ้งเตือนจริง
+                }
               }
             } catch (e) {
               console.error('Error sending test notification:', e);
@@ -202,12 +213,14 @@ const App: React.FC = () => {
             
           } catch (error) {
             console.log('❌ Failed to subscribe to OneSignal:', error);
-            // ลองใหม่อีกครั้ง
+            // ลองใหม่อีกครั้ง (with safety check)
             try {
               console.log('🔄 Trying to subscribe again...');
               await new Promise(r => setTimeout(r, 1500));
-              await OneSignal.User.PushSubscription.optIn();
-              console.log('✅ Successfully subscribed on second attempt!');
+              if (typeof OneSignal !== 'undefined' && OneSignal.User) {
+                await OneSignal.User.PushSubscription.optIn();
+                console.log('✅ Successfully subscribed on second attempt!');
+              }
             } catch (retryError) {
               console.error('❌ Second subscription attempt failed:', retryError);
             }
@@ -237,8 +250,8 @@ const App: React.FC = () => {
   
   useEffect(() => {
     const shouldInitializeOneSignal = () => {
-      // Temporarily disable OneSignal to avoid errors
-      return false;
+      // Enable OneSignal for production deployment
+      return true;
     };
 
     const initializeOneSignal = async () => {
@@ -413,9 +426,14 @@ const App: React.FC = () => {
           console.log('❌ Error waiting for OneSignal ID:', error);
         });
         
-        // ตรวจสอบสถานะการสมัครรับการแจ้งเตือน
-        const isSubscribed = await OneSignal.User.PushSubscription.optedIn;
-        console.log('📱 OneSignal subscription status:', isSubscribed);
+        // ตรวจสอบสถานะการสมัครรับการแจ้งเตือน (with safety check)
+        let isSubscribed = false;
+        try {
+          isSubscribed = await OneSignal.User.PushSubscription.optedIn;
+          console.log('📱 OneSignal subscription status:', isSubscribed);
+        } catch (error) {
+          console.log('⚠️ Could not check OneSignal subscription status:', error);
+        }
         
         // ตรวจสอบสิทธิ์การแจ้งเตือนจากเบราว์เซอร์
         const permission = typeof Notification !== 'undefined' ? Notification.permission : 'default';
@@ -449,13 +467,21 @@ const App: React.FC = () => {
           if (!isSubscribed) {
             console.log('🔔 Permission granted but not subscribed, subscribing...');
             try {
-              await OneSignal.User.PushSubscription.optIn();
+              if (typeof OneSignal !== 'undefined' && OneSignal.User) {
+                await OneSignal.User.PushSubscription.optIn();
+              }
             } catch (error) {
               console.log('❌ Failed to subscribe:', error);
             }
           } else {
-            const userId = OneSignal.User.onesignalId;
-            console.log('👤 OneSignal User ID:', userId);
+            try {
+              if (typeof OneSignal !== 'undefined' && OneSignal.User) {
+                const userId = OneSignal.User.onesignalId;
+                console.log('👤 OneSignal User ID:', userId);
+              }
+            } catch (error) {
+              console.log('⚠️ Could not get OneSignal User ID:', error);
+            }
           }
         }
         
