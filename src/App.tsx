@@ -341,24 +341,58 @@ const App: React.FC = () => {
             }
           }
           
+          // รอให้ OneSignal พร้อมก่อนทำ subscription
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // ตั้งค่า external_id หรือ user_id เพื่อให้รับการแจ้งเตือนได้
+          const userId = `user_${Date.now()}`; // ใช้เวลาเป็น unique ID หากไม่มีระบบ login
+          await OneSignal.login(userId);
+          console.log('👤 Set OneSignal external_id:', userId);
+          
+          // เพิ่ม tag เพื่อให้สามารถกำหนดเป้าหมายได้
+          await OneSignal.User.addTags({
+            user_type: 'tester',
+            app_version: '1.0.0',
+            environment: 'localhost'
+          });
+          console.log('🏷️ Added user tags for targeting');
+          
+          // รอให้ OneSignal สร้าง onesignalId ให้สมบูรณ์ก่อนทำ subscription
+          const waitForOnesignalId = async () => {
+            let attempts = 0;
+            const maxAttempts = 10;
+            
+            while (attempts < maxAttempts) {
+              try {
+                const onesignalId = OneSignal.User.onesignalId;
+                if (onesignalId && onesignalId !== '') {
+                  console.log('🆔 OneSignal ID obtained:', onesignalId);
+                  return onesignalId;
+                }
+                console.log(`🔄 Waiting for onesignalId... attempt ${attempts + 1}/${maxAttempts}`);
+                await new Promise(resolve => setTimeout(resolve, 500));
+                attempts++;
+              } catch (error) {
+                console.log('⚠️ Error getting onesignalId:', error);
+                attempts++;
+                await new Promise(resolve => setTimeout(resolve, 500));
+              }
+            }
+            
+            throw new Error('OneSignal ID not ready after maximum attempts');
+          };
+          
+          // รอให้ได้ onesignalId ก่อนทำ subscription
+          const onesignalId = await waitForOnesignalId();
+          console.log('✅ OneSignal ready with ID:', onesignalId);
+          
+          // ตอนนี้ทำ subscription ได้แล้ว
           await OneSignal.User.PushSubscription.optIn();
           console.log('🔔 Manual registration successful');
+          
         } catch (regError) {
           console.log('⚠️ Manual registration failed, will try later:', regError);
         }
-        
-        // ตั้งค่า external_id หรือ user_id เพื่อให้รับการแจ้งเตือนได้
-        const userId = `user_${Date.now()}`; // ใช้เวลาเป็น unique ID หากไม่มีระบบ login
-        await OneSignal.login(userId);
-        console.log('👤 Set OneSignal external_id:', userId);
-        
-        // เพิ่ม tag เพื่อให้สามารถกำหนดเป้าหมายได้
-        await OneSignal.User.addTags({
-          user_type: 'tester',
-          app_version: '1.0.0',
-          environment: 'localhost'
-        });
-        console.log('🏷️ Added user tags for targeting');
         
         // 🔥 เพิ่ม Event Listeners สำหรับ Push Notifications
         OneSignal.Notifications.addEventListener('click', (event) => {
@@ -392,7 +426,7 @@ const App: React.FC = () => {
         });
         
         // รอให้ OneSignal สร้าง onesignalId ให้สมบูรณ์ (แบบไม่บล็อก UI)
-        const waitForOnesignalId = async () => {
+        const waitForOnesignalIdNonBlocking = async () => {
           let attempts = 0;
           const maxAttempts = 5; // ลดจำนวนครั้ง
           
@@ -418,22 +452,13 @@ const App: React.FC = () => {
         };
         
         // เรียกใช้แบบไม่รอ (non-blocking)
-        waitForOnesignalId().then(onesignalId => {
+        waitForOnesignalIdNonBlocking().then(onesignalId => {
           if (onesignalId) {
             console.log('✅ OneSignal ready with ID:', onesignalId);
           }
         }).catch(error => {
           console.log('❌ Error waiting for OneSignal ID:', error);
         });
-        
-        // ตรวจสอบสถานะการสมัครรับการแจ้งเตือน (with safety check)
-        let isSubscribed = false;
-        try {
-          isSubscribed = await OneSignal.User.PushSubscription.optedIn;
-          console.log('📱 OneSignal subscription status:', isSubscribed);
-        } catch (error) {
-          console.log('⚠️ Could not check OneSignal subscription status:', error);
-        }
         
         // ตรวจสอบสิทธิ์การแจ้งเตือนจากเบราว์เซอร์
         const permission = typeof Notification !== 'undefined' ? Notification.permission : 'default';
@@ -445,16 +470,18 @@ const App: React.FC = () => {
           
           // แสดงป๊อปอัพหลังจากโหลดหน้าเว็บเสร็จ
           setTimeout(() => {
+            console.log('🔔 Showing notification popup...');
             setShowNotificationPopup(true);
-          }, 3000); // แสดงหลังจาก 3 วินาที
+          }, 2000); // ลดเวลาเป็น 2 วินาที
         } else if (permission === 'denied') {
           // ผู้ใช้เคยปฏิเสธแล้ว - แต่ยังให้โอกาสขออนุญาตใหม่
           console.log('🚫 Notifications are blocked, but showing popup anyway.');
           
           // แสดง popup ให้ผู้ใช้ลองขออนุญาตใหม่
           setTimeout(() => {
+            console.log('🔔 Showing notification popup for denied permission...');
             setShowNotificationPopup(true);
-          }, 3000);
+          }, 2000);
           
           // แสดงข้อความแนะนำเพิ่มเติม
           toast({
@@ -463,12 +490,24 @@ const App: React.FC = () => {
             variant: "default",
           });
         } else if (permission === 'granted') {
-          // ได้รับอนุญาตแล้ว
+          // ได้รับอนุญาตแล้ว - ตรวจสอบสถานะ subscription
+          console.log('✅ Permission already granted');
+          
+          // ตรวจสอบสถานะการสมัครรับการแจ้งเตือน
+          let isSubscribed = false;
+          try {
+            isSubscribed = await OneSignal.User.PushSubscription.optedIn;
+            console.log('📱 OneSignal subscription status:', isSubscribed);
+          } catch (error) {
+            console.log('⚠️ Could not check OneSignal subscription status:', error);
+          }
+          
           if (!isSubscribed) {
             console.log('🔔 Permission granted but not subscribed, subscribing...');
             try {
               if (typeof OneSignal !== 'undefined' && OneSignal.User) {
                 await OneSignal.User.PushSubscription.optIn();
+                console.log('✅ Successfully subscribed to OneSignal');
               }
             } catch (error) {
               console.log('❌ Failed to subscribe:', error);
@@ -483,10 +522,18 @@ const App: React.FC = () => {
               console.log('⚠️ Could not get OneSignal User ID:', error);
             }
           }
+          
+          // แสดง popup เพื่อแจ้งให้ทราบว่าระบบพร้อมใช้งาน
+          setTimeout(() => {
+            console.log('🔔 Showing success notification popup...');
+            toast({
+              title: "✅ ระบบการแจ้งเตือนพร้อมใช้งาน!",
+              description: "คุณจะได้รับการแจ้งเตือนจาก RiceFlow แล้ว",
+              variant: "default",
+            });
+          }, 1000);
         }
-        
-        // OneSignal initialized successfully (no toast notification)
-        
+
       } catch (error) {
         console.error('❌ OneSignal initialization failed:', error);
         toast({
