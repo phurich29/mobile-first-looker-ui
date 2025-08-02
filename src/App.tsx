@@ -490,40 +490,10 @@ const App: React.FC = () => {
             variant: "default",
           });
         } else if (permission === 'granted') {
-          // ได้รับอนุญาตแล้ว - ตรวจสอบสถานะ subscription
-          console.log('✅ Permission already granted');
+          // ได้รับอนุญาตแล้ว - แสดงข้อความสำเร็จเท่านั้น (ไม่ทำ API calls เพิ่ม)
+          console.log('✅ Permission already granted - showing success message only');
           
-          // ตรวจสอบสถานะการสมัครรับการแจ้งเตือน
-          let isSubscribed = false;
-          try {
-            isSubscribed = await OneSignal.User.PushSubscription.optedIn;
-            console.log('📱 OneSignal subscription status:', isSubscribed);
-          } catch (error) {
-            console.log('⚠️ Could not check OneSignal subscription status:', error);
-          }
-          
-          if (!isSubscribed) {
-            console.log('🔔 Permission granted but not subscribed, subscribing...');
-            try {
-              if (typeof OneSignal !== 'undefined' && OneSignal.User) {
-                await OneSignal.User.PushSubscription.optIn();
-                console.log('✅ Successfully subscribed to OneSignal');
-              }
-            } catch (error) {
-              console.log('❌ Failed to subscribe:', error);
-            }
-          } else {
-            try {
-              if (typeof OneSignal !== 'undefined' && OneSignal.User) {
-                const userId = OneSignal.User.onesignalId;
-                console.log('👤 OneSignal User ID:', userId);
-              }
-            } catch (error) {
-              console.log('⚠️ Could not get OneSignal User ID:', error);
-            }
-          }
-          
-          // แสดง popup เพื่อแจ้งให้ทราบว่าระบบพร้อมใช้งาน
+          // แสดง popup เพื่อแจ้งให้ทราบว่าระบบพร้อมใช้งาน (ไม่ต้องตรวจสอบ subscription)
           setTimeout(() => {
             console.log('🔔 Showing success notification popup...');
             toast({
@@ -582,10 +552,7 @@ const App: React.FC = () => {
         // Handle navigation or actions when notification is tapped
         if (notification.data?.route) {
           // Navigate to specific route if provided in notification data
-          // ใช้ React Router แทน window.location.href เพื่อป้องกันการรีเฟรช
-          console.log('🔔 FCM notification wants to navigate to:', notification.data.route);
-          // Note: การ navigate ควรทำผ่าน router context แทน
-          // window.location.href = notification.data.route;
+          window.location.href = notification.data.route;
         }
       }
     },
