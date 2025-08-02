@@ -3,6 +3,7 @@ import { fcmService } from '../services/fcmService';
 import { toast } from 'sonner';
 
 export interface UseFCMOptions {
+  enabled?: boolean; // Add enabled flag to control initialization
   onTokenReceived?: (token: string) => void;
   onNotificationReceived?: (notification: any) => void;
   onNotificationOpened?: (notification: any) => void;
@@ -28,6 +29,7 @@ export const useFCM = (options: UseFCMOptions = {}): UseFCMReturn => {
   const [isLoading, setIsLoading] = useState(false);
 
   const {
+    enabled = true, // Default to enabled for backward compatibility
     onTokenReceived,
     onNotificationReceived,
     onNotificationOpened,
@@ -38,7 +40,12 @@ export const useFCM = (options: UseFCMOptions = {}): UseFCMReturn => {
 
   // Initialize FCM service
   const initialize = useCallback(async () => {
-    if (isInitialized) return;
+    if (isInitialized || !enabled) {
+      if (!enabled) {
+        console.log('🔔 FCM initialization skipped - disabled by configuration');
+      }
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
@@ -146,8 +153,10 @@ export const useFCM = (options: UseFCMOptions = {}): UseFCMReturn => {
 
   // Auto-initialize on mount
   useEffect(() => {
-    initialize();
-  }, [initialize]);
+    if (enabled) {
+      initialize();
+    }
+  }, [initialize, enabled]);
 
   return {
     isInitialized,

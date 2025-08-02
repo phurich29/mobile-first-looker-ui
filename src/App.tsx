@@ -18,6 +18,7 @@ import { Capacitor } from "@capacitor/core";
 import OneSignal from 'react-onesignal';
 import { useFCM } from "./hooks/useFCM";
 import { NotificationPermissionPopup } from '@/components/NotificationPermissionPopup';
+import { shouldInitializeOneSignal, shouldInitializeFCM, getPrimaryNotificationSystem } from '@/config/notification-config';
 
 // Firebase config is now handled by src/lib/firebase.ts
 
@@ -236,6 +237,12 @@ const App: React.FC = () => {
   
   useEffect(() => {
     const initializeOneSignal = async () => {
+      // Check if OneSignal should be initialized based on config
+      if (!shouldInitializeOneSignal()) {
+        console.log('🔔 OneSignal initialization skipped by configuration');
+        return;
+      }
+
       // Only initialize OneSignal if App ID is provided
       const appId = import.meta.env.VITE_ONESIGNAL_APP_ID;
       
@@ -459,39 +466,51 @@ const App: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Initialize FCM notifications
+  // Initialize FCM notifications only if configured
   const {
     isInitialized: fcmInitialized,
     token: fcmToken,
     error: fcmError,
   } = useFCM({
-    autoSendToServer: true,
+    enabled: shouldInitializeFCM(), // Add config check
+    autoSendToServer: shouldInitializeFCM(),
     // userId: 'current-user-id', // Replace with actual user ID from auth context
     onTokenReceived: (token) => {
-      console.log("🔔 FCM Token received:", token);
+      if (shouldInitializeFCM()) {
+        console.log("🔔 FCM Token received:", token);
+      }
     },
     onNotificationReceived: (notification) => {
-      console.log("🔔 Notification received:", notification);
-      toast({
-        title: notification.title || "New Notification",
-        description: notification.body || "You have a new notification",
-      });
+      if (shouldInitializeFCM()) {
+        console.log("🔔 FCM Notification received:", notification);
+        // Only show toast if OneSignal is not handling notifications
+        if (getPrimaryNotificationSystem() === 'fcm') {
+          toast({
+            title: notification.title || "New Notification",
+            description: notification.body || "You have a new notification",
+          });
+        }
+      }
     },
     onNotificationOpened: (notification) => {
-      console.log("🔔 Notification opened:", notification);
-      // Handle navigation or actions when notification is tapped
-      if (notification.data?.route) {
-        // Navigate to specific route if provided in notification data
-        window.location.href = notification.data.route;
+      if (shouldInitializeFCM()) {
+        console.log("🔔 FCM Notification opened:", notification);
+        // Handle navigation or actions when notification is tapped
+        if (notification.data?.route) {
+          // Navigate to specific route if provided in notification data
+          window.location.href = notification.data.route;
+        }
       }
     },
     onError: (error) => {
-      console.error("🔔 FCM Error:", error);
-      toast({
-        title: "Notification Error",
-        description: "Failed to setup push notifications",
-        variant: "destructive",
-      });
+      if (shouldInitializeFCM()) {
+        console.error("🔔 FCM Error:", error);
+        toast({
+          title: "FCM Notification Error",
+          description: "Failed to setup FCM push notifications",
+          variant: "destructive",
+        });
+      }
     },
   });
 
