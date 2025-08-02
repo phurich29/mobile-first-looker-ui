@@ -244,10 +244,10 @@ const App: React.FC = () => {
       }
 
       // Only initialize OneSignal if App ID is provided
-      const appId = import.meta.env.VITE_ONESIGNAL_APP_ID || 'c77413d4-0f7d-4fe0-b7eb-99b132e451e0';
+      const appId = '1061c7a8-e7ac-480c-9e2b-eb4b4b92e30a'; // Hardcoded Production App ID for stability
       
       if (!appId) {
-        console.warn('OneSignal: VITE_ONESIGNAL_APP_ID is not set in environment variables');
+        console.warn('OneSignal: App ID is not set');
         return;
       }
 
