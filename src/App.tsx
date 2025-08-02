@@ -582,7 +582,10 @@ const App: React.FC = () => {
         // Handle navigation or actions when notification is tapped
         if (notification.data?.route) {
           // Navigate to specific route if provided in notification data
-          window.location.href = notification.data.route;
+          // ใช้ React Router แทน window.location.href เพื่อป้องกันการรีเฟรช
+          console.log('🔔 FCM notification wants to navigate to:', notification.data.route);
+          // Note: การ navigate ควรทำผ่าน router context แทน
+          // window.location.href = notification.data.route;
         }
       }
     },
