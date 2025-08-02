@@ -500,14 +500,21 @@ const App: React.FC = () => {
           console.log('❌ Error waiting for OneSignal ID:', error);
         });
         
-        // 🔥 FORCE แสดง notification popup ในทุกสถานการณ์
-        console.log('🔔 FORCE showing notification popup in 2 seconds...');
+        // 🔥 FORCE แสดง notification popup ในทุกสถานการณ์ (บังคับแสดง)
+        console.log('🔔 FORCE showing notification popup in 3 seconds...');
+        console.log('🔔 Current showNotificationPopup state:', showNotificationPopup);
         
         // แสดง popup ทันทีหลังจาก OneSignal พร้อม (บังคับแสดง)
-        setTimeout(() => {
-          console.log('🔔 FORCE popup display now!');
+        const forceShowPopup = () => {
+          console.log('🔔 FORCE popup display now! Setting state to true...');
           setShowNotificationPopup(true);
-        }, 2000);
+          console.log('🔔 Popup state should now be true');
+        };
+        
+        // ใช้ setTimeout หลายครั้งเพื่อให้แน่ใจว่าจะเด้ง
+        setTimeout(forceShowPopup, 3000);
+        setTimeout(forceShowPopup, 4000);
+        setTimeout(forceShowPopup, 5000);
         
         // ตรวจสอบสิทธิ์การแจ้งเตือนจากเบราว์เซอร์ (แบบ async)
         setTimeout(async () => {
@@ -625,7 +632,23 @@ const App: React.FC = () => {
     // Initialize OneSignal after a short delay to ensure DOM is ready
     const timer = setTimeout(initializeOneSignal, 1000);
     
-    return () => clearTimeout(timer);
+    // 🔥 BACKUP FORCE POPUP - ในกรณีที่ OneSignal ไม่ทำงาน
+    const backupPopupTimer = setTimeout(() => {
+      console.log('🔥 BACKUP FORCE POPUP - แสดง popup บังคับ!');
+      setShowNotificationPopup(true);
+    }, 2000); // แสดงหลัง 2 วินาที
+    
+    // 🔥 ULTIMATE FORCE POPUP - แสดงทุก 5 วินาที
+    const ultimatePopupTimer = setTimeout(() => {
+      console.log('🔥 ULTIMATE FORCE POPUP - แสดง popup อันติม!');
+      setShowNotificationPopup(true);
+    }, 5000);
+    
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(backupPopupTimer);
+      clearTimeout(ultimatePopupTimer);
+    };
   }, []);
 
   // Initialize FCM notifications only if configured
