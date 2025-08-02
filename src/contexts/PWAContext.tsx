@@ -64,15 +64,7 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
     onOfflineReady() {
       console.log('SW offline ready');
       setOfflineReady(true);
-      // Silently set offline ready without showing popup
-      // Uncomment below to restore offline ready notification if needed
-      /*
-      toast({
-        title: 'แอปพร้อมใช้งานแบบออฟไลน์',
-        description: 'ตัวแอปพร้อมทำงานแม้ไม่มีอินเทอร์เน็ต',
-        duration: 5000,
-      });
-      */
+      // Completely disable offline ready popup - no toast notification
     },
   });
 
