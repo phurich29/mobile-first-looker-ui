@@ -33,9 +33,6 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
     return `${Date.now()}`;
   });
   
-  // Disable PWA features in production to prevent popup
-  const isProduction = window.location.hostname === 'setup.riceflow.app';
-  
   const {
     needRefresh: [needRefresh, setNeedRefresh],
     offlineReady: [offlineReady, setOfflineReady],
@@ -48,17 +45,30 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
       console.log('SW registration error', error);
     },
     onNeedRefresh() {
-      console.log('SW needs refresh - AUTO-REFRESH DISABLED');
-      // Auto-refresh functionality disabled - no popup or automatic updates
-      // User can manually refresh if needed
-      setNeedRefresh(false); // Keep this false to prevent any refresh prompts
+      console.log('SW needs refresh');
+      setNeedRefresh(true);
+      toast({
+        title: 'อัปเดตใหม่พร้อมใช้งาน',
+        description: 'การอัปเดตนี้จะทำให้คุณต้องเข้าสู่ระบบใหม่',
+        duration: 0, // Don't auto-dismiss
+        action: (
+          <button
+            onClick={() => handleUpdate()}
+            className="bg-emerald-600 text-white px-3 py-1 rounded text-sm hover:bg-emerald-700"
+          >
+            อัปเดตเลย
+          </button>
+        ),
+      });
     },
     onOfflineReady() {
       console.log('SW offline ready');
-      if (!isProduction) {
-        setOfflineReady(true);
-      }
-      // Completely disable offline ready popup in production
+      setOfflineReady(true);
+      toast({
+        title: 'แอปพร้อมใช้งานแบบออฟไลน์',
+        description: 'ตัวแอปพร้อมทำงานแม้ไม่มีอินเทอร์เน็ต',
+        duration: 5000,
+      });
     },
   });
 
@@ -172,31 +182,21 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
-      // Silently update online status without notification
-      console.log('Connection status: Online');
-      // Uncomment below to restore online notification if needed
-      /*
       toast({
         title: 'เชื่อมต่ออินเทอร์เน็ตแล้ว',
         description: 'กลับมาออนไลน์แล้ว ข้อมูลจะอัปเดตอัตโนมัติ',
         duration: 3000,
       });
-      */
     };
 
     const handleOffline = () => {
       setIsOnline(false);
-      // Silently update offline status without showing popup
-      console.log('Connection status: Offline');
-      // Uncomment below to restore offline notification if needed
-      /*
       toast({
         title: 'ไม่มีการเชื่อมต่ออินเทอร์เน็ต',
         description: 'แอปยังคงใช้งานได้ด้วยข้อมูลที่บันทึกไว้',
         duration: 5000,
         variant: 'destructive',
       });
-      */
     };
 
     // Check for app version changes (simple version check)

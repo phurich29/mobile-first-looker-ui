@@ -18,6 +18,7 @@ import { Capacitor } from "@capacitor/core";
 import OneSignal from 'react-onesignal';
 import { useFCM } from "./hooks/useFCM";
 import { NotificationPermissionPopup } from '@/components/NotificationPermissionPopup';
+import { shouldInitializeOneSignal, shouldInitializeFCM, getPrimaryNotificationSystem } from '@/config/notification-config';
 
 // Firebase config is now handled by src/lib/firebase.ts
 
@@ -50,13 +51,8 @@ const App: React.FC = () => {
         
         if (browserPermission === 'granted') {
           try {
-            // Check if OneSignal is available before calling
-            if (typeof OneSignal !== 'undefined' && OneSignal.User) {
-              await OneSignal.User.PushSubscription.optIn();
-              console.log('✅ Successfully subscribed to OneSignal!');
-            } else {
-              console.log('⚠️ OneSignal not ready yet, but browser permission granted');
-            }
+            await OneSignal.User.PushSubscription.optIn();
+            console.log('✅ Successfully subscribed to OneSignal!');
             
             // แสดงข้อความสำเร็จ
             toast({
@@ -65,52 +61,12 @@ const App: React.FC = () => {
               variant: "default",
             });
             
-            // ส่ง browser notification ทดสอบ (ปรับปรุงให้สมบูรณ์ยิ่งขึ้น)
+            // ส่งการแจ้งเตือนทดสอบ
             setTimeout(() => {
-              console.log('🔔 Sending welcome browser notification...');
-              
-              const notification = new Notification('🎉 ยินดีต้อนรับสู่ RiceFlow!', {
+              new Notification('🎉 ยินดีต้อนรับสู่ RiceFlow!', {
                 body: 'คุณได้เปิดใช้งานการแจ้งเตือนแล้ว จะได้รับข้อมูลอัพเดททันที',
-                icon: '/favicon.ico',
-                badge: '/favicon.ico',
-                tag: 'riceflow-welcome-accept',
-                requireInteraction: true, // ให้ notification ค้างอยู่จนกว่าจะคลิก
-                silent: false,
-                data: {
-                  url: window.location.href,
-                  timestamp: Date.now(),
-                  type: 'welcome-accept',
-                  source: 'user-accept'
-                }
+                icon: '/favicon.ico'
               });
-              
-              // จัดการคลิก notification
-              notification.onclick = function(event) {
-                console.log('🔔 Welcome notification clicked!');
-                event.preventDefault();
-                window.focus(); // โฟกัสไปที่หน้าเว็บ
-                notification.close(); // ปิด notification
-                
-                // แสดง toast เมื่อคลิก
-                toast({
-                  title: "👋 สวัสดี!",
-                  description: "ขอบคุณที่คลิก notification!",
-                  variant: "default",
-                });
-              };
-              
-              // จัดการ error ถ้ามี
-              notification.onerror = function(event) {
-                console.error('❌ Browser notification error:', event);
-              };
-              
-              // ปิด notification อัตโนมัติหลัง 15 วินาที
-              setTimeout(() => {
-                notification.close();
-                console.log('🔔 Welcome notification auto-closed after 15 seconds');
-              }, 15000);
-              
-              console.log('✅ Welcome browser notification sent successfully!');
             }, 2000);
             
           } catch (optInError) {
@@ -209,13 +165,9 @@ const App: React.FC = () => {
           console.log('✅ Permission granted! Subscribing to OneSignal...');
           
           try {
-            // Subscribe กับ OneSignal (with safety check)
-            if (typeof OneSignal !== 'undefined' && OneSignal.User) {
-              await OneSignal.User.PushSubscription.optIn();
-              console.log('✅ Successfully subscribed to OneSignal!');
-            } else {
-              console.log('⚠️ OneSignal not ready in monitoring function');
-            }
+            // Subscribe กับ OneSignal
+            await OneSignal.User.PushSubscription.optIn();
+            console.log('✅ Successfully subscribed to OneSignal!');
             
             // แสดงข้อความสำเร็จ
             toast({
@@ -239,12 +191,10 @@ const App: React.FC = () => {
             
             // ทดสอบส่งการแจ้งเตือนผ่าน OneSignal API โดยตรง (debug เท่านั้น)
             try {
-              if (typeof OneSignal !== 'undefined' && OneSignal.User) {
-                const playerId = OneSignal.User.onesignalId;
-                if (playerId) {
-                  console.log('📱 Sending test notification to player_id:', playerId);
-                  // Note: ควรมีฟังก์ชัน API call ไปยัง backend เพื่อส่งการแจ้งเตือนจริง
-                }
+              const playerId = OneSignal.User.onesignalId;
+              if (playerId) {
+                console.log('📱 Sending test notification to player_id:', playerId);
+                // Note: ควรมีฟังก์ชัน API call ไปยัง backend เพื่อส่งการแจ้งเตือนจริง
               }
             } catch (e) {
               console.error('Error sending test notification:', e);
@@ -252,14 +202,12 @@ const App: React.FC = () => {
             
           } catch (error) {
             console.log('❌ Failed to subscribe to OneSignal:', error);
-            // ลองใหม่อีกครั้ง (with safety check)
+            // ลองใหม่อีกครั้ง
             try {
               console.log('🔄 Trying to subscribe again...');
               await new Promise(r => setTimeout(r, 1500));
-              if (typeof OneSignal !== 'undefined' && OneSignal.User) {
-                await OneSignal.User.PushSubscription.optIn();
-                console.log('✅ Successfully subscribed on second attempt!');
-              }
+              await OneSignal.User.PushSubscription.optIn();
+              console.log('✅ Successfully subscribed on second attempt!');
             } catch (retryError) {
               console.error('❌ Second subscription attempt failed:', retryError);
             }
@@ -287,19 +235,7 @@ const App: React.FC = () => {
     };
   };
   
-  // Notification system config helpers
-  const shouldInitializeOneSignal = () => {
-    // Enable OneSignal for production deployment
-    return true;
-  };
-  
-  const shouldInitializeFCM = () => {
-    // Enable FCM for testing or as fallback
-    return false;
-  };
-
   useEffect(() => {
-
     const initializeOneSignal = async () => {
       // Check if OneSignal should be initialized based on config
       if (!shouldInitializeOneSignal()) {
@@ -307,22 +243,11 @@ const App: React.FC = () => {
         return;
       }
 
-      // Dynamically select OneSignal App ID based on hostname for stability
-      let appId = '';
-      const hostname = window.location.hostname;
-
-      if (hostname === 'localhost') {
-        // Development App ID for localhost
-        appId = 'c77413d4-0f7d-4fe0-b7eb-99b132e451e0';
-        console.log('🔔 OneSignal: Using Development App ID for localhost');
-      } else if (hostname === 'setup.riceflow.app') {
-        // Production App ID for the live site
-        appId = '1061c7a8-e7ac-480c-9e2b-eb4b4b92e30a';
-        console.log('🔔 OneSignal: Using Production App ID for setup.riceflow.app');
-      }
-
+      // Only initialize OneSignal if App ID is provided
+      const appId = '1061c7a8-e7ac-480c-9e2b-eb4b4b92e30a'; // Hardcoded Production App ID for stability
+      
       if (!appId) {
-        console.error(`OneSignal Error: Hostname "${hostname}" is not configured. OneSignal will not be initialized.`);
+        console.warn('OneSignal: App ID is not set');
         return;
       }
 
@@ -387,58 +312,24 @@ const App: React.FC = () => {
             }
           }
           
-          // รอให้ OneSignal พร้อมก่อนทำ subscription
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          // ตั้งค่า external_id หรือ user_id เพื่อให้รับการแจ้งเตือนได้
-          const userId = `user_${Date.now()}`; // ใช้เวลาเป็น unique ID หากไม่มีระบบ login
-          await OneSignal.login(userId);
-          console.log('👤 Set OneSignal external_id:', userId);
-          
-          // เพิ่ม tag เพื่อให้สามารถกำหนดเป้าหมายได้
-          await OneSignal.User.addTags({
-            user_type: 'tester',
-            app_version: '1.0.0',
-            environment: 'localhost'
-          });
-          console.log('🏷️ Added user tags for targeting');
-          
-          // รอให้ OneSignal สร้าง onesignalId ให้สมบูรณ์ก่อนทำ subscription
-          const waitForOnesignalId = async () => {
-            let attempts = 0;
-            const maxAttempts = 10;
-            
-            while (attempts < maxAttempts) {
-              try {
-                const onesignalId = OneSignal.User.onesignalId;
-                if (onesignalId && onesignalId !== '') {
-                  console.log('🆔 OneSignal ID obtained:', onesignalId);
-                  return onesignalId;
-                }
-                console.log(`🔄 Waiting for onesignalId... attempt ${attempts + 1}/${maxAttempts}`);
-                await new Promise(resolve => setTimeout(resolve, 500));
-                attempts++;
-              } catch (error) {
-                console.log('⚠️ Error getting onesignalId:', error);
-                attempts++;
-                await new Promise(resolve => setTimeout(resolve, 500));
-              }
-            }
-            
-            throw new Error('OneSignal ID not ready after maximum attempts');
-          };
-          
-          // รอให้ได้ onesignalId ก่อนทำ subscription
-          const onesignalId = await waitForOnesignalId();
-          console.log('✅ OneSignal ready with ID:', onesignalId);
-          
-          // ตอนนี้ทำ subscription ได้แล้ว
           await OneSignal.User.PushSubscription.optIn();
           console.log('🔔 Manual registration successful');
-          
         } catch (regError) {
           console.log('⚠️ Manual registration failed, will try later:', regError);
         }
+        
+        // ตั้งค่า external_id หรือ user_id เพื่อให้รับการแจ้งเตือนได้
+        const userId = `user_${Date.now()}`; // ใช้เวลาเป็น unique ID หากไม่มีระบบ login
+        await OneSignal.login(userId);
+        console.log('👤 Set OneSignal external_id:', userId);
+        
+        // เพิ่ม tag เพื่อให้สามารถกำหนดเป้าหมายได้
+        await OneSignal.User.addTags({
+          user_type: 'tester',
+          app_version: '1.0.0',
+          environment: 'localhost'
+        });
+        console.log('🏷️ Added user tags for targeting');
         
         // 🔥 เพิ่ม Event Listeners สำหรับ Push Notifications
         OneSignal.Notifications.addEventListener('click', (event) => {
@@ -472,7 +363,7 @@ const App: React.FC = () => {
         });
         
         // รอให้ OneSignal สร้าง onesignalId ให้สมบูรณ์ (แบบไม่บล็อก UI)
-        const waitForOnesignalIdNonBlocking = async () => {
+        const waitForOnesignalId = async () => {
           let attempts = 0;
           const maxAttempts = 5; // ลดจำนวนครั้ง
           
@@ -498,7 +389,7 @@ const App: React.FC = () => {
         };
         
         // เรียกใช้แบบไม่รอ (non-blocking)
-        waitForOnesignalIdNonBlocking().then(onesignalId => {
+        waitForOnesignalId().then(onesignalId => {
           if (onesignalId) {
             console.log('✅ OneSignal ready with ID:', onesignalId);
           }
@@ -506,161 +397,54 @@ const App: React.FC = () => {
           console.log('❌ Error waiting for OneSignal ID:', error);
         });
         
-        // 🔥 FORCE แสดง notification popup ในทุกสถานการณ์ (บังคับแสดง)
-        console.log('🔔 FORCE showing notification popup in 3 seconds...');
-        console.log('🔔 Current showNotificationPopup state:', showNotificationPopup);
+        // ตรวจสอบสถานะการสมัครรับการแจ้งเตือน
+        const isSubscribed = await OneSignal.User.PushSubscription.optedIn;
+        console.log('📱 OneSignal subscription status:', isSubscribed);
         
-        // แสดง popup ทันทีหลังจาก OneSignal พร้อม (บังคับแสดง)
-        const forceShowPopup = () => {
-          console.log('🔔 FORCE popup display now! Setting state to true...');
-          setShowNotificationPopup(true);
-          console.log('🔔 Popup state should now be true');
-        };
+        // ตรวจสอบสิทธิ์การแจ้งเตือนจากเบราว์เซอร์
+        const permission = typeof Notification !== 'undefined' ? Notification.permission : 'default';
+        console.log('🔐 Browser notification permission:', permission);
         
-        // ใช้ setTimeout หลายครั้งเพื่อให้แน่ใจว่าจะเด้ง
-        setTimeout(forceShowPopup, 3000);
-        setTimeout(forceShowPopup, 4000);
-        setTimeout(forceShowPopup, 5000);
-        
-        // ตรวจสอบสิทธิ์การแจ้งเตือนจากเบราว์เซอร์ (แบบ async)
-        setTimeout(async () => {
-          const permission = typeof Notification !== 'undefined' ? Notification.permission : 'default';
-          console.log('🔐 Browser notification permission:', permission);
+        if (permission === 'default') {
+          // ยังไม่เคยถามสิทธิ์ - แสดงป๊อปอัพขออนุญาต
+          console.log('🔔 Requesting notification permission...');
           
-          if (permission === 'default') {
-            // ยังไม่เคยถามสิทธิ์ - แสดงข้อความแนะนำ
-            console.log('🔔 Permission is default - user needs to grant permission');
-            
-            // แสดงเฉพาะ browser notification โดยไม่แสดง popup ของแอพพลิเคชัน
-            setTimeout(() => {
-              console.log('🔔 Showing browser notification request...');
-              
-              // แสดง browser notification แทน popup ของแอพและ toast
-              if (typeof Notification !== 'undefined') {
-                // ขอสิทธิ์แสดง notification โดยตรง
-                Notification.requestPermission().then((permission) => {
-                  console.log('🔔 Browser notification permission result:', permission);
-                  if (permission === 'granted') {
-                    const notification = new Notification('🔔 RiceFlow แจ้งเตือน', {
-                      body: 'คุณจะได้รับการแจ้งเตือนจาก RiceFlow เมื่อมีข้อมูลใหม่',
-                      icon: '/favicon.ico',
-                      requireInteraction: true
-                    });
-                    
-                    notification.onclick = function() {
-                      window.focus();
-                      notification.close();
-                    };
-                  }
-                });
-              }
-            }, 2000); // ลดเวลาเป็น 2 วินาที
-          } else if (permission === 'denied') {
-            // ผู้ใช้เคยปฏิเสธแล้ว - แต่ยังให้โอกาสขออนุญาตใหม่
-            console.log('🚫 Notifications are blocked, but showing popup anyway.');
-            
-            // แสดง popup ให้ผู้ใช้ลองขออนุญาตใหม่
-            setTimeout(() => {
-              console.log('🔔 Showing notification popup for denied permission...');
-              setShowNotificationPopup(true);
-            }, 2000);
-            
-            // แสดงข้อความแนะนำเพิ่มเติม
-            toast({
-              title: "💡 เปิดการแจ้งเตือน",
-              description: "คลิกปุ่ม 'อนุญาต' เพื่อเปิดใช้งานการแจ้งเตือน หรือตั้งค่าในเบราว์เซอร์",
-              variant: "default",
-            });
-          } else if (permission === 'granted') {
-            // ได้รับอนุญาตแล้ว - แสดงข้อความสำเร็จเท่านั้น (ไม่ทำ API calls เพิ่ม)
-            console.log('✅ Permission already granted - showing success message only');
-            
-            // แสดง popup เพื่อแจ้งให้ทราบว่าระบบพร้อมใช้งาน (ไม่ต้องตรวจสอบ subscription)
-            setTimeout(() => {
-              console.log('🔔 Showing success notification popup...');
-              toast({
-                title: "✅ ระบบการแจ้งเตือนพร้อมใช้งาน!",
-                description: "คุณจะได้รับการแจ้งเตือนจาก RiceFlow แล้ว",
-                variant: "default",
-              });
-            }, 1000);
-            
-            // ตรวจสอบสถานะการสมัครรับการแจ้งเตือน
-            let isSubscribed = false;
+          // แสดงป๊อปอัพหลังจากโหลดหน้าเว็บเสร็จ
+          setTimeout(() => {
+            setShowNotificationPopup(true);
+          }, 3000); // แสดงหลังจาก 3 วินาที
+        } else if (permission === 'denied') {
+          // ผู้ใช้เคยปฏิเสธแล้ว - แต่ยังให้โอกาสขออนุญาตใหม่
+          console.log('🚫 Notifications are blocked, but showing popup anyway.');
+          
+          // แสดง popup ให้ผู้ใช้ลองขออนุญาตใหม่
+          setTimeout(() => {
+            setShowNotificationPopup(true);
+          }, 3000);
+          
+          // แสดงข้อความแนะนำเพิ่มเติม
+          toast({
+            title: "💡 เปิดการแจ้งเตือน",
+            description: "คลิกปุ่ม 'อนุญาต' เพื่อเปิดใช้งานการแจ้งเตือน หรือตั้งค่าในเบราว์เซอร์",
+            variant: "default",
+          });
+        } else if (permission === 'granted') {
+          // ได้รับอนุญาตแล้ว
+          if (!isSubscribed) {
+            console.log('🔔 Permission granted but not subscribed, subscribing...');
             try {
-              isSubscribed = await OneSignal.User.PushSubscription.optedIn;
-              console.log('📱 OneSignal subscription status:', isSubscribed);
+              await OneSignal.User.PushSubscription.optIn();
             } catch (error) {
-              console.log('⚠️ Could not check OneSignal subscription status:', error);
+              console.log('❌ Failed to subscribe:', error);
             }
-            
-            if (!isSubscribed) {
-              console.log('🔔 Permission granted but not subscribed, subscribing...');
-              try {
-                if (typeof OneSignal !== 'undefined' && OneSignal.User) {
-                  await OneSignal.User.PushSubscription.optIn();
-                  console.log('✅ Successfully subscribed to OneSignal');
-                }
-              } catch (error) {
-                console.log('❌ Failed to subscribe:', error);
-              }
-            } else {
-              try {
-                if (typeof OneSignal !== 'undefined' && OneSignal.User) {
-                  const userId = OneSignal.User.onesignalId;
-                  console.log('👤 OneSignal User ID:', userId);
-                }
-              } catch (error) {
-                console.log('⚠️ Could not get OneSignal User ID:', error);
-              }
-            }
-            
-            // แสดง browser notification จริง (system notification)
-            setTimeout(() => {
-              console.log('🔔 Showing browser notification...');
-              
-              // แสดง browser notification จริง
-              if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-                const notification = new Notification('🎉 ยินดีต้อนรับสู่ RiceFlow!', {
-                  body: 'คุณได้เปิดใช้งานการแจ้งเตือนแล้ว จะได้รับข้อมูลอัพเดททันที',
-                  icon: '/favicon.ico',
-                  badge: '/favicon.ico',
-                  tag: 'riceflow-welcome',
-                  requireInteraction: true, // ให้ notification ค้างอยู่จนกว่าจะคลิก
-                  silent: false,
-                  data: {
-                    url: window.location.href,
-                    timestamp: Date.now(),
-                    type: 'welcome'
-                  }
-                });
-                
-                // จัดการคลิก notification
-                notification.onclick = function(event) {
-                  console.log('🔔 Browser notification clicked!');
-                  event.preventDefault();
-                  window.focus(); // โฟกัสไปที่หน้าเว็บ
-                  notification.close(); // ปิด notification
-                };
-                
-                // ปิด notification อัตโนมัติหลัง 10 วินาที
-                setTimeout(() => {
-                  notification.close();
-                }, 10000);
-                
-                console.log('✅ Browser notification displayed successfully!');
-              }
-              
-              // แสดง toast เพิ่มเติมด้วย
-              toast({
-                title: "✅ ระบบการแจ้งเตือนพร้อมใช้งาน!",
-                description: "คุณจะได้รับการแจ้งเตือนจาก RiceFlow แล้ว",
-                variant: "default",
-              });
-            }, 1000);
+          } else {
+            const userId = OneSignal.User.onesignalId;
+            console.log('👤 OneSignal User ID:', userId);
           }
-        }, 3000); // ตรวจสอบหลังจาก popup แสดงแล้ว
-
+        }
+        
+        // OneSignal initialized successfully (no toast notification)
+        
       } catch (error) {
         console.error('❌ OneSignal initialization failed:', error);
         toast({
@@ -674,30 +458,18 @@ const App: React.FC = () => {
     // Initialize OneSignal after a short delay to ensure DOM is ready
     const timer = setTimeout(initializeOneSignal, 1000);
     
-    // 🔥 BACKUP FORCE POPUP - ในกรณีที่ OneSignal ไม่ทำงาน
-    const backupPopupTimer = setTimeout(() => {
-      console.log('🔥 BACKUP FORCE POPUP - แสดง popup บังคับ!');
-      setShowNotificationPopup(true);
-    }, 2000); // แสดงหลัง 2 วินาที
-    
-    // 🔥 ULTIMATE FORCE POPUP - แสดงทุก 5 วินาที
-    const ultimatePopupTimer = setTimeout(() => {
-      console.log('🔥 ULTIMATE FORCE POPUP - แสดง popup อันติม!');
-      setShowNotificationPopup(true);
-    }, 5000);
-    
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(backupPopupTimer);
-      clearTimeout(ultimatePopupTimer);
-    };
+    return () => clearTimeout(timer);
   }, []);
 
   // Initialize FCM notifications only if configured
-  const fcmData = useFCM({
-    enabled: shouldInitializeFCM(),
+  const {
+    isInitialized: fcmInitialized,
+    token: fcmToken,
+    error: fcmError,
+  } = useFCM({
+    enabled: shouldInitializeFCM(), // Add config check
     autoSendToServer: shouldInitializeFCM(),
-    // userId: 'current-user-id',
+    // userId: 'current-user-id', // Replace with actual user ID from auth context
     onTokenReceived: (token) => {
       if (shouldInitializeFCM()) {
         console.log("🔔 FCM Token received:", token);
@@ -707,7 +479,7 @@ const App: React.FC = () => {
       if (shouldInitializeFCM()) {
         console.log("🔔 FCM Notification received:", notification);
         // Only show toast if OneSignal is not handling notifications
-        if (true) {
+        if (getPrimaryNotificationSystem() === 'fcm') {
           toast({
             title: notification.title || "New Notification",
             description: notification.body || "You have a new notification",
@@ -736,10 +508,6 @@ const App: React.FC = () => {
       }
     },
   });
-  
-  const fcmInitialized = fcmData.isInitialized;
-  const fcmToken = fcmData.token;
-  const fcmError = fcmData.error;
 
   // Register service worker for FCM
   useEffect(() => {
