@@ -14,7 +14,7 @@ export const NotificationSenderPage: React.FC = () => {
             ส่งแจ้งเตือน Push Notification
           </h1>
           <p className="text-gray-600">
-            ใช้ OneSignal ส่งแจ้งเตือนไปยังผู้ใช้ทั้งหมดที่ subscribe
+            ใช้ FCM ส่งแจ้งเตือนไปยังผู้ใช้ทั้งหมดที่ subscribe
           </p>
         </div>
         

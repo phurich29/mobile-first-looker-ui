@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Send, Image, Link, Bell } from 'lucide-react';
-import { useOneSignalNotification, NotificationPayload } from '@/hooks/use-onesignal-notification';
+import { useFCM } from '@/hooks/useFCM';
+import { toast } from '@/components/ui/use-toast';
 
 interface NotificationData {
   title: string;
@@ -21,34 +22,58 @@ export const NotificationSender: React.FC = () => {
     imageUrl: '',
     launchUrl: ''
   });
-  const { sendNotification: sendNotificationHook, isLoading, error, clearError } = useOneSignalNotification();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleInputChange = (field: keyof NotificationData, value: string) => {
     setNotification(prev => ({
       ...prev,
       [field]: value
     }));
-    clearError();
+    setError(null);
   };
 
   const handleSendNotification = async () => {
-    const payload: NotificationPayload = {
-      title: notification.title,
-      message: notification.message,
-      imageUrl: notification.imageUrl || undefined,
-      launchUrl: notification.launchUrl || undefined
-    };
+    if (!notification.title || !notification.message) {
+      setError('กรุณากรอกหัวข้อและข้อความ');
+      return;
+    }
 
-    const result = await sendNotificationHook(payload);
-    
-    if (result.success) {
-      // Reset form on success
-      setNotification({
-        title: '',
-        message: '',
-        imageUrl: '',
-        launchUrl: ''
-      });
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // ส่งการแจ้งเตือนผ่าน browser notification API
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(notification.title, {
+          body: notification.message,
+          icon: notification.imageUrl || '/favicon.ico',
+          data: {
+            url: notification.launchUrl
+          }
+        });
+        
+        toast({
+          title: "✅ ส่งการแจ้งเตือนสำเร็จ!",
+          description: "การแจ้งเตือนถูกส่งแล้ว",
+          variant: "default",
+        });
+        
+        // Reset form on success
+        setNotification({
+          title: '',
+          message: '',
+          imageUrl: '',
+          launchUrl: ''
+        });
+      } else {
+        setError('ไม่สามารถส่งการแจ้งเตือนได้ กรุณาอนุญาตการแจ้งเตือนก่อน');
+      }
+    } catch (err) {
+      setError('เกิดข้อผิดพลาดในการส่งการแจ้งเตือน');
+      console.error('Notification error:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -57,7 +82,7 @@ export const NotificationSender: React.FC = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Bell className="h-5 w-5" />
-          ส่งแจ้งเตือนผ่าน OneSignal
+          ส่งแจ้งเตือนผ่าน FCM
         </CardTitle>
         <CardDescription>
           ส่งแจ้งเตือนแบบ Push Notification ไปยังผู้ใช้ทั้งหมด
