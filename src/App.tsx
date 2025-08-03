@@ -18,7 +18,7 @@ import { Capacitor } from "@capacitor/core";
 import OneSignal from 'react-onesignal';
 import { useFCM } from "./hooks/useFCM";
 import { NotificationPermissionPopup } from '@/components/NotificationPermissionPopup';
-import { shouldInitializeOneSignal, shouldInitializeFCM, getPrimaryNotificationSystem } from '@/config/notification-config';
+import { getPrimaryNotificationSystem } from '@/config/notification-config';
 
 // Firebase config is now handled by src/lib/firebase.ts
 
@@ -288,11 +288,18 @@ const App: React.FC = () => {
     };
   };
   
+  // Notification system config helpers
+  const shouldInitializeOneSignal = () => {
+    // Enable OneSignal for production deployment
+    return true;
+  };
+  
+  const shouldInitializeFCM = () => {
+    // Enable FCM for testing or as fallback
+    return false;
+  };
+
   useEffect(() => {
-    const shouldInitializeOneSignal = () => {
-      // Enable OneSignal for production deployment
-      return true;
-    };
 
     const initializeOneSignal = async () => {
       // Check if OneSignal should be initialized based on config
@@ -521,64 +528,63 @@ const App: React.FC = () => {
           const permission = typeof Notification !== 'undefined' ? Notification.permission : 'default';
           console.log('🔐 Browser notification permission:', permission);
           
-<<<<<<< HEAD
-<<<<<<< HEAD
-          // แสดงป๊อปอัพหลังจากโหลดหน้าเว็บเสร็จ
-          setTimeout(() => {
-            console.log('🔔 Showing notification popup...');
-            setShowNotificationPopup(true);
-          }, 2000); // ลดเวลาเป็น 2 วินาที
-        } else if (permission === 'denied') {
-          // ผู้ใช้เคยปฏิเสธแล้ว - แต่ยังให้โอกาสขออนุญาตใหม่
-          console.log('🚫 Notifications are blocked, but showing popup anyway.');
-          
-          // แสดง popup ให้ผู้ใช้ลองขออนุญาตใหม่
-          setTimeout(() => {
-            console.log('🔔 Showing notification popup for denied permission...');
-            setShowNotificationPopup(true);
-          }, 2000);
-          
-          // แสดงข้อความแนะนำเพิ่มเติม
-          toast({
-            title: "💡 เปิดการแจ้งเตือน",
-            description: "คลิกปุ่ม 'อนุญาต' เพื่อเปิดใช้งานการแจ้งเตือน หรือตั้งค่าในเบราว์เซอร์",
-            variant: "default",
-          });
-        } else if (permission === 'granted') {
-          // ได้รับอนุญาตแล้ว - แสดงข้อความสำเร็จเท่านั้น (ไม่ทำ API calls เพิ่ม)
-          console.log('✅ Permission already granted - showing success message only');
-          
-          // แสดง popup เพื่อแจ้งให้ทราบว่าระบบพร้อมใช้งาน (ไม่ต้องตรวจสอบ subscription)
-          setTimeout(() => {
-            console.log('🔔 Showing success notification popup...');
-=======
-=======
->>>>>>> parent of fadcf91 (Reverted to commit 302f089ee0d1a6df9636870b7fdcf3005e1f4bb1)
           if (permission === 'default') {
             // ยังไม่เคยถามสิทธิ์ - แสดงข้อความแนะนำ
             console.log('🔔 Permission is default - user needs to grant permission');
             
-<<<<<<< HEAD
->>>>>>> parent of fadcf91 (Reverted to commit 302f089ee0d1a6df9636870b7fdcf3005e1f4bb1)
-=======
->>>>>>> parent of fadcf91 (Reverted to commit 302f089ee0d1a6df9636870b7fdcf3005e1f4bb1)
-            toast({
-              title: "🔔 เปิดการแจ้งเตือน",
-              description: "กดปุ่ม 'อนุญาต' เพื่อรับการแจ้งเตือนจาก RiceFlow",
-              variant: "default",
-            });
+            // แสดงเฉพาะ browser notification โดยไม่แสดง popup ของแอพพลิเคชัน
+            setTimeout(() => {
+              console.log('🔔 Showing browser notification request...');
+              
+              // แสดง browser notification แทน popup ของแอพและ toast
+              if (typeof Notification !== 'undefined') {
+                // ขอสิทธิ์แสดง notification โดยตรง
+                Notification.requestPermission().then((permission) => {
+                  console.log('🔔 Browser notification permission result:', permission);
+                  if (permission === 'granted') {
+                    const notification = new Notification('🔔 RiceFlow แจ้งเตือน', {
+                      body: 'คุณจะได้รับการแจ้งเตือนจาก RiceFlow เมื่อมีข้อมูลใหม่',
+                      icon: '/favicon.ico',
+                      requireInteraction: true
+                    });
+                    
+                    notification.onclick = function() {
+                      window.focus();
+                      notification.close();
+                    };
+                  }
+                });
+              }
+            }, 2000); // ลดเวลาเป็น 2 วินาที
           } else if (permission === 'denied') {
-            // ผู้ใช้เคยปฏิเสธแล้ว - แสดงคำแนะนำ
-            console.log('🚫 Notifications are blocked - showing help message');
+            // ผู้ใช้เคยปฏิเสธแล้ว - แต่ยังให้โอกาสขออนุญาตใหม่
+            console.log('🚫 Notifications are blocked, but showing popup anyway.');
             
+            // แสดง popup ให้ผู้ใช้ลองขออนุญาตใหม่
+            setTimeout(() => {
+              console.log('🔔 Showing notification popup for denied permission...');
+              setShowNotificationPopup(true);
+            }, 2000);
+            
+            // แสดงข้อความแนะนำเพิ่มเติม
             toast({
               title: "💡 เปิดการแจ้งเตือน",
               description: "คลิกปุ่ม 'อนุญาต' เพื่อเปิดใช้งานการแจ้งเตือน หรือตั้งค่าในเบราว์เซอร์",
               variant: "default",
             });
           } else if (permission === 'granted') {
-            // ได้รับอนุญาตแล้ว - ตรวจสอบสถานะ subscription
-            console.log('✅ Permission already granted');
+            // ได้รับอนุญาตแล้ว - แสดงข้อความสำเร็จเท่านั้น (ไม่ทำ API calls เพิ่ม)
+            console.log('✅ Permission already granted - showing success message only');
+            
+            // แสดง popup เพื่อแจ้งให้ทราบว่าระบบพร้อมใช้งาน (ไม่ต้องตรวจสอบ subscription)
+            setTimeout(() => {
+              console.log('🔔 Showing success notification popup...');
+              toast({
+                title: "✅ ระบบการแจ้งเตือนพร้อมใช้งาน!",
+                description: "คุณจะได้รับการแจ้งเตือนจาก RiceFlow แล้ว",
+                variant: "default",
+              });
+            }, 1000);
             
             // ตรวจสอบสถานะการสมัครรับการแจ้งเตือน
             let isSubscribed = false;
@@ -689,14 +695,10 @@ const App: React.FC = () => {
   }, []);
 
   // Initialize FCM notifications only if configured
-  const {
-    isInitialized: fcmInitialized,
-    token: fcmToken,
-    error: fcmError,
-  } = useFCM({
-    enabled: shouldInitializeFCM(), // Add config check
+  const fcmData = useFCM({
+    enabled: shouldInitializeFCM(),
     autoSendToServer: shouldInitializeFCM(),
-    // userId: 'current-user-id', // Replace with actual user ID from auth context
+    // userId: 'current-user-id',
     onTokenReceived: (token) => {
       if (shouldInitializeFCM()) {
         console.log("🔔 FCM Token received:", token);
@@ -735,6 +737,10 @@ const App: React.FC = () => {
       }
     },
   });
+  
+  const fcmInitialized = fcmData.isInitialized;
+  const fcmToken = fcmData.token;
+  const fcmError = fcmData.error;
 
   // Register service worker for FCM
   useEffect(() => {
