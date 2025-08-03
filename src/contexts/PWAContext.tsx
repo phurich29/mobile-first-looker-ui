@@ -48,23 +48,10 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
       console.log('SW registration error', error);
     },
     onNeedRefresh() {
-      console.log('SW needs refresh');
-      if (!isProduction) {
-        setNeedRefresh(true);
-        toast({
-          title: 'อัปเดตใหม่พร้อมใช้งาน',
-          description: 'การอัปเดตนี้จะทำให้คุณต้องเข้าสู่ระบบใหม่',
-          duration: 0, // Don't auto-dismiss
-          action: (
-            <button
-              onClick={() => handleUpdate()}
-              className="bg-emerald-600 text-white px-3 py-1 rounded text-sm hover:bg-emerald-700"
-            >
-              อัปเดตเลย
-            </button>
-          ),
-        });
-      }
+      console.log('SW needs refresh - AUTO-REFRESH DISABLED');
+      // Auto-refresh functionality disabled - no popup or automatic updates
+      // User can manually refresh if needed
+      setNeedRefresh(false); // Keep this false to prevent any refresh prompts
     },
     onOfflineReady() {
       console.log('SW offline ready');

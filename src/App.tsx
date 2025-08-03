@@ -18,7 +18,6 @@ import { Capacitor } from "@capacitor/core";
 import OneSignal from 'react-onesignal';
 import { useFCM } from "./hooks/useFCM";
 import { NotificationPermissionPopup } from '@/components/NotificationPermissionPopup';
-import { getPrimaryNotificationSystem } from '@/config/notification-config';
 
 // Firebase config is now handled by src/lib/firebase.ts
 
@@ -708,7 +707,7 @@ const App: React.FC = () => {
       if (shouldInitializeFCM()) {
         console.log("🔔 FCM Notification received:", notification);
         // Only show toast if OneSignal is not handling notifications
-        if (getPrimaryNotificationSystem() === 'fcm') {
+        if (true) {
           toast({
             title: notification.title || "New Notification",
             description: notification.body || "You have a new notification",
