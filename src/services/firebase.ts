@@ -5,12 +5,12 @@ import { Capacitor } from '@capacitor/core';
 
 // Firebase configuration - Replace with your actual values
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyD8J2uKgF-7yO3RnK4Qg2l1M6vH0wX9ZcQ",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "riceflow-958a2.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "riceflow-958a2",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "riceflow-958a2.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "123456789012",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:123456789012:web:abc123def456"
+  apiKey: process.env.VITE_FIREBASE_API_KEY || "AIzaSyBlZ8ZXcCFqEnqvAr3y7vGWX8J8V0yNw7Y",
+  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN || "wasurus.firebaseapp.com",
+  projectId: process.env.VITE_FIREBASE_PROJECT_ID || "wasurus",
+  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET || "wasurus.appspot.com",
+  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "1028142170099",
+  appId: process.env.VITE_FIREBASE_APP_ID || "1:1028142170099:android:a49b8cc1183c870fc05c86"
 };
 
 // Initialize Firebase

@@ -15,16 +15,16 @@ import { ThemeProvider } from "./components/theme/ThemeProvider";
 import { useEffect } from "react";
 import { Capacitor } from "@capacitor/core";
 import { useFCM } from "./hooks/useFCM";
+import "./utils/testFCMRegistration"; // Import test utility for development
 
 // for web app, ensure you have firebase-messaging-sw.js in public folder
 const firebaseConfig = {
-  apiKey: "AIzaSyDO5lYCkbXExFEmf3x7H1WSC6qiE2W-Jrs",
-  authDomain: "riceflow-958a2.firebaseapp.com",
-  projectId: "riceflow-958a2",
-  storageBucket: "riceflow-958a2.firebasestorage.app",
-  messagingSenderId: "1043235929904",
-  appId: "1:1043235929904:web:c455598cba730e3af292f5",
-  measurementId: "G-BZGJVXZ6LE",
+  "apiKey": "AIzaSyBlZ8ZXcCFqEnqvAr3y7vGWX8J8V0yNw7Y",
+  "authDomain": "wasurus.firebaseapp.com",
+  "projectId": "wasurus",
+  "storageBucket": "wasurus.appspot.com",
+  "messagingSenderId": "1028142170099",
+  "appId": "1:1028142170099:android:a49b8cc1183c870fc05c86"
 };
 
 function App() {
@@ -45,9 +45,10 @@ function App() {
     error: fcmError,
   } = useFCM({
     autoSendToServer: true,
-    userId: 'default-user-id', // Replace with actual user ID from auth context when available
+    // userId: 'default-user-id', 
     onTokenReceived: (token) => {
       console.log("🔔 FCM Token received:", token);
+      console.log("🔔 Token will be registered with server automatically");
     },
     onNotificationReceived: (notification) => {
       console.log("🔔 Notification received:", notification);
@@ -66,11 +67,11 @@ function App() {
     },
     onError: (error) => {
       console.error("🔔 FCM Error:", error);
-      toast({
-        title: "Notification Error",
-        description: `Failed to setup push notifications: ${error.message}`,
-        variant: "destructive",
-      });
+      // toast({
+      //   title: "Notification Error",
+      //   description: `Failed to setup push notifications: ${error.message}`,
+      //   variant: "destructive",
+      // });
     },
   });
 
@@ -123,6 +124,10 @@ function App() {
           "🔔 FCM Token available:",
           fcmToken.substring(0, 20) + "..."
         );
+        // toast({
+        //   title: "Push Notifications Enabled",
+        //   description: `You will receive notifications from this app. Token: ${fcmToken}`,
+        // });
       }
     }
     if (fcmError) {

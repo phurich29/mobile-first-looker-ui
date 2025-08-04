@@ -76,8 +76,8 @@ export const NotificationManager: React.FC = () => {
     },
     onError: (error) => {
       console.error('🔔 FCM Error:', error);
-      toast.error('Failed to setup push notifications');
-      setIsNotificationsEnabled(false);
+      // toast.error('Failed to setup push notifications');
+      // setIsNotificationsEnabled(false);
     }
   });
 

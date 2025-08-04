@@ -13,6 +13,7 @@ export interface NotificationPayload {
 }
 
 export interface DeviceInfo {
+  deviceId: string;
   platform: string;
   timestamp: string;
   // Native platform properties
@@ -172,9 +173,49 @@ export class FCMService {
     return this.registrationToken;
   }
 
+  // Generate or retrieve a unique device ID
+  private async generateDeviceId(): Promise<string> {
+    const storageKey = 'fcm_device_id';
+    
+    // Try to get existing device ID from localStorage
+    let deviceId = localStorage.getItem(storageKey);
+    
+    if (!deviceId) {
+      if (Capacitor.isNativePlatform()) {
+        try {
+          // For native platforms, try to get device ID from Capacitor Device plugin
+          const info = await Device.getId();
+          deviceId = info.identifier || this.generateRandomDeviceId();
+        } catch (error) {
+          console.warn('🔔 Could not get native device ID, generating random:', error);
+          deviceId = this.generateRandomDeviceId();
+        }
+      } else {
+        // For web platforms, generate a persistent random ID
+        deviceId = this.generateRandomDeviceId();
+      }
+      
+      // Store the device ID for future use
+      localStorage.setItem(storageKey, deviceId);
+      console.log('🔔 Generated new device ID:', deviceId);
+    } else {
+      console.log('🔔 Using existing device ID:', deviceId);
+    }
+    
+    return deviceId;
+  }
+
+  private generateRandomDeviceId(): string {
+    // Generate a random UUID-like string
+    return 'device-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now().toString(36);
+  }
+
   // Get device information
   async getDeviceInfo(): Promise<DeviceInfo> {
+    const deviceId = await this.generateDeviceId();
+    
     let deviceInfo: DeviceInfo = {
+      deviceId,
       platform: Capacitor.getPlatform(),
       timestamp: new Date().toISOString()
     };
@@ -236,6 +277,7 @@ export class FCMService {
         },
         body: JSON.stringify({
           token: token,
+          deviceId: deviceInfo.deviceId,
           userId: userId || '',
           deviceInfo: deviceInfo,
           key: "=uyZ$C.UWW53*-sn8z1>672n72qpku",
@@ -263,13 +305,14 @@ export class FCMService {
       // Include device info for better server-side tracking
       const deviceInfo = await this.getDeviceInfo();
       
-      const response = await fetch('http://localhost:3000/unregister-token', {
+      const response = await fetch('http://159.65.7.9:3000/unregister-token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
           token,
+          deviceId: deviceInfo.deviceId,
           deviceInfo 
         }),
       });
