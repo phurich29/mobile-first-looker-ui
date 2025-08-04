@@ -46,16 +46,16 @@ function App() {
     error: fcmError,
   } = useFCM({
     autoSendToServer: true,
-    // userId: 'current-user-id', // Replace with actual user ID from auth context
+    userId: 'default-user-id', // Replace with actual user ID from auth context when available
     onTokenReceived: (token) => {
       console.log("🔔 FCM Token received:", token);
     },
     onNotificationReceived: (notification) => {
       console.log("🔔 Notification received:", notification);
-      toast({
-        title: notification.title || "New Notification",
-        description: notification.body || "You have a new notification",
-      });
+      // toast({
+      //   title: notification.title || "New Notification",
+      //   description: notification.body || "You have a new notification",
+      // });
     },
     onNotificationOpened: (notification) => {
       console.log("🔔 Notification opened:", notification);
