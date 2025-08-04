@@ -224,30 +224,12 @@ export class FCMService {
   // Send token to your server
   async sendTokenToServer(token: string, userId?: string): Promise<void> {
     try {
-<<<<<<< HEAD
-      // Skip sending to server if no backend API is available
-      console.log('🔔 FCM Token obtained (not sent to server - no backend configured):', token.substring(0, 30) + '...');
-      
-      // Store token locally for debugging/testing purposes
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('fcm_token', token);
-        localStorage.setItem('fcm_token_timestamp', new Date().toISOString());
-      }
-      
-      console.log('🔔 FCM Token stored locally successfully');
-      return; // Skip actual server call
-      
-      // Uncomment below when you have a backend API endpoint
-      /*
-      const response = await fetch('/api/fcm/register', {
-=======
       console.log('🔔 Sending FCM token to server:', token.substring(0, 20) + '...');
       
       // Collect device information
       const deviceInfo = await this.getDeviceInfo();
       
       const response = await fetch('http://159.65.7.9:3000/register-token', {
->>>>>>> 6679b57 (feat: update Firebase configuration and integrate device information retrieval in FCM service)
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -265,20 +247,11 @@ export class FCMService {
         throw new Error(`Failed to send token to server: ${response.status} ${errorText}`);
       }
 
-<<<<<<< HEAD
-      console.log('Token sent to server successfully');
-      */
-    } catch (error) {
-      console.error('Error handling FCM token:', error);
-      // Don't throw error to prevent breaking the FCM initialization
-      console.warn('🔔 FCM token handling failed, but FCM will continue to work for local notifications');
-=======
       const responseData = await response.json();
       console.log('🔔 Token sent to server successfully:', responseData);
     } catch (error) {
       console.error('🔔 Error sending token to server:', error);
       throw error;
->>>>>>> 6679b57 (feat: update Firebase configuration and integrate device information retrieval in FCM service)
     }
   }
 
