@@ -1,4 +1,5 @@
 import { Capacitor } from '@capacitor/core';
+import { Device } from '@capacitor/device';
 import { PushNotifications, type PushNotificationSchema, type ActionPerformed, type PushNotificationToken } from '@capacitor/push-notifications';
 import { getFCMToken, onMessageListener } from '@/lib/firebase';
 
@@ -9,6 +10,27 @@ export interface NotificationPayload {
   badge?: number;
   sound?: string;
   image?: string;
+}
+
+export interface DeviceInfo {
+  platform: string;
+  timestamp: string;
+  // Native platform properties
+  model?: string;
+  operatingSystem?: string;
+  osVersion?: string;
+  manufacturer?: string;
+  isVirtual?: boolean;
+  webViewVersion?: string;
+  name?: string;
+  // Web platform properties
+  userAgent?: string;
+  language?: string;
+  cookieEnabled?: boolean;
+  onLine?: boolean;
+  screenWidth?: number;
+  screenHeight?: number;
+  timezone?: string;
 }
 
 export class FCMService {
@@ -152,6 +174,49 @@ export class FCMService {
     return this.registrationToken;
   }
 
+  // Get device information
+  async getDeviceInfo(): Promise<DeviceInfo> {
+    let deviceInfo: DeviceInfo = {
+      platform: Capacitor.getPlatform(),
+      timestamp: new Date().toISOString()
+    };
+
+    // Get detailed device info if on native platform
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const info = await Device.getInfo();
+        deviceInfo = {
+          ...deviceInfo,
+          model: info.model,
+          platform: info.platform,
+          operatingSystem: info.operatingSystem,
+          osVersion: info.osVersion,
+          manufacturer: info.manufacturer,
+          isVirtual: info.isVirtual,
+          webViewVersion: info.webViewVersion,
+          name: info.name
+        };
+      } catch (deviceError) {
+        console.warn('🔔 Could not get device info:', deviceError);
+      }
+    } else {
+      // For web platform, collect browser info
+      deviceInfo = {
+        ...deviceInfo,
+        userAgent: navigator.userAgent,
+        language: navigator.language,
+        platform: navigator.platform,
+        cookieEnabled: navigator.cookieEnabled,
+        onLine: navigator.onLine,
+        screenWidth: screen.width,
+        screenHeight: screen.height,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      };
+    }
+
+    return deviceInfo;
+  }
+
   // Event handlers - can be overridden
   onTokenReceived?: (token: string) => void;
   onRegistrationError?: (error: any) => void;
@@ -161,64 +226,65 @@ export class FCMService {
   // Send token to your server
   async sendTokenToServer(token: string, userId?: string): Promise<void> {
     try {
-      // Skip sending to server if no backend API is available
-      console.log('🔔 FCM Token obtained (not sent to server - no backend configured):', token.substring(0, 30) + '...');
+      console.log('🔔 Sending FCM token to server:', token.substring(0, 20) + '...');
       
-      // Store token locally for debugging/testing purposes
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('fcm_token', token);
-        localStorage.setItem('fcm_token_timestamp', new Date().toISOString());
-      }
+      // Collect device information
+      const deviceInfo = await this.getDeviceInfo();
       
-      console.log('🔔 FCM Token stored locally successfully');
-      return; // Skip actual server call
-      
-      // Uncomment below when you have a backend API endpoint
-      /*
-      const response = await fetch('/api/fcm/register', {
+      const response = await fetch('http://159.65.7.9:3000/register-token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          token,
-          userId,
-          platform: Capacitor.getPlatform(),
-          timestamp: new Date().toISOString()
+          token: token,
+          userId: userId || '',
+          deviceInfo: deviceInfo,
+          key: "=uyZ$C.UWW53*-sn8z1>672n72qpku",
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to send token to server');
+        const errorText = await response.text();
+        throw new Error(`Failed to send token to server: ${response.status} ${errorText}`);
       }
 
-      console.log('Token sent to server successfully');
-      */
+      const responseData = await response.json();
+      console.log('🔔 Token sent to server successfully:', responseData);
     } catch (error) {
-      console.error('Error handling FCM token:', error);
-      // Don't throw error to prevent breaking the FCM initialization
-      console.warn('🔔 FCM token handling failed, but FCM will continue to work for local notifications');
+      console.error('🔔 Error sending token to server:', error);
+      throw error;
     }
   }
 
   // Remove token from server when user logs out
   async removeTokenFromServer(token: string): Promise<void> {
     try {
-      const response = await fetch('/api/fcm/unregister', {
+      console.log('🔔 Removing FCM token from server:', token.substring(0, 20) + '...');
+      
+      // Include device info for better server-side tracking
+      const deviceInfo = await this.getDeviceInfo();
+      
+      const response = await fetch('http://localhost:3000/unregister-token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({ 
+          token,
+          deviceInfo 
+        }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to remove token from server');
+        const errorText = await response.text();
+        throw new Error(`Failed to remove token from server: ${response.status} ${errorText}`);
       }
 
-      console.log('Token removed from server successfully');
+      const responseData = await response.json();
+      console.log('🔔 Token removed from server successfully:', responseData);
     } catch (error) {
-      console.error('Error removing token from server:', error);
+      console.error('🔔 Error removing token from server:', error);
       throw error;
     }
   }

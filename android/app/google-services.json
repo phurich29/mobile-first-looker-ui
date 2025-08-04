@@ -1,26 +1,37 @@
 {
   "project_info": {
-    "project_number": "1043235929904",
-    "project_id": "riceflow-958a2",
-    "storage_bucket": "riceflow-958a2.firebasestorage.app"
+    "project_number": "1028142170099",
+    "firebase_url": "https://wasurus.firebaseio.com",
+    "project_id": "wasurus",
+    "storage_bucket": "wasurus.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1043235929904:android:c4642c8c15d60b0cf292f5",
+        "mobilesdk_app_id": "1:1028142170099:android:a49b8cc1183c870fc05c86",
         "android_client_info": {
           "package_name": "setup.riceflow.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1028142170099-s3ud3uk7rcsdk72aagum859ptqk8tjdu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyA8wclnPP7-JOLo_Olkk0k_FYC3wiv7wWE"
+          "current_key": "AIzaSyBlZ8ZXcCFqEnqvAr3y7vGWX8J8V0yNw7Y"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1028142170099-s3ud3uk7rcsdk72aagum859ptqk8tjdu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
