@@ -7,7 +7,6 @@ import { PWAProvider } from "./contexts/PWAContext";
 import { PWAInstallBanner } from "./components/PWAInstallBanner";
 import { PWADebugComponent } from "./components/PWADebugComponent";
 import { CountdownDebugger } from "./components/CountdownDebugger";
-import { FCMDebugComponent } from "./components/FCMDebugComponent";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Toaster } from "@/components/ui/toaster";
 import { toast } from "@/components/ui/use-toast";
@@ -67,11 +66,11 @@ function App() {
     },
     onError: (error) => {
       console.error("🔔 FCM Error:", error);
-      toast({
-        title: "Notification Error",
-        description: "Failed to setup push notifications",
-        variant: "destructive",
-      });
+      // toast({
+      //   title: "Notification Error",
+      //   description: "Failed to setup push notifications",
+      //   variant: "destructive",
+      // });
     },
   });
 
@@ -173,7 +172,6 @@ function App() {
                   <PWAInstallBanner />
                   <PWADebugComponent />
                   <CountdownDebugger />
-                  <FCMDebugComponent />
                   <Toaster />
                 </AuthProvider>
               </CountdownProvider>
