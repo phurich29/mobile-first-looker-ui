@@ -40,9 +40,9 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
     },
     onNotificationReceived,
     onError: (err) => {
-      toast.error('Notification Error', {
-        description: err.message || 'Failed to configure notifications'
-      });
+      // toast.error('Notification Error', {
+      //   description: err.message || 'Failed to configure notifications'
+      // });
     }
   });
 

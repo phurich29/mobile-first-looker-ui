@@ -66,11 +66,11 @@ function App() {
     },
     onError: (error) => {
       console.error("🔔 FCM Error:", error);
-      // toast({
-      //   title: "Notification Error",
-      //   description: "Failed to setup push notifications",
-      //   variant: "destructive",
-      // });
+      toast({
+        title: "Notification Error",
+        description: `Failed to setup push notifications: ${error.message}`,
+        variant: "destructive",
+      });
     },
   });
 
