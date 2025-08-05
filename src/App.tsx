@@ -4,7 +4,7 @@ import { AuthProvider } from "./components/AuthProvider";
 import { CountdownProvider } from "./contexts/CountdownContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 
-import { FCMDebugComponent } from "./components/FCMDebugComponent";
+
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Toaster } from "@/components/ui/toaster";
 import { toast } from "@/components/ui/use-toast";
@@ -12,10 +12,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./components/theme/ThemeProvider";
 import { useEffect, useState } from "react";
 import { Capacitor } from "@capacitor/core";
-import { useFCM } from "./hooks/useFCM";
+
 import { NotificationPermissionPopup } from '@/components/NotificationPermissionPopup';
 
-// Firebase config is now handled by src/lib/firebase.ts
+
 
 // Create QueryClient outside component to prevent recreation on every render
 const queryClient = new QueryClient({
@@ -211,99 +211,11 @@ const App: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Initialize FCM notifications
-  const {
-    isInitialized: fcmInitialized,
-    token: fcmToken,
-    error: fcmError,
-  } = useFCM({
-    enabled: true, // Always enable FCM
-    autoSendToServer: true,
-    userId: 'default-user-id', // Replace with actual user ID from auth context when available
-    onTokenReceived: (token) => {
-      console.log("🔔 FCM Token received:", token);
-    },
-    onNotificationReceived: (notification) => {
 
-      console.log("🔔 FCM Notification received:", notification);
-      // toast({
-      //   title: notification.title || "New Notification",
-      //   description: notification.body || "You have a new notification",
-      // });
-    },
-    onNotificationOpened: (notification) => {
-      console.log("🔔 FCM Notification opened:", notification);
-      // Handle navigation or actions when notification is tapped
-      if (notification.data?.route) {
-        // Navigate to specific route if provided in notification data
-        window.location.href = notification.data.route;
-      }
-    },
-    onError: (error) => {
-      console.error("🔔 FCM Error:", error);
-      toast({
-        title: "FCM Notification Error",
-        description: "Failed to setup FCM push notifications",
-        variant: "destructive",
-      });
-    },
-  });
 
-  // Register service worker for FCM
-  useEffect(() => {
-    const registerServiceWorker = async () => {
-      // Register Service Worker only in production builds to avoid HMR reload loops in dev
-      if (import.meta.env.PROD && !Capacitor.isNativePlatform() && "serviceWorker" in navigator) {
-        try {
-          console.log("🔔 Registering Firebase messaging service worker...");
-          // Register Firebase messaging service worker
-          const registration = await navigator.serviceWorker.register(
-            "/firebase-messaging-sw.js",
-            {
-              scope: "/",
-            }
-          );
-          console.log(
-            "🔔 Firebase messaging service worker registered successfully:",
-            registration.scope
-          );
 
-          // Wait for the service worker to be ready
-          await navigator.serviceWorker.ready;
-          console.log("🔔 Service worker is ready");
-        } catch (error) {
-          console.error("🔔 Service worker registration failed:", error);
-          toast({
-            title: "Service Worker Error",
-            description: "Failed to register push notification service",
-            variant: "destructive",
-          });
-        }
-      } else {
-        console.log(
-          "🔔 Service worker registration skipped (native platform or not supported)"
-        );
-      }
-    };
 
-    registerServiceWorker();
-  }, []);
 
-  // Log FCM status
-  useEffect(() => {
-    if (fcmInitialized) {
-      console.log("🔔 FCM initialized successfully");
-      if (fcmToken) {
-        console.log(
-          "🔔 FCM Token available:",
-          fcmToken.substring(0, 20) + "..."
-        );
-      }
-    }
-    if (fcmError) {
-      console.error("🔔 FCM Error:", fcmError);
-    }
-  }, [fcmInitialized, fcmToken, fcmError]);
 
   const handleGlobalCountdownComplete = () => {
     const currentTime = new Date().toISOString();
@@ -348,11 +260,7 @@ const App: React.FC = () => {
                     onDecline={handleDeclineNotification}
                   />
                 )}
-                {import.meta.env.VITE_DEBUG_MODE === "true" && (
-                  <>
-                    <FCMDebugComponent />
-                  </>
-                )}
+
               </QueryClientProvider>
             </AuthProvider>
           </CountdownProvider>

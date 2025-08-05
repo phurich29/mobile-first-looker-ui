@@ -33,7 +33,7 @@ import AboutRiceflow from "./pages/AboutRiceflow";
 import DeviceAccessManagement from "./pages/DeviceAccessManagement";
 import Assistant from "./pages/Assistant";
 import PublicAnalysisView from "./pages/PublicAnalysisView";
-import FCMTestPage from "./pages/FCMTestPage";
+
 import { NotificationSenderPage } from "./pages/NotificationSenderPage";
 
 
@@ -255,14 +255,7 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-      {
-        path: "fcm-test",
-        element: (
-          <ProtectedRoute allowGuest={true}>
-            <FCMTestPage />
-          </ProtectedRoute>
-        ),
-      },
+
       // Admin routes - no guest access
       {
         path: "admin",
