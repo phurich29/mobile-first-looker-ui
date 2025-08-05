@@ -224,19 +224,12 @@ const App: React.FC = () => {
       console.log("🔔 FCM Token received:", token);
     },
     onNotificationReceived: (notification) => {
-<<<<<<< HEAD
+
       console.log("🔔 FCM Notification received:", notification);
-      toast({
-        title: notification.title || "New Notification",
-        description: notification.body || "You have a new notification",
-      });
-=======
-      console.log("🔔 Notification received:", notification);
       // toast({
       //   title: notification.title || "New Notification",
       //   description: notification.body || "You have a new notification",
       // });
->>>>>>> push-notification
     },
     onNotificationOpened: (notification) => {
       console.log("🔔 FCM Notification opened:", notification);

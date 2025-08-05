@@ -6,12 +6,13 @@ importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-comp
 
 // Firebase configuration - Auto-generated from environment variables
 const firebaseConfig = {
-  "apiKey": "AIzaSyD8J2uKgF-7yO3RnK4Qg2l1M6vH0wX9ZcQ",
-  "authDomain": "riceflow-958a2.firebaseapp.com",
-  "projectId": "riceflow-958a2",
-  "storageBucket": "riceflow-958a2.firebasestorage.app",
-  "messagingSenderId": "123456789012",
-  "appId": "1:123456789012:web:abc123def456"
+  apiKey: "AIzaSyDO5lYCkbXExFEmf3x7H1WSC6qiE2W-Jrs",
+  authDomain: "riceflow-958a2.firebaseapp.com",
+  projectId: "riceflow-958a2",
+  storageBucket: "riceflow-958a2.firebasestorage.app",
+  messagingSenderId: "1043235929904",
+  appId: "1:1043235929904:web:3e3a53a31e51fca8f292f5",
+  measurementId: "G-4WV9Z264DT"
 };
 
 // Initialize Firebase
