@@ -1,6 +1,20 @@
 import { useEffect, useState, useCallback } from 'react';
-import { fcmService } from '../services/fcmService';
 import { toast } from 'sonner';
+
+// FCM Service stub - Firebase was removed from the project
+const fcmService = {
+  initialize: async () => ({ success: false, error: 'FCM not available - Firebase was removed' }),
+  getToken: async () => null,
+  requestPermission: async () => 'denied' as NotificationPermission,
+  onMessage: () => () => {},
+  sendTokenToServer: async (token: string, userId?: string) => ({ success: false }),
+  removeTokenFromServer: async (token: string) => ({ success: false }),
+  // Event handler properties that can be assigned
+  onTokenReceived: null as ((token: string) => void) | null,
+  onNotificationReceived: null as ((notification: any) => void) | null,
+  onNotificationOpened: null as ((notification: any) => void) | null,
+  onRegistrationError: null as ((error: any) => void) | null
+};
 
 export interface UseFCMOptions {
   enabled?: boolean; // Add enabled flag to control initialization
@@ -92,7 +106,7 @@ export const useFCM = (options: UseFCMOptions = {}): UseFCMReturn => {
       };
 
       // Get initial token if available
-      const initialToken = fcmService.getToken();
+      const initialToken = await fcmService.getToken();
       if (initialToken) {
         setToken(initialToken);
       }
