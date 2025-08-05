@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from 'react';
-import { toast } from 'sonner';
 
 // FCM Service stub - Firebase was removed from the project
 const fcmService = {
@@ -84,14 +83,8 @@ export const useFCM = (options: UseFCMOptions = {}): UseFCMReturn => {
         console.log('Notification received in hook:', notification);
         onNotificationReceived?.(notification);
         
-        // Show toast notification
-        toast(notification.notification?.title || 'New Notification', {
-          description: notification.notification?.body || '',
-          action: {
-            label: 'View',
-            onClick: () => onNotificationOpened?.(notification)
-          }
-        });
+        // Toast notification removed to prevent popup on app load
+        // Notifications will be handled by the parent component instead
       };
 
       fcmService.onNotificationOpened = (notification: any) => {
