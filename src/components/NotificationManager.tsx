@@ -23,6 +23,7 @@ export const NotificationManager: React.FC = () => {
   const [notificationLogs, setNotificationLogs] = useState<NotificationLog[]>([]);
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
 
+  // FCM disabled to prevent annoying error popups
   const {
     isInitialized,
     token,
@@ -32,12 +33,13 @@ export const NotificationManager: React.FC = () => {
     sendTokenToServer,
     removeTokenFromServer
   } = useFCM({
-    autoSendToServer: true,
-    userId: 'demo-user-123', // In real app, get from auth context
+    enabled: false, // Disable FCM to prevent error popups
+    autoSendToServer: false,
+    userId: 'demo-user-123',
     onTokenReceived: (token) => {
       console.log('🔔 FCM Token received:', token);
       setIsNotificationsEnabled(true);
-      toast.success('Push notifications enabled successfully!');
+      // Removed toast notification
     },
     onNotificationReceived: (notification) => {
       console.log('🔔 Notification received:', notification);
@@ -76,7 +78,7 @@ export const NotificationManager: React.FC = () => {
     },
     onError: (error) => {
       console.error('🔔 FCM Error:', error);
-      toast.error('Failed to setup push notifications');
+      // Removed toast error notification to prevent annoying popups
       setIsNotificationsEnabled(false);
     }
   });

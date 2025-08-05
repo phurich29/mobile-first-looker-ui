@@ -32,17 +32,17 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
     sendTokenToServer,
     removeTokenFromServer
   } = useFCM({
+    enabled: false, // Disable FCM to prevent error popups
     userId,
-    autoSendToServer: autoSync,
+    autoSendToServer: false,
     onTokenReceived: (receivedToken) => {
       setNotificationsEnabled(true);
       onTokenReceived?.(receivedToken);
     },
     onNotificationReceived,
     onError: (err) => {
-      toast.error('Notification Error', {
-        description: err.message || 'Failed to configure notifications'
-      });
+      // Removed toast error notification to prevent annoying popups
+      console.error('FCM Error:', err);
     }
   });
 

@@ -193,18 +193,18 @@ const App: React.FC = () => {
     };
   };
   
-  // Initialize notification permission popup
+  // Initialize notification permission popup - DISABLED to prevent annoying popup
   useEffect(() => {
     const checkNotificationPermission = () => {
       const permission = typeof Notification !== 'undefined' ? Notification.permission : 'default';
       console.log('🔐 Browser notification permission:', permission);
       
-      if (permission === 'default' || permission === 'denied') {
-        // แสดงป๊อปอัพขออนุญาต
-        setTimeout(() => {
-          setShowNotificationPopup(true);
-        }, 3000); // แสดงหลังจาก 3 วินาที
-      }
+      // Disabled popup to prevent annoying modal
+      // if (permission === 'default' || permission === 'denied') {
+      //   setTimeout(() => {
+      //     setShowNotificationPopup(true);
+      //   }, 3000);
+      // }
     };
 
     const timer = setTimeout(checkNotificationPermission, 1000);
@@ -253,7 +253,8 @@ const App: React.FC = () => {
               <QueryClientProvider client={queryClient}>
                 <RouterProvider router={router} />
                 <Toaster />
-                {showNotificationPopup && (
+                {/* Disabled notification popup to prevent annoying modal */}
+                {false && showNotificationPopup && (
                   <NotificationPermissionPopup
                     isOpen={showNotificationPopup}
                     onAccept={handleAcceptNotification}
