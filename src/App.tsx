@@ -14,18 +14,18 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./components/theme/ThemeProvider";
 import { useEffect } from "react";
 import { Capacitor } from "@capacitor/core";
-import { useFCM } from "./hooks/useFCM";
-import "./utils/testFCMRegistration"; // Import test utility for development
+// import { useFCM } from "./hooks/useFCM";
+// import "./utils/testFCMRegistration"; // Import test utility for development
 
-// for web app, ensure you have firebase-messaging-sw.js in public folder
-const firebaseConfig = {
-  "apiKey": "AIzaSyBlZ8ZXcCFqEnqvAr3y7vGWX8J8V0yNw7Y",
-  "authDomain": "wasurus.firebaseapp.com",
-  "projectId": "wasurus",
-  "storageBucket": "wasurus.appspot.com",
-  "messagingSenderId": "1028142170099",
-  "appId": "1:1028142170099:android:a49b8cc1183c870fc05c86"
-};
+// FCM BYPASSED - Firebase config commented out
+// const firebaseConfig = {
+//   "apiKey": "AIzaSyBlZ8ZXcCFqEnqvAr3y7vGWX8J8V0yNw7Y",
+//   "authDomain": "wasurus.firebaseapp.com",
+//   "projectId": "wasurus",
+//   "storageBucket": "wasurus.appspot.com",
+//   "messagingSenderId": "1028142170099",
+//   "appId": "1:1028142170099:android:a49b8cc1183c870fc05c86"
+// };
 
 function App() {
   // Create a client
@@ -38,102 +38,102 @@ function App() {
     },
   });
 
-  // Initialize FCM notifications
-  const {
-    isInitialized: fcmInitialized,
-    token: fcmToken,
-    error: fcmError,
-  } = useFCM({
-    autoSendToServer: true,
-    // userId: 'default-user-id', 
-    onTokenReceived: (token) => {
-      console.log("🔔 FCM Token received:", token);
-      console.log("🔔 Token will be registered with server automatically");
-    },
-    onNotificationReceived: (notification) => {
-      console.log("🔔 Notification received:", notification);
-      // toast({
-      //   title: notification.title || "New Notification",
-      //   description: notification.body || "You have a new notification",
-      // });
-    },
-    onNotificationOpened: (notification) => {
-      console.log("🔔 Notification opened:", notification);
-      // Handle navigation or actions when notification is tapped
-      if (notification.data?.route) {
-        // Navigate to specific route if provided in notification data
-        window.location.href = notification.data.route;
-      }
-    },
-    onError: (error) => {
-      console.error("🔔 FCM Error:", error);
-      // toast({
-      //   title: "Notification Error",
-      //   description: `Failed to setup push notifications: ${error.message}`,
-      //   variant: "destructive",
-      // });
-    },
-  });
+  // FCM BYPASSED - Initialize FCM notifications commented out
+  // const {
+  //   isInitialized: fcmInitialized,
+  //   token: fcmToken,
+  //   error: fcmError,
+  // } = useFCM({
+  //   autoSendToServer: true,
+  //   // userId: 'default-user-id', 
+  //   onTokenReceived: (token) => {
+  //     console.log("🔔 FCM Token received:", token);
+  //     console.log("🔔 Token will be registered with server automatically");
+  //   },
+  //   onNotificationReceived: (notification) => {
+  //     console.log("🔔 Notification received:", notification);
+  //     // toast({
+  //     //   title: notification.title || "New Notification",
+  //     //   description: notification.body || "You have a new notification",
+  //     // });
+  //   },
+  //   onNotificationOpened: (notification) => {
+  //     console.log("🔔 Notification opened:", notification);
+  //     // Handle navigation or actions when notification is tapped
+  //     if (notification.data?.route) {
+  //       // Navigate to specific route if provided in notification data
+  //       window.location.href = notification.data.route;
+  //     }
+  //   },
+  //   onError: (error) => {
+  //     console.error("🔔 FCM Error:", error);
+  //     // toast({
+  //     //   title: "Notification Error",
+  //     //   description: `Failed to setup push notifications: ${error.message}`,
+  //     //   variant: "destructive",
+  //     // });
+  //   },
+  // });
 
-  // Register service worker for FCM
-  useEffect(() => {
-    const registerServiceWorker = async () => {
-      // Register Service Worker only in production builds to avoid HMR reload loops in dev
-      if (process.env.NODE_ENV === "production" && !Capacitor.isNativePlatform() && "serviceWorker" in navigator) {
-        try {
-          console.log("🔔 Registering Firebase messaging service worker...");
-          // Register Firebase messaging service worker
-          const registration = await navigator.serviceWorker.register(
-            "/firebase-messaging-sw.js",
-            {
-              scope: "/",
-            }
-          );
-          console.log(
-            "🔔 Firebase messaging service worker registered successfully:",
-            registration.scope
-          );
+  // FCM BYPASSED - Register service worker for FCM commented out
+  // useEffect(() => {
+  //   const registerServiceWorker = async () => {
+  //     // Register Service Worker only in production builds to avoid HMR reload loops in dev
+  //     if (process.env.NODE_ENV === "production" && !Capacitor.isNativePlatform() && "serviceWorker" in navigator) {
+  //       try {
+  //         console.log("🔔 Registering Firebase messaging service worker...");
+  //         // Register Firebase messaging service worker
+  //         const registration = await navigator.serviceWorker.register(
+  //           "/firebase-messaging-sw.js",
+  //           {
+  //             scope: "/",
+  //           }
+  //         );
+  //         console.log(
+  //           "🔔 Firebase messaging service worker registered successfully:",
+  //           registration.scope
+  //         );
 
-          // Wait for the service worker to be ready
-          await navigator.serviceWorker.ready;
-          console.log("🔔 Service worker is ready");
-        } catch (error) {
-          console.error("🔔 Service worker registration failed:", error);
-          toast({
-            title: "Service Worker Error",
-            description: "Failed to register push notification service",
-            variant: "destructive",
-          });
-        }
-      } else {
-        console.log(
-          "🔔 Service worker registration skipped (native platform or not supported)"
-        );
-      }
-    };
+  //         // Wait for the service worker to be ready
+  //         await navigator.serviceWorker.ready;
+  //         console.log("🔔 Service worker is ready");
+  //       } catch (error) {
+  //         console.error("🔔 Service worker registration failed:", error);
+  //         toast({
+  //           title: "Service Worker Error",
+  //           description: "Failed to register push notification service",
+  //           variant: "destructive",
+  //         });
+  //       }
+  //     } else {
+  //       console.log(
+  //         "🔔 Service worker registration skipped (native platform or not supported)"
+  //       );
+  //     }
+  //   };
 
-    registerServiceWorker();
-  }, []);
+  //   registerServiceWorker();
+  // }, []);
 
-  // Log FCM status
-  useEffect(() => {
-    if (fcmInitialized) {
-      console.log("🔔 FCM initialized successfully");
-      if (fcmToken) {
-        console.log(
-          "🔔 FCM Token available:",
-          fcmToken.substring(0, 20) + "..."
-        );
-        // toast({
-        //   title: "Push Notifications Enabled",
-        //   description: `You will receive notifications from this app. Token: ${fcmToken}`,
-        // });
-      }
-    }
-    if (fcmError) {
-      console.error("🔔 FCM Error:", fcmError);
-    }
-  }, [fcmInitialized, fcmToken, fcmError]);
+  // FCM BYPASSED - Log FCM status commented out
+  // useEffect(() => {
+  //   if (fcmInitialized) {
+  //     console.log("🔔 FCM initialized successfully");
+  //     if (fcmToken) {
+  //       console.log(
+  //         "🔔 FCM Token available:",
+  //         fcmToken.substring(0, 20) + "..."
+  //       );
+  //       // toast({
+  //       //   title: "Push Notifications Enabled",
+  //       //   description: `You will receive notifications from this app. Token: ${fcmToken}`,
+  //       // });
+  //     }
+  //   }
+  //   if (fcmError) {
+  //     console.error("🔔 FCM Error:", fcmError);
+  //   }
+  // }, [fcmInitialized, fcmToken, fcmError]);
 
   const handleGlobalCountdownComplete = () => {
     const currentTime = new Date().toISOString();
