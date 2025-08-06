@@ -368,7 +368,7 @@ export const translations = {
     ingredients: { th: 'ส่วนผสม', en: 'Composition', zh: '组成' },
     impurities: { th: 'สิ่งเจือปน', en: 'Foreign', zh: '缺陷' },
     allData: { th: 'ข้อมูลทั้งหมด', en: 'All Data', zh: '所有数据' },
-    historyTitle: { th: 'ประวัติข้อมูลทั้งหมด', en: 'Complete Data History', zh: '完整数据历史' },
+    historyTitle: { th: 'ประวัติข้อมูลทั้งหมด', en: 'History', zh: '完整数据历史' },
     calculationSummary: { th: 'สรุปผลการคำนวณ', en: 'Calculation Summary', zh: '计算摘要' },
     noData: { th: 'ไม่มีข้อมูลสำหรับการคำนวณ', en: 'No data available for calculation', zh: '无可用于计算的数据' },
     deviceName: { th: 'ชื่ออุปกรณ์', en: 'Device Name', zh: '设备名称' },
