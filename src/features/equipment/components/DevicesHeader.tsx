@@ -24,7 +24,7 @@ export function DevicesHeader({
   return (
     <div className="flex justify-between items-center mb-4">
       <div>
-        <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-800 dark:text-white`}>{t('device', 'equipment')}</h1>
+        <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-800 dark:text-white`}>Panalyzer</h1>
         {isSuperAdmin && totalUniqueDevices > 0 && (
           <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-1">{t('device', 'totalDevicesInSystem')}: {totalUniqueDevices} {t('device', 'units')}</p>
         )}
