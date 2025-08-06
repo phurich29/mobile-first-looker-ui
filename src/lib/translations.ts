@@ -52,7 +52,7 @@ export const translations = {
   },
   device: {
     equipment: { th: 'อุปกรณ์', en: 'Panalyzer', zh: '设备' },
-    deviceCode: { th: 'รหัสอุปกรณ์', en: 'Device Code', zh: '设备代码' },
+    deviceCode: { th: 'รหัสอุปกรณ์', en: 'S/N', zh: 'S/N' },
     deviceName: { th: 'ชื่ออุปกรณ์', en: 'Device Name', zh: '设备名称' },
     status: { th: 'สถานะ', en: 'Status', zh: '状态' },
     online: { th: 'ออนไลน์', en: 'Online', zh: '在线' },

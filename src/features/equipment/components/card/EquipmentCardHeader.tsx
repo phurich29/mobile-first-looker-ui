@@ -58,7 +58,7 @@ export function EquipmentCardHeader({
             )}
           </div>
           <div className="text-xs text-gray-500 dark:text-gray-400 mt-0 sm:mt-0.5 truncate">
-            รหัส: {deviceCode}
+            {t('device', 'deviceCode')}: {deviceCode}
           </div>
         </div>
       </div>
