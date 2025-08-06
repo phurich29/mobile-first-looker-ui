@@ -365,7 +365,7 @@ export const translations = {
   },
   dataCategories: {
     wholegrain: { th: 'พื้นข้าวเต็มเมล็ด', en: 'Whole Kernel', zh: '整粒分类' },
-    ingredients: { th: 'ส่วนผสม', en: 'Ingredients', zh: '组成' },
+    ingredients: { th: 'ส่วนผสม', en: 'Composition', zh: '组成' },
     impurities: { th: 'สิ่งเจือปน', en: 'Impurities', zh: '缺陷' },
     allData: { th: 'ข้อมูลทั้งหมด', en: 'All Data', zh: '所有数据' },
     historyTitle: { th: 'ประวัติข้อมูลทั้งหมด', en: 'Complete Data History', zh: '完整数据历史' },
