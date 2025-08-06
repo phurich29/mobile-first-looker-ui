@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Send, Image, Link, Bell } from 'lucide-react';
-import { useFCM } from '@/hooks/useFCM';
+// import { useFCM } from '@/hooks/useFCM'; // Disabled to prevent FCM errors
 import { toast } from '@/components/ui/use-toast';
 
 interface NotificationData {

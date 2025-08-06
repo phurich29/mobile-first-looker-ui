@@ -109,9 +109,9 @@ export const NotificationManager: React.FC = () => {
         try {
           await removeTokenFromServer();
           setIsNotificationsEnabled(false);
-          toast.success('Push notifications disabled');
+          // Removed toast notification
         } catch (error) {
-          toast.error('Failed to disable notifications');
+          // Removed toast notification
         }
       }
     } else {
@@ -119,14 +119,14 @@ export const NotificationManager: React.FC = () => {
       try {
         await requestPermission();
       } catch (error) {
-        toast.error('Failed to enable notifications');
+        // Removed toast notification
       }
     }
   };
 
   const sendTestNotification = async () => {
     if (!token) {
-      toast.error('No FCM token available');
+      // Removed toast notification
       return;
     }
 
@@ -138,7 +138,7 @@ export const NotificationManager: React.FC = () => {
 
   const clearLogs = () => {
     setNotificationLogs([]);
-    toast.success('Notification logs cleared');
+    // Removed toast notification
   };
 
   return (

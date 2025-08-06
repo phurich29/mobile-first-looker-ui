@@ -51,82 +51,21 @@ export const useFCM = (options: UseFCMOptions = {}): UseFCMReturn => {
     userId
   } = options;
 
-  // Initialize FCM service
-  const initialize = useCallback(async () => {
-    if (isInitialized || !enabled) {
-      if (!enabled) {
-        console.log('🔔 FCM initialization skipped - disabled by configuration');
-      }
-      return;
-    }
-
-    setIsLoading(true);
+  // Initialize FCM service - COMPLETELY DISABLED
+  useEffect(() => {
+    // FCM completely disabled to prevent all notifications and errors
+    console.log(' FCM initialization completely disabled to prevent popups');
+    setIsLoading(false);
     setError(null);
+    setIsInitialized(false);
+    // All FCM functionality is disabled
+  }, []);
 
-    try {
-      await fcmService.initialize();
-      
-      // Set up event handlers
-      fcmService.onTokenReceived = (receivedToken: string) => {
-        setToken(receivedToken);
-        onTokenReceived?.(receivedToken);
-        
-        if (autoSendToServer) {
-          fcmService.sendTokenToServer(receivedToken, userId).catch((err) => {
-            console.error('Failed to send token to server:', err);
-            onError?.(err);
-          });
-        }
-      };
-
-      fcmService.onNotificationReceived = (notification: any) => {
-        console.log('Notification received in hook:', notification);
-        onNotificationReceived?.(notification);
-        
-        // Toast notification removed to prevent popup on app load
-        // Notifications will be handled by the parent component instead
-      };
-
-      fcmService.onNotificationOpened = (notification: any) => {
-        console.log('Notification opened in hook:', notification);
-        onNotificationOpened?.(notification);
-      };
-
-      fcmService.onRegistrationError = (registrationError: any) => {
-        console.error('FCM Registration error:', registrationError);
-        setError(registrationError.message || 'Registration failed');
-        onError?.(registrationError);
-      };
-
-      // Get initial token if available
-      const initialToken = await fcmService.getToken();
-      if (initialToken) {
-        setToken(initialToken);
-      }
-
-      setIsInitialized(true);
-    } catch (err: any) {
-      setError(err.message || 'Failed to initialize FCM');
-      onError?.(err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isInitialized, onTokenReceived, onNotificationReceived, onNotificationOpened, onError, autoSendToServer, userId]);
-
-  // Request permission manually
+  // Request permission manually - DISABLED
   const requestPermission = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      await initialize();
-    } catch (err: any) {
-      setError(err.message || 'Failed to request permission');
-      onError?.(err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [initialize, onError]);
+    console.log('🔔 FCM requestPermission disabled to prevent popups');
+    // FCM completely disabled - no permission requests
+  }, []);
 
   // Send token to server
   const sendTokenToServer = useCallback(async (userIdParam?: string) => {
@@ -158,12 +97,11 @@ export const useFCM = (options: UseFCMOptions = {}): UseFCMReturn => {
     }
   }, [token, onError]);
 
-  // Auto-initialize on mount
+  // Auto-initialize on mount - DISABLED
   useEffect(() => {
-    if (enabled) {
-      initialize();
-    }
-  }, [initialize, enabled]);
+    console.log('🔔 FCM auto-initialize disabled to prevent popups');
+    // FCM completely disabled - no auto-initialization
+  }, []);
 
   return {
     isInitialized,

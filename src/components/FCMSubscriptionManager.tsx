@@ -50,9 +50,9 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
     try {
       await requestPermission();
       setNotificationsEnabled(true);
-      toast.success('Notifications enabled successfully!');
+      // Removed toast notification
     } catch (error) {
-      toast.error('Failed to enable notifications');
+      // Removed toast notification
     }
   };
 
@@ -62,9 +62,9 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
         await removeTokenFromServer();
       }
       setNotificationsEnabled(false);
-      toast.success('Notifications disabled');
+      // Removed toast notification
     } catch (error) {
-      toast.error('Failed to disable notifications');
+      // Removed toast notification
     }
   };
 
