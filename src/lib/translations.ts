@@ -51,7 +51,7 @@ export const translations = {
     register: { th: 'สมัครสมาชิก', en: 'Register', zh: '注册' },
   },
   device: {
-    equipment: { th: 'อุปกรณ์', en: 'Equipment', zh: '设备' },
+    equipment: { th: 'อุปกรณ์', en: 'Panalyzer', zh: '设备' },
     deviceCode: { th: 'รหัสอุปกรณ์', en: 'Device Code', zh: '设备代码' },
     deviceName: { th: 'ชื่ออุปกรณ์', en: 'Device Name', zh: '设备名称' },
     status: { th: 'สถานะ', en: 'Status', zh: '状态' },
