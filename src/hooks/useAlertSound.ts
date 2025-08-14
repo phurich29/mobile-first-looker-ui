@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-export const useAlertSound = (isAlertActive: boolean) => {
+export const useAlertSound = (isAlertActive: boolean, enabled: boolean = true) => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
 
@@ -46,8 +46,9 @@ export const useAlertSound = (isAlertActive: boolean) => {
   };
 
   useEffect(() => {
-    if (isAlertActive) {
-      // Play immediately when alert becomes active
+    // Only play sound if both alert is active AND notifications are enabled
+    if (isAlertActive && enabled) {
+      // Play immediately when alert becomes active and notifications are enabled
       playDingSound();
       
       // Set up interval to play every 2 seconds
@@ -55,7 +56,7 @@ export const useAlertSound = (isAlertActive: boolean) => {
         playDingSound();
       }, 2000);
     } else {
-      // Clear interval when alert is no longer active
+      // Clear interval when alert is no longer active OR notifications are disabled
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
@@ -69,7 +70,7 @@ export const useAlertSound = (isAlertActive: boolean) => {
         intervalRef.current = null;
       }
     };
-  }, [isAlertActive]);
+  }, [isAlertActive, enabled]);
 
   // Cleanup audio context on unmount
   useEffect(() => {
