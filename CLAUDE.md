@@ -10,18 +10,31 @@ Riceflow Setup is a Progressive Web App (PWA) for rice quality analysis with AI 
 
 ### Development
 ```bash
-npm run dev          # Start development server on port 8080
-npm run build        # Build for production
-npm run build:dev    # Build for development
-npm run preview      # Preview production build
-npm run lint         # Run ESLint
+npm run dev              # Start development server on port 8080
+npm run build            # Build for production
+npm run build:dev        # Build for development  
+npm run build:production # Build for production (explicit mode)
+npm run build:deploy     # Production build with deployment script
+npm run preview          # Preview production build
+npm run lint             # Run ESLint
 ```
 
 ### Supabase Local Development
 ```bash
-supabase start       # Start local Supabase instance
-supabase db push     # Apply migrations to local database
-supabase migration new <name>  # Create new migration
+supabase start                  # Start local Supabase instance
+supabase db push                # Apply migrations to local database
+supabase migration new <name>   # Create new migration
+```
+
+### Mobile Development (Capacitor)
+```bash
+npm run android         # Run on Android device/emulator
+npm run ios            # Run on iOS device/simulator
+npm run build:android  # Build and open Android project
+npm run build:ios      # Build and open iOS project
+npm run sync           # Sync web assets to native projects
+npm run sync:android   # Sync to Android only
+npm run sync:ios       # Sync to iOS only
 ```
 
 ### Git Workflow
@@ -37,6 +50,10 @@ The project is integrated with Lovable.dev. Changes made via Lovable are automat
 - **Forms**: React Hook Form + Zod validation
 - **Charts**: Recharts
 - **PWA**: Vite PWA plugin with Workbox
+- **Mobile**: Capacitor for iOS/Android native apps
+- **Icons**: Lucide React
+- **Date Handling**: date-fns
+- **Animations**: Tailwind CSS animations + Framer Motion patterns
 
 ### Project Structure
 ```
@@ -113,6 +130,22 @@ Currently no testing framework is configured. When implementing tests:
 - Check for testing setup in package.json first
 - Follow React Testing Library conventions if added
 - Test critical user flows and permissions
+
+## Environment Configuration
+
+### Required Environment Variables
+```bash
+# Supabase Configuration (in .env.local)
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Firebase Cloud Messaging (optional, for push notifications)
+VITE_FCM_PROJECT_ID=your_fcm_project_id
+VITE_FCM_API_KEY=your_fcm_api_key
+VITE_FCM_AUTH_DOMAIN=your_fcm_auth_domain
+VITE_FCM_MESSAGING_SENDER_ID=your_fcm_sender_id
+VITE_FCM_APP_ID=your_fcm_app_id
+```
 
 ## Database Schema & Key Tables
 
@@ -281,9 +314,30 @@ if (userRole !== 'admin' && userRole !== 'superadmin') {
 6. **Handle Errors**: Always include proper error handling
 7. **Communicate in Thai**: ตอบและอธิบายเป็นภาษาไทยเสมอ
 
+## Performance Considerations
+
+### Bundle Size Optimization
+- The project includes production build optimization scripts
+- Use dynamic imports for large components/features
+- Tree shaking is enabled via Vite
+
+### Realtime Updates
+- Supabase Realtime subscriptions are used for live data
+- Be mindful of subscription cleanup in useEffect hooks
+- Consider debouncing for frequent updates
+
+### Mobile Optimization
+- All interactions should consider touch targets (min 44x44px)
+- Avoid hover-only interactions
+- Test with network throttling for slow connections
+- PWA caching strategies are configured in vite.config.ts
+
 ## Important Reminders
 - Focus on simplicity - avoid complex changes
 - Prefer editing existing files over creating new ones
 - Follow existing patterns and conventions
 - Test with different user roles
 - Handle loading and error states properly
+- Check device responsiveness on mobile viewports
+- Ensure accessibility with ARIA labels where needed
+- Verify TypeScript types even with relaxed settings
