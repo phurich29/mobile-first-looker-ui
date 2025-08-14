@@ -5,13 +5,18 @@ export const useAlertSound = (isAlertActive: boolean) => {
   const audioContextRef = useRef<AudioContext | null>(null);
 
   // Function to play ding sound using Web Audio API
-  const playDingSound = () => {
+  const playDingSound = async () => {
     try {
       if (!audioContextRef.current) {
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       }
 
       const audioContext = audioContextRef.current;
+      
+      // Resume audio context if it's suspended (required by browser autoplay policies)
+      if (audioContext.state === 'suspended') {
+        await audioContext.resume();
+      }
       
       // Create two ding sounds with a slight delay
       const playDing = (frequency: number, delay: number) => {
@@ -32,10 +37,10 @@ export const useAlertSound = (isAlertActive: boolean) => {
         oscillator.stop(audioContext.currentTime + delay + 0.3);
       };
 
-      // Play first ding
+      // Play first ding at 800Hz
       playDing(800, 0);
-      // Play second ding after 200ms
-      playDing(800, 0.2);
+      // Play second ding at 1000Hz after 200ms for distinction
+      playDing(1000, 0.2);
       
     } catch (error) {
       console.warn('Could not play alert sound:', error);
