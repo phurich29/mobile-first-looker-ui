@@ -37,10 +37,8 @@ export const useAlertSound = (isAlertActive: boolean) => {
         oscillator.stop(audioContext.currentTime + delay + 0.3);
       };
 
-      // Play first ding at 800Hz
+      // Play single ding sound
       playDing(800, 0);
-      // Play second ding at 1000Hz after 200ms for distinction
-      playDing(1000, 0.2);
       
     } catch (error) {
       console.warn('Could not play alert sound:', error);
