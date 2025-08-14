@@ -1,6 +1,7 @@
 
 import React from "react";
 import { useMeasurement } from "./measurement/useMeasurement";
+import { useAlertSound } from "@/hooks/useAlertSound";
 import { NotificationIcon } from "./measurement/NotificationIcon";
 import { TimeDisplay } from "./measurement/TimeDisplay";
 import { NotificationText } from "./measurement/NotificationText";
@@ -52,6 +53,9 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
     threshold,
     enabled
   });
+
+  // Play alert sound when alert is active
+  useAlertSound(isAlertActive);
 
   // Get translated measurement name
   const getTranslatedName = (measurementName: string) => {
