@@ -3,9 +3,10 @@ import { useEffect, useRef } from 'react';
 export const useAlertSound = (isAlertActive: boolean, enabled: boolean = true) => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const userInteractedRef = useRef<boolean>(false);
 
-  // Function to play ding sound using Web Audio API
-  const playDingSound = async () => {
+  // Initialize audio context on user interaction for mobile compatibility
+  const initializeAudioContext = async () => {
     try {
       if (!audioContextRef.current) {
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -14,6 +15,34 @@ export const useAlertSound = (isAlertActive: boolean, enabled: boolean = true) =
       const audioContext = audioContextRef.current;
       
       // Resume audio context if it's suspended (required by browser autoplay policies)
+      if (audioContext.state === 'suspended') {
+        await audioContext.resume();
+      }
+      
+      userInteractedRef.current = true;
+      return true;
+    } catch (error) {
+      console.warn('Could not initialize audio context:', error);
+      return false;
+    }
+  };
+
+  // Function to play ding sound using Web Audio API
+  const playDingSound = async () => {
+    try {
+      // For mobile compatibility, ensure user interaction happened first
+      if (!userInteractedRef.current) {
+        await initializeAudioContext();
+      }
+
+      if (!audioContextRef.current) {
+        console.warn('Audio context not available');
+        return;
+      }
+
+      const audioContext = audioContextRef.current;
+      
+      // Resume audio context if it's suspended
       if (audioContext.state === 'suspended') {
         await audioContext.resume();
       }
@@ -44,6 +73,27 @@ export const useAlertSound = (isAlertActive: boolean, enabled: boolean = true) =
       console.warn('Could not play alert sound:', error);
     }
   };
+
+  // Set up user interaction listeners for mobile compatibility
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      if (!userInteractedRef.current) {
+        initializeAudioContext();
+      }
+    };
+
+    // Add listeners for various user interaction events
+    const events = ['click', 'touchstart', 'touchend', 'keydown'];
+    events.forEach(event => {
+      document.addEventListener(event, handleUserInteraction, { once: true, passive: true });
+    });
+
+    return () => {
+      events.forEach(event => {
+        document.removeEventListener(event, handleUserInteraction);
+      });
+    };
+  }, []);
 
   useEffect(() => {
     // Only play sound if both alert is active AND notifications are enabled
