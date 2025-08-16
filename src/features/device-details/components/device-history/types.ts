@@ -37,6 +37,11 @@ export interface RiceQualityData {
   main_rate: number | null;
   mix_index: number | null;
   main_index: number | null;
+  // New fields
+  cur_material: string | null;
+  cur_variety: string | null;
+  simple_index: string | null;
+  msg_id: string | null;
   [key: string]: any;
 }
 

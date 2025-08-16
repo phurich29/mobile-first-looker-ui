@@ -71,7 +71,12 @@ export const COLUMN_ORDER = [
   'brown_rice_rate',
   'main_rate',
   'mix_index',
-  'main_index'
+  'main_index',
+  // New columns
+  'cur_material',
+  'cur_variety',
+  'simple_index',
+  'msg_id'
 ];
 
 export const getColumnKeys = (data: RiceQualityData[]): string[] => {

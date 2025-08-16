@@ -97,6 +97,11 @@ export const columnTranslations: Record<string, string> = {
   main_rate: 'main_rate',
   mix_index: 'mix_index',
   main_index: 'main_index',
+  // New columns
+  cur_material: 'ชนิดข้าว',
+  cur_variety: 'มาตรฐาน',
+  simple_index: 'พอร์ตอุปกรณ์',
+  msg_id: 'เวลา_msg',
 };
 
 export const columnTranslationsEn: Record<string, string> = {
@@ -133,6 +138,11 @@ export const columnTranslationsEn: Record<string, string> = {
   main_rate: 'Main Rate',
   mix_index: 'Mix Index',
   main_index: 'Main Index',
+  // New columns
+  cur_material: 'Rice Type',
+  cur_variety: 'Standard',
+  simple_index: 'Device Port',
+  msg_id: 'Message Time',
 };
 
 export const columnTranslationsZh: Record<string, string> = {
@@ -169,4 +179,9 @@ export const columnTranslationsZh: Record<string, string> = {
   main_rate: '主要率',
   mix_index: '混合指数',
   main_index: '主要指数',
+  // New columns
+  cur_material: '大米种类',
+  cur_variety: '标准',
+  simple_index: '设备端口',
+  msg_id: '消息时间',
 };

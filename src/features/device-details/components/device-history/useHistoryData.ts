@@ -68,6 +68,11 @@ export const useHistoryData = (deviceIds?: string[]) => {
         main_rate: (item as any)['main_rate'] ?? null,
         mix_index: (item as any)['mix_index'] ?? null,
         main_index: (item as any)['main_index'] ?? null,
+        // New fields
+        cur_material: (item as any)['cur_material'] ?? null,
+        cur_variety: (item as any)['cur_variety'] ?? null,
+        simple_index: (item as any)['simple_index'] ?? null,
+        msg_id: (item as any)['msg_id'] ?? null,
       }));
       
       return { data: enhancedData as RiceQualityData[], count: count || 0 };
