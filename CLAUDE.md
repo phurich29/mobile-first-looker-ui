@@ -1,289 +1,272 @@
-# CLAUDE.md
+# Claude Code Configuration - SPARC Development Environment
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## 🚨 CRITICAL: CONCURRENT EXECUTION & FILE MANAGEMENT
+
+**ABSOLUTE RULES**:
+1. ALL operations MUST be concurrent/parallel in a single message
+2. **NEVER save working files, text/mds and tests to the root folder**
+3. ALWAYS organize files in appropriate subdirectories
+
+### ⚡ GOLDEN RULE: "1 MESSAGE = ALL RELATED OPERATIONS"
+
+**MANDATORY PATTERNS:**
+- **TodoWrite**: ALWAYS batch ALL todos in ONE call (5-10+ todos minimum)
+- **Task tool**: ALWAYS spawn ALL agents in ONE message with full instructions
+- **File operations**: ALWAYS batch ALL reads/writes/edits in ONE message
+- **Bash commands**: ALWAYS batch ALL terminal operations in ONE message
+- **Memory operations**: ALWAYS batch ALL memory store/retrieve in ONE message
+
+### 📁 File Organization Rules
+
+**NEVER save to root folder. Use these directories:**
+- `/src` - Source code files
+- `/tests` - Test files
+- `/docs` - Documentation and markdown files
+- `/config` - Configuration files
+- `/scripts` - Utility scripts
+- `/examples` - Example code
 
 ## Project Overview
 
-Riceflow Setup is a Progressive Web App (PWA) for rice quality analysis with AI Deep Learning Vision Technology. The app supports Thai language and is built using React, TypeScript, and Supabase.
+This project uses SPARC (Specification, Pseudocode, Architecture, Refinement, Completion) methodology with Claude-Flow orchestration for systematic Test-Driven Development.
 
-## Key Commands
+## SPARC Commands
 
-### Development
+### Core Commands
+- `npx claude-flow sparc modes` - List available modes
+- `npx claude-flow sparc run <mode> "<task>"` - Execute specific mode
+- `npx claude-flow sparc tdd "<feature>"` - Run complete TDD workflow
+- `npx claude-flow sparc info <mode>` - Get mode details
+
+### Batchtools Commands
+- `npx claude-flow sparc batch <modes> "<task>"` - Parallel execution
+- `npx claude-flow sparc pipeline "<task>"` - Full pipeline processing
+- `npx claude-flow sparc concurrent <mode> "<tasks-file>"` - Multi-task processing
+
+### Build Commands
+- `npm run build` - Build project
+- `npm run test` - Run tests
+- `npm run lint` - Linting
+- `npm run typecheck` - Type checking
+
+## SPARC Workflow Phases
+
+1. **Specification** - Requirements analysis (`sparc run spec-pseudocode`)
+2. **Pseudocode** - Algorithm design (`sparc run spec-pseudocode`)
+3. **Architecture** - System design (`sparc run architect`)
+4. **Refinement** - TDD implementation (`sparc tdd`)
+5. **Completion** - Integration (`sparc run integration`)
+
+## Code Style & Best Practices
+
+- **Modular Design**: Files under 500 lines
+- **Environment Safety**: Never hardcode secrets
+- **Test-First**: Write tests before implementation
+- **Clean Architecture**: Separate concerns
+- **Documentation**: Keep updated
+
+## 🚀 Available Agents (54 Total)
+
+### Core Development
+`coder`, `reviewer`, `tester`, `planner`, `researcher`
+
+### Swarm Coordination
+`hierarchical-coordinator`, `mesh-coordinator`, `adaptive-coordinator`, `collective-intelligence-coordinator`, `swarm-memory-manager`
+
+### Consensus & Distributed
+`byzantine-coordinator`, `raft-manager`, `gossip-coordinator`, `consensus-builder`, `crdt-synchronizer`, `quorum-manager`, `security-manager`
+
+### Performance & Optimization
+`perf-analyzer`, `performance-benchmarker`, `task-orchestrator`, `memory-coordinator`, `smart-agent`
+
+### GitHub & Repository
+`github-modes`, `pr-manager`, `code-review-swarm`, `issue-tracker`, `release-manager`, `workflow-automation`, `project-board-sync`, `repo-architect`, `multi-repo-swarm`
+
+### SPARC Methodology
+`sparc-coord`, `sparc-coder`, `specification`, `pseudocode`, `architecture`, `refinement`
+
+### Specialized Development
+`backend-dev`, `mobile-dev`, `ml-developer`, `cicd-engineer`, `api-docs`, `system-architect`, `code-analyzer`, `base-template-generator`
+
+### Testing & Validation
+`tdd-london-swarm`, `production-validator`
+
+### Migration & Planning
+`migration-planner`, `swarm-init`
+
+## 🎯 Claude Code vs MCP Tools
+
+### Claude Code Handles ALL:
+- File operations (Read, Write, Edit, MultiEdit, Glob, Grep)
+- Code generation and programming
+- Bash commands and system operations
+- Implementation work
+- Project navigation and analysis
+- TodoWrite and task management
+- Git operations
+- Package management
+- Testing and debugging
+
+### MCP Tools ONLY:
+- Coordination and planning
+- Memory management
+- Neural features
+- Performance tracking
+- Swarm orchestration
+- GitHub integration
+
+**KEY**: MCP coordinates, Claude Code executes.
+
+## 🚀 Quick Setup
+
 ```bash
-npm run dev          # Start development server on port 8080
-npm run build        # Build for production
-npm run build:dev    # Build for development
-npm run preview      # Preview production build
-npm run lint         # Run ESLint
+# Add Claude Flow MCP server
+claude mcp add claude-flow npx claude-flow@alpha mcp start
 ```
 
-### Supabase Local Development
+## MCP Tool Categories
+
+### Coordination
+`swarm_init`, `agent_spawn`, `task_orchestrate`
+
+### Monitoring
+`swarm_status`, `agent_list`, `agent_metrics`, `task_status`, `task_results`
+
+### Memory & Neural
+`memory_usage`, `neural_status`, `neural_train`, `neural_patterns`
+
+### GitHub Integration
+`github_swarm`, `repo_analyze`, `pr_enhance`, `issue_triage`, `code_review`
+
+### System
+`benchmark_run`, `features_detect`, `swarm_monitor`
+
+## 📋 Agent Coordination Protocol
+
+### Every Agent MUST:
+
+**1️⃣ BEFORE Work:**
 ```bash
-supabase start       # Start local Supabase instance
-supabase db push     # Apply migrations to local database
-supabase migration new <name>  # Create new migration
+npx claude-flow@alpha hooks pre-task --description "[task]"
+npx claude-flow@alpha hooks session-restore --session-id "swarm-[id]"
 ```
 
-### Git Workflow
-The project is integrated with Lovable.dev. Changes made via Lovable are automatically committed. When working locally, standard git commands apply.
-
-## Architecture Overview
-
-### Technology Stack
-- **Frontend**: React 18 + TypeScript + Vite
-- **UI Components**: shadcn-ui (Radix UI + Tailwind CSS)
-- **State Management**: TanStack Query (React Query) + React Context API
-- **Backend**: Supabase (PostgreSQL with Row Level Security, Auth, Realtime)
-- **Forms**: React Hook Form + Zod validation
-- **Charts**: Recharts
-- **PWA**: Vite PWA plugin with Workbox
-
-### Project Structure
-```
-src/
-├── components/       # Reusable UI components
-├── features/        # Feature-specific modules
-├── pages/           # Route pages/views
-├── hooks/           # Custom React hooks
-├── contexts/        # React contexts (Auth, Theme, PWA, Countdown)
-├── integrations/    # External services (Supabase)
-├── utils/           # Utility functions
-└── lib/            # Library configurations
-```
-
-### Key Features
-1. **Authentication**: Role-based access (Guest, User, Admin, SuperAdmin)
-2. **Device Management**: Managing rice analysis devices
-3. **Measurements**: Recording and displaying rice quality data
-4. **Real-time Updates**: Using Supabase Realtime
-5. **PWA Support**: Installable mobile app with offline capabilities
-6. **Theme Support**: Light/dark mode with system preference detection
-
-## Current Issues & Considerations
-
-### Critical Issues (from docs/TASK_MANAGER.md)
-1. **Infinite Recursion**: RLS policies causing recursion in `user_roles` table
-   - Temporary solution: Disable RLS on problematic tables
-   - Long-term: Implement hybrid approach (Application + simplified RLS)
-2. **Permission System**: Multiple redundant permission checks across components
-   - Solution: Centralize in `PermissionService`
-3. **API Optimization**: Same data fetched multiple times
-   - Solution: Implement caching strategy with React Query
-
-### Migration Status (Total: 31 tasks)
-- **Phase 1**: Emergency fix for RLS recursion (0/16 tasks)
-- **Phase 2**: Core refactoring for performance (0/8 tasks)  
-- **Phase 3**: Enhanced security implementation (0/7 tasks)
-
-### Known Issues & Workarounds
-- **Guest Access**: May show empty device list - check `guest_device_access` table
-- **Device Filtering**: Admin visibility controlled by `admin_device_visibility`
-- **Performance**: Initial load may be slow due to multiple permission checks
-
-### Development Guidelines
-1. **TypeScript**: Project uses relaxed TypeScript settings - focus on functionality over strict typing
-2. **Component Style**: Follow existing shadcn-ui patterns and Tailwind conventions
-3. **Path Aliases**: Use `@/` for imports from src directory
-4. **State Management**: 
-   - Use React Query for server state
-   - Use Context API for client state
-   - Avoid prop drilling - use contexts or custom hooks
-
-### Supabase Integration
-- Database migrations in `supabase/migrations/`
-- Edge functions in `supabase/functions/`
-- RLS policies currently being refactored (see TASK_MANAGER.md)
-- Auth endpoints excluded from PWA caching
-
-### Mobile-First Design
-- All components should be responsive
-- Test on mobile viewport sizes first
-- Use Tailwind's responsive utilities
-- Consider touch interactions
-
-## Important Files
-- `src/components/AuthProvider.tsx` - Main authentication logic
-- `src/components/ProtectedRoute.tsx` - Route protection implementation
-- `src/integrations/supabase/` - Supabase client and types
-- `vite.config.ts` - Build configuration and PWA settings
-- `docs/TASK_MANAGER.md` - Current migration tasks and issues
-
-## Testing
-Currently no testing framework is configured. When implementing tests:
-- Check for testing setup in package.json first
-- Follow React Testing Library conventions if added
-- Test critical user flows and permissions
-
-## Database Schema & Key Tables
-
-### Core Tables
-```sql
--- User & Permission Tables
-user_roles              # User permission levels (guest, user, admin, superadmin)
-device_permissions      # Maps users to devices they can access
-admin_device_visibility # Controls which devices admins can see
-guest_device_access     # Public device access configuration
-
--- Data Tables  
-rice_quality_analysis   # Main measurement data (device_id, rice_type, quality metrics)
-device_settings         # Device configuration and display preferences
-devices                 # Device registry (linked via device_id)
-```
-
-### Common Queries
-```typescript
-// Get user permissions
-const { data: userRole } = useQuery({
-  queryKey: ['userRole', userId],
-  queryFn: () => supabase.from('user_roles').select('*').eq('user_id', userId)
-});
-
-// Get device access
-const { data: devices } = useDeviceAccess(userId);
-```
-
-## API Patterns & Conventions
-
-### Query Patterns
-```typescript
-// Use React Query hooks for data fetching
-import { useQuery, useMutation } from '@tanstack/react-query';
-
-// Naming convention: use[Resource][Action]
-useDeviceData()      // Fetch device data
-useCreateDevice()    // Create mutation
-useUpdateSettings()  // Update mutation
-```
-
-### Error Handling
-```typescript
-// Consistent error handling with toast
-import { toast } from 'sonner';
-
-try {
-  // operation
-} catch (error) {
-  toast.error('Operation failed');
-  console.error('Detailed error:', error);
-}
-```
-
-### Supabase Integration
-- Client instance: `@/integrations/supabase/client`
-- Type definitions: `@/integrations/supabase/types`
-- Custom hooks: `@/integrations/supabase/hooks/`
-- Always check for auth state before protected operations
-
-## Common Development Tasks
-
-### Running a Single Component
+**2️⃣ DURING Work:**
 ```bash
-npm run dev              # Start dev server
-# Navigate to specific route in browser
+npx claude-flow@alpha hooks post-edit --file "[file]" --memory-key "swarm/[agent]/[step]"
+npx claude-flow@alpha hooks notify --message "[what was done]"
 ```
 
-### Checking TypeScript Errors
+**3️⃣ AFTER Work:**
 ```bash
-npm run build            # Will show any TS errors
-# or check specific files in your IDE
+npx claude-flow@alpha hooks post-task --task-id "[task]"
+npx claude-flow@alpha hooks session-end --export-metrics true
 ```
 
-### Database Changes
-```bash
-# Create new migration
-supabase migration new <migration_name>
-# Apply migrations locally
-supabase db push
+## 🎯 Concurrent Execution Examples
+
+### ✅ CORRECT (Single Message):
+```javascript
+[BatchTool]:
+  // Initialize swarm
+  mcp__claude-flow__swarm_init { topology: "mesh", maxAgents: 6 }
+  mcp__claude-flow__agent_spawn { type: "researcher" }
+  mcp__claude-flow__agent_spawn { type: "coder" }
+  mcp__claude-flow__agent_spawn { type: "tester" }
+  
+  // Spawn agents with Task tool
+  Task("Research agent: Analyze requirements...")
+  Task("Coder agent: Implement features...")
+  Task("Tester agent: Create test suite...")
+  
+  // Batch todos
+  TodoWrite { todos: [
+    {id: "1", content: "Research", status: "in_progress", priority: "high"},
+    {id: "2", content: "Design", status: "pending", priority: "high"},
+    {id: "3", content: "Implement", status: "pending", priority: "high"},
+    {id: "4", content: "Test", status: "pending", priority: "medium"},
+    {id: "5", content: "Document", status: "pending", priority: "low"}
+  ]}
+  
+  // File operations
+  Bash "mkdir -p app/{src,tests,docs}"
+  Write "app/src/index.js"
+  Write "app/tests/index.test.js"
+  Write "app/docs/README.md"
 ```
 
-### Working with Supabase Locally
-- Ensure Supabase CLI is installed
-- Use `supabase start` for local development
-- Environment variables in `.env.local` (not tracked)
-
-## Deployment
-- Lovable.dev handles deployment automatically
-- Custom domains can be configured in Lovable project settings
-- PWA manifest configured for "Riceflow Setup" branding
-
-## Development Workflow
-
-### Standard Component Pattern
-```typescript
-// 1. Import dependencies
-import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Card } from '@/components/ui/card';
-import { toast } from 'sonner';
-
-// 2. Define types (if needed)
-interface ComponentProps {
-  deviceId: string;
-}
-
-// 3. Component with proper error handling
-export function MyComponent({ deviceId }: ComponentProps) {
-  // Use React Query for server state
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['device', deviceId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('devices')
-        .select('*')
-        .eq('id', deviceId)
-        .single();
-      
-      if (error) throw error;
-      return data;
-    }
-  });
-
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error loading device</div>;
-
-  return (
-    <Card className="p-4">
-      {/* Component content */}
-    </Card>
-  );
-}
+### ❌ WRONG (Multiple Messages):
+```javascript
+Message 1: mcp__claude-flow__swarm_init
+Message 2: Task("agent 1")
+Message 3: TodoWrite { todos: [single todo] }
+Message 4: Write "file.js"
+// This breaks parallel coordination!
 ```
 
-### Adding New Features
-1. Check existing patterns in similar features
-2. Use existing UI components from `@/components/ui/`
-3. Follow mobile-first responsive design
-4. Test with different user roles (guest, user, admin)
+## Performance Benefits
 
-### Working with Permissions
-```typescript
-// Always check permissions before sensitive operations
-const { userRole } = useAuth();
+- **84.8% SWE-Bench solve rate**
+- **32.3% token reduction**
+- **2.8-4.4x speed improvement**
+- **27+ neural models**
 
-if (!userRole || userRole === 'guest') {
-  toast.error('You need to be logged in');
-  return;
-}
+## Hooks Integration
 
-if (userRole !== 'admin' && userRole !== 'superadmin') {
-  toast.error('Admin access required');
-  return;
-}
-```
+### Pre-Operation
+- Auto-assign agents by file type
+- Validate commands for safety
+- Prepare resources automatically
+- Optimize topology by complexity
+- Cache searches
 
-## Standard Workflow
-1. **Plan First**: Think through the problem and create a plan
-2. **Check Existing Code**: Look for similar patterns in the codebase
-3. **Start Simple**: Make minimal changes that achieve the goal
-4. **Test As You Go**: Verify each change works before moving on
-5. **Follow Conventions**: Match existing code style and patterns
-6. **Handle Errors**: Always include proper error handling
-7. **Communicate in Thai**: ตอบและอธิบายเป็นภาษาไทยเสมอ
+### Post-Operation
+- Auto-format code
+- Train neural patterns
+- Update memory
+- Analyze performance
+- Track token usage
 
-## Important Reminders
-- Focus on simplicity - avoid complex changes
-- Prefer editing existing files over creating new ones
-- Follow existing patterns and conventions
-- Test with different user roles
-- Handle loading and error states properly
+### Session Management
+- Generate summaries
+- Persist state
+- Track metrics
+- Restore context
+- Export workflows
+
+## Advanced Features (v2.0.0)
+
+- 🚀 Automatic Topology Selection
+- ⚡ Parallel Execution (2.8-4.4x speed)
+- 🧠 Neural Training
+- 📊 Bottleneck Analysis
+- 🤖 Smart Auto-Spawning
+- 🛡️ Self-Healing Workflows
+- 💾 Cross-Session Memory
+- 🔗 GitHub Integration
+
+## Integration Tips
+
+1. Start with basic swarm init
+2. Scale agents gradually
+3. Use memory for context
+4. Monitor progress regularly
+5. Train patterns from success
+6. Enable hooks automation
+7. Use GitHub tools first
+
+## Support
+
+- Documentation: https://github.com/ruvnet/claude-flow
+- Issues: https://github.com/ruvnet/claude-flow/issues
+
+---
+
+Remember: **Claude Flow coordinates, Claude Code creates!**
+
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+Never save working files, text/mds and tests to the root folder.

@@ -10,10 +10,18 @@ const config: CapacitorConfig = {
     },
     FirebaseMessaging: {
       deliveryMetrics: true
+    },
+    App: {
+      appUrlOpen: {
+        iosCustomScheme: 'riceflow',
+        androidCustomScheme: 'riceflow'
+      }
     }
   },
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https',
+    hostname: 'setup.riceflow.app',
+    iosScheme: 'https'
   }
 };
 

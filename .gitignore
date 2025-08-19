@@ -25,3 +25,21 @@ dist-ssr
 
 # YoYo AI version control directory
 .yoyo/
+
+# Claude Flow generated files
+.claude-flow/
+.claude/
+.mcp.json
+claude-flow.config.json
+.swarm/
+.hive-mind/
+memory/
+coordination/
+.roomodes
+.roo/
+
+# Claude Flow executables
+claude-flow
+claude-flow.bat
+claude-flow.ps1
+hive-mind-prompt-*.txt

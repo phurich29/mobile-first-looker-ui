@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/AuthProvider';
 import { Tables } from '@/integrations/supabase/types';
+import { getBaseUrl } from '@/utils/platform';
 
 type SharedLink = Tables<'shared_analysis_links'>;
 
@@ -104,7 +105,9 @@ export const useSharedLinks = () => {
   };
 
   const getPublicLink = (shareToken: string) => {
-    return `${window.location.origin}/shared/${shareToken}`;
+    // Always use the correct base URL regardless of platform
+    const baseUrl = getBaseUrl();
+    return `${baseUrl}/shared/${shareToken}`;
   };
 
   useEffect(() => {

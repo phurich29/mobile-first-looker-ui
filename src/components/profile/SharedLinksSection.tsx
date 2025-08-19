@@ -27,9 +27,11 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Copy, Edit, Trash2, ExternalLink, Check, QrCode, Download } from 'lucide-react';
+import { Copy, Edit, Trash2, ExternalLink, Check, QrCode, Download, Share2 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { useTranslation } from '@/hooks/useTranslation';
+import { shareContent, getSharingCapabilities, getShareButtonText } from '@/utils/sharing';
+import { isMobileDevice } from '@/utils/platform';
 
 export const SharedLinksSection: React.FC = () => {
   const { t, language } = useTranslation();
@@ -38,7 +40,12 @@ export const SharedLinksSection: React.FC = () => {
   const [editTitle, setEditTitle] = useState('');
   const [copiedLinks, setCopiedLinks] = useState<Set<string>>(new Set());
   const [showQrCode, setShowQrCode] = useState<string | null>(null);
+  const [sharingLinks, setSharingLinks] = useState<Set<string>>(new Set());
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
+  
+  // Get sharing capabilities
+  const sharingCapabilities = getSharingCapabilities();
+  const isMobile = isMobileDevice();
 
   // Function to generate QR code
   const generateQRCode = (token: string) => {
@@ -47,7 +54,6 @@ export const SharedLinksSection: React.FC = () => {
     const url = getPublicLink(token);
     console.log('Generating QR code for token:', token);
     console.log('Generated URL:', url);
-    console.log('Current origin:', window.location.origin);
     
     // Clear previous QR code
     const canvas = qrCanvasRef.current;
@@ -56,9 +62,12 @@ export const SharedLinksSection: React.FC = () => {
       context.clearRect(0, 0, canvas.width, canvas.height);
     }
     
+    // Responsive QR code size
+    const qrSize = isMobile ? 250 : 200;
+    
     // Generate new QR code
     QRCode.toCanvas(qrCanvasRef.current, url, {
-      width: 200,
+      width: qrSize,
       margin: 2,
       color: {
         dark: '#000000',
@@ -117,6 +126,62 @@ export const SharedLinksSection: React.FC = () => {
         title: t('sharedLinks', 'errorToast'),
         description: t('sharedLinks', 'downloadQrError'),
         variant: 'destructive',
+      });
+    }
+  };
+
+  const handleShareLink = async (shareToken: string, title: string) => {
+    setSharingLinks(prev => new Set([...prev, shareToken]));
+    
+    try {
+      const url = getPublicLink(shareToken);
+      
+      const shareMethod = await shareContent(
+        {
+          title: `${title} - Rice Quality Analysis`,
+          text: `ดูผลการวิเคราะห์คุณภาพข้าว: ${title}`,
+          url: url
+        },
+        {
+          fallbackToClipboard: true,
+          onSuccess: () => {
+            if (sharingCapabilities.hasWebShare) {
+              toast({
+                title: t('sharedLinks', 'shareSuccess'),
+                description: t('sharedLinks', 'shareSuccessDescription'),
+              });
+            } else {
+              setCopiedLinks(prev => new Set([...prev, shareToken]));
+              toast({
+                title: t('sharedLinks', 'copySuccess'),
+                description: t('sharedLinks', 'copySuccessDescription'),
+              });
+              setTimeout(() => {
+                setCopiedLinks(prev => {
+                  const newSet = new Set(prev);
+                  newSet.delete(shareToken);
+                  return newSet;
+                });
+              }, 2000);
+            }
+          },
+          onError: (error) => {
+            console.error('Share failed:', error);
+            toast({
+              title: t('sharedLinks', 'errorToast'),
+              description: t('sharedLinks', 'shareError'),
+              variant: 'destructive',
+            });
+          }
+        }
+      );
+    } catch (error) {
+      console.error('Share error:', error);
+    } finally {
+      setSharingLinks(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(shareToken);
+        return newSet;
       });
     }
   };
@@ -330,19 +395,45 @@ export const SharedLinksSection: React.FC = () => {
                         <span className="text-sm text-muted-foreground break-all flex-1 min-w-[200px]">
                           {getPublicLink(link.share_token)}
                         </span>
+                        {/* Primary share/copy button */}
                         <Button
-                          variant="ghost"
+                          variant="default"
                           size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0"
-                          onClick={() => handleCopyLink(link.share_token)}
+                          className="h-8 w-8 shrink-0"
+                          onClick={() => handleShareLink(link.share_token, link.title)}
+                          disabled={sharingLinks.has(link.share_token)}
+                          title={sharingCapabilities.hasWebShare ? 'แชร์ลิงก์' : 'คัดลอกลิงก์'}
                         >
-                          {copiedLinks.has(link.share_token) ? (
+                          {sharingLinks.has(link.share_token) ? (
+                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                          ) : sharingCapabilities.hasWebShare ? (
+                            <Share2 className="h-4 w-4" />
+                          ) : copiedLinks.has(link.share_token) ? (
                             <Check className="h-4 w-4" />
                           ) : (
                             <Copy className="h-4 w-4" />
                           )}
-                          <span className="sr-only">คัดลอกลิงก์</span>
+                          <span className="sr-only">
+                            {sharingCapabilities.hasWebShare ? 'แชร์ลิงก์' : 'คัดลอกลิงก์'}
+                          </span>
                         </Button>
+                        {/* Secondary copy button - only show if Web Share is available */}
+                        {sharingCapabilities.hasWebShare && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0"
+                            onClick={() => handleCopyLink(link.share_token)}
+                            title="คัดลอกลิงก์"
+                          >
+                            {copiedLinks.has(link.share_token) ? (
+                              <Check className="h-4 w-4" />
+                            ) : (
+                              <Copy className="h-4 w-4" />
+                            )}
+                            <span className="sr-only">คัดลอกลิงก์</span>
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -413,29 +504,43 @@ export const SharedLinksSection: React.FC = () => {
                         <canvas
                           ref={qrCanvasRef}
                           className="border border-gray-300 dark:border-gray-600 rounded-md shadow-sm"
+                          style={{
+                            maxWidth: '100%',
+                            height: 'auto'
+                          }}
                         />
                         <div className="text-center">
                           <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{link.title}</p>
+                          {isMobile && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                              สแกน QR Code ด้วยกล้องหรือแอปสแกน QR
+                            </p>
+                          )}
                         </div>
-                        <DialogFooter className="flex flex-col sm:flex-row gap-3 items-stretch mt-4">
+                        <DialogFooter className="flex flex-col sm:flex-row gap-3 items-stretch mt-4 w-full">
                           <Button
                             variant="outline"
                             onClick={() => handleDownloadQR(link.share_token, link.title)}
-                            className="flex items-center justify-center gap-2 py-5 sm:py-2"
+                            className="flex items-center justify-center gap-2 py-5 sm:py-2 flex-1"
                           >
                             <Download className="h-4 w-4" />
                             ดาวน์โหลด QR Code
                           </Button>
                           <Button
-                            onClick={() => handleCopyLink(link.share_token)}
-                            className="flex items-center justify-center gap-2 py-5 sm:py-2"
+                            onClick={() => handleShareLink(link.share_token, link.title)}
+                            disabled={sharingLinks.has(link.share_token)}
+                            className="flex items-center justify-center gap-2 py-5 sm:py-2 flex-1"
                           >
-                            {copiedLinks.has(link.share_token) ? (
+                            {sharingLinks.has(link.share_token) ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            ) : sharingCapabilities.hasWebShare ? (
+                              <Share2 className="h-4 w-4" />
+                            ) : copiedLinks.has(link.share_token) ? (
                               <Check className="h-4 w-4" />
                             ) : (
                               <Copy className="h-4 w-4" />
                             )}
-                            คัดลอกลิงก์
+                            {getShareButtonText(sharingCapabilities.recommendedMethod)}
                           </Button>
                         </DialogFooter>
                       </div>

@@ -144,6 +144,9 @@ export const translations = {
     linkCopied: { th: 'คัดลอกแล้ว', en: 'Copied', zh: '已复制' },
     linkCopiedDescription: { th: 'ลิงก์ถูกคัดลอกไปยังคลิปบอร์ดแล้ว', en: 'Link copied to clipboard', zh: '链接已复制到剪贴板' },
     copyLinkError: { th: 'ไม่สามารถคัดลอกลิงก์ได้', en: 'Unable to copy link', zh: '无法复制链接' },
+    shareSuccess: { th: 'แชร์สำเร็จ', en: 'Shared successfully', zh: '分享成功' },
+    shareSuccessDescription: { th: 'ลิงก์ถูกแชร์เรียบร้อยแล้ว', en: 'Link shared successfully', zh: '链接分享成功' },
+    shareError: { th: 'ไม่สามารถแชร์ลิงก์ได้', en: 'Unable to share link', zh: '无法分享链接' },
   },
   assistant: {
     riceClassification: { th: 'การจำแนกประเภทข้าว', en: 'Rice Classification', zh: '大米分类' },

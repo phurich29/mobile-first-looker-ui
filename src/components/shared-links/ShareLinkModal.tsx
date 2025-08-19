@@ -10,10 +10,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Copy, Check, Download } from 'lucide-react';
+import { Copy, Check, Download, Share2 } from 'lucide-react';
 import { useSharedLinks } from '@/hooks/useSharedLinks';
 import { toast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/useTranslation';
+import { shareContent, getSharingCapabilities, getShareButtonText } from '@/utils/sharing';
+import { isMobileDevice } from '@/utils/platform';
 import QRCode from 'qrcode';
 
 interface ShareLinkModalProps {
@@ -32,15 +34,23 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [sharing, setSharing] = useState(false);
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
   const { createSharedLink, getPublicLink } = useSharedLinks();
   const { t } = useTranslation();
+  
+  // Get sharing capabilities
+  const sharingCapabilities = getSharingCapabilities();
+  const isMobile = isMobileDevice();
 
   // Generate QR Code when shareUrl changes
   useEffect(() => {
     if (shareUrl && qrCanvasRef.current) {
+      // Responsive QR code size based on device
+      const qrSize = isMobile ? 250 : 200;
+      
       QRCode.toCanvas(qrCanvasRef.current, shareUrl, {
-        width: 200,
+        width: qrSize,
         margin: 2,
         color: {
           dark: '#000000',
@@ -48,7 +58,7 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
         }
       }).catch(console.error);
     }
-  }, [shareUrl]);
+  }, [shareUrl, isMobile]);
 
   const handleDownloadQR = () => {
     if (!qrCanvasRef.current || !title) return;
@@ -132,6 +142,52 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
     }
   };
 
+  const handleShareLink = async () => {
+    if (!shareUrl || !title) return;
+    
+    setSharing(true);
+    
+    try {
+      const shareMethod = await shareContent(
+        {
+          title: `${title} - Rice Quality Analysis`,
+          text: `ดูผลการวิเคราะห์คุณภาพข้าว: ${title}`,
+          url: shareUrl
+        },
+        {
+          fallbackToClipboard: true,
+          onSuccess: () => {
+            if (sharingCapabilities.hasWebShare) {
+              toast({
+                title: t('sharedLinks', 'shareSuccess'),
+                description: t('sharedLinks', 'shareSuccessDescription'),
+              });
+            } else {
+              setCopied(true);
+              toast({
+                title: t('sharedLinks', 'linkCopied'),
+                description: t('sharedLinks', 'linkCopiedDescription'),
+              });
+              setTimeout(() => setCopied(false), 2000);
+            }
+          },
+          onError: (error) => {
+            console.error('Share failed:', error);
+            toast({
+              title: t('sharedLinks', 'errorToast'),
+              description: t('sharedLinks', 'shareError'),
+              variant: 'destructive',
+            });
+          }
+        }
+      );
+    } catch (error) {
+      console.error('Share error:', error);
+    } finally {
+      setSharing(false);
+    }
+  };
+
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(shareUrl);
@@ -154,6 +210,7 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
     setTitle('');
     setShareUrl('');
     setCopied(false);
+    setSharing(false);
     onOpenChange(false);
   };
 
@@ -190,19 +247,43 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
                     readOnly
                     className="flex-1"
                   />
+                  {/* Primary share button - Web Share API or Copy */}
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="default"
                     size="icon"
-                    onClick={handleCopyLink}
+                    onClick={handleShareLink}
+                    disabled={sharing}
                     className="shrink-0"
+                    title={sharingCapabilities.hasWebShare ? 'แชร์ลิงก์' : 'คัดลอกลิงก์'}
                   >
-                    {copied ? (
+                    {sharing ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    ) : sharingCapabilities.hasWebShare ? (
+                      <Share2 className="h-4 w-4" />
+                    ) : copied ? (
                       <Check className="h-4 w-4" />
                     ) : (
                       <Copy className="h-4 w-4" />
                     )}
                   </Button>
+                  {/* Secondary copy button - only show if Web Share is available */}
+                  {sharingCapabilities.hasWebShare && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={handleCopyLink}
+                      className="shrink-0"
+                      title="คัดลอกลิงก์"
+                    >
+                      {copied ? (
+                        <Check className="h-4 w-4" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                    </Button>
+                  )}
                 </div>
               </div>
               
@@ -213,20 +294,48 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
                   <canvas
                     ref={qrCanvasRef}
                     className="border border-gray-300 dark:border-gray-600 rounded"
+                    style={{
+                      maxWidth: '100%',
+                      height: 'auto'
+                    }}
                   />
                   <div className="text-center">
                     <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{title}</p>
+                    {isMobile && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        สแกน QR Code ด้วยกล้องหรือแอปสแกน QR
+                      </p>
+                    )}
                   </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDownloadQR}
-                    className="gap-2"
-                  >
-                    <Download className="h-4 w-4" />
-                    {t('sharedLinks', 'downloadQrPng')}
-                  </Button>
+                  <div className="flex flex-col sm:flex-row gap-2 w-full">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleDownloadQR}
+                      className="gap-2 flex-1"
+                    >
+                      <Download className="h-4 w-4" />
+                      {t('sharedLinks', 'downloadQrPng')}
+                    </Button>
+                    {isMobile && (
+                      <Button
+                        type="button"
+                        variant="default"
+                        size="sm"
+                        onClick={handleShareLink}
+                        disabled={sharing}
+                        className="gap-2 flex-1"
+                      >
+                        {sharing ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        ) : (
+                          <Share2 className="h-4 w-4" />
+                        )}
+                        {getShareButtonText(sharingCapabilities.recommendedMethod)}
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
