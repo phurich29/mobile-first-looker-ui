@@ -1,13 +1,13 @@
+import { Card, CardContent } from "@/components/ui/card";
+import { Edit, Bell, BellOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationSetting } from "../types";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { NotificationSettingsDialog } from "@/components/measurement-history/notification-settings";
 import { saveNotificationSettings } from "@/components/measurement-history/api";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 import { translations } from "@/lib/translations";
-import { Card, CardContent } from "@/components/ui/card";
-import { Edit, Bell, BellOff } from "lucide-react";
 
 interface NotificationSettingCardProps {
   setting: NotificationSetting;
