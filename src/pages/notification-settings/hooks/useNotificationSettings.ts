@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -92,6 +91,35 @@ export const useNotificationSettings = () => {
       setLoading(false);
     }
   };
+
+  // Set up real-time updates for notification settings
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('notification_settings_realtime')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'notification_settings',
+          filter: `user_id=eq.${user.id}`
+        }, 
+        (payload) => {
+          console.log('🔔 Real-time notification settings update:', payload);
+          // Refresh settings when any changes occur
+          fetchSettings();
+        }
+      )
+      .subscribe();
+
+    console.log('🔌 Subscribed to notification settings real-time updates');
+
+    return () => {
+      console.log('🔌 Cleaning up notification settings real-time subscription');
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   useEffect(() => {
     if (user) {

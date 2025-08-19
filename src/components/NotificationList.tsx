@@ -61,7 +61,7 @@ export const NotificationList = () => {
   };
 
   const handleNavigateToSettings = () => {
-    navigate('/notifications');
+    navigate('/notification-settings');
   };
   
   return (
@@ -103,7 +103,7 @@ export const NotificationList = () => {
             className={isMobile ? "text-green-600 hover:bg-green-50" : "text-xs text-green-600 font-medium hover:bg-green-50"}
             title="ตั้งค่าแจ้งเตือน"
           >
-            <a href="/notifications">
+            <a href="/notification-settings">
               {isMobile ? <Settings size={16} /> : "ตั้งค่าแจ้งเตือน"}
             </a>
           </Button>

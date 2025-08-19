@@ -1,13 +1,13 @@
-
 import { Button } from "@/components/ui/button";
 import { NotificationSetting } from "../types";
-import { Switch } from "@/components/ui/switch";
 import { useState, useEffect } from "react";
 import { NotificationSettingsDialog } from "@/components/measurement-history/notification-settings";
 import { saveNotificationSettings } from "@/components/measurement-history/api";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 import { translations } from "@/lib/translations";
+import { Card, CardContent } from "@/components/ui/card";
+import { Edit, Bell, BellOff } from "lucide-react";
 
 interface NotificationSettingCardProps {
   setting: NotificationSetting;
@@ -60,18 +60,18 @@ export const NotificationSettingCard = ({
       
       // แสดงข้อความแจ้งเตือนว่าบันทึกสำเร็จ
       toast({
-        title: checked ? t('mainMenu', 'notificationEnabled') : t('mainMenu', 'notificationDisabled'),
+        title: checked ? "เปิดการแจ้งเตือนแล้ว" : "ปิดการแจ้งเตือนแล้ว",
         description: checked ? 
-          t('mainMenu', 'systemWillAlert') : 
-          t('mainMenu', 'systemWillNotAlert'),
+          "ระบบจะแจ้งเตือนเมื่อค่าเกินเกณฑ์" : 
+          "ระบบจะไม่แจ้งเตือนอีกต่อไป",
       });
     } catch (error) {
       // กรณีเกิดข้อผิดพลาด
       console.error("เกิดข้อผิดพลาดในการบันทึกการตั้งค่า:", error);
       setIsEnabled(!checked); // คืนค่าสถานะเดิม
       toast({
-        title: t('mainMenu', 'error'),
-        description: t('mainMenu', 'saveSettingsError'),
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถบันทึกการตั้งค่าได้ กรุณาลองใหม่",
         variant: "destructive"
       });
     } finally {
@@ -81,64 +81,103 @@ export const NotificationSettingCard = ({
   
   return (
     <>
-      <div className="bg-white rounded-lg border border-gray-200 dark:border-slate-700 p-4 flex justify-between w-full dark:bg-slate-800">
-        {/* ส่วนด้านซ้าย */}
-        <div className="flex-1 mr-6">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="overflow-hidden">
-              <h3 className="font-medium text-black dark:text-slate-100 text-sm truncate">
-                {setting.device_name || setting.device_code}
-              </h3>
-              <p className="text-sm text-black dark:text-slate-300 truncate mt-1">{translateRiceType(setting.rice_type_name)}</p>
+      <Card className="transition-all duration-200 hover:shadow-md hover:scale-[1.01] border-l-4 border-l-primary/20">
+        <CardContent className="p-4">
+          <div className="flex justify-between items-start gap-4">
+            {/* ส่วนข้อมูลด้านซ้าย */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start gap-3 mb-3">
+                <div className={`p-2 rounded-lg ${isEnabled ? 'bg-primary/10' : 'bg-muted/50'}`}>
+                  {isEnabled ? (
+                    <Bell className="w-5 h-5 text-primary" />
+                  ) : (
+                    <BellOff className="w-5 h-5 text-muted-foreground" />
+                  )}
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-foreground text-base truncate">
+                      {setting.device_name || setting.device_code}
+                    </h3>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={handleEdit}
+                      className="text-primary hover:text-primary/80 p-1 h-auto min-w-[32px]"
+                      title="แก้ไขการตั้งค่า"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <p className="text-muted-foreground text-sm mb-3">
+                    {translateRiceType(setting.rice_type_name)}
+                  </p>
+                  
+                  {/* แสดงเกณฑ์การแจ้งเตือน */}
+                  <div className="space-y-2">
+                    {setting.max_enabled && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                        <span className="text-muted-foreground">เกินกว่า</span>
+                        <span className="font-semibold text-red-600">{setting.max_threshold}</span>
+                      </div>
+                    )}
+                    {setting.min_enabled && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                        <span className="text-muted-foreground">ต่ำกว่า</span>
+                        <span className="font-semibold text-amber-600">{setting.min_threshold}</span>
+                      </div>
+                    )}
+                    {!setting.max_enabled && !setting.min_enabled && (
+                      <p className="text-muted-foreground italic text-sm">
+                        ยังไม่ได้ตั้งเกณฑ์การแจ้งเตือน
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={handleEdit}
-              className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 p-1 h-auto min-w-[40px] text-xs ml-1"
-            >
-              {t('mainMenu', 'edit')}
-            </Button>
+            
+            {/* สวิตช์เปิด/ปิด */}
+            <div className="flex flex-col items-center gap-2 shrink-0">
+              <button
+                onClick={() => handleToggle(!isEnabled)}
+                disabled={isSaving}
+                className={`
+                  relative w-14 h-8 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+                  ${isEnabled 
+                    ? 'bg-gradient-to-r from-emerald-400 to-emerald-600 shadow-lg' 
+                    : 'bg-muted-foreground/30'
+                  }
+                  ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:shadow-md'}
+                `}
+              >
+                <div 
+                  className={`
+                    absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-300 flex items-center justify-center
+                    ${isEnabled ? 'translate-x-6' : 'translate-x-0'}
+                  `}
+                >
+                  {isSaving && (
+                    <div className="w-3 h-3 border border-primary border-t-transparent rounded-full animate-spin"></div>
+                  )}
+                </div>
+                
+                {/* จุดเขียวแสดงสถานะ active */}
+                {isEnabled && !isSaving && (
+                  <div className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-400 animate-pulse"></div>
+                )}
+              </button>
+              
+              <span className={`text-xs font-semibold ${isEnabled ? 'text-primary' : 'text-muted-foreground'}`}>
+                {isEnabled ? 'ON' : 'OFF'}
+              </span>
+            </div>
           </div>
-          
-          <div className="border-t border-gray-100 pt-2 mt-2 text-sm space-y-2">
-            {setting.max_enabled && (
-              <p className="flex items-center gap-2">
-                <span className="text-black dark:text-slate-300 font-medium">{t('mainMenu', 'alertWhenHigherThan')}</span>
-                <span className="font-bold text-red-600 dark:text-red-400 text-base">{setting.max_threshold}</span>
-              </p>
-            )}
-            {setting.min_enabled && (
-              <p className="flex items-center gap-2">
-                <span className="text-black dark:text-slate-300 font-medium">{t('mainMenu', 'alertWhenLowerThan')}</span>
-                <span className="font-bold text-amber-600 dark:text-amber-400 text-base">{setting.min_threshold}</span>
-              </p>
-            )}
-            {!setting.max_enabled && !setting.min_enabled && (
-              <p className="text-black dark:text-slate-400 italic text-sm">{t('mainMenu', 'noAlertCriteria')}</p>
-            )}
-          </div>
-        </div>
-        
-        {/* ส่วนด้านขวา - สวิตช์แบบเกม */}
-        <div className="flex flex-col items-center justify-center">
-          <div 
-            className={`w-16 h-9 rounded-full relative transition-all duration-300 flex items-center justify-center ${isEnabled ? 'bg-gradient-to-r from-emerald-400 to-emerald-600' : 'bg-gray-300'}`}
-            onClick={() => handleToggle(!isEnabled)}
-          >
-            <div 
-              className={`absolute top-0.5 left-0.5 w-8 h-8 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out ${isEnabled ? 'translate-x-7' : 'translate-x-0'}`}
-            ></div>
-            {isEnabled && (
-              <div className="absolute -right-1 -top-1 w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-            )}
-          </div>
-          {/* เพิ่มข้อความ ON/OFF ด้านล่าง */}
-          <span className={`mt-2 text-xs font-bold ${isEnabled ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-900 dark:text-slate-400'}`}>
-            {isEnabled ? 'ON' : 'OFF'}
-          </span>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Dialog สำหรับการแก้ไขการแจ้งเตือน */}
       <NotificationSettingsDialog
@@ -151,4 +190,3 @@ export const NotificationSettingCard = ({
     </>
   );
 };
-

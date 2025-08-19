@@ -4,10 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Notification, transformNotificationData } from "@/components/sharedNotificationData";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/components/AuthProvider";
 
 export const useNotifications = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [isCheckingNotifications, setIsCheckingNotifications] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isMountedRef = useRef(true);
@@ -110,28 +112,46 @@ export const useNotifications = () => {
 
   // Subscribe to real-time notification updates
   useEffect(() => {
+    if (!user) return; // Only subscribe if user is logged in
+
     const channel = supabase
       .channel('notification_changes')
       .on('postgres_changes', 
         { 
           event: '*', 
           schema: 'public', 
-          table: 'notifications' 
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`
         }, 
         (payload) => {
           if (!isMountedRef.current) return;
-          console.log('Real-time notification update:', payload);
+          console.log('🔔 Real-time notification update:', payload);
           queryClient.invalidateQueries({ queryKey: ['notifications'] });
           queryClient.invalidateQueries({ queryKey: ['notification_history'] });
         }
       )
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'notification_settings',
+          filter: `user_id=eq.${user.id}`
+        }, 
+        (payload) => {
+          if (!isMountedRef.current) return;
+          console.log('🔔 Real-time notification settings update:', payload);
+          queryClient.invalidateQueries({ queryKey: ['notifications'] });
+        }
+      )
       .subscribe();
+
+    console.log('🔌 Subscribed to real-time notifications for user:', user.id);
 
     return () => {
       console.log("🔌 Cleaning up notification real-time subscription");
       supabase.removeChannel(channel);
     };
-  }, [queryClient]);
+  }, [queryClient, user]);
 
   // Cleanup on unmount
   useEffect(() => {
