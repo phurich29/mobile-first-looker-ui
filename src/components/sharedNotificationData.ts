@@ -28,6 +28,7 @@ interface NotificationSettingsData {
   device_code: string;
   min_enabled: boolean;
   max_enabled: boolean;
+  user_id?: string;
 }
 
 // Function to transform notification settings data into our notification format
@@ -78,7 +79,7 @@ export function transformNotificationData(data: NotificationSettingsData[]): Not
 // Function to fetch notifications (kept for backward compatibility)
 export async function fetchNotifications(): Promise<Notification[]> {
   try {
-    // Fetch data from notification_settings table
+    // Fetch data from notification_settings table (RLS will filter by user_id automatically)
     const { data, error } = await supabase
       .from("notification_settings")
       .select(`
@@ -90,7 +91,8 @@ export async function fetchNotifications(): Promise<Notification[]> {
         enabled,
         device_code,
         min_enabled,
-        max_enabled
+        max_enabled,
+        user_id
       `)
       .order("id", { ascending: true });
 

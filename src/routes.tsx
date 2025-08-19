@@ -34,6 +34,7 @@ import DeviceAccessManagement from "./pages/DeviceAccessManagement";
 import Assistant from "./pages/Assistant";
 import PublicAnalysisView from "./pages/PublicAnalysisView";
 import APITestPage from "./pages/APITestPage"; // เพิ่ม import สำหรับหน้าทดสอบ
+import NotificationSettingsPage from "./pages/NotificationSettingsPage";
 
 import { NotificationSenderPage } from "./pages/NotificationSenderPage";
 
@@ -329,6 +330,15 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
             <APITestPage />
+          </ProtectedRoute>
+        ),
+      },
+      // Notification Settings route - require login
+      {
+        path: "notification-settings",
+        element: (
+          <ProtectedRoute>
+            <NotificationSettingsPage />
           </ProtectedRoute>
         ),
       },

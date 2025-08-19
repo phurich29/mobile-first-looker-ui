@@ -25,7 +25,7 @@ export const useNotifications = () => {
     try {
       setError(null);
       
-      // Fetch data from notification_settings table
+      // Fetch data from notification_settings table with user_id filter (RLS will handle this automatically)
       const { data, error } = await supabase
         .from("notification_settings")
         .select(`
@@ -37,7 +37,8 @@ export const useNotifications = () => {
           enabled,
           device_code,
           min_enabled,
-          max_enabled
+          max_enabled,
+          user_id
         `)
         .order("id", { ascending: true });
 
