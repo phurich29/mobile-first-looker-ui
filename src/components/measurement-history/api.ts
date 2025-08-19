@@ -150,11 +150,13 @@ export interface NotificationSettings {
   max_enabled: boolean;
   min_threshold: number;
   max_threshold: number;
+  user_id: string; // เพิ่ม user_id เป็น required field
 }
 
-// Fetch notification settings for a device and measurement
+// Fetch notification settings for a device and measurement (user-specific)
 export const getNotificationSettings = async (deviceCode: string, symbol: string): Promise<NotificationSettings | null> => {
   try {
+    // Note: RLS policies จะกรองให้เห็นเฉพาะการตั้งค่าของ user ปัจจุบันอยู่แล้ว
     const { data: settings, error } = await supabase
       .from('notification_settings')
       .select('*')
@@ -187,12 +189,18 @@ export const saveNotificationSettings = async (settings: {
 }): Promise<void> => {
   const { deviceCode, symbol, name, enabled, minEnabled, maxEnabled, minThreshold, maxThreshold } = settings;
   
-  // First check if settings already exist
+  // Get current user ID
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('User must be authenticated to save notification settings');
+  }
+  
+  // First check if settings already exist for this user
   const existingSettings = await getNotificationSettings(deviceCode, symbol);
   
   try {
     if (existingSettings?.id) {
-      // Update existing settings
+      // Update existing settings (RLS policies จะตรวจสอบ ownership อยู่แล้ว)
       const { error } = await supabase
         .from('notification_settings')
         .update({
@@ -206,7 +214,7 @@ export const saveNotificationSettings = async (settings: {
       
       if (error) throw error;
     } else {
-      // Create new settings
+      // Create new settings with user_id
       const { error } = await supabase
         .from('notification_settings')
         .insert({
@@ -218,6 +226,7 @@ export const saveNotificationSettings = async (settings: {
           max_enabled: maxEnabled,
           min_threshold: minThreshold,
           max_threshold: maxThreshold,
+          user_id: user.id, // เพิ่ม user_id สำหรับการแยกข้อมูลตาม user
         });
       
       if (error) throw error;

@@ -45,6 +45,7 @@ export const useNotificationSettings = () => {
       }
       
       // Fetch notification settings only for accessible devices
+      // หมายเหตุ: RLS policies จะกรองให้เห็นเฉพาะการตั้งค่าของ user ปัจจุบันอัตโนมัติ
       const { data: notificationSettings, error: settingsError } = await supabase
         .from('notification_settings')
         .select('*')

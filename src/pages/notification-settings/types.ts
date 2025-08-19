@@ -9,5 +9,6 @@ export interface NotificationSetting {
   max_enabled: boolean;
   min_threshold: number;
   max_threshold: number;
+  user_id: string; // เพิ่ม user_id เป็น required field
   device_name?: string;
 }
