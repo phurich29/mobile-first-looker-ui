@@ -33,6 +33,7 @@ import AboutRiceflow from "./pages/AboutRiceflow";
 import DeviceAccessManagement from "./pages/DeviceAccessManagement";
 import Assistant from "./pages/Assistant";
 import PublicAnalysisView from "./pages/PublicAnalysisView";
+import APITestPage from "./pages/APITestPage"; // เพิ่ม import สำหรับหน้าทดสอบ
 
 import { NotificationSenderPage } from "./pages/NotificationSenderPage";
 
@@ -319,6 +320,15 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute requiredRoles={["admin"]}>
             <NotificationSenderPage />
+          </ProtectedRoute>
+        ),
+      },
+      // API Testing route - require admin access
+      {
+        path: "api-test",
+        element: (
+          <ProtectedRoute requiredRoles={["admin", "superadmin"]}>
+            <APITestPage />
           </ProtectedRoute>
         ),
       },

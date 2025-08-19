@@ -8,7 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { EquipmentCard } from "@/components/EquipmentCard";
-import { Settings, Users, Shield } from "lucide-react";
+import { Settings, Users, Shield, TestTube2 } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { Database } from "@/integrations/supabase/types";
 
@@ -246,6 +246,12 @@ export default function Admin() {
                   <span>การจัดการสิทธิ์</span>
                 </TabsTrigger>
               )}
+              {(userRoles.includes('admin') || userRoles.includes('superadmin')) && (
+                <TabsTrigger value="testing" className="flex items-center gap-1">
+                  <TestTube2 className="h-4 w-4" />
+                  <span>ทดสอบระบบ</span>
+                </TabsTrigger>
+              )}
             </TabsList>
             
             <TabsContent value="users" className="space-y-4">
@@ -355,6 +361,42 @@ export default function Admin() {
                             ไปหน้าจัดการสิทธิ์
                           </Button>
                         </Link>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            )}
+
+            {/* API Testing Tab */}
+            {(userRoles.includes('admin') || userRoles.includes('superadmin')) && (
+              <TabsContent value="testing" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>การทดสอบระบบ</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="border rounded-md p-4">
+                        <h3 className="font-bold text-lg mb-2">Task 1.3: API Testing Dashboard</h3>
+                        <p className="text-gray-600 mb-4">
+                          ทดสอบการทำงานของ notification settings API หลังแก้ไข user isolation
+                        </p>
+                        
+                        <div className="bg-yellow-50 p-3 rounded-md border border-yellow-200 mb-4">
+                          <p className="text-sm text-yellow-800">
+                            <strong>หมายเหตุ:</strong> การทดสอบนี้จะสร้างข้อมูลทดสอบชั่วคราวเพื่อตรวจสอบการแยกข้อมูลตาม user
+                          </p>
+                        </div>
+                        
+                        <div className="flex gap-4">
+                          <Link to="/api-test">
+                            <Button className="flex items-center gap-2">
+                              <TestTube2 className="h-4 w-4" />
+                              เปิดหน้าทดสอบ API
+                            </Button>
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
