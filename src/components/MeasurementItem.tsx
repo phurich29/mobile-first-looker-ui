@@ -54,8 +54,8 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
     enabled
   });
 
-  // Play alert sound when alert is active and notifications are enabled
-  useAlertSound(isAlertActive, enabled);
+  // Play alert sound when alert is active and notifications are enabled (play once only)
+  useAlertSound(isAlertActive, { enabled, playOnce: true });
 
   // Get translated measurement name
   const getTranslatedName = (measurementName: string) => {
