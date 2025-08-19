@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -71,6 +71,99 @@ export type Database = {
           location?: string | null
           report_enabled?: boolean | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      firebase_fcm_tokens: {
+        Row: {
+          created_at: string | null
+          device_info: Json | null
+          id: string
+          is_active: boolean | null
+          token: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          device_info?: Json | null
+          id?: string
+          is_active?: boolean | null
+          token: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          device_info?: Json | null
+          id?: string
+          is_active?: boolean | null
+          token?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      firebase_notification_logs: {
+        Row: {
+          body: string
+          error_message: string | null
+          id: string
+          result: Json | null
+          sent_at: string | null
+          status: string
+          target: string
+          target_type: string
+          title: string
+        }
+        Insert: {
+          body: string
+          error_message?: string | null
+          id?: string
+          result?: Json | null
+          sent_at?: string | null
+          status: string
+          target: string
+          target_type: string
+          title: string
+        }
+        Update: {
+          body?: string
+          error_message?: string | null
+          id?: string
+          result?: Json | null
+          sent_at?: string | null
+          status?: string
+          target?: string
+          target_type?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      firebase_topic_subscriptions: {
+        Row: {
+          id: string
+          is_subscribed: boolean | null
+          subscribed_at: string | null
+          token: string
+          topic: string
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          id?: string
+          is_subscribed?: boolean | null
+          subscribed_at?: string | null
+          token: string
+          topic: string
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          id?: string
+          is_subscribed?: boolean | null
+          subscribed_at?: string | null
+          token?: string
+          topic?: string
+          unsubscribed_at?: string | null
         }
         Relationships: []
       }
@@ -171,7 +264,7 @@ export type Database = {
           rice_type_id: string
           rice_type_name: string
           updated_at: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           created_at?: string
@@ -185,7 +278,7 @@ export type Database = {
           rice_type_id: string
           rice_type_name: string
           updated_at?: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           created_at?: string
@@ -199,7 +292,7 @@ export type Database = {
           rice_type_id?: string
           rice_type_name?: string
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -215,7 +308,7 @@ export type Database = {
           rice_type_id: string
           threshold_type: string
           timestamp: string | null
-          user_id: string | null
+          user_id: string
           value: number
         }
         Insert: {
@@ -229,7 +322,7 @@ export type Database = {
           rice_type_id: string
           threshold_type: string
           timestamp?: string | null
-          user_id?: string | null
+          user_id: string
           value: number
         }
         Update: {
@@ -243,7 +336,7 @@ export type Database = {
           rice_type_id?: string
           threshold_type?: string
           timestamp?: string | null
-          user_id?: string | null
+          user_id?: string
           value?: number
         }
         Relationships: [
@@ -300,11 +393,15 @@ export type Database = {
       }
       rice_quality_analysis: {
         Row: {
+          analyzed_at_thai: string | null
           black_kernel: number | null
+          brown_rice_rate: number | null
           class1: number | null
           class2: number | null
           class3: number | null
           created_at: string | null
+          cur_material: string | null
+          cur_varity: number | null
           device_code: string | null
           head_rice: number | null
           heavy_chalkiness_rate: number
@@ -313,6 +410,11 @@ export type Database = {
           imperfection_rate: number | null
           impurity_num: number | null
           light_honey_rice: number
+          main_index: number | null
+          main_rate: number | null
+          mix_index: number | null
+          mix_rate: number | null
+          msg_id: number | null
           other_backline: number
           output: number | null
           paddy_rate: number | null
@@ -327,20 +429,26 @@ export type Database = {
           slender_kernel: number | null
           small_brokens: number | null
           small_brokens_c1: number | null
+          sprout_rate: number | null
           sticky_rice_rate: number | null
           thai_datetime: string | null
           topline_rate: number
           total_brokens: number | null
+          unripe_rate: number | null
           whiteness: number | null
           whole_kernels: number | null
           yellow_rice_rate: number | null
         }
         Insert: {
+          analyzed_at_thai?: string | null
           black_kernel?: number | null
+          brown_rice_rate?: number | null
           class1?: number | null
           class2?: number | null
           class3?: number | null
           created_at?: string | null
+          cur_material?: string | null
+          cur_varity?: number | null
           device_code?: string | null
           head_rice?: number | null
           heavy_chalkiness_rate?: number
@@ -349,6 +457,11 @@ export type Database = {
           imperfection_rate?: number | null
           impurity_num?: number | null
           light_honey_rice?: number
+          main_index?: number | null
+          main_rate?: number | null
+          mix_index?: number | null
+          mix_rate?: number | null
+          msg_id?: number | null
           other_backline?: number
           output?: number | null
           paddy_rate?: number | null
@@ -363,20 +476,26 @@ export type Database = {
           slender_kernel?: number | null
           small_brokens?: number | null
           small_brokens_c1?: number | null
+          sprout_rate?: number | null
           sticky_rice_rate?: number | null
           thai_datetime?: string | null
           topline_rate?: number
           total_brokens?: number | null
+          unripe_rate?: number | null
           whiteness?: number | null
           whole_kernels?: number | null
           yellow_rice_rate?: number | null
         }
         Update: {
+          analyzed_at_thai?: string | null
           black_kernel?: number | null
+          brown_rice_rate?: number | null
           class1?: number | null
           class2?: number | null
           class3?: number | null
           created_at?: string | null
+          cur_material?: string | null
+          cur_varity?: number | null
           device_code?: string | null
           head_rice?: number | null
           heavy_chalkiness_rate?: number
@@ -385,6 +504,11 @@ export type Database = {
           imperfection_rate?: number | null
           impurity_num?: number | null
           light_honey_rice?: number
+          main_index?: number | null
+          main_rate?: number | null
+          mix_index?: number | null
+          mix_rate?: number | null
+          msg_id?: number | null
           other_backline?: number
           output?: number | null
           paddy_rate?: number | null
@@ -399,10 +523,12 @@ export type Database = {
           slender_kernel?: number | null
           small_brokens?: number | null
           small_brokens_c1?: number | null
+          sprout_rate?: number | null
           sticky_rice_rate?: number | null
           thai_datetime?: string | null
           topline_rate?: number
           total_brokens?: number | null
+          unripe_rate?: number | null
           whiteness?: number | null
           whole_kernels?: number | null
           yellow_rice_rate?: number | null
@@ -424,6 +550,21 @@ export type Database = {
           created_at?: string
           id?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      "Sending Push Notification": {
+        Row: {
+          created_at: string
+          id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
         }
         Relationships: []
       }
@@ -611,6 +752,16 @@ export type Database = {
       }
     }
     Views: {
+      device_data_summary: {
+        Row: {
+          data_freshness: string | null
+          device_code: string | null
+          display_name: string | null
+          last_updated: string | null
+          location: string | null
+        }
+        Relationships: []
+      }
       guest_enabled_devices: {
         Row: {
           device_code: string | null
@@ -623,11 +774,11 @@ export type Database = {
       analyze_slow_queries: {
         Args: { hours_back?: number }
         Returns: {
-          query_name: string
-          total_calls: number
           avg_execution_ms: number
           max_execution_ms: number
           min_execution_ms: number
+          query_name: string
+          total_calls: number
           total_time_ms: number
         }[]
       }
@@ -635,9 +786,9 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: {
           check_name: string
-          status: string
-          execution_time_ms: number
           details: string
+          execution_time_ms: number
+          status: string
         }[]
       }
       check_notification_thresholds: {
@@ -669,9 +820,9 @@ export type Database = {
       }
       get_devices_with_details: {
         Args: {
-          user_id_param?: string
           is_admin_param?: boolean
           is_superadmin_param?: boolean
+          user_id_param?: string
         }
         Returns: {
           device_code: string
@@ -682,11 +833,11 @@ export type Database = {
       get_guest_cache_status: {
         Args: Record<PropertyKey, never>
         Returns: {
+          expired_cached: number
+          newest_cache: string
+          oldest_cache: string
           total_cached: number
           valid_cached: number
-          expired_cached: number
-          oldest_cache: string
-          newest_cache: string
         }[]
       }
       get_guest_devices_fast: {
@@ -723,9 +874,29 @@ export type Database = {
       get_performance_metrics: {
         Args: Record<PropertyKey, never>
         Returns: {
+          last_updated: string
           metric_name: string
           metric_value: number
-          last_updated: string
+        }[]
+      }
+      get_super_fast_auth_devices: {
+        Args: {
+          is_admin_param?: boolean
+          is_superadmin_param?: boolean
+          user_id_param?: string
+        }
+        Returns: {
+          device_code: string
+          display_name: string
+          updated_at: string
+        }[]
+      }
+      get_super_fast_guest_devices: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          device_code: string
+          display_name: string
+          updated_at: string
         }[]
       }
       get_user_roles: {
@@ -737,11 +908,11 @@ export type Database = {
         Returns: boolean
       }
       has_role: {
-        Args: { user_id: string; role: Database["public"]["Enums"]["app_role"] }
+        Args: { role: Database["public"]["Enums"]["app_role"]; user_id: string }
         Returns: boolean
       }
       increment_counter: {
-        Args: { counter_name: string; increment_by?: number }
+        Args: { counter_name_param: string; increment_by?: number }
         Returns: undefined
       }
       invalidate_guest_devices_cache: {
@@ -756,25 +927,65 @@ export type Database = {
         Args: { user_id_param: string }
         Returns: boolean
       }
+      log_query_performance: {
+        Args: {
+          execution_time_ms: number
+          function_name: string
+          is_cached?: boolean
+          result_count?: number
+        }
+        Returns: undefined
+      }
       log_security_check: {
-        Args: { function_name: string; user_id: string; success: boolean }
+        Args: { function_name: string; success: boolean; user_id: string }
         Returns: undefined
       }
       log_slow_query: {
         Args: {
-          p_query_name: string
-          p_execution_time_ms: number
-          p_query_text?: string
-          p_user_id?: string
-          p_parameters?: Json
           p_error_message?: string
+          p_execution_time_ms: number
+          p_parameters?: Json
+          p_query_name: string
+          p_query_text?: string
           p_sql_state?: string
+          p_user_id?: string
         }
         Returns: undefined
+      }
+      monitor_policy_performance: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          avg_check_time_ms: number
+          policy_count: number
+          table_name: string
+        }[]
+      }
+      query_with_timeout: {
+        Args: { query_name: string; timeout_seconds?: number }
+        Returns: {
+          message: string
+          success: boolean
+        }[]
+      }
+      rate_limited_guest_devices: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          device_code: string
+          display_name: string
+          updated_at: string
+        }[]
+      }
+      refresh_device_summary: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
       refresh_guest_enabled_devices: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      safe_check_notification_thresholds: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       validate_password_strength: {
         Args: { password: string }
