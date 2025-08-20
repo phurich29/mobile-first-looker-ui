@@ -50,8 +50,8 @@ export const useGlobalNotifications = () => {
       console.log('✅ Fetched notifications:', data?.length || 0, 'items');
       return data as NotificationItem[];
     },
-    refetchInterval: 30000, // Check every 30 seconds
-    staleTime: 25000, // Consider data fresh for 25 seconds
+    refetchInterval: 5000, // Check every 5 seconds during testing
+    staleTime: 4000, // Consider data fresh for 4 seconds
   });
 
   // Check for new notifications and show alerts
