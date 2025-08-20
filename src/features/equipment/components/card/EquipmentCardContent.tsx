@@ -1,10 +1,11 @@
 
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart, Settings, Clock, Circle } from "lucide-react";
+import { BarChart, Settings, Clock, Circle, Bell } from "lucide-react";
 import { Link } from "react-router-dom";
 import { formatEquipmentTime, isRecentUpdate, getTimeClasses } from "./utils/timeUtils";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useUserNotifications } from "../../hooks/useUserNotifications";
 
 interface EquipmentCardContentProps {
   deviceCode: string;
@@ -22,6 +23,7 @@ export function EquipmentCardContent({
   deviceData
 }: EquipmentCardContentProps) {
   const { t, language } = useTranslation();
+  const { data: hasUserNotifications } = useUserNotifications(deviceCode);
   const formattedTime = formatEquipmentTime(lastUpdated, language);
   const isRecent = isRecentUpdate(lastUpdated, deviceData);
   const timeClasses = getTimeClasses(isRecent);
@@ -44,6 +46,11 @@ export function EquipmentCardContent({
             <Circle className="h-4 w-4 ml-1.5 text-green-500 fill-green-500" />
           ) : (
             <Circle className="h-4 w-4 ml-1.5 text-red-500 fill-red-500" />
+          )}
+          {hasUserNotifications && (
+            <div title="คุณได้ตั้งค่าแจ้งเตือนสำหรับเครื่องนี้ไว้">
+              <Bell className="h-3.5 w-3.5 ml-1 text-amber-500" />
+            </div>
           )}
         </div>
       </div>
