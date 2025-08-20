@@ -1,8 +1,7 @@
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Trash2, Bell } from "lucide-react";
+import { Users, Trash2 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useDeviceNotifications } from "../../hooks/useDeviceNotifications";
 
 interface EquipmentCardHeaderProps {
   deviceCode: string;
@@ -20,7 +19,6 @@ export function EquipmentCardHeader({
   onDeleteClick
 }: EquipmentCardHeaderProps) {
   const { t } = useTranslation();
-  const { data: hasNotifications } = useDeviceNotifications(deviceCode);
   
   return (
     <CardHeader className="pb-1 p-2 sm:p-4">
@@ -37,11 +35,6 @@ export function EquipmentCardHeader({
               {displayName || deviceCode}
             </CardTitle>
             <div className="flex items-center flex-shrink-0 ml-1">
-              {hasNotifications && (
-                <div title="มีการตั้งแจ้งเตือน">
-                  <Bell className="h-4 w-4 text-amber-500 mr-1" />
-                </div>
-              )}
               {isSuperAdmin && (
                 <>
                   <Button
