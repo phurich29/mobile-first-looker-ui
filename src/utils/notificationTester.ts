@@ -50,3 +50,22 @@ export const checkLatestData = async () => {
     return { success: false, error: err };
   }
 };
+
+// Run comprehensive notification system test
+export const runNotificationSystemTest = async () => {
+  console.log('🧪 Running comprehensive notification system test...');
+  
+  // Test the edge function
+  const testNotification = await testCheckNotifications();
+  
+  // Check latest data
+  const latestData = await checkLatestData();
+  
+  const results = {
+    testNotification,
+    latestData
+  };
+  
+  console.log('📊 Notification system test results:', results);
+  return results;
+};
