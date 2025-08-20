@@ -1,3 +1,11 @@
+# แผนงาน: อัปเดตไฟล์ .gitignore
+
+- [x] อ่านไฟล์ `.gitignore` ที่มีอยู่
+- [ ] เพิ่ม `/.claude-flow/metrics/system-metrics.json` เข้าไปในไฟล์ `.gitignore`
+- [ ] สรุปการเปลี่ยนแปลงในส่วน "Review"
+
+---
+
 # แผนการทำงาน: ลบไอคอนกระดิ่ง
 
 - [x] **ตรวจสอบไฟล์**: อ่านไฟล์ `src/features/equipment/components/card/EquipmentCardHeader.tsx`
