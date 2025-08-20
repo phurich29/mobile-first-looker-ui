@@ -1,8 +1,8 @@
-
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Trash2 } from "lucide-react";
+import { Users, Trash2, Bell } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useDeviceNotifications } from "../../hooks/useDeviceNotifications";
 
 interface EquipmentCardHeaderProps {
   deviceCode: string;
@@ -20,6 +20,8 @@ export function EquipmentCardHeader({
   onDeleteClick
 }: EquipmentCardHeaderProps) {
   const { t } = useTranslation();
+  const { data: hasNotifications } = useDeviceNotifications(deviceCode);
+  
   return (
     <CardHeader className="pb-1 p-2 sm:p-4">
       <div className="flex flex-row items-start gap-2 sm:gap-3">
@@ -34,28 +36,33 @@ export function EquipmentCardHeader({
             <CardTitle className="text-sm font-bold text-gray-900 dark:text-white truncate pr-1">
               {displayName || deviceCode}
             </CardTitle>
-            {isSuperAdmin && (
-              <div className="flex items-center flex-shrink-0 ml-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                  onClick={onUsersClick}
-                  title={t('mainMenu', 'userManagement')}
-                >
-                  <Users className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                  onClick={onDeleteClick}
-                  title={t('device', 'deleteDevice')}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
+            <div className="flex items-center flex-shrink-0 ml-1">
+              {hasNotifications && (
+                <Bell className="h-4 w-4 text-amber-500 mr-1" title="มีการตั้งแจ้งเตือน" />
+              )}
+              {isSuperAdmin && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    onClick={onUsersClick}
+                    title={t('mainMenu', 'userManagement')}
+                  >
+                    <Users className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                    onClick={onDeleteClick}
+                    title={t('device', 'deleteDevice')}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
           <div className="text-xs text-gray-500 dark:text-gray-400 mt-0 sm:mt-0.5 truncate">
             {t('device', 'deviceCode')}: {deviceCode}
