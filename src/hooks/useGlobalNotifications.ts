@@ -19,6 +19,14 @@ interface NotificationItem {
 export const useGlobalNotifications = () => {
   const lastNotificationRef = useRef<string | null>(null);
   const processedNotificationsRef = useRef<Set<string>>(new Set());
+  const isAlertActiveRef = useRef<boolean>(false);
+  
+  // Use alert sound with same frequency as notification system
+  useAlertSound(isAlertActiveRef.current, {
+    enabled: true,
+    playOnce: false, // เล่นต่อเนื่อง
+    intervalMs: 5000 // ทุก 5 วินาที ตามที่ user ต้องการ
+  });
   
   // Fetch notifications every 30 seconds
   const { data: notifications, refetch } = useQuery({
@@ -53,13 +61,21 @@ export const useGlobalNotifications = () => {
       latestNotification.id !== lastNotificationRef.current &&
       !processedNotificationsRef.current.has(notificationId)
     ) {
-      // Show toast notification
+      // Activate alert sound
+      isAlertActiveRef.current = true;
+      
+      // Show toast notification in bottom-right corner
       toast({
         title: "🚨 แจ้งเตือนคุณภาพข้าว",
         description: latestNotification.notification_message,
         variant: "destructive",
         duration: 10000, // Show for 10 seconds
       });
+
+      // Stop alert sound after notification duration (10 seconds)
+      setTimeout(() => {
+        isAlertActiveRef.current = false;
+      }, 10000);
 
       // Update refs
       lastNotificationRef.current = latestNotification.id;
@@ -102,12 +118,20 @@ export const useGlobalNotifications = () => {
           const notificationId = `${newNotification.id}-${newNotification.notification_count}`;
           
           if (!processedNotificationsRef.current.has(notificationId)) {
+            // Activate alert sound for real-time notification
+            isAlertActiveRef.current = true;
+            
             toast({
               title: "🚨 แจ้งเตือนคุณภาพข้าว",
               description: newNotification.notification_message,
               variant: "destructive",
               duration: 10000,
             });
+            
+            // Stop alert sound after notification duration
+            setTimeout(() => {
+              isAlertActiveRef.current = false;
+            }, 10000);
             
             processedNotificationsRef.current.add(notificationId);
           }
