@@ -38,7 +38,9 @@ export function EquipmentCardHeader({
             </CardTitle>
             <div className="flex items-center flex-shrink-0 ml-1">
               {hasNotifications && (
-                <Bell className="h-4 w-4 text-amber-500 mr-1" title="มีการตั้งแจ้งเตือน" />
+                <div title="มีการตั้งแจ้งเตือน">
+                  <Bell className="h-4 w-4 text-amber-500 mr-1" />
+                </div>
               )}
               {isSuperAdmin && (
                 <>

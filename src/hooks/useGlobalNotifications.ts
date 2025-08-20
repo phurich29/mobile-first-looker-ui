@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -22,13 +22,14 @@ interface NotificationItem {
 export const useGlobalNotifications = () => {
   const lastNotificationRef = useRef<string | null>(null);
   const processedNotificationsRef = useRef<Set<string>>(new Set());
-  const isAlertActiveRef = useRef<boolean>(false);
+  const alertTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [isAlertActive, setIsAlertActive] = useState<boolean>(false);
   
-  // Use alert sound with same frequency as notification system
-  useAlertSound(isAlertActiveRef.current, {
+  // Use alert sound - เล่นแค่ครั้งเดียวต่อการแจ้งเตือน
+  useAlertSound(isAlertActive, {
     enabled: true,
-    playOnce: false, // เล่นต่อเนื่อง
-    intervalMs: 5000 // ทุก 5 วินาที ตามที่ user ต้องการ
+    playOnce: true, // เล่นแค่ครั้งเดียว
+    intervalMs: 5000 // ไม่ใช้แล้วเพราะ playOnce = true
   });
   
   // Fetch notifications every 30 seconds
@@ -67,8 +68,20 @@ export const useGlobalNotifications = () => {
       latestNotification.id !== lastNotificationRef.current &&
       !processedNotificationsRef.current.has(notificationId)
     ) {
+      console.log('🚨 New notification detected - activating alert:', {
+        id: latestNotification.id,
+        message: latestNotification.notification_message,
+        isAlertCurrentlyActive: isAlertActive
+      });
+      
+      // Clear any existing timeout
+      if (alertTimeoutRef.current) {
+        clearTimeout(alertTimeoutRef.current);
+        alertTimeoutRef.current = null;
+      }
+      
       // Activate alert sound
-      isAlertActiveRef.current = true;
+      setIsAlertActive(true);
       
       // Show toast notification in bottom-right corner
       console.log('🚨 Showing notification toast:', latestNotification.notification_message);
@@ -80,9 +93,10 @@ export const useGlobalNotifications = () => {
       });
 
       // Stop alert sound after notification duration (10 seconds)
-      setTimeout(() => {
-        isAlertActiveRef.current = false;
-        console.log('🔕 Alert sound stopped');
+      alertTimeoutRef.current = setTimeout(() => {
+        setIsAlertActive(false);
+        console.log('🔕 Alert sound stopped after timeout');
+        alertTimeoutRef.current = null;
       }, 10000);
 
       // Update refs
@@ -126,8 +140,19 @@ export const useGlobalNotifications = () => {
           const notificationId = `${newNotification.id}-${newNotification.notification_count}`;
           
           if (!processedNotificationsRef.current.has(notificationId)) {
+            console.log('🚨 Real-time notification - activating alert:', {
+              id: newNotification.id,
+              message: newNotification.notification_message
+            });
+            
+            // Clear any existing timeout
+            if (alertTimeoutRef.current) {
+              clearTimeout(alertTimeoutRef.current);
+              alertTimeoutRef.current = null;
+            }
+            
             // Activate alert sound for real-time notification
-            isAlertActiveRef.current = true;
+            setIsAlertActive(true);
             
             toast({
               title: "🚨 แจ้งเตือนคุณภาพข้าว",
@@ -137,8 +162,10 @@ export const useGlobalNotifications = () => {
             });
             
             // Stop alert sound after notification duration
-            setTimeout(() => {
-              isAlertActiveRef.current = false;
+            alertTimeoutRef.current = setTimeout(() => {
+              setIsAlertActive(false);
+              console.log('🔕 Real-time alert sound stopped after timeout');
+              alertTimeoutRef.current = null;
             }, 10000);
             
             processedNotificationsRef.current.add(notificationId);
@@ -149,6 +176,16 @@ export const useGlobalNotifications = () => {
 
     return () => {
       supabase.removeChannel(channel);
+    };
+  }, [refetch]);
+  
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (alertTimeoutRef.current) {
+        clearTimeout(alertTimeoutRef.current);
+        alertTimeoutRef.current = null;
+      }
     };
   }, [refetch]);
 
