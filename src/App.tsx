@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { Capacitor } from "@capacitor/core";
 
 import { NotificationPermissionPopup } from '@/components/NotificationPermissionPopup';
+import { GlobalNotificationManager } from '@/components/GlobalNotificationManager';
 
 
 
@@ -251,6 +252,7 @@ const App: React.FC = () => {
           <CountdownProvider>
             <AuthProvider>
               <QueryClientProvider client={queryClient}>
+                <GlobalNotificationManager />
                 <RouterProvider router={router} />
                 <Toaster />
                 {/* Disabled notification popup to prevent annoying modal */}

@@ -332,7 +332,7 @@ export const ShareLinkModal: React.FC<ShareLinkModalProps> = ({
                         ) : (
                           <Share2 className="h-4 w-4" />
                         )}
-                        {getShareButtonText(sharingCapabilities.recommendedMethod)}
+                        {getShareButtonText(sharingCapabilities.recommendedMethod as 'web_share' | 'clipboard' | 'manual')}
                       </Button>
                     )}
                   </div>

@@ -540,7 +540,7 @@ export const SharedLinksSection: React.FC = () => {
                             ) : (
                               <Copy className="h-4 w-4" />
                             )}
-                            {getShareButtonText(sharingCapabilities.recommendedMethod)}
+                            {getShareButtonText(sharingCapabilities.recommendedMethod as 'web_share' | 'clipboard' | 'manual')}
                           </Button>
                         </DialogFooter>
                       </div>
