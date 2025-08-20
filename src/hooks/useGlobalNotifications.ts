@@ -4,6 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useAlertSound } from '@/hooks/useAlertSound';
 
+/**
+ * Global Notification Hook - ใช้สำหรับแจ้งเตือนทั่วทั้งระบบ
+ */
 interface NotificationItem {
   id: string;
   device_code: string;
@@ -32,6 +35,7 @@ export const useGlobalNotifications = () => {
   const { data: notifications, refetch } = useQuery({
     queryKey: ['global-notifications'],
     queryFn: async () => {
+      console.log('🔍 Fetching global notifications...');
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
@@ -39,10 +43,11 @@ export const useGlobalNotifications = () => {
         .limit(10);
       
       if (error) {
-        console.error('Failed to fetch notifications:', error);
+        console.error('❌ Failed to fetch notifications:', error);
         return [];
       }
       
+      console.log('✅ Fetched notifications:', data?.length || 0, 'items');
       return data as NotificationItem[];
     },
     refetchInterval: 30000, // Check every 30 seconds
@@ -51,6 +56,7 @@ export const useGlobalNotifications = () => {
 
   // Check for new notifications and show alerts
   useEffect(() => {
+    console.log('🔔 useGlobalNotifications: Checking for new notifications...', notifications?.length || 0);
     if (!notifications || notifications.length === 0) return;
 
     const latestNotification = notifications[0];
@@ -65,6 +71,7 @@ export const useGlobalNotifications = () => {
       isAlertActiveRef.current = true;
       
       // Show toast notification in bottom-right corner
+      console.log('🚨 Showing notification toast:', latestNotification.notification_message);
       toast({
         title: "🚨 แจ้งเตือนคุณภาพข้าว",
         description: latestNotification.notification_message,
@@ -75,6 +82,7 @@ export const useGlobalNotifications = () => {
       // Stop alert sound after notification duration (10 seconds)
       setTimeout(() => {
         isAlertActiveRef.current = false;
+        console.log('🔕 Alert sound stopped');
       }, 10000);
 
       // Update refs
