@@ -5,7 +5,6 @@ export interface RiceQualityData {
   device_display_name?: string; // Added for device display name
   created_at: string;
   thai_datetime: string;
-  machine_unix_time?: number | null; // Added for China time display
   class1: number | null;
   class2: number | null;
   class3: number | null;
