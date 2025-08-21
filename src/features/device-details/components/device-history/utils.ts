@@ -111,29 +111,6 @@ export const formatCellValue = (key: string, value: any): string => {
     return `${formattedDate} ${formattedTime}`;
   }
   
-  if (key === 'msg_id') {
-    if (!value) return '-';
-    // แปลง msg_id (Unix timestamp) เป็นเวลาประเทศจีน (มากกว่าไทย 1 ชั่วโมง)
-    const timestamp = typeof value === 'string' ? parseInt(value) : value;
-    if (isNaN(timestamp)) return '-';
-    
-    const dateObj = new Date(timestamp * 1000); // Unix timestamp เป็น milliseconds
-    // เพิ่มเวลา 8 ชั่วโมง (UTC+8 สำหรับเวลาจีน)
-    dateObj.setHours(dateObj.getHours() + 8);
-
-    const formattedDate = dateObj.toLocaleDateString('th-TH', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
-    const formattedTime = dateObj.toLocaleTimeString('th-TH', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false, // ใช้รูปแบบ 24 ชั่วโมง
-    });
-    return `${formattedDate} ${formattedTime}`;
-  }
-  
   if (key === 'device_code') {
     return value?.toString() || '-';
   }
