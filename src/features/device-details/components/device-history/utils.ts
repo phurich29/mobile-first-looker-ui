@@ -75,7 +75,7 @@ export const COLUMN_ORDER = [
   // New columns
   'cur_material',
   'cur_variety',
-  'simple_index',
+  'sample_index',
   'machine_unix_time'
 ];
 
@@ -85,7 +85,7 @@ export const getColumnKeys = (data: RiceQualityData[]): string[] => {
   // ใช้ลำดับคอลัมน์ที่กำหนดไว้ล่วงหน้า และกรองคอลัมน์ที่ไม่มีข้อมูล
   return COLUMN_ORDER.filter(key => 
     data[0].hasOwnProperty(key) && 
-    !['id', 'thai_datetime', 'sample_index', 'output'].includes(key) // กรอง thai_datetime ออก, ไม่กรอง created_at
+    !['id', 'thai_datetime', 'output'].includes(key) // กรอง thai_datetime และ output ออก, ไม่กรอง sample_index
   );
 };
 
@@ -120,6 +120,10 @@ export const formatCellValue = (key: string, value: any): string => {
   }
 
   if (key === 'cur_material' || key === 'cur_variety') {
+    return value?.toString() || '-';
+  }
+
+  if (key === 'sample_index') {
     return value?.toString() || '-';
   }
   

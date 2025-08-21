@@ -40,7 +40,7 @@ export interface RiceQualityData {
   // New fields
   cur_material: string | null;
   cur_variety: number | null; // Updated to match database schema
-  simple_index: string | null;
+  sample_index: number | null;
   msg_id: string | null;
   [key: string]: any;
 }
