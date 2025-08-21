@@ -49,7 +49,7 @@ export function EquipmentCardContent({
           )}
           {hasUserNotifications && (
             <div title="คุณได้ตั้งค่าแจ้งเตือนสำหรับเครื่องนี้ไว้">
-              <Bell className="h-3.5 w-3.5 ml-1 text-amber-500" />
+              <Bell className="h-3.5 w-3.5 ml-1.5 text-amber-500" />
             </div>
           )}
         </div>
