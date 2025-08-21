@@ -5,10 +5,17 @@ import { useAuth } from '@/components/AuthProvider';
 export const useUserNotifications = (deviceCode: string) => {
   const { user } = useAuth();
   
+  console.log(`🔔 useUserNotifications for device ${deviceCode}, user:`, user?.id);
+  
   return useQuery({
     queryKey: ['user-notifications', deviceCode, user?.id],
     queryFn: async () => {
-      if (!user?.id) return false;
+      if (!user?.id) {
+        console.log(`🔔 No user ID for device ${deviceCode}`);
+        return false;
+      }
+      
+      console.log(`🔔 Fetching notifications for device ${deviceCode}, user ${user.id}`);
       
       const { data, error } = await supabase
         .from('notification_settings')
@@ -18,10 +25,11 @@ export const useUserNotifications = (deviceCode: string) => {
         .eq('enabled', true);
       
       if (error) {
-        console.error('Error fetching user notifications:', error);
+        console.error(`🔔 Error fetching user notifications for ${deviceCode}:`, error);
         return false;
       }
       
+      console.log(`🔔 Notification data for device ${deviceCode}:`, data);
       return data && data.length > 0;
     },
     staleTime: 30000, // Cache for 30 seconds

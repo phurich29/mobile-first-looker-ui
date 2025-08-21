@@ -23,10 +23,13 @@ export function EquipmentCardContent({
   deviceData
 }: EquipmentCardContentProps) {
   const { t, language } = useTranslation();
-  const { data: hasUserNotifications } = useUserNotifications(deviceCode);
+  const { data: hasUserNotifications, isLoading, error } = useUserNotifications(deviceCode);
   const formattedTime = formatEquipmentTime(lastUpdated, language);
   const isRecent = isRecentUpdate(lastUpdated, deviceData);
   const timeClasses = getTimeClasses(isRecent);
+
+  // Debug logging for notification status
+  console.log(`🔔 Device ${deviceCode} - hasUserNotifications:`, hasUserNotifications, 'isLoading:', isLoading, 'error:', error);
 
   const handleDeviceClick = () => {
     // Save last viewed device for both authenticated users and guests
