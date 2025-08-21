@@ -118,6 +118,10 @@ export const formatCellValue = (key: string, value: any): string => {
   if (key === 'machine_unix_time') {
     return value?.toString() || '-';
   }
+
+  if (key === 'cur_material' || key === 'cur_variety') {
+    return value?.toString() || '-';
+  }
   
   return formatValue(value);
 };
