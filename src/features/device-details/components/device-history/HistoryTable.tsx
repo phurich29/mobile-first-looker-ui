@@ -106,7 +106,7 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
                         key === 'device_display_name' ? 'sticky left-0 bg-white dark:bg-gray-800 z-10 font-medium' : ''
                       }`}
                     >
-                      {formatCellValue(key, value)}
+                      {formatCellValue(key, value, row)}
                     </TableCell>
                   );
                 })}

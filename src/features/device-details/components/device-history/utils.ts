@@ -40,6 +40,7 @@ export const formatValue = (value: any): string => {
 export const COLUMN_ORDER = [
   'created_at',
   'device_code',
+  'machine_unix_time',
   'class1',
   'class2',
   'class3',
@@ -89,7 +90,7 @@ export const getColumnKeys = (data: RiceQualityData[]): string[] => {
   );
 };
 
-export const formatCellValue = (key: string, value: any): string => {
+export const formatCellValue = (key: string, value: any, rowData?: any): string => {
   if (key === 'created_at') {
     if (!value) return '-';
     // Assuming value is a UTC timestamp string from Supabase
@@ -98,6 +99,30 @@ export const formatCellValue = (key: string, value: any): string => {
     // เพิ่มเวลา 7 ชั่วโมงเหมือน TimeDisplay.tsx
     dateObj.setHours(dateObj.getHours() + 7);
 
+    const formattedDate = dateObj.toLocaleDateString('th-TH', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+    const formattedTime = dateObj.toLocaleTimeString('th-TH', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false, // ใช้รูปแบบ 24 ชั่วโมง
+    });
+    return `${formattedDate} ${formattedTime}`;
+  }
+  
+  if (key === 'machine_unix_time') {
+    // แปลง msg_id Unix timestamp เป็นเวลาประเทศจีน (UTC+8)
+    const msgId = rowData?.msg_id;
+    if (!msgId) return '-';
+    
+    // แปลง Unix timestamp เป็น Date object
+    const dateObj = new Date(Number(msgId) * 1000);
+    
+    // เพิ่มเวลา 8 ชั่วโมงสำหรับเวลาประเทศจีน (UTC+8)
+    dateObj.setHours(dateObj.getHours() + 8);
+    
     const formattedDate = dateObj.toLocaleDateString('th-TH', {
       day: '2-digit',
       month: '2-digit',
