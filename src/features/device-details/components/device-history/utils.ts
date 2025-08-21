@@ -76,7 +76,7 @@ export const COLUMN_ORDER = [
   'cur_material',
   'cur_variety',
   'simple_index',
-  'msg_id'
+  'machine_unix_time'
 ];
 
 export const getColumnKeys = (data: RiceQualityData[]): string[] => {
@@ -113,6 +113,32 @@ export const formatCellValue = (key: string, value: any): string => {
   
   if (key === 'device_code') {
     return value?.toString() || '-';
+  }
+
+  if (key === 'machine_unix_time') {
+    // Convert msg_id (Unix timestamp) to China time (UTC+8)
+    if (!value) return '-';
+    
+    const timestamp = parseInt(value);
+    if (isNaN(timestamp)) return '-';
+    
+    // Convert Unix timestamp (seconds) to Date object
+    const dateObj = new Date(timestamp * 1000);
+    
+    // Add 8 hours for China timezone (UTC+8)
+    dateObj.setHours(dateObj.getHours() + 8);
+    
+    const formattedDate = dateObj.toLocaleDateString('th-TH', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+    const formattedTime = dateObj.toLocaleTimeString('th-TH', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+    return `${formattedDate} ${formattedTime}`;
   }
   
   return formatValue(value);

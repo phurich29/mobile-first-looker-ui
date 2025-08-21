@@ -75,6 +75,8 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
                   ? t('dataCategories', 'deviceName')
                   : key === 'output'
                   ? t('dataCategories', 'kernelCount')
+                  : key === 'machine_unix_time'
+                  ? 'เวลาเครื่อง (จีน)'
                   : getColumnTranslation(key);
                 
                 return (
@@ -95,8 +97,11 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
               <TableRow key={row.id} onClick={() => onRowClick(row)} className="cursor-pointer hover:bg-muted/50">
                 {columnKeys.map((key) => {
                   // Use device_code as fallback if device_display_name is not available
+                  // Use msg_id for machine_unix_time conversion
                   const value = key === 'device_display_name' 
                     ? row.device_display_name || row.device_code 
+                    : key === 'machine_unix_time'
+                    ? row.msg_id
                     : row[key];
                   
                   return (
