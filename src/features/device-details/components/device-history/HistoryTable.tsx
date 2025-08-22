@@ -39,7 +39,7 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
   const [dragState, dragHandlers] = useDragScroll(containerRef);
   // Get all column keys and create custom order: วันที่บันทึก, ชื่ออุปกรณ์, รหัสเครื่อง, จำนวนเมล็ด, then rest
   const allKeys = getColumnKeys(historyData);
-  const priorityColumns = ['created_at', 'device_display_name', 'device_code', 'output'];
+  const priorityColumns = ['created_at', 'machine_unix_time', 'device_display_name', 'device_code', 'output'];
   const remainingKeys = allKeys.filter(k => !priorityColumns.includes(k) && k !== 'device_display_name' && k !== 'output');
   
   const columnKeys = [...priorityColumns, ...remainingKeys];

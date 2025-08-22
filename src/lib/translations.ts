@@ -417,6 +417,7 @@ export const translations = {
     main_index: { th: 'ดัชนีหลัก', en: 'Main Index', zh: '主要指数' },
     recordDate: { th: 'วันที่บันทึก', en: 'Record Date', zh: '记录日期' },
     deviceCode: { th: 'รหัสเครื่อง', en: 'Device Code', zh: '设备代码' },
+    machineUnixTime: { th: 'Timestamp เครื่องวัด', en: 'Machine Timestamp', zh: '设备时间戳' },
   },
   publicAnalysis: {
     publicShare: { th: 'แชร์สาธารณะ', en: 'Public Share', zh: '公开分享' },
