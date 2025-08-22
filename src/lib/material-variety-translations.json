@@ -1,0 +1,184 @@
+{
+  "categories": {
+    "material": {
+      "title": {
+        "zh": "材料",
+        "en": "Material",
+        "th": "วัตถุดิบ"
+      },
+      "items": [
+        {
+          "code": "0",
+          "name_zh": "大米",
+          "name_en": "Big Rice",
+          "name_th": "ใหญ่ ข้าว"
+        },
+        {
+          "code": "1",
+          "name_zh": "小麦",
+          "name_en": "Wheat",
+          "name_th": "ข้าวสาลี"
+        },
+        {
+          "code": "2",
+          "name_zh": "糯米",
+          "name_en": "Sticky Rice",
+          "name_th": "ข้าวเหนียว"
+        },
+        {
+          "code": "3",
+          "name_zh": "稻谷",
+          "name_en": "Unhusked Rice",
+          "name_th": "ข้าวเปลือก"
+        },
+        {
+          "code": "4",
+          "name_zh": "糙米",
+          "name_en": "Brown Rice",
+          "name_th": "ข้าวกล้อง ข้าว"
+        },
+        {
+          "code": "5",
+          "name_zh": "红米",
+          "name_en": "Red Rice",
+          "name_th": "ข้าวสีแดง"
+        },
+        {
+          "code": "6",
+          "name_zh": "紫米",
+          "name_en": "Purple Rice",
+          "name_th": "ข้าวสีม่วง"
+        },
+        {
+          "code": "7",
+          "name_zh": "蒸谷米",
+          "name_en": "Steam Rice",
+          "name_th": "ข้าวนึ่ง"
+        },
+        {
+          "code": "8_0",
+          "name_zh": "泰国茉莉香_白米",
+          "name_en": "Thai Hommali_White Rice",
+          "name_th": "ข้าวหอมมะลิ_ข้าวต้น"
+        },
+        {
+          "code": "8_1",
+          "name_zh": "泰国茉莉香_碎米",
+          "name_en": "Thai Hommali_Broken Rice",
+          "name_th": "ข้าวหอมมะลิ_ข้าวหักรวม"
+        },
+        {
+          "code": "8_2",
+          "name_zh": "泰国茉莉香_糙米",
+          "name_en": "Thai Hommali_Cargo Rice",
+          "name_th": "ข้าวหอมมะลิ_ข้าวกล้อง"
+        },
+        {
+          "code": "9_0",
+          "name_zh": "泰国香米_白米",
+          "name_en": "Thai Jasmine_White Rice",
+          "name_th": "ข้าวหอม_ข้าวต้น"
+        },
+        {
+          "code": "9_1",
+          "name_zh": "泰国香米_碎米",
+          "name_en": "Thai Jasmine_Broken Rice",
+          "name_th": "ข้าวหอม_ข้าวหักรวม"
+        },
+        {
+          "code": "9_2",
+          "name_zh": "泰国香米_糙米",
+          "name_en": "Thai Jasmine_Cargo Rice",
+          "name_th": "ข้าวหอม_ข้าวกล้อง"
+        },
+        {
+          "code": "10_0",
+          "name_zh": "泰国白米_白米",
+          "name_en": "Thai White Rice_White Rice",
+          "name_th": "ข้าวขาว_ข้าวต้น"
+        },
+        {
+          "code": "10_1",
+          "name_zh": "泰国白米_碎米",
+          "name_en": "Thai White Rice_Broken Rice",
+          "name_th": "ข้าวขาว_ข้าวหักรวม"
+        },
+        {
+          "code": "10_2",
+          "name_zh": "泰国白米_糙米",
+          "name_en": "Thai White Rice_Cargo Rice",
+          "name_th": "ข้าวขาว_ข้าวกล้อง"
+        },
+        {
+          "code": "11_0",
+          "name_zh": "泰国糯米_白米",
+          "name_en": "Thai Glutinous Rice_White Rice",
+          "name_th": "ข้าวเหนียว_ข้าวต้น"
+        },
+        {
+          "code": "11_1",
+          "name_zh": "泰国糯米_碎米",
+          "name_en": "Thai Glutinous Rice_Broken Rice",
+          "name_th": "ข้าวเหนียว_ข้าวหักรวม"
+        },
+        {
+          "code": "11_2",
+          "name_zh": "泰国糯米_糙米",
+          "name_en": "Thai Glutinous Rice_Cargo Rice",
+          "name_th": "ข้าวเหนียว_ข้าวกล้อง"
+        },
+        {
+          "code": "12_0",
+          "name_zh": "泰国蒸谷米_白米",
+          "name_en": "Thai Parboiled Rice_White Rice",
+          "name_th": "ข้าวนึ่ง_ข้าวต้น"
+        },
+        {
+          "code": "12_1",
+          "name_zh": "泰国蒸谷米_碎米",
+          "name_en": "Thai Parboiled Rice_Broken Rice",
+          "name_th": "ข้าวนึ่ง_ข้าวหักรวม"
+        },
+        {
+          "code": "12_2",
+          "name_zh": "泰国蒸谷米_糙米",
+          "name_en": "Thai Parboiled Rice_Cargo Rice",
+          "name_th": "ข้าวนึ่ง_ข้าวกล้อง"
+        },
+        {
+          "code": "13",
+          "name_zh": "泰国稻谷",
+          "name_en": "Paddy",
+          "name_th": "ข้าวไทย"
+        }
+      ]
+    },
+    "variety_detect": {
+      "title": {
+        "zh": "品种检测",
+        "en": "Variety Detect",
+        "th": "การตรวจสอบพันธุ์"
+      },
+      "items": [
+        {
+          "code": "0",
+          "name_zh": "原粮",
+          "name_en": "Source Grain",
+          "name_th": "เมล็ดต้นทาง"
+        },
+        {
+          "code": "1",
+          "name_zh": "成品",
+          "name_en": "Finished",
+          "name_th": "เมล็ดที่ตรวจเสร็จ"
+        },
+        {
+          "code": "2",
+          "name_zh": "副产品",
+          "name_en": "By Grain",
+          "name_th": "ผลิตภัณฑ์พลอยได้"
+        }
+      ]
+    }
+  }
+}

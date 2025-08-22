@@ -1,4 +1,3 @@
-
 import React, { useRef } from "react";
 import { ResponsiveTable } from "@/components/ui/responsive-table";
 import { TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
@@ -11,6 +10,7 @@ import { RiceQualityData } from './types';
 import { formatCellValue, getColumnKeys } from './utils';
 import { useDragScroll } from "@/utils/dragUtils";
 import { useTranslation } from "@/hooks/useTranslation";
+import materialVarietyTranslations from "@/lib/material-variety-translations.json";
 
 interface HistoryTableProps {
   historyData: RiceQualityData[];
@@ -33,7 +33,7 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
   onItemsPerPageChange,
   onRowClick
 }) => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const { getColumnTranslation } = useMeasurementTranslations();
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragState, dragHandlers] = useDragScroll(containerRef);
@@ -43,6 +43,22 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
   const remainingKeys = allKeys.filter(k => !priorityColumns.includes(k) && k !== 'device_display_name' && k !== 'output');
   
   const columnKeys = [...priorityColumns, ...remainingKeys];
+
+  // Helper: translate material/variety code based on current language and JSON mapping
+  const translateByCode = (category: 'material' | 'variety_detect', code: string | number) => {
+    try {
+      const categories: any = (materialVarietyTranslations as any).categories;
+      const items: any[] = categories?.[category]?.items || [];
+      const codeStr = String(code);
+      const found = items.find((it) => it.code === codeStr);
+      if (!found) return codeStr;
+
+      const langKey = language === 'th' ? 'name_th' : language === 'zh' ? 'name_zh' : 'name_en';
+      return found[langKey] || found['name_en'] || codeStr;
+    } catch (e) {
+      return String(code ?? '-');
+    }
+  };
 
   if (!historyData || historyData.length === 0) {
     return (
@@ -106,7 +122,11 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
                         key === 'device_display_name' ? 'sticky left-0 bg-white dark:bg-gray-800 z-10 font-medium' : ''
                       }`}
                     >
-                      {formatCellValue(key, value)}
+                      {key === 'cur_material'
+                        ? translateByCode('material', value)
+                        : key === 'cur_variety'
+                        ? translateByCode('variety_detect', value)
+                        : formatCellValue(key, value)}
                     </TableCell>
                   );
                 })}
