@@ -1,8 +1,9 @@
 import { useTranslation } from "@/hooks/useTranslation";
+import { getColumnTranslatedName } from "@/lib/columnTranslations";
 
 // Hook for getting measurement translations
 export const useMeasurementTranslations = () => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   
   const getColumnTranslation = (columnName: string): string => {
     const translationMap: Record<string, { category: string, key: string }> = {
@@ -40,7 +41,8 @@ export const useMeasurementTranslations = () => {
       return t(translation.category as any, translation.key as any);
     }
 
-    return columnName;
+    // Fallback to columnTranslations mapping (th/en/zh)
+    return getColumnTranslatedName(columnName, language as 'th' | 'en' | 'zh');
   };
 
   return { getColumnTranslation };

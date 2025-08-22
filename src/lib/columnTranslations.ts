@@ -98,7 +98,7 @@ export const columnTranslations: Record<string, string> = {
   mix_index: 'mix_index',
   main_index: 'main_index',
   // New columns
-  cur_material: 'ชนิดข้าว',
+  cur_material: 'ประเภทข้าว',
   cur_variety: 'มาตรฐาน',
   simple_index: 'พอร์ตอุปกรณ์',
   msg_id: 'เวลา_msg',
