@@ -77,7 +77,7 @@
           "code": "9_0",
           "name_zh": "泰国香米_白米",
           "name_en": "Thai Jasmine_White Rice",
-          "name_th": "ข้าวหอม_ข้าวต้น"
+          "name_th": "ข้าวหอม_ข้าวดิบ"
         },
         {
           "code": "9_1",
@@ -95,7 +95,7 @@
           "code": "10_0",
           "name_zh": "泰国白米_白米",
           "name_en": "Thai White Rice_White Rice",
-          "name_th": "ข้าวขาว_ข้าวต้น"
+          "name_th": "ข้าวขาว_ข้าวดิบ"
         },
         {
           "code": "10_1",
@@ -113,7 +113,7 @@
           "code": "11_0",
           "name_zh": "泰国糯米_白米",
           "name_en": "Thai Glutinous Rice_White Rice",
-          "name_th": "ข้าวเหนียว_ข้าวต้น"
+          "name_th": "ข้าวเหนียว_ข้าวดิบ"
         },
         {
           "code": "11_1",
@@ -131,7 +131,7 @@
           "code": "12_0",
           "name_zh": "泰国蒸谷米_白米",
           "name_en": "Thai Parboiled Rice_White Rice",
-          "name_th": "ข้าวนึ่ง_ข้าวต้น"
+          "name_th": "ข้าวนึ่ง_ข้าวดิบ"
         },
         {
           "code": "12_1",
