@@ -23,10 +23,13 @@ export function EquipmentCardContent({
   deviceData
 }: EquipmentCardContentProps) {
   const { t, language } = useTranslation();
-  const { data: hasUserNotifications } = useUserNotifications(deviceCode);
+  const { data: hasUserNotifications, isLoading, error } = useUserNotifications(deviceCode);
   const formattedTime = formatEquipmentTime(lastUpdated, language);
   const isRecent = isRecentUpdate(lastUpdated, deviceData);
   const timeClasses = getTimeClasses(isRecent);
+
+  // Debug logging for notification status
+  console.log(`🔔 Device ${deviceCode} - hasUserNotifications:`, hasUserNotifications, 'isLoading:', isLoading, 'error:', error);
 
   const handleDeviceClick = () => {
     // Save last viewed device for both authenticated users and guests
@@ -49,7 +52,7 @@ export function EquipmentCardContent({
           )}
           {hasUserNotifications && (
             <div title="คุณได้ตั้งค่าแจ้งเตือนสำหรับเครื่องนี้ไว้">
-              <Bell className="h-3.5 w-3.5 ml-1 text-amber-500" />
+              <Bell className="h-3.5 w-3.5 ml-1.5 text-amber-500" />
             </div>
           )}
         </div>

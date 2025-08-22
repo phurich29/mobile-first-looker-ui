@@ -39,8 +39,8 @@ export interface RiceQualityData {
   main_index: number | null;
   // New fields
   cur_material: string | null;
-  cur_variety: string | null;
-  simple_index: string | null;
+  cur_variety: number | null; // Updated to match database schema
+  sample_index: number | null;
   msg_id: string | null;
   [key: string]: any;
 }
