@@ -74,9 +74,7 @@ export const COLUMN_ORDER = [
   'main_index',
   // New columns
   'cur_material',
-  'cur_material_code',
   'cur_variety',
-  'cur_variety_code',
   'sample_index',
   'machine_unix_time'
 ];

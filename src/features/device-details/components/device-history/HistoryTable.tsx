@@ -39,14 +39,12 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
   const [dragState, dragHandlers] = useDragScroll(containerRef);
   // Get all column keys and create custom order: วันที่บันทึก, ชื่ออุปกรณ์, รหัสเครื่อง, จำนวนเมล็ด, then rest
   const allKeys = getColumnKeys(historyData);
-  const priorityColumns = ['created_at', 'machine_unix_time', 'device_display_name', 'device_code', 'cur_material', 'cur_variety_code', 'cur_variety', 'cur_material_code', 'output'];
+  const priorityColumns = ['created_at', 'machine_unix_time', 'device_display_name', 'device_code', 'cur_material', 'cur_variety', 'output'];
   const remainingKeys = allKeys.filter(
-    (k) => !priorityColumns.includes(k) && k !== 'device_display_name' && k !== 'output' && k !== 'cur_material_code' && k !== 'cur_variety_code'
+    (k) => !priorityColumns.includes(k) && k !== 'device_display_name' && k !== 'output'
   );
   
-  // Add virtual columns for codes
-  const virtualColumns = ['cur_material_code', 'cur_variety_code'];
-  const columnKeys = [...priorityColumns.filter(col => allKeys.includes(col) || virtualColumns.includes(col)), ...remainingKeys];
+  const columnKeys = [...priorityColumns, ...remainingKeys];
 
   // Helper: translate material/variety code based on current language and JSON mapping
   const translateByCode = (category: 'material' | 'variety_detect', code: string | number) => {
@@ -95,10 +93,6 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
                   ? t('dataCategories', 'deviceName')
                   : key === 'output'
                   ? t('dataCategories', 'kernelCount')
-                  : key === 'cur_material_code'
-                  ? 'รหัสมาตรฐาน'
-                  : key === 'cur_variety_code'  
-                  ? 'รหัสประเภทข้าว'
                   : getColumnTranslation(key);
                 
                 return (
@@ -121,10 +115,6 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
                   // Use device_code as fallback if device_display_name is not available
                   const value = key === 'device_display_name' 
                     ? row.device_display_name || row.device_code 
-                    : key === 'cur_material_code'
-                    ? row.cur_material // Show raw code for cur_material_code
-                    : key === 'cur_variety_code' 
-                    ? row.cur_variety // Show raw code for cur_variety_code
                     : row[key];
                   
                   return (
