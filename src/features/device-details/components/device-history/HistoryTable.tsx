@@ -138,8 +138,6 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
                         ? translateByCode('material', value)
                         : key === 'cur_variety'
                         ? translateByCode('variety_detect', value)
-                        : key === 'cur_material_code' || key === 'cur_variety_code'
-                        ? (value ?? '-')
                         : formatCellValue(key, value)}
                     </TableCell>
                   );
