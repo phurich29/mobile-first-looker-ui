@@ -74,7 +74,9 @@ export const COLUMN_ORDER = [
   'main_index',
   // New columns
   'cur_material',
+  'cur_material_code',
   'cur_variety',
+  'cur_variety_code',
   'sample_index',
   'machine_unix_time'
 ];
@@ -120,6 +122,10 @@ export const formatCellValue = (key: string, value: any): string => {
   }
 
   if (key === 'cur_material' || key === 'cur_variety') {
+    return value?.toString() || '-';
+  }
+
+  if (key === 'cur_material_code' || key === 'cur_variety_code') {
     return value?.toString() || '-';
   }
 
