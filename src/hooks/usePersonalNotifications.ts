@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -48,6 +48,11 @@ export const usePersonalNotifications = () => {
   // 🚨 CRITICAL: Use page navigation hook with immediate check callback
   usePageNavigation(() => {
     console.log('🔔 Page change detected - performing immediate notification check');
+    // 🔒 CRITICAL GATE: เช็คว่ามี active settings หรือไม่
+    if (!hasActiveSettings) {
+      console.log('🚫 No active settings - skipping page change notification check');
+      return;
+    }
     checkAndActivateOnRoute();
   });
 
@@ -98,17 +103,28 @@ export const usePersonalNotifications = () => {
     staleTime: 30000, // 30 seconds
   });
 
+  // 🔒 CRITICAL: Calculate hasActiveSettings based on userSettings
+  const hasActiveSettings = useMemo(() => {
+    if (!user?.id || !userSettings) {
+      console.log('🚫 No user or userSettings - hasActiveSettings = false');
+      return false;
+    }
+    
+    const activeCount = userSettings.filter((s: any) => s.enabled).length;
+    const result = activeCount > 0;
+    
+    console.log('📊 hasActiveSettings calculation:', {
+      totalSettings: userSettings.length,
+      activeSettings: activeCount,
+      hasActiveSettings: result
+    });
+    
+    return result;
+  }, [user?.id, userSettings]);
+
   // เมื่อเปิดใช้งานการแจ้งเตือน ให้ตรวจสอบเงื่อนไขและเล่นเสียงทันทีถ้าเข้าเงื่อนไข (ย้ายมาไว้หลัง userSettings)
   useEffect(() => {
     if (!user?.id) return;
-    
-    // 🔒 STRICT GATE: คำนวณว่ามี active settings หรือไม่
-    const hasActiveSettings = !!userSettings && (userSettings.filter((s: any) => s.enabled).length > 0);
-    
-    if (!hasActiveSettings) {
-      console.log('🚫 No active notification settings - skipping all checks');
-      return;
-    }
     
     // 🔒 CRITICAL: ตรวจสอบสถานะการแจ้งเตือนก่อนเสมอ
     const globalEnabled = getNotificationsEnabled();
@@ -122,10 +138,16 @@ export const usePersonalNotifications = () => {
       return;
     }
     
+    // 🔒 STRICT GATE: ใช้ hasActiveSettings จาก useMemo
+    if (!hasActiveSettings) {
+      console.log('🚫 No active notification settings - skipping all checks');
+      return;
+    }
+    
     console.log('✅ [usePersonalNotifications] All conditions met → immediate check');
     // ไม่บล็อก UI และหลีกเลี่ยง synchronous state thrash
     Promise.resolve().then(() => checkAndActivateOnRoute());
-  }, [notificationsEnabled, user?.id, userSettings]);
+  }, [notificationsEnabled, user?.id, hasActiveSettings]); // ใช้ hasActiveSettings แทน userSettings
 
   // Fetch relevant notifications based on user settings
   const { data: notifications, refetch } = useQuery({
@@ -353,6 +375,12 @@ export const usePersonalNotifications = () => {
         return;
       }
 
+      // 🔒 CRITICAL GATE #1: ตรวจสอบว่ามี active settings หรือไม่
+      if (!hasActiveSettings) {
+        console.log('🚫 No active notification settings - completely skipping all checks');
+        return;
+      }
+
       // 🔒 FIRST CHECK: Global notifications enabled?
       const globalEnabled = getNotificationsEnabled();
       if (!globalEnabled) {
@@ -362,14 +390,14 @@ export const usePersonalNotifications = () => {
 
       console.log('🔍 Starting immediate notification check...');
 
-      // 1) Ensure we have user settings (use cache, else fetch)
-      let settings = userSettings;
+      // 1) Ensure we have user settings (use cache, else fetch) - ONLY ENABLED ONES
+      let settings = userSettings ? userSettings.filter((s: any) => s.enabled) : [];
       if (!settings || settings.length === 0) {
         const { data, error } = await supabase
           .from('notification_settings')
           .select('*')
           .eq('user_id', user.id)
-          .eq('enabled', true);
+          .eq('enabled', true); // 🔒 CRITICAL: Only enabled settings
         if (error) {
           console.error('checkAndActivateOnRoute: settings fetch error', error);
           return;
@@ -377,12 +405,15 @@ export const usePersonalNotifications = () => {
         settings = (data as any) || [];
       }
 
+      // 🔒 FINAL CHECK: Still no enabled settings after fetch
       if (!settings || settings.length === 0) {
-        console.log('📭 No notification settings found');
+        console.log('📭 No ENABLED notification settings found - stopping all checks');
         return;
       }
 
-      console.log('⚙️ Found', settings.length, 'notification settings');
+      console.log('⚙️ Found', settings.length, 'ENABLED notification settings');
+
+      // ... keep existing code (rest of the function)
 
       // 2) Fetch latest notifications relevant to settings directly
       const deviceCodes = [...new Set(settings.map((s: any) => s.device_code))];
@@ -547,7 +578,7 @@ export const usePersonalNotifications = () => {
   return {
     notifications,
     userSettings,
-    hasActiveSettings: !!userSettings && (userSettings.filter((s: any) => s.enabled).length > 0),
+    hasActiveSettings, // ใช้ hasActiveSettings จาก useMemo
     refetch,
     checkAndActivateOnRoute
   };
