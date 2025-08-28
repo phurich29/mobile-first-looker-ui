@@ -81,7 +81,7 @@ export const usePersonalNotifications = () => {
   });
 
   // Fetch user's notification settings
-  const { data: userSettings } = useQuery({
+  const { data: userSettings, refetch: refetchUserSettings } = useQuery({
     queryKey: ['user-notification-settings', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -97,10 +97,19 @@ export const usePersonalNotifications = () => {
       }
       
       console.log('✅ Fetched user notification settings (all):', data?.length || 0, 'items');
+      console.log('📋 Settings details:', data?.map(s => ({ 
+        device: s.device_code, 
+        rice_type: s.rice_type_id, 
+        enabled: s.enabled,
+        max_enabled: s.max_enabled,
+        max_threshold: s.max_threshold 
+      })));
       return data as NotificationSetting[];
     },
     enabled: !!user?.id,
-    staleTime: 30000, // 30 seconds
+    staleTime: 5000, // ลดเหลือ 5 วินาที
+    refetchOnWindowFocus: true,
+    refetchInterval: 15000, // refetch ทุก 15 วินาที
   });
 
   // 🔒 CRITICAL: Calculate hasActiveSettings based on userSettings
