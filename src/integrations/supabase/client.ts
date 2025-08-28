@@ -12,21 +12,31 @@ const SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3Mi
 // For admin operations, use:
 // import { supabaseAdmin } from "@/integrations/supabase/client"
 
-// Normal client for standard operations
+// Normal client for standard operations with realtime disabled
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
     persistSession: true, // Persist session in storage
     autoRefreshToken: true, // Automatically refresh tokens
     detectSessionInUrl: true, // Detect session from URL (for OAuth)
   },
+  realtime: {
+    params: {
+      eventsPerSecond: -1 // Disable realtime completely
+    }
+  }
 });
 
-// Admin client with full access for admin operations
+// Admin client with full access for admin operations with realtime disabled
 export const supabaseAdmin = createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: {
     persistSession: false, // Admin client should not persist sessions
     autoRefreshToken: false,
   },
+  realtime: {
+    params: {
+      eventsPerSecond: -1 // Disable realtime completely
+    }
+  }
 });
 
 /**
