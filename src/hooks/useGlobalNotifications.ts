@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { useAlertSound } from '@/hooks/useAlertSound';
+import { useAlertSound, getNotificationsEnabled, NOTIFICATIONS_ENABLED_KEY } from '@/hooks/useAlertSound';
 
 /**
  * Global Notification Hook - ใช้สำหรับแจ้งเตือนทั่วทั้งระบบ
@@ -24,14 +24,33 @@ export const useGlobalNotifications = () => {
   const processedNotificationsRef = useRef<Set<string>>(new Set());
   const alertTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isAlertActive, setIsAlertActive] = useState<boolean>(false);
-  
+  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(getNotificationsEnabled());
+
+  // ติดตามการเปลี่ยนแปลงการตั้งค่าแจ้งเตือนแบบเรียลไทม์ผ่าน storage event
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === NOTIFICATIONS_ENABLED_KEY) {
+        setNotificationsEnabled(getNotificationsEnabled());
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  // หากถูกปิดแจ้งเตือน ให้หยุดเสียงทันที
+  useEffect(() => {
+    if (!notificationsEnabled) {
+      setIsAlertActive(false);
+    }
+  }, [notificationsEnabled]);
+
   // Use alert sound - เล่นแค่ครั้งเดียวต่อการแจ้งเตือน
   useAlertSound(isAlertActive, {
-    enabled: true,
+    enabled: notificationsEnabled,
     playOnce: true, // เล่นแค่ครั้งเดียว
     intervalMs: 5000 // ไม่ใช้แล้วเพราะ playOnce = true
   });
-  
+
   // Fetch notifications every 30 seconds
   const { data: notifications, refetch } = useQuery({
     queryKey: ['global-notifications'],
@@ -42,12 +61,12 @@ export const useGlobalNotifications = () => {
         .select('*')
         .order('timestamp', { ascending: false })
         .limit(10);
-      
+
       if (error) {
         console.error('❌ Failed to fetch notifications:', error);
         return [];
       }
-      
+
       console.log('✅ Fetched notifications:', data?.length || 0, 'items');
       return data as NotificationItem[];
     },
@@ -62,7 +81,7 @@ export const useGlobalNotifications = () => {
 
     const latestNotification = notifications[0];
     const notificationId = `${latestNotification.id}-${latestNotification.notification_count}`;
-    
+
     // Check if this is a new notification we haven't processed
     if (
       latestNotification.id !== lastNotificationRef.current &&
@@ -73,16 +92,16 @@ export const useGlobalNotifications = () => {
         message: latestNotification.notification_message,
         isAlertCurrentlyActive: isAlertActive
       });
-      
+
       // Clear any existing timeout
       if (alertTimeoutRef.current) {
         clearTimeout(alertTimeoutRef.current);
         alertTimeoutRef.current = null;
       }
-      
+
       // Activate alert sound
       setIsAlertActive(true);
-      
+
       // Show toast notification in bottom-right corner
       console.log('🚨 Showing notification toast:', latestNotification.notification_message);
       toast({
@@ -102,7 +121,7 @@ export const useGlobalNotifications = () => {
       // Update refs
       lastNotificationRef.current = latestNotification.id;
       processedNotificationsRef.current.add(notificationId);
-      
+
       // Clean up old processed notifications (keep only last 20)
       if (processedNotificationsRef.current.size > 20) {
         const processedArray = Array.from(processedNotificationsRef.current);
@@ -131,43 +150,43 @@ export const useGlobalNotifications = () => {
         },
         (payload) => {
           console.log('🔔 Real-time notification received:', payload);
-          
+
           // Immediately refetch notifications to get the latest data
           refetch();
-          
+
           // Show immediate notification if it's for the current user
           const newNotification = payload.new as NotificationItem;
           const notificationId = `${newNotification.id}-${newNotification.notification_count}`;
-          
+
           if (!processedNotificationsRef.current.has(notificationId)) {
             console.log('🚨 Real-time notification - activating alert:', {
               id: newNotification.id,
               message: newNotification.notification_message
             });
-            
+
             // Clear any existing timeout
             if (alertTimeoutRef.current) {
               clearTimeout(alertTimeoutRef.current);
               alertTimeoutRef.current = null;
             }
-            
+
             // Activate alert sound for real-time notification
             setIsAlertActive(true);
-            
+
             toast({
               title: "🚨 แจ้งเตือนคุณภาพข้าว",
               description: newNotification.notification_message,
               variant: "destructive",
               duration: 10000,
             });
-            
+
             // Stop alert sound after notification duration
             alertTimeoutRef.current = setTimeout(() => {
               setIsAlertActive(false);
               console.log('🔕 Real-time alert sound stopped after timeout');
               alertTimeoutRef.current = null;
             }, 10000);
-            
+
             processedNotificationsRef.current.add(notificationId);
           }
         }
@@ -178,7 +197,7 @@ export const useGlobalNotifications = () => {
       supabase.removeChannel(channel);
     };
   }, [refetch]);
-  
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {

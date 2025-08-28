@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -107,11 +106,16 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'alert-blink': {
+					'0%, 100%': { opacity: '0.35', transform: 'scale(0.92)' },
+					'50%': { opacity: '1', transform: 'scale(1.18)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'alert-blink': 'alert-blink 0.8s ease-in-out infinite'
 			}
 		}
 	},

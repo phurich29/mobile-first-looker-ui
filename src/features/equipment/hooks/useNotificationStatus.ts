@@ -23,12 +23,13 @@ export const useNotificationStatus = (deviceCode: string) => {
         return { hasSettings: false, isTriggered: false, triggeredSettings: [] };
       }
 
-      // ดึงการตั้งค่าแจ้งเตือนทั้งหมดสำหรับเครื่องนี้
+      // ดึงการตั้งค่าแจ้งเตือนเฉพาะของผู้ใช้ปัจจุบันสำหรับเครื่องนี้
       const { data: settings, error: settingsError } = await supabase
         .from('notification_settings')
         .select('*')
         .eq('device_code', deviceCode)
-        .eq('enabled', true);
+        .eq('enabled', true)
+        .eq('user_id', user.id);
 
       if (settingsError) {
         console.error('Error fetching notification settings:', settingsError);
@@ -39,8 +40,8 @@ export const useNotificationStatus = (deviceCode: string) => {
         return { hasSettings: false, isTriggered: false, triggeredSettings: [] };
       }
 
-      // หา settings ของ user ปัจจุบันเท่านั้น (สำหรับการตรวจสอบ trigger)
-      const userSettings = settings.filter(setting => setting.user_id === user.id);
+      // การตั้งค่าของผู้ใช้ปัจจุบัน (จาก Query แล้ว)
+      const userSettings = settings;
 
       // ดึงข้อมูลล่าสุดของเครื่อง
       const { data: latestData, error: dataError } = await supabase
@@ -52,11 +53,11 @@ export const useNotificationStatus = (deviceCode: string) => {
 
       if (dataError || !latestData || latestData.length === 0) {
         console.error('Error fetching latest device data:', dataError);
-        return { hasSettings: true, isTriggered: false, triggeredSettings: [] };
+        return { hasSettings: userSettings.length > 0, isTriggered: false, triggeredSettings: [] };
       }
 
       const latestMeasurement = latestData[0];
-      const triggeredSettings = [];
+      const triggeredSettings: NotificationStatus['triggeredSettings'] = [];
 
       // ตรวจสอบแต่ละการตั้งค่าของ user ปัจจุบันว่าเข้าเงื่อนไขหรือไม่
       for (const setting of userSettings) {
@@ -82,7 +83,7 @@ export const useNotificationStatus = (deviceCode: string) => {
         const columnName = columnMapping[setting.rice_type_id];
         if (!columnName) continue;
 
-        const currentValue = latestMeasurement[columnName];
+        const currentValue = (latestMeasurement as any)[columnName];
         if (currentValue === null || currentValue === undefined) continue;
 
         // ตรวจสอบเกณฑ์ต่ำสุด
@@ -107,7 +108,7 @@ export const useNotificationStatus = (deviceCode: string) => {
       }
 
       return {
-        hasSettings: settings.length > 0, // แสดง icon หากมีการตั้งค่าใดๆ
+        hasSettings: userSettings.length > 0, // แสดง icon เฉพาะเมื่อผู้ใช้ปัจจุบันมีการตั้งค่า
         isTriggered: triggeredSettings.length > 0, // trigger เฉพาะของ user ปัจจุบัน
         triggeredSettings
       };

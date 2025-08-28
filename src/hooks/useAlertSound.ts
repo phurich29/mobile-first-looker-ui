@@ -1,6 +1,17 @@
 import { useEffect, useRef } from 'react';
 import { generateNotificationSound, getCurrentNotificationSound, type NotificationSoundType } from '@/components/profile/NotificationSoundSettings';
 
+export const NOTIFICATIONS_ENABLED_KEY = 'notifications-enabled';
+export const getNotificationsEnabled = (): boolean => {
+  try {
+    const v = localStorage.getItem(NOTIFICATIONS_ENABLED_KEY);
+    if (v === null) return true; // ค่าเริ่มต้น: เปิดแจ้งเตือน
+    return v === 'true';
+  } catch {
+    return true;
+  }
+};
+
 interface UseAlertSoundOptions {
   enabled?: boolean;
   playOnce?: boolean; // เล่นแค่ครั้งเดียวหรือวนลูป
@@ -11,7 +22,7 @@ export const useAlertSound = (
   isAlertActive: boolean, 
   options: UseAlertSoundOptions = {}
 ) => {
-  const { enabled = true, playOnce = true, intervalMs = 5000 } = options;
+  const { enabled = getNotificationsEnabled(), playOnce = true, intervalMs = 5000 } = options;
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const userInteractedRef = useRef<boolean>(false);

@@ -1,11 +1,12 @@
-
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart, Settings, Clock, Circle, Bell, AlertTriangle } from "lucide-react";
+import { BarChart, Settings, Clock, Circle, Bell } from "lucide-react";
 import { Link } from "react-router-dom";
 import { formatEquipmentTime, isRecentUpdate, getTimeClasses } from "./utils/timeUtils";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useNotificationStatus } from "../../hooks/useNotificationStatus";
+import { getNotificationsEnabled, NOTIFICATIONS_ENABLED_KEY } from "@/hooks/useAlertSound";
+import { useEffect, useState } from "react";
 
 interface EquipmentCardContentProps {
   deviceCode: string;
@@ -28,6 +29,18 @@ export function EquipmentCardContent({
   const isRecent = isRecentUpdate(lastUpdated, deviceData);
   const timeClasses = getTimeClasses(isRecent);
 
+  // สถานะเปิด/ปิดแจ้งเตือนระดับผู้ใช้
+  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(getNotificationsEnabled());
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === NOTIFICATIONS_ENABLED_KEY) {
+        setNotificationsEnabled(getNotificationsEnabled());
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
   // Debug logging for notification status
   console.log(`🔔 Device ${deviceCode} - notificationStatus:`, notificationStatus, 'isLoading:', isLoading, 'error:', error);
 
@@ -39,18 +52,19 @@ export function EquipmentCardContent({
 
   // กำหนดสถานะและสีของไอคอนแจ้งเตือน
   const getNotificationIcon = () => {
+    // หากผู้ใช้ปิดแจ้งเตือนไว้ ให้ไม่แสดงไอคอนเลย
+    if (!notificationsEnabled) return null;
     if (!notificationStatus?.hasSettings) return null;
 
     if (notificationStatus.isTriggered) {
       // กระดิ่งสีแดง - เข้าเงื่อนไขการแจ้งเตือน
       const triggeredCount = notificationStatus.triggeredSettings.length;
       return (
-        <div 
-          title={`เข้าเงื่อนไขการแจ้งเตือน ${triggeredCount} รายการ`}
+        <div
+          title={`อยู่ระหว่างการแจ้งเตือน (${triggeredCount})`}
           className="relative"
         >
-          <AlertTriangle className="h-3.5 w-3.5 ml-1.5 text-red-500 fill-red-500" />
-          <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+          <Bell className="h-3.5 w-3.5 ml-1.5 text-red-500 animate-alert-blink" />
         </div>
       );
     } else {
