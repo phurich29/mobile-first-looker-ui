@@ -54,35 +54,8 @@ if (typeof window !== 'undefined') {
       return Promise.reject(new Error('Service Worker disabled for iOS PWA'));
     };
 
-    // Override service worker ready promise (with error handling)
-    try {
-      const descriptor = Object.getOwnPropertyDescriptor(navigator.serviceWorker, 'ready');
-      if (descriptor && descriptor.configurable) {
-        Object.defineProperty(navigator.serviceWorker, 'ready', {
-          get() {
-            console.error('🚫 Service Worker ready blocked');
-            return Promise.reject(new Error('Service Worker disabled for iOS PWA'));
-          },
-          configurable: true
-        });
-        console.log('✅ Service Worker ready property successfully overridden');
-      } else {
-        console.warn('⚠️ Service Worker ready property is not configurable, using alternative approach');
-        
-        // Alternative: intercept the promise resolution
-        const originalReady = navigator.serviceWorker.ready;
-        if (originalReady && typeof originalReady.then === 'function') {
-          originalReady.then((registration) => {
-            console.log('🗑️ Auto-unregistering service worker that became ready:', registration.scope);
-            registration.unregister();
-          }).catch(() => {
-            console.log('✅ Service worker ready promise rejected as expected');
-          });
-        }
-      }
-    } catch (readyError) {
-      console.warn('⚠️ Could not override service worker ready property:', readyError.message);
-    }
+    // Service Worker ready property already handled by HTML head script
+    console.log('✅ Service Worker ready property handled by HTML head script');
 
     // Clear service worker controller
     if (navigator.serviceWorker.controller) {
