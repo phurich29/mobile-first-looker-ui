@@ -464,7 +464,7 @@ export const saveNotificationSettings = async (settings: {
         max_threshold: maxThreshold,
         user_id: userId, // ⭐ CRITICAL: Validated user_id
       }, {
-        onConflict: 'device_code,rice_type_id,user_id', // Use the unique constraint columns
+        onConflict: 'user_id,device_code,rice_type_id', // ✅ แก้แล้ว: ใช้ unique constraint ที่ถูกต้อง
         ignoreDuplicates: false // Update on conflict
       });
     
