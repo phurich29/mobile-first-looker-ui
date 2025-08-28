@@ -26,7 +26,8 @@ export const useAlertSound = (
   isAlertActive: boolean, 
   options: UseAlertSoundOptions = {}
 ) => {
-  const { enabled = getNotificationsEnabled(), playOnce = true, intervalMs = 5000, repeatCount = 1, repeatGapMs = 1000 } = options;
+  // TEMPORARILY DISABLED FOR iOS PWA COMPATIBILITY
+  const { enabled = false, playOnce = true, intervalMs = 5000, repeatCount = 1, repeatGapMs = 1000 } = options;
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const userInteractedRef = useRef<boolean>(false);
@@ -232,8 +233,9 @@ export const useAlertSound = (
   }, [isAlertActive, enabled]);
 
   useEffect(() => {
+    // TEMPORARILY DISABLED FOR iOS PWA COMPATIBILITY
     // Only play sound if both alert is active AND notifications are enabled
-    if (isAlertActive && enabled) {
+    if (false && isAlertActive && enabled) {
       // Reset the played flag when alert becomes active
       hasPlayedRef.current = false;
       

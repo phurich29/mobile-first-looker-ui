@@ -140,22 +140,10 @@ export const NotificationSoundSettings: React.FC = () => {
     };
   }, []);
 
-  // Initialize audio context on user interaction
+  // TEMPORARILY DISABLED FOR iOS PWA COMPATIBILITY
   const initializeAudioContext = async () => {
-    try {
-      if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-      }
-      
-      if (audioContextRef.current.state === 'suspended') {
-        await audioContextRef.current.resume();
-      }
-      
-      return true;
-    } catch (error) {
-      console.warn('Could not initialize audio context:', error);
-      return false;
-    }
+    console.log('Audio features temporarily disabled for iOS PWA compatibility');
+    return false;
   };
 
   const stopSound = () => {
