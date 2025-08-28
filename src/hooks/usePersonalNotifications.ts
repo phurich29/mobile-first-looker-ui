@@ -66,27 +66,6 @@ export const usePersonalNotifications = () => {
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
   }, []);
-
-  // เมื่อเปิดใช้งานการแจ้งเตือน ให้ตรวจสอบเงื่อนไขและเล่นเสียงทันทีถ้าเข้าเงื่อนไข
-  useEffect(() => {
-    if (!user?.id) return;
-    
-    // 🔒 CRITICAL: ตรวจสอบสถานะการแจ้งเตือนก่อนเสมอ
-    const globalEnabled = getNotificationsEnabled();
-    if (!globalEnabled) {
-      console.log('🚫 Global notifications disabled on mount - no check needed');
-      return;
-    }
-    
-    if (!notificationsEnabled) {
-      console.log('🚫 Notifications disabled in state - no check needed');
-      return;
-    }
-    
-    console.log('[usePersonalNotifications] notificationsEnabled=true → immediate check');
-    // ไม่บล็อก UI และหลีกเลี่ยง synchronous state thrash
-    Promise.resolve().then(() => checkAndActivateOnRoute());
-  }, [notificationsEnabled, user?.id]);
   
   // ใช้เสียงแจ้งเตือนแบบเล่นครั้งเดียว แต่จะถูกสั่งเล่นใหม่ทุกครั้งที่เปลี่ยนหน้า (ผ่าน checkAndActivateOnRoute)
   useAlertSound(isAlertActive, {
@@ -118,6 +97,35 @@ export const usePersonalNotifications = () => {
     enabled: !!user?.id,
     staleTime: 30000, // 30 seconds
   });
+
+  // เมื่อเปิดใช้งานการแจ้งเตือน ให้ตรวจสอบเงื่อนไขและเล่นเสียงทันทีถ้าเข้าเงื่อนไข (ย้ายมาไว้หลัง userSettings)
+  useEffect(() => {
+    if (!user?.id) return;
+    
+    // 🔒 STRICT GATE: คำนวณว่ามี active settings หรือไม่
+    const hasActiveSettings = !!userSettings && (userSettings.filter((s: any) => s.enabled).length > 0);
+    
+    if (!hasActiveSettings) {
+      console.log('🚫 No active notification settings - skipping all checks');
+      return;
+    }
+    
+    // 🔒 CRITICAL: ตรวจสอบสถานะการแจ้งเตือนก่อนเสมอ
+    const globalEnabled = getNotificationsEnabled();
+    if (!globalEnabled) {
+      console.log('🚫 Global notifications disabled on mount - no check needed');
+      return;
+    }
+    
+    if (!notificationsEnabled) {
+      console.log('🚫 Notifications disabled in state - no check needed');
+      return;
+    }
+    
+    console.log('✅ [usePersonalNotifications] All conditions met → immediate check');
+    // ไม่บล็อก UI และหลีกเลี่ยง synchronous state thrash
+    Promise.resolve().then(() => checkAndActivateOnRoute());
+  }, [notificationsEnabled, user?.id, userSettings]);
 
   // Fetch relevant notifications based on user settings
   const { data: notifications, refetch } = useQuery({
