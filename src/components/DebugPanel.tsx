@@ -20,10 +20,20 @@ const DebugPanel: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    // Get initial logs
+    const initialLogs = iOSLogger.getRecentErrors(60);
+    setLogs(initialLogs);
+    
     const interval = setInterval(() => {
-      // Get fresh logs (access the private logs through a public method we'll add)
-      const recentErrors = iOSLogger.getRecentErrors(60);
-      setLogs(recentErrors);
+      // Get fresh logs including all types, not just errors
+      try {
+        const allLogs = (iOSLogger as any).logs || [];
+        setLogs(allLogs.slice(-100)); // Show last 100 logs
+      } catch (error) {
+        console.error('Failed to get logs:', error);
+        const recentErrors = iOSLogger.getRecentErrors(60);
+        setLogs(recentErrors);
+      }
     }, 1000);
 
     return () => clearInterval(interval);

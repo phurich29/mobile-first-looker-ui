@@ -17,10 +17,26 @@ class IOSDebugLogger {
   private maxLogs = 1000;
 
   constructor() {
+    console.log('🔍 iOS Debug Logger initializing...');
+    this.loadStoredLogs();
     this.setupGlobalErrorHandlers();
     this.monitorNetworkRequests();
     this.monitorServiceWorker();
     this.logIOSInfo();
+    this.info('LOGGER', 'iOS Debug Logger started successfully');
+  }
+
+  private loadStoredLogs() {
+    try {
+      const stored = localStorage.getItem('ios-debug-logs');
+      if (stored) {
+        const parsedLogs = JSON.parse(stored);
+        this.logs = Array.isArray(parsedLogs) ? parsedLogs : [];
+        console.log('📂 Loaded', this.logs.length, 'stored logs');
+      }
+    } catch (e) {
+      console.warn('Failed to load stored logs');
+    }
   }
 
   private log(level: LogEntry['level'], category: string, message: string, data?: any, error?: Error) {
@@ -73,27 +89,35 @@ class IOSDebugLogger {
   }
 
   private setupGlobalErrorHandlers() {
+    console.log('🛡️ Setting up global error handlers...');
+    
     // Capture unhandled errors
     window.addEventListener('error', (event) => {
+      console.error('🚨 GLOBAL ERROR CAPTURED:', event);
       this.error('GLOBAL_ERROR', 'Unhandled error caught', {
         message: event.message,
         filename: event.filename,
         lineno: event.lineno,
         colno: event.colno,
-        error: event.error?.toString()
+        error: event.error?.toString(),
+        stack: event.error?.stack
       }, event.error);
     });
 
     // Capture unhandled promise rejections
     window.addEventListener('unhandledrejection', (event) => {
+      console.error('🚨 PROMISE REJECTION CAPTURED:', event);
       this.error('PROMISE_REJECTION', 'Unhandled promise rejection', {
         reason: event.reason?.toString(),
-        stack: event.reason?.stack
+        stack: event.reason?.stack,
+        type: typeof event.reason
       });
     });
 
     // Monitor WebSocket attempts (even blocked ones)
     this.monitorWebSocketAttempts();
+    
+    console.log('✅ Global error handlers set up');
   }
 
   private monitorWebSocketAttempts() {
@@ -214,6 +238,11 @@ class IOSDebugLogger {
     return this.logs.filter(log => 
       log.level === 'error' && new Date(log.timestamp) > cutoff
     );
+  }
+
+  // Get all logs (for debug panel)
+  getAllLogs(): LogEntry[] {
+    return [...this.logs];
   }
 }
 
