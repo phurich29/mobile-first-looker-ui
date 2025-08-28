@@ -1,10 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Bell, BellOff, AlertTriangle, CheckCircle, Settings, Clock, TrendingUp, TrendingDown } from "lucide-react";
+import { Bell, BellOff, AlertTriangle, CheckCircle, Settings, Clock, TrendingUp, TrendingDown, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { th } from "date-fns/locale";
+import { useState } from "react";
+import NotificationSettingsDialog from "@/components/measurement-history/notification-settings/NotificationSettingsDialog";
 
 interface PersonalNotification {
   id: string;
@@ -40,6 +42,10 @@ export const PersonalNotificationsList = ({
   hasActiveSettings 
 }: PersonalNotificationsListProps) => {
   const navigate = useNavigate();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
+  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
+  const [selectedName, setSelectedName] = useState<string | null>(null);
 
   // แสดงสถานะระบบ
   const renderSystemStatus = () => (
@@ -124,6 +130,19 @@ export const PersonalNotificationsList = ({
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
                   <span className="text-sm text-emerald-600 font-medium">ทำงาน</span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="ml-2"
+                    onClick={() => {
+                      setSelectedDevice(setting.device_code);
+                      setSelectedSymbol(setting.rice_type_id); // ใช้ rice_type_id เป็น symbol
+                      setSelectedName(setting.rice_type_id); // ชื่อแสดงผลเบื้องต้นเป็น rice_type_id
+                      setDialogOpen(true);
+                    }}
+                  >
+                    <Pencil className="w-4 h-4 mr-1" /> แก้ไข
+                  </Button>
                 </div>
               </div>
             ))}
@@ -218,6 +237,13 @@ export const PersonalNotificationsList = ({
       {renderSystemStatus()}
       {renderCurrentSettings()}
       {renderRecentNotifications()}
+      <NotificationSettingsDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        deviceCode={selectedDevice || ""}
+        symbol={selectedSymbol || ""}
+        name={selectedName || selectedSymbol || ""}
+      />
     </div>
   );
 };
