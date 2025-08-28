@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { th } from "date-fns/locale";
 import { useState } from "react";
+import { useAuth } from "@/components/AuthProvider";
+import { useDevicesQuery } from "@/features/equipment/hooks/useDevicesQuery";
 import NotificationSettingsDialog from "@/components/measurement-history/notification-settings/NotificationSettingsDialog";
 
 interface PersonalNotification {
@@ -55,13 +57,17 @@ export const PersonalNotificationsList = ({
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
   const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
   const [selectedName, setSelectedName] = useState<string | null>(null);
+  const enabledCount = (userSettings || []).filter(s => (s as any).enabled).length;
+  const { user } = useAuth();
+  const { devices } = useDevicesQuery();
+  const deviceNameByCode = Object.fromEntries((devices || []).map((d: any) => [d.device_code, d.display_name]));
 
   // แสดงสถานะระบบ
   const renderSystemStatus = () => (
     <Card className="border-l-4 border-l-primary/50">
       <CardContent className="p-4">
         <div className="flex items-center gap-3">
-          {hasActiveSettings ? (
+          {enabledCount > 0 ? (
             <>
               <div className="p-2 bg-emerald-100 rounded-full">
                 <CheckCircle className="w-5 h-5 text-emerald-600" />
@@ -71,7 +77,7 @@ export const PersonalNotificationsList = ({
                   ระบบแจ้งเตือนส่วนตัวทำงานอยู่
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  มีการตั้งค่าแจ้งเตือน {userSettings.length} รายการ
+                  ทำงานอยู่ {enabledCount} จาก {userSettings.length} รายการ
                 </p>
               </div>
             </>
@@ -104,14 +110,14 @@ export const PersonalNotificationsList = ({
 
   // แสดงการตั้งค่าปัจจุบัน
   const renderCurrentSettings = () => {
-    if (!hasActiveSettings || userSettings.length === 0) return null;
+    if (!userSettings || userSettings.length === 0) return null;
 
     return (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Settings className="w-5 h-5" />
-            การตั้งค่าปัจจุบัน ({userSettings.length} รายการ)
+            การตั้งค่าปัจจุบัน ({userSettings.length} รายการ, ทำงาน {enabledCount})
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -119,8 +125,12 @@ export const PersonalNotificationsList = ({
             {userSettings.map((setting, index) => (
               <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                 <div className="flex-1">
-                  <div className="font-medium text-foreground">{setting.device_code}</div>
+                  <div className="font-medium text-foreground">
+                    {deviceNameByCode[setting.device_code] || setting.device_code}
+                  </div>
+                  <div className="text-xs text-muted-foreground">{setting.device_code}</div>
                   <div className="text-sm text-muted-foreground font-medium">{setting.rice_type_name || setting.rice_type_id}</div>
+                  <div className="text-xs text-muted-foreground mt-1">ผู้ใช้: {user?.email || user?.id}</div>
                   <div className="flex gap-2 mt-2">
                     {setting.min_enabled && (
                       <TooltipProvider>
@@ -161,8 +171,17 @@ export const PersonalNotificationsList = ({
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm text-emerald-600 font-medium">ทำงาน</span>
+                  {setting.enabled ? (
+                    <>
+                      <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                      <span className="text-sm text-emerald-600 font-medium">ทำงาน</span>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                      <span className="text-sm text-muted-foreground font-medium">ปิดใช้งาน</span>
+                    </>
+                  )}
                   <Button
                     size="sm"
                     variant="outline"
@@ -170,7 +189,7 @@ export const PersonalNotificationsList = ({
                     onClick={() => {
                       setSelectedDevice(setting.device_code);
                       setSelectedSymbol(setting.rice_type_id); // ใช้ rice_type_id เป็น symbol
-                      setSelectedName(setting.rice_type_id); // ชื่อแสดงผลเบื้องต้นเป็น rice_type_id
+                      setSelectedName(setting.rice_type_name || setting.rice_type_id); // ใช้ชื่อถ้ามี
                       setDialogOpen(true);
                     }}
                   >
@@ -225,7 +244,16 @@ export const PersonalNotificationsList = ({
               <div key={`${notification.id}-${notification.notification_count}`} 
                    className="border rounded-lg overflow-hidden">
                 <div className="p-3 bg-muted/30">
-                  <div className="flex items-center justify-between mb-2">
+                  {/* Device info - consistent with settings list */}
+                  <p className="text-sm text-foreground font-medium">
+                    {deviceNameByCode[notification.device_code] || notification.device_code}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{notification.device_code}</p>
+                  <p className="text-sm text-muted-foreground font-medium">{notification.rice_type_id}</p>
+                  <p className="text-xs text-muted-foreground mt-1">ผู้ใช้: {user?.email || user?.id}</p>
+
+                  {/* Badge/time row */}
+                  <div className="flex items-center justify-between mt-2 mb-2">
                     <div className="flex items-center gap-2">
                       <Badge variant={notification.threshold_type === 'max' ? 'destructive' : 'secondary'} 
                              className="text-xs">
@@ -248,10 +276,9 @@ export const PersonalNotificationsList = ({
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm font-medium mb-1">{notification.notification_message}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {notification.device_code} • {notification.rice_type_id}
-                  </p>
+
+                  {/* Message */}
+                  <p className="text-sm font-medium">{notification.notification_message}</p>
                 </div>
                 
                 {/* การเปรียบเทียบค่า */}

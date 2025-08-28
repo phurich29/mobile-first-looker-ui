@@ -83,15 +83,14 @@ export const usePersonalNotifications = () => {
       const { data, error } = await supabase
         .from('notification_settings')
         .select('*')
-        .eq('user_id', user.id)
-        .eq('enabled', true); // เฉพาะการตั้งค่าที่เปิดใช้งาน
+        .eq('user_id', user.id);
       
       if (error) {
         console.error('❌ Failed to fetch notification settings:', error);
         return [];
       }
       
-      console.log('✅ Fetched user notification settings:', data?.length || 0, 'items');
+      console.log('✅ Fetched user notification settings (all):', data?.length || 0, 'items');
       return data as NotificationSetting[];
     },
     enabled: !!user?.id,
@@ -464,7 +463,7 @@ export const usePersonalNotifications = () => {
   return {
     notifications,
     userSettings,
-    hasActiveSettings: userSettings && userSettings.length > 0,
+    hasActiveSettings: !!userSettings && (userSettings.filter((s: any) => s.enabled).length > 0),
     refetch,
     checkAndActivateOnRoute
   };
