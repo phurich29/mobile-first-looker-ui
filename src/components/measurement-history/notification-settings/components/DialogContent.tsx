@@ -7,6 +7,7 @@ import WarningAlert from "../WarningAlert";
 import ActiveNotificationsSummary from "./ActiveNotificationsSummary";
 import DialogHeader from "./DialogHeader";
 import DialogFooter from "./DialogFooter";
+import UserInfoCard from "./UserInfoCard";
 import { NotificationSettingsState } from "../types";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -49,6 +50,9 @@ export const NotificationDialogContent = ({
 
       <div className="space-y-6 py-4">
         <DeviceInfoCard deviceCode={deviceCode} />
+        
+        {/* Phase 4: User info for debugging */}
+        <UserInfoCard />
 
         {/* Active notifications summary */}
         <ActiveNotificationsSummary settings={settings} />
