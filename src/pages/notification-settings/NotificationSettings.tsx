@@ -1,19 +1,17 @@
 
-import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
+import { AppLayout } from "@/components/layouts/app-layout";
 import { BackgroundImage } from "@/components/graph-monitor/BackgroundImage";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "./components/PageHeader";
-import { NotificationSettingsList } from "./components/NotificationSettingsList";
+import { PersonalNotificationsList } from "./components/PersonalNotificationsList";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useNotificationSettings } from "./hooks/useNotificationSettings";
+import { usePersonalNotifications } from "@/hooks/usePersonalNotifications";
 import { useTranslation } from "@/hooks/useTranslation";
 
 const NotificationSettings = () => {
-  // const { user } = useAuth(); // If auth-specific elements are added
-  // const [isCollapsed, setIsCollapsed] = useState(false); // If sidebar collapse is implemented
   const isMobile = useIsMobile();
   const { t } = useTranslation();
-  const { settings, loading, error, fetchSettings } = useNotificationSettings();
+  const { notifications, userSettings, hasActiveSettings } = usePersonalNotifications();
   
   return (
     <AppLayout showFooterNav={isMobile}>
@@ -25,15 +23,11 @@ const NotificationSettings = () => {
         // Margin-left is handled by AppLayout
       )}>
         <div className="mx-auto max-w-4xl mb-6">
-          <PageHeader title={t('mainMenu', 'notificationSettings')} />
-          <NotificationSettingsList 
-            settings={settings} 
-            loading={loading} 
-            error={error} 
-            onEditSetting={(deviceCode, riceTypeId, riceName) => {
-              console.log("Edit setting:", deviceCode, riceTypeId, riceName);
-              // Here you could navigate to a settings edit page or open a modal
-            }}
+          <PageHeader title="ระบบแจ้งเตือนส่วนตัว" />
+          <PersonalNotificationsList 
+            notifications={notifications || []}
+            userSettings={userSettings || []} 
+            hasActiveSettings={hasActiveSettings}
           />
         </div>
       </div>
