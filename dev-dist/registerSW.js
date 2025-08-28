@@ -1,15 +1,28 @@
-// Service Worker registration COMPLETELY DISABLED for iOS PWA
-console.log('🚫 Service Worker registration BLOCKED - registerSW.js disabled');
+// Service Worker registration ENABLED for PWA but with WebSocket blocking
+console.log('✅ Service Worker registration ENABLED for PWA updates');
 
-// If someone tries to load this file, block everything
+// Register the iOS PWA compatible service worker
 if ('serviceWorker' in navigator) {
-  console.error('🚫 CRITICAL: registerSW.js was loaded - this should not happen');
-  
-  // Force unregister everything
-  navigator.serviceWorker.getRegistrations().then((registrations) => {
-    registrations.forEach((registration) => {
-      console.log('🗑️ EMERGENCY: Force unregistering service worker from registerSW:', registration.scope);
-      registration.unregister();
+  navigator.serviceWorker.register('/sw.js')
+    .then((registration) => {
+      console.log('✅ PWA Service Worker registered successfully:', registration.scope);
+      
+      // Check for updates
+      registration.addEventListener('updatefound', () => {
+        console.log('🔄 PWA Service Worker update found');
+        const newWorker = registration.installing;
+        
+        if (newWorker) {
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              console.log('🔄 PWA Service Worker updated - new version available');
+              // Could show update available notification here
+            }
+          });
+        }
+      });
+    })
+    .catch((error) => {
+      console.error('❌ PWA Service Worker registration failed:', error);
     });
-  });
 }

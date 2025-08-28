@@ -45,39 +45,29 @@ if (typeof window !== 'undefined') {
     return mockSocket;
   };
 
-  // 2. Disable Service Worker immediately and aggressively
+  // 2. Allow Service Worker for PWA functionality but monitor it
   if ('serviceWorker' in navigator) {
-    console.log('🚫 Aggressively disabling Service Worker for iOS PWA');
+    console.log('✅ Service Worker support enabled for PWA updates');
     
-    // Unregister all service workers immediately
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
-      registrations.forEach((registration) => {
-        console.log('🗑️ Force unregistering service worker:', registration.scope);
-        registration.unregister().then((success) => {
-          console.log('🗑️ Service worker unregistration result:', success);
-        });
-      });
-    });
-
-    // Block any new service worker registrations
+    // Monitor service worker registration
     const originalRegister = navigator.serviceWorker.register;
     navigator.serviceWorker.register = function(...args) {
-      console.error('🚫 BLOCKED Service Worker registration attempt:', args[0]);
-      return Promise.reject(new Error('Service Worker disabled for iOS PWA'));
+      console.log('📝 Service Worker registration allowed:', args[0]);
+      return originalRegister.apply(this, args);
     };
 
-    // Service Worker ready property already handled by HTML head script
-    console.log('✅ Service Worker ready property handled by HTML head script');
-
-    // Clear service worker controller
-    if (navigator.serviceWorker.controller) {
-      console.log('🚫 Removing service worker controller');
-      try {
-        navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
-      } catch (e) {
-        console.log('Failed to message service worker controller');
-      }
-    }
+    // Clear any existing problematic service workers that might have WebSocket
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      registrations.forEach((registration) => {
+        // Only unregister if it's a problematic service worker (with WebSocket)
+        if (registration.scope.includes('realtime') || registration.active?.scriptURL?.includes('realtime')) {
+          console.log('🗑️ Unregistering problematic service worker:', registration.scope);
+          registration.unregister();
+        } else {
+          console.log('✅ Keeping PWA service worker:', registration.scope);
+        }
+      });
+    });
   }
 
   // 3. Override EventSource (Server-Sent Events)

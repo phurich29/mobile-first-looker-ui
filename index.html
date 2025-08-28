@@ -31,53 +31,15 @@
     <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="/lovable-uploads/49e4e3a9-d748-4edf-bd4f-726dd0b9fde9.png" />
 
-    <!-- CRITICAL: iOS PWA Service Worker Fix - MUST BE FIRST SCRIPT -->
+    <!-- CRITICAL: iOS PWA WebSocket Fix - Allow Service Worker but Block WebSocket -->
     <script>
-      console.log('🚨 EMERGENCY iOS PWA Service Worker Disable - Running in HEAD');
-      
-      if ('serviceWorker' in navigator) {
-        // Block service worker registration immediately
-        const originalRegister = navigator.serviceWorker.register;
-        navigator.serviceWorker.register = function(...args) {
-          console.error('🚫 BLOCKED Service Worker registration in HEAD:', args[0]);
-          return Promise.reject(new Error('Service Worker blocked for iOS PWA'));
-        };
+      console.log('🚨 iOS PWA WebSocket Disable - Allow Service Worker but Block WebSocket');
 
-        // Aggressively unregister all service workers
-        navigator.serviceWorker.getRegistrations().then((registrations) => {
-          registrations.forEach((registration) => {
-            console.log('🗑️ HEAD: Force unregistering service worker:', registration.scope);
-            registration.unregister().then((success) => {
-              console.log('🗑️ HEAD: Service worker unregistration result:', success);
-            });
-          });
-        });
-
-        // Try to block ready promise (with error handling)
-        try {
-          const descriptor = Object.getOwnPropertyDescriptor(navigator.serviceWorker, 'ready');
-          if (descriptor && descriptor.configurable) {
-            Object.defineProperty(navigator.serviceWorker, 'ready', {
-              get() {
-                console.error('🚫 Service Worker ready blocked in HEAD');
-                return Promise.reject(new Error('Service Worker disabled for iOS PWA'));
-              },
-              configurable: true
-            });
-            console.log('✅ HEAD: Service Worker ready property overridden');
-          } else {
-            console.warn('⚠️ HEAD: Service Worker ready property not configurable');
-          }
-        } catch (e) {
-          console.warn('⚠️ HEAD: Could not override ready property:', e.message);
-        }
-      }
-
-      // Block WebSocket immediately but don't crash
+      // Block WebSocket immediately but keep Service Worker for PWA updates
       if (typeof WebSocket !== 'undefined') {
         const OriginalWebSocket = WebSocket;
         window.WebSocket = function BlockedWebSocket(url, protocols) {
-          console.error('🚫 HEAD: WebSocket blocked:', url);
+          console.error('🚫 HEAD: WebSocket blocked for iOS PWA:', url);
           
           // Return mock instead of throwing
           const mockSocket = {
@@ -113,7 +75,7 @@
         };
       }
 
-      console.log('✅ HEAD: iOS PWA emergency fixes applied');
+      console.log('✅ HEAD: WebSocket blocked but Service Worker allowed for PWA updates');
     </script>
   </head>
 
