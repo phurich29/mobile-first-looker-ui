@@ -53,13 +53,24 @@
           });
         });
 
-        // Block ready promise
-        Object.defineProperty(navigator.serviceWorker, 'ready', {
-          get() {
-            console.error('🚫 Service Worker ready blocked');
-            return Promise.reject(new Error('Service Worker disabled for iOS PWA'));
+        // Try to block ready promise (with error handling)
+        try {
+          const descriptor = Object.getOwnPropertyDescriptor(navigator.serviceWorker, 'ready');
+          if (descriptor && descriptor.configurable) {
+            Object.defineProperty(navigator.serviceWorker, 'ready', {
+              get() {
+                console.error('🚫 Service Worker ready blocked in HEAD');
+                return Promise.reject(new Error('Service Worker disabled for iOS PWA'));
+              },
+              configurable: true
+            });
+            console.log('✅ HEAD: Service Worker ready property overridden');
+          } else {
+            console.warn('⚠️ HEAD: Service Worker ready property not configurable');
           }
-        });
+        } catch (e) {
+          console.warn('⚠️ HEAD: Could not override ready property:', e.message);
+        }
       }
 
       // Block WebSocket immediately

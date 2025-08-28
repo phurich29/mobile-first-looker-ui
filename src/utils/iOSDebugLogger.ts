@@ -91,9 +91,17 @@ class IOSDebugLogger {
   private setupGlobalErrorHandlers() {
     console.log('🛡️ Setting up global error handlers...');
     
-    // Capture unhandled errors
+    // Capture unhandled errors with better error handling
     window.addEventListener('error', (event) => {
       console.error('🚨 GLOBAL ERROR CAPTURED:', event);
+      
+      // Don't log errors from our own blocking attempts
+      if (event.message && event.message.includes('Cannot redefine property')) {
+        console.log('🔧 Ignoring property redefinition error (expected behavior)');
+        event.preventDefault();
+        return false;
+      }
+      
       this.error('GLOBAL_ERROR', 'Unhandled error caught', {
         message: event.message,
         filename: event.filename,
@@ -107,6 +115,15 @@ class IOSDebugLogger {
     // Capture unhandled promise rejections
     window.addEventListener('unhandledrejection', (event) => {
       console.error('🚨 PROMISE REJECTION CAPTURED:', event);
+      
+      // Don't log rejections from our own service worker blocking
+      if (event.reason && event.reason.message && 
+          event.reason.message.includes('Service Worker disabled')) {
+        console.log('🔧 Ignoring service worker rejection (expected behavior)');
+        event.preventDefault();
+        return false;
+      }
+      
       this.error('PROMISE_REJECTION', 'Unhandled promise rejection', {
         reason: event.reason?.toString(),
         stack: event.reason?.stack,
