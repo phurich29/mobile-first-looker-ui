@@ -23,11 +23,10 @@ export const useNotificationStatus = (deviceCode: string) => {
         return { hasSettings: false, isTriggered: false, triggeredSettings: [] };
       }
 
-      // ดึงการตั้งค่าแจ้งเตือนของผู้ใช้
+      // ดึงการตั้งค่าแจ้งเตือนทั้งหมดสำหรับเครื่องนี้
       const { data: settings, error: settingsError } = await supabase
         .from('notification_settings')
         .select('*')
-        .eq('user_id', user.id)
         .eq('device_code', deviceCode)
         .eq('enabled', true);
 
@@ -40,12 +39,15 @@ export const useNotificationStatus = (deviceCode: string) => {
         return { hasSettings: false, isTriggered: false, triggeredSettings: [] };
       }
 
+      // หา settings ของ user ปัจจุบันเท่านั้น (สำหรับการตรวจสอบ trigger)
+      const userSettings = settings.filter(setting => setting.user_id === user.id);
+
       // ดึงข้อมูลล่าสุดของเครื่อง
       const { data: latestData, error: dataError } = await supabase
         .from('rice_quality_analysis')
         .select('*')
         .eq('device_code', deviceCode)
-        .order('timestamp', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(1);
 
       if (dataError || !latestData || latestData.length === 0) {
@@ -56,23 +58,25 @@ export const useNotificationStatus = (deviceCode: string) => {
       const latestMeasurement = latestData[0];
       const triggeredSettings = [];
 
-      // ตรวจสอบแต่ละการตั้งค่าว่าเข้าเงื่อนไขหรือไม่
-      for (const setting of settings) {
+      // ตรวจสอบแต่ละการตั้งค่าของ user ปัจจุบันว่าเข้าเงื่อนไขหรือไม่
+      for (const setting of userSettings) {
         // แปลง rice_type_id เป็น column name ในตาราง
         const columnMapping: { [key: string]: string } = {
           'whiteness': 'whiteness',
-          'yellow_rice_ratio': 'yellow_rice_ratio', 
-          'grade_1': 'grade_1',
-          'grade_2': 'grade_2',
-          'grade_3': 'grade_3',
-          'grade_4': 'grade_4',
-          'grade_5': 'grade_5',
-          'broken_rice': 'broken_rice',
-          'chalky_rice': 'chalky_rice',
-          'damaged_rice': 'damaged_rice',
-          'red_rice': 'red_rice',
-          'parboiled_rice': 'parboiled_rice',
-          'glutinous_rice': 'glutinous_rice'
+          'yellow_rice_ratio': 'yellow_rice_rate',
+          'head_rice': 'head_rice',
+          'whole_kernels': 'whole_kernels',
+          'total_brokens': 'total_brokens',
+          'small_brokens': 'small_brokens',
+          'class1': 'class1',
+          'class2': 'class2',
+          'class3': 'class3',
+          'broken_rice': 'total_brokens',
+          'chalky_rice': 'heavy_chalkiness_rate',
+          'paddy_rate': 'paddy_rate',
+          'red_rice': 'red_line_rate',
+          'parboiled_rice': 'parboiled_white_rice',
+          'glutinous_rice': 'sticky_rice_rate'
         };
 
         const columnName = columnMapping[setting.rice_type_id];
@@ -103,8 +107,8 @@ export const useNotificationStatus = (deviceCode: string) => {
       }
 
       return {
-        hasSettings: true,
-        isTriggered: triggeredSettings.length > 0,
+        hasSettings: settings.length > 0, // แสดง icon หากมีการตั้งค่าใดๆ
+        isTriggered: triggeredSettings.length > 0, // trigger เฉพาะของ user ปัจจุบัน
         triggeredSettings
       };
     },
