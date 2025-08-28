@@ -138,23 +138,53 @@ class IOSDebugLogger {
   }
 
   private monitorWebSocketAttempts() {
+    // Don't override WebSocket if already overridden by disableRealtime
+    if ((window as any).WebSocket && (window as any).WebSocket.name === 'BlockedWebSocket') {
+      this.info('WEBSOCKET_MONITOR', 'WebSocket already blocked by emergency fix');
+      return;
+    }
+
     const originalWebSocket = (window as any).WebSocket;
     
-    (window as any).WebSocket = class MockWebSocket {
-      constructor(url: string | URL, protocols?: string | string[]) {
-        iOSLogger.error('WEBSOCKET_BLOCKED', 'WebSocket creation attempt blocked', {
-          url: url.toString(),
-          protocols,
-          userAgent: navigator.userAgent,
-          stack: new Error().stack
-        });
-        throw new Error('WebSocket connections are disabled for iOS PWA compatibility');
-      }
+    (window as any).WebSocket = function MockWebSocket(url: string | URL, protocols?: string | string[]) {
+      iOSLogger.error('WEBSOCKET_BLOCKED', 'WebSocket creation attempt blocked', {
+        url: url.toString(),
+        protocols,
+        userAgent: navigator.userAgent,
+        stack: new Error().stack
+      });
       
-      static readonly CONNECTING = 0;
-      static readonly OPEN = 1;
-      static readonly CLOSING = 2;
-      static readonly CLOSED = 3;
+      // Return mock instead of throwing
+      const mockSocket = {
+        readyState: 3, // CLOSED
+        close: () => {},
+        send: () => {},
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        dispatchEvent: () => false,
+        onopen: null,
+        onclose: null,
+        onmessage: null,
+        onerror: null,
+        url: url.toString(),
+        protocol: '',
+        extensions: '',
+        bufferedAmount: 0,
+        binaryType: 'blob' as BinaryType,
+        CONNECTING: 0,
+        OPEN: 1,
+        CLOSING: 2,
+        CLOSED: 3
+      };
+
+      // Simulate immediate close
+      setTimeout(() => {
+        if (mockSocket.onclose) {
+          mockSocket.onclose(new CloseEvent('close', { code: 1006, reason: 'WebSocket blocked for iOS PWA' }));
+        }
+      }, 0);
+
+      return mockSocket;
     };
 
     this.info('WEBSOCKET_MONITOR', 'WebSocket monitoring activated');

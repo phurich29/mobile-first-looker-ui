@@ -73,14 +73,43 @@
         }
       }
 
-      // Block WebSocket immediately
+      // Block WebSocket immediately but don't crash
       if (typeof WebSocket !== 'undefined') {
         const OriginalWebSocket = WebSocket;
-        window.WebSocket = class BlockedWebSocket {
-          constructor(url, protocols) {
-            console.error('🚫 HEAD: WebSocket blocked:', url);
-            throw new Error('WebSocket blocked for iOS PWA');
-          }
+        window.WebSocket = function BlockedWebSocket(url, protocols) {
+          console.error('🚫 HEAD: WebSocket blocked:', url);
+          
+          // Return mock instead of throwing
+          const mockSocket = {
+            readyState: 3, // CLOSED
+            close: function() {},
+            send: function() {},
+            addEventListener: function() {},
+            removeEventListener: function() {},
+            dispatchEvent: function() { return false; },
+            onopen: null,
+            onclose: null,
+            onmessage: null,
+            onerror: null,
+            url: url.toString(),
+            protocol: '',
+            extensions: '',
+            bufferedAmount: 0,
+            binaryType: 'blob',
+            CONNECTING: 0,
+            OPEN: 1,
+            CLOSING: 2,
+            CLOSED: 3
+          };
+
+          // Simulate immediate close
+          setTimeout(function() {
+            if (mockSocket.onclose) {
+              mockSocket.onclose({ code: 1006, reason: 'WebSocket blocked for iOS PWA' });
+            }
+          }, 0);
+
+          return mockSocket;
         };
       }
 

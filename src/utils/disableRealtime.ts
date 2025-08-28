@@ -9,28 +9,40 @@ if (typeof window !== 'undefined') {
   
   // 1. Block ALL WebSocket attempts immediately
   const OriginalWebSocket = window.WebSocket;
-  (window as any).WebSocket = class BlockedWebSocket {
-    constructor(url: string | URL, protocols?: string | string[]) {
-      console.error('🚫 BLOCKED WebSocket attempt to:', url);
-      // Don't throw error, just return a mock that never connects
-      return {
-        readyState: 3, // CLOSED
-        close: () => {},
-        send: () => {},
-        addEventListener: () => {},
-        removeEventListener: () => {},
-        dispatchEvent: () => false,
-        onopen: null,
-        onclose: null,
-        onmessage: null,
-        onerror: null
-      } as any;
-    }
+  (window as any).WebSocket = function BlockedWebSocket(url: string | URL, protocols?: string | string[]) {
+    console.error('🚫 BLOCKED WebSocket attempt to:', url);
     
-    static readonly CONNECTING = 0;
-    static readonly OPEN = 1;
-    static readonly CLOSING = 2;
-    static readonly CLOSED = 3;
+    // Return a mock WebSocket that doesn't crash the app
+    const mockSocket = {
+      readyState: 3, // CLOSED
+      close: () => {},
+      send: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+      onopen: null,
+      onclose: null,
+      onmessage: null,
+      onerror: null,
+      url: url.toString(),
+      protocol: '',
+      extensions: '',
+      bufferedAmount: 0,
+      binaryType: 'blob' as BinaryType,
+      CONNECTING: 0,
+      OPEN: 1,
+      CLOSING: 2,
+      CLOSED: 3
+    };
+
+    // Simulate immediate close after creation
+    setTimeout(() => {
+      if (mockSocket.onclose) {
+        mockSocket.onclose(new CloseEvent('close', { code: 1006, reason: 'WebSocket blocked for iOS PWA' }));
+      }
+    }, 0);
+
+    return mockSocket;
   };
 
   // 2. Disable Service Worker immediately and aggressively
