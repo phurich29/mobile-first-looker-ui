@@ -12,9 +12,11 @@ import { useNotificationHistory } from "./hooks/useNotificationHistory";
 import { useQueryClient } from "@tanstack/react-query";
 import { RealtimePayload } from "./types";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAuth } from "@/components/AuthProvider";
 
 export const NotificationHistoryList = () => {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const {
@@ -34,9 +36,14 @@ export const NotificationHistoryList = () => {
     refetch
   } = useNotificationHistory();
 
-  // Enhanced real-time subscription with proper typing
+  // Enhanced real-time subscription with proper user filtering
   useEffect(() => {
-    console.log("🔗 Setting up real-time subscription");
+    if (!user?.id) {
+      console.log("🚫 No authenticated user, skipping real-time subscription");
+      return;
+    }
+
+    console.log("🔗 Setting up user-filtered real-time subscription for user:", user.id);
     
     const channel = supabase
       .channel('notification_updates_main')
@@ -44,15 +51,28 @@ export const NotificationHistoryList = () => {
         { 
           event: '*', 
           schema: 'public', 
-          table: 'notifications' 
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}` // ⭐ CRITICAL: Only user's notifications
         }, 
         (payload: RealtimePayload) => {
-          console.log('🔔 Real-time notification update received:', {
+          console.log('🔔 User-filtered real-time notification update received:', {
             event: payload.eventType,
             table: 'notifications',
             timestamp: new Date().toISOString(),
-            record_id: payload.new?.id || payload.old?.id || 'unknown'
+            record_id: payload.new?.id || payload.old?.id || 'unknown',
+            user_id: payload.new?.user_id || payload.old?.user_id,
+            current_user: user.id
           });
+          
+          // Double-check user_id validation (defense in depth)
+          const notificationUserId = payload.new?.user_id || payload.old?.user_id;
+          if (notificationUserId && notificationUserId !== user.id) {
+            console.warn('🚫 Cross-user notification detected and blocked:', {
+              notification_user: notificationUserId,
+              current_user: user.id
+            });
+            return;
+          }
           
           // Invalidate queries to trigger refetch
           queryClient.invalidateQueries({ queryKey: ['notification_history'] });
@@ -60,14 +80,14 @@ export const NotificationHistoryList = () => {
         }
       )
       .subscribe((status) => {
-        console.log('📡 Realtime subscription status:', status);
+        console.log('📡 User-filtered realtime subscription status:', status, 'for user:', user.id);
       });
       
     return () => {
-      console.log("🔗 Cleaning up real-time subscription");
+      console.log("🔗 Cleaning up user-filtered real-time subscription");
       supabase.removeChannel(channel);
     };
-  }, [queryClient]);
+  }, [queryClient, user?.id]);
 
   // Error logging
   useEffect(() => {

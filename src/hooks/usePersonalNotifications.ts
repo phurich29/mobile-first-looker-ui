@@ -28,6 +28,7 @@ interface NotificationSetting {
   max_enabled: boolean;
   min_threshold: number;
   max_threshold: number;
+  user_id: string;
 }
 
 export const usePersonalNotifications = () => {
@@ -182,9 +183,14 @@ export const usePersonalNotifications = () => {
     }
   }, [notifications, userSettings]);
 
-  // Set up real-time subscription for immediate notifications
+  // Enhanced real-time subscription with strict user filtering
   useEffect(() => {
-    if (!user?.id || !userSettings || userSettings.length === 0) return;
+    if (!user?.id || !userSettings || userSettings.length === 0) {
+      console.log("🚫 Personal notifications: Skipping real-time - no user or settings");
+      return;
+    }
+
+    console.log("🔗 Personal notifications: Setting up user-filtered real-time subscription for user:", user.id);
 
     const channel = supabase
       .channel('personal-notifications')
@@ -193,28 +199,43 @@ export const usePersonalNotifications = () => {
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'notifications'
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}` // ⭐ CRITICAL: Server-side user filtering
         },
         (payload) => {
           console.log('🔔 Real-time personal notification received:', payload);
           
           const newNotification = payload.new as PersonalNotification;
           
-          // 🔒 ตรวจสอบว่าการแจ้งเตือนนี้เป็นของผู้ใช้ปัจจุบันหรือไม่
-          if (newNotification.user_id !== user.id) {
-            console.log('🚫 Real-time notification not for this user, ignoring');
+          // 🔒 TRIPLE VALIDATION: Server filter + client validation + user check
+          if (!newNotification.user_id) {
+            console.warn('🚫 Notification missing user_id, blocking');
             return;
           }
           
-          // Check if this notification is relevant to user's settings
+          if (newNotification.user_id !== user.id) {
+            console.warn('🚫 Cross-user notification detected and blocked:', {
+              notification_user: newNotification.user_id,
+              current_user: user.id,
+              device_code: newNotification.device_code,
+              rice_type_id: newNotification.rice_type_id
+            });
+            return;
+          }
+          
+          // Additional validation: Check if notification belongs to user's enabled settings
           const setting = userSettings.find(
             s => s.device_code === newNotification.device_code && 
-                 s.rice_type_id === newNotification.rice_type_id
+                 s.rice_type_id === newNotification.rice_type_id &&
+                 s.user_id === user.id // Extra safety check
           );
           
-          if (!setting) return;
+          if (!setting) {
+            console.log('🚫 Notification not relevant to user settings, ignoring');
+            return;
+          }
           
-          // Check threshold relevance
+          // Check threshold relevance with validation
           let isRelevant = false;
           if (newNotification.threshold_type === 'min' && setting.min_enabled) {
             isRelevant = newNotification.value < setting.min_threshold;
@@ -222,17 +243,29 @@ export const usePersonalNotifications = () => {
             isRelevant = newNotification.value > setting.max_threshold;
           }
           
-          if (isRelevant) {
-            console.log('🚨 Relevant real-time notification - activating alert');
-            
-            // Refetch notifications
-            refetch();
+          if (!isRelevant) {
+            console.log('🚫 Notification not relevant to threshold settings, ignoring');
+            return;
           }
+          
+          console.log('✅ Valid user notification processed:', {
+            user_id: newNotification.user_id,
+            device_code: newNotification.device_code,
+            rice_type_id: newNotification.rice_type_id,
+            threshold_type: newNotification.threshold_type,
+            value: newNotification.value
+          });
+          
+          // Only refetch if validation passes
+          refetch();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('📡 Personal notifications real-time status:', status, 'for user:', user.id);
+      });
 
     return () => {
+      console.log('🔌 Personal notifications: Cleaning up user-filtered real-time subscription');
       supabase.removeChannel(channel);
     };
   }, [user?.id, userSettings, refetch]);
