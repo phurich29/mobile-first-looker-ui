@@ -2,6 +2,15 @@
 import { supabase } from "@/integrations/supabase/client";
 import { TimeFrame } from "./MeasurementHistory";
 import { convertUrlSymbolToMeasurementSymbol } from "./utils/symbolMapping";
+import { 
+  validateApiAccess, 
+  validateUserAuthentication, 
+  validateDeviceAccess,
+  validateNotificationOwnership,
+  logSecurityEvent,
+  createApiError,
+  ValidationResult
+} from "@/utils/apiValidation";
 
 // Function to get hours based on timeframe
 export const getTimeFrameHours = (frame: TimeFrame): number => {
@@ -14,13 +23,27 @@ export const getTimeFrameHours = (frame: TimeFrame): number => {
   }
 };
 
-// Fetch measurement history data
+// Enhanced fetch measurement history with comprehensive validation
 export const fetchMeasurementHistory = async (
   deviceCode: string, 
   symbol: string, 
   timeFrame: TimeFrame
 ) => {
-  if (!deviceCode || !symbol) throw new Error("Missing device code or measurement symbol");
+  console.log('🔍 fetchMeasurementHistory called:', { deviceCode, symbol, timeFrame });
+  
+  if (!deviceCode || !symbol) {
+    const error = createApiError('fetchMeasurementHistory', 'Missing device code or measurement symbol');
+    throw error;
+  }
+
+  // Phase 3: Comprehensive validation
+  const validation = await validateApiAccess(deviceCode);
+  if (!validation.isValid) {
+    throw createApiError('fetchMeasurementHistory', validation.error || 'Access validation failed', validation.userId, {
+      device_code: deviceCode,
+      rice_type_id: symbol
+    });
+  }
 
   // Defensively convert the symbol to the correct database column name.
   // This ensures that even if the calling code passes a URL-style symbol,
@@ -28,6 +51,16 @@ export const fetchMeasurementHistory = async (
   const dbColumnSymbol = convertUrlSymbolToMeasurementSymbol(symbol);
   
   try {
+    logSecurityEvent({
+      function_name: 'fetchMeasurementHistory',
+      user_id: validation.userId,
+      device_code: deviceCode,
+      rice_type_id: symbol,
+      action: 'fetch_history_start',
+      success: true,
+      timestamp: new Date().toISOString()
+    });
+    
     // Dynamic select query using the corrected symbol
     const selectQuery = `id, ${dbColumnSymbol}, created_at, thai_datetime`;
     
@@ -45,12 +78,43 @@ export const fetchMeasurementHistory = async (
     
     if (error) {
       console.error(`Error fetching history for ${symbol} (queried as ${dbColumnSymbol}) on device ${deviceCode}:`, error);
+      logSecurityEvent({
+        function_name: 'fetchMeasurementHistory',
+        user_id: validation.userId,
+        device_code: deviceCode,
+        rice_type_id: symbol,
+        action: 'fetch_history_failed',
+        success: false,
+        error_message: error.message,
+        timestamp: new Date().toISOString()
+      });
       throw new Error(error.message);
     }
     
+    console.log('✅ Successfully fetched measurement history:', data?.length || 0, 'records');
+    logSecurityEvent({
+      function_name: 'fetchMeasurementHistory',
+      user_id: validation.userId,
+      device_code: deviceCode,
+      rice_type_id: symbol,
+      action: 'fetch_history_success',
+      success: true,
+      timestamp: new Date().toISOString()
+    });
+    
     return data;
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error in fetchMeasurementHistory:', err);
+    logSecurityEvent({
+      function_name: 'fetchMeasurementHistory',
+      user_id: validation.userId,
+      device_code: deviceCode,
+      rice_type_id: symbol,
+      action: 'fetch_history_exception',
+      success: false,
+      error_message: err.message,
+      timestamp: new Date().toISOString()
+    });
     return [];
   }
 };
@@ -95,13 +159,41 @@ export const calculateAverage = (historyData: any[], symbol: string): number => 
   return sum / values.length;
 };
 
-// ดึงค่าการวัดล่าสุดสำหรับอุปกรณ์และประเภทข้อมูลเฉพาะ
+// Enhanced get latest measurement with validation
 export const getLatestMeasurement = async (
   deviceCode: string,
   symbol: string
 ): Promise<{ value: number | null; timestamp: string | null }> => {
+  console.log('🔍 getLatestMeasurement called:', { deviceCode, symbol });
+  
   try {
     if (!deviceCode || !symbol) {
+      logSecurityEvent({
+        function_name: 'getLatestMeasurement',
+        action: 'invalid_parameters',
+        success: false,
+        error_message: 'Missing deviceCode or symbol',
+        timestamp: new Date().toISOString()
+      });
+      return { value: null, timestamp: null };
+    }
+
+    // Phase 3: Validation
+    const validation = await validateApiAccess(deviceCode);
+    if (!validation.isValid) {
+      console.warn('🚫 Validation failed for getLatestMeasurement:', validation.error);
+      logSecurityEvent({
+        function_name: 'getLatestMeasurement',
+        user_id: validation.userId,
+        device_code: deviceCode,
+        rice_type_id: symbol,
+        action: 'access_denied',
+        success: false,
+        error_message: validation.error || 'Access validation failed',
+        timestamp: new Date().toISOString()
+      });
+      
+      // Don't throw error for this function, return null values instead
       return { value: null, timestamp: null };
     }
 
@@ -117,6 +209,16 @@ export const getLatestMeasurement = async (
     // ตรวจสอบว่ามีข้อมูลหรือไม่
     if (error) {
       console.error(`Error fetching latest measurement for ${symbol} on device ${deviceCode}:`, error);
+      logSecurityEvent({
+        function_name: 'getLatestMeasurement',
+        user_id: validation.userId,
+        device_code: deviceCode,
+        rice_type_id: symbol,
+        action: 'fetch_failed',
+        success: false,
+        error_message: error.message,
+        timestamp: new Date().toISOString()
+      });
       return { value: null, timestamp: null };
     }
     
@@ -129,12 +231,30 @@ export const getLatestMeasurement = async (
     // ใช้ข้อมูลรายการแรก (และเป็นรายการเดียวเนื่องจากใช้ limit(1))
     const latestData = data[0];
     
+    console.log('✅ Successfully fetched latest measurement');
+    logSecurityEvent({
+      function_name: 'getLatestMeasurement',
+      user_id: validation.userId,
+      device_code: deviceCode,
+      rice_type_id: symbol,
+      action: 'fetch_success',
+      success: true,
+      timestamp: new Date().toISOString()
+    });
+    
     return {
       value: latestData[symbol],
       timestamp: latestData.created_at
     };
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error in getLatestMeasurement:', err);
+    logSecurityEvent({
+      function_name: 'getLatestMeasurement',
+      action: 'exception',
+      success: false,
+      error_message: err.message,
+      timestamp: new Date().toISOString()
+    });
     return { value: null, timestamp: null };
   }
 };
@@ -153,30 +273,133 @@ export interface NotificationSettings {
   user_id: string; // เพิ่ม user_id เป็น required field
 }
 
-// Fetch notification settings for a device and measurement (user-specific)
+// Enhanced fetch notification settings with comprehensive validation
 export const getNotificationSettings = async (deviceCode: string, symbol: string): Promise<NotificationSettings | null> => {
+  console.log('🔍 getNotificationSettings called:', { deviceCode, symbol });
+  
   try {
+    // Phase 3: Comprehensive validation
+    const validation = await validateApiAccess(deviceCode, symbol);
+    if (!validation.isValid) {
+      console.error('🚫 Validation failed for getNotificationSettings:', validation.error);
+      logSecurityEvent({
+        function_name: 'getNotificationSettings',
+        user_id: validation.userId,
+        device_code: deviceCode,
+        rice_type_id: symbol,
+        action: 'access_denied',
+        success: false,
+        error_message: validation.error || 'Access validation failed',
+        timestamp: new Date().toISOString()
+      });
+      
+      throw createApiError('getNotificationSettings', validation.error || 'Access validation failed', validation.userId, {
+        device_code: deviceCode,
+        rice_type_id: symbol
+      });
+    }
+
+    logSecurityEvent({
+      function_name: 'getNotificationSettings',
+      user_id: validation.userId,
+      device_code: deviceCode,
+      rice_type_id: symbol,
+      action: 'fetch_settings_start',
+      success: true,
+      timestamp: new Date().toISOString()
+    });
+
     // Note: RLS policies จะกรองให้เห็นเฉพาะการตั้งค่าของ user ปัจจุบันอยู่แล้ว
+    // แต่เราเพิ่ม explicit user_id filter เพื่อความปลอดภัยเพิ่มเติม
     const { data: settings, error } = await supabase
       .from('notification_settings')
       .select('*')
       .eq('device_code', deviceCode)
       .eq('rice_type_id', symbol)
+      .eq('user_id', validation.userId) // ⭐ CRITICAL: Explicit user_id filter
       .maybeSingle();
     
     if (error) {
       console.error('Error fetching notification settings:', error);
-      return null;
+      logSecurityEvent({
+        function_name: 'getNotificationSettings',
+        user_id: validation.userId,
+        device_code: deviceCode,
+        rice_type_id: symbol,
+        action: 'fetch_settings_failed',
+        success: false,
+        error_message: error.message,
+        timestamp: new Date().toISOString()
+      });
+      
+      throw createApiError('getNotificationSettings', 'Failed to fetch notification settings: ' + error.message, validation.userId, {
+        device_code: deviceCode,
+        rice_type_id: symbol
+      });
     }
     
+    // Additional validation: verify returned data belongs to current user
+    if (settings && settings.user_id !== validation.userId) {
+      console.error('🚨 SECURITY VIOLATION: Retrieved settings belong to different user:', {
+        retrievedUserId: settings.user_id,
+        requestingUserId: validation.userId
+      });
+      
+      logSecurityEvent({
+        function_name: 'getNotificationSettings',
+        user_id: validation.userId,
+        device_code: deviceCode,
+        rice_type_id: symbol,
+        action: 'cross_user_data_detected',
+        success: false,
+        error_message: `Settings belong to user ${settings.user_id}, not ${validation.userId}`,
+        timestamp: new Date().toISOString()
+      });
+      
+      throw createApiError('getNotificationSettings', 'Security violation: Settings belong to another user', validation.userId, {
+        device_code: deviceCode,
+        rice_type_id: symbol,
+        retrieved_user_id: settings.user_id
+      });
+    }
+    
+    console.log('✅ Successfully fetched notification settings');
+    logSecurityEvent({
+      function_name: 'getNotificationSettings',
+      user_id: validation.userId,
+      device_code: deviceCode,
+      rice_type_id: symbol,
+      action: 'fetch_settings_success',
+      success: true,
+      timestamp: new Date().toISOString()
+    });
+    
     return settings;
-  } catch (err) {
+  } catch (err: any) {
     console.error('Exception in getNotificationSettings:', err);
-    return null;
+    
+    // If it's already our custom error, re-throw it
+    if (err.message.includes('Access validation failed') || err.message.includes('Security violation')) {
+      throw err;
+    }
+    
+    // Otherwise, log and wrap the error
+    logSecurityEvent({
+      function_name: 'getNotificationSettings',
+      action: 'exception',
+      success: false,
+      error_message: err.message,
+      timestamp: new Date().toISOString()
+    });
+    
+    throw createApiError('getNotificationSettings', 'Unexpected error: ' + err.message, undefined, {
+      device_code: deviceCode,
+      rice_type_id: symbol
+    });
   }
 };
 
-// Save notification settings
+// Enhanced save notification settings with comprehensive validation
 export const saveNotificationSettings = async (settings: {
   deviceCode: string;
   symbol: string;
@@ -189,18 +412,75 @@ export const saveNotificationSettings = async (settings: {
 }): Promise<void> => {
   const { deviceCode, symbol, name, enabled, minEnabled, maxEnabled, minThreshold, maxThreshold } = settings;
   
-  // Get current user ID
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    throw new Error('User must be authenticated to save notification settings');
-  }
-  
-  // First check if settings already exist for this user
-  const existingSettings = await getNotificationSettings(deviceCode, symbol);
+  console.log('🔍 saveNotificationSettings called:', { deviceCode, symbol, name });
   
   try {
+    // Phase 3: Comprehensive validation 
+    const validation = await validateApiAccess(deviceCode, symbol);
+    if (!validation.isValid || !validation.userId) {
+      console.error('🚫 Validation failed for saveNotificationSettings:', validation.error);
+      logSecurityEvent({
+        function_name: 'saveNotificationSettings',
+        user_id: validation.userId,
+        device_code: deviceCode,
+        rice_type_id: symbol,
+        action: 'access_denied',
+        success: false,
+        error_message: validation.error || 'Access validation failed',
+        timestamp: new Date().toISOString()
+      });
+      
+      throw createApiError('saveNotificationSettings', validation.error || 'Access validation failed', validation.userId, {
+        device_code: deviceCode,
+        rice_type_id: symbol
+      });
+    }
+
+    const userId = validation.userId;
+
+    logSecurityEvent({
+      function_name: 'saveNotificationSettings',
+      user_id: userId,
+      device_code: deviceCode,
+      rice_type_id: symbol,
+      action: 'save_settings_start',
+      success: true,
+      timestamp: new Date().toISOString()
+    });
+    
+    // First check if settings already exist for this user with additional validation
+    console.log('🔍 Checking existing settings for user:', userId);
+    const existingSettings = await getNotificationSettings(deviceCode, symbol);
+    
     if (existingSettings?.id) {
-      // Update existing settings (RLS policies จะตรวจสอบ ownership อยู่แล้ว)
+      // Additional ownership validation before update
+      if (existingSettings.user_id !== userId) {
+        console.error('🚨 SECURITY VIOLATION: Attempting to update settings owned by different user:', {
+          existingUserId: existingSettings.user_id,
+          requestingUserId: userId
+        });
+        
+        logSecurityEvent({
+          function_name: 'saveNotificationSettings',
+          user_id: userId,
+          device_code: deviceCode,
+          rice_type_id: symbol,
+          action: 'ownership_violation_update',
+          success: false,
+          error_message: `Attempted to update settings owned by ${existingSettings.user_id}`,
+          timestamp: new Date().toISOString()
+        });
+        
+        throw createApiError('saveNotificationSettings', 'Security violation: Cannot update settings owned by another user', userId, {
+          device_code: deviceCode,
+          rice_type_id: symbol,
+          existing_user_id: existingSettings.user_id
+        });
+      }
+      
+      console.log('🔄 Updating existing settings for user:', userId);
+      
+      // Update existing settings with explicit user_id check
       const { error } = await supabase
         .from('notification_settings')
         .update({
@@ -210,11 +490,37 @@ export const saveNotificationSettings = async (settings: {
           min_threshold: minThreshold,
           max_threshold: maxThreshold,
         })
-        .eq('id', existingSettings.id);
+        .eq('id', existingSettings.id)
+        .eq('user_id', userId); // ⭐ CRITICAL: Double-check user_id in update
       
-      if (error) throw error;
+      if (error) {
+        logSecurityEvent({
+          function_name: 'saveNotificationSettings',
+          user_id: userId,
+          device_code: deviceCode,
+          rice_type_id: symbol,
+          action: 'update_failed',
+          success: false,
+          error_message: error.message,
+          timestamp: new Date().toISOString()
+        });
+        throw error;
+      }
+      
+      console.log('✅ Successfully updated notification settings');
+      logSecurityEvent({
+        function_name: 'saveNotificationSettings',
+        user_id: userId,
+        device_code: deviceCode,
+        rice_type_id: symbol,
+        action: 'update_success',
+        success: true,
+        timestamp: new Date().toISOString()
+      });
     } else {
-      // Create new settings with user_id
+      // Create new settings with validated user_id
+      console.log('📝 Creating new settings for user:', userId);
+      
       const { error } = await supabase
         .from('notification_settings')
         .insert({
@@ -226,13 +532,56 @@ export const saveNotificationSettings = async (settings: {
           max_enabled: maxEnabled,
           min_threshold: minThreshold,
           max_threshold: maxThreshold,
-          user_id: user.id, // เพิ่ม user_id สำหรับการแยกข้อมูลตาม user
+          user_id: userId, // ⭐ CRITICAL: Validated user_id
         });
       
-      if (error) throw error;
+      if (error) {
+        logSecurityEvent({
+          function_name: 'saveNotificationSettings',
+          user_id: userId,
+          device_code: deviceCode,
+          rice_type_id: symbol,
+          action: 'insert_failed',
+          success: false,
+          error_message: error.message,
+          timestamp: new Date().toISOString()
+        });
+        throw error;
+      }
+      
+      console.log('✅ Successfully created new notification settings');
+      logSecurityEvent({
+        function_name: 'saveNotificationSettings',
+        user_id: userId,
+        device_code: deviceCode,
+        rice_type_id: symbol,
+        action: 'insert_success',
+        success: true,
+        timestamp: new Date().toISOString()
+      });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error saving notification settings:', error);
-    throw new Error('Failed to save notification settings');
+    
+    // If it's already our custom error, re-throw it
+    if (error.message.includes('Access validation failed') || 
+        error.message.includes('Security violation') ||
+        error.message.includes('User must be authenticated')) {
+      throw error;
+    }
+    
+    // Log unexpected errors
+    logSecurityEvent({
+      function_name: 'saveNotificationSettings',
+      action: 'save_exception',
+      success: false,
+      error_message: error.message,
+      timestamp: new Date().toISOString()
+    });
+    
+    throw createApiError('saveNotificationSettings', 'Failed to save notification settings: ' + error.message, undefined, {
+      device_code: deviceCode,
+      rice_type_id: symbol
+    });
   }
 };
