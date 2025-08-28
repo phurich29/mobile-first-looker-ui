@@ -14,7 +14,6 @@ import { Capacitor } from "@capacitor/core";
 
 import { NotificationPermissionPopup } from '@/components/NotificationPermissionPopup';
 import { GlobalNotificationManager } from '@/components/GlobalNotificationManager';
-import DebugPanel from '@/components/DebugPanel';
 import { iOSLogger } from './utils/iOSDebugLogger';
 
 // Log app initialization
@@ -284,7 +283,6 @@ const App: React.FC = () => {
                 <GlobalNotificationManager />
                 <RouterProvider router={router} />
                 <Toaster />
-                <DebugPanel />
                 {/* Disabled notification popup to prevent annoying modal */}
                 {false && showNotificationPopup && (
                   <NotificationPermissionPopup
