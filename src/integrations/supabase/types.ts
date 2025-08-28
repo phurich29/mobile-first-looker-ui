@@ -393,7 +393,8 @@ export type Database = {
       }
       rice_quality_analysis: {
         Row: {
-          analyzed_at_thai: string | null
+          analyzed_at: string | null
+          analyzed_at_ms: number | null
           black_kernel: number | null
           brown_rice_rate: number | null
           class1: number | null
@@ -401,7 +402,7 @@ export type Database = {
           class3: number | null
           created_at: string | null
           cur_material: string | null
-          cur_varity: number | null
+          cur_variety: number | null
           device_code: string | null
           head_rice: number | null
           heavy_chalkiness_rate: number
@@ -410,6 +411,7 @@ export type Database = {
           imperfection_rate: number | null
           impurity_num: number | null
           light_honey_rice: number
+          machine_unix_time: string | null
           main_index: number | null
           main_rate: number | null
           mix_index: number | null
@@ -440,7 +442,8 @@ export type Database = {
           yellow_rice_rate: number | null
         }
         Insert: {
-          analyzed_at_thai?: string | null
+          analyzed_at?: string | null
+          analyzed_at_ms?: number | null
           black_kernel?: number | null
           brown_rice_rate?: number | null
           class1?: number | null
@@ -448,7 +451,7 @@ export type Database = {
           class3?: number | null
           created_at?: string | null
           cur_material?: string | null
-          cur_varity?: number | null
+          cur_variety?: number | null
           device_code?: string | null
           head_rice?: number | null
           heavy_chalkiness_rate?: number
@@ -457,6 +460,7 @@ export type Database = {
           imperfection_rate?: number | null
           impurity_num?: number | null
           light_honey_rice?: number
+          machine_unix_time?: string | null
           main_index?: number | null
           main_rate?: number | null
           mix_index?: number | null
@@ -487,7 +491,8 @@ export type Database = {
           yellow_rice_rate?: number | null
         }
         Update: {
-          analyzed_at_thai?: string | null
+          analyzed_at?: string | null
+          analyzed_at_ms?: number | null
           black_kernel?: number | null
           brown_rice_rate?: number | null
           class1?: number | null
@@ -495,7 +500,7 @@ export type Database = {
           class3?: number | null
           created_at?: string | null
           cur_material?: string | null
-          cur_varity?: number | null
+          cur_variety?: number | null
           device_code?: string | null
           head_rice?: number | null
           heavy_chalkiness_rate?: number
@@ -504,6 +509,7 @@ export type Database = {
           imperfection_rate?: number | null
           impurity_num?: number | null
           light_honey_rice?: number
+          machine_unix_time?: string | null
           main_index?: number | null
           main_rate?: number | null
           mix_index?: number | null
