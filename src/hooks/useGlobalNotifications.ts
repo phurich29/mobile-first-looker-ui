@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useAlertSound, getNotificationsEnabled, NOTIFICATIONS_ENABLED_KEY } from '@/hooks/useAlertSound';
+import { useNotificationControl, shouldBlockAlerts } from '@/hooks/useNotificationControl';
 
 /**
  * Global Notification Hook - ใช้สำหรับแจ้งเตือนทั่วทั้งระบบ
@@ -20,6 +21,7 @@ interface NotificationItem {
 }
 
 export const useGlobalNotifications = () => {
+  const { shouldBlockAlerts: shouldBlock } = useNotificationControl();
   const lastNotificationRef = useRef<string | null>(null);
   const processedNotificationsRef = useRef<Set<string>>(new Set());
   const alertTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -87,6 +89,23 @@ export const useGlobalNotifications = () => {
       latestNotification.id !== lastNotificationRef.current &&
       !processedNotificationsRef.current.has(notificationId)
     ) {
+      // 🔒 CRITICAL CHECK: ตรวจสอบสถานะการแจ้งเตือนก่อนเล่นเสียง
+      if (shouldBlock(latestNotification.device_code)) {
+        console.log('🚫 Global notification blocked due to control settings:', latestNotification.device_code);
+        // อัปเดต refs แต่ไม่เล่นเสียง
+        lastNotificationRef.current = latestNotification.id;
+        processedNotificationsRef.current.add(notificationId);
+        return;
+      }
+
+      // 🔒 ADDITIONAL CHECK: ตรวจสอบ global notifications
+      if (!getNotificationsEnabled()) {
+        console.log('🚫 Global notifications disabled - no sound');
+        lastNotificationRef.current = latestNotification.id;
+        processedNotificationsRef.current.add(notificationId);
+        return;
+      }
+
       console.log('🚨 New notification detected - activating alert:', {
         id: latestNotification.id,
         message: latestNotification.notification_message,
@@ -159,6 +178,20 @@ export const useGlobalNotifications = () => {
           const notificationId = `${newNotification.id}-${newNotification.notification_count}`;
 
           if (!processedNotificationsRef.current.has(notificationId)) {
+            // 🔒 CRITICAL CHECK: ตรวจสอบสถานะการแจ้งเตือนก่อนเล่นเสียง
+            if (shouldBlock(newNotification.device_code)) {
+              console.log('🚫 Real-time notification blocked due to control settings:', newNotification.device_code);
+              processedNotificationsRef.current.add(notificationId);
+              return;
+            }
+
+            // 🔒 ADDITIONAL CHECK: ตรวจสอบ global notifications
+            if (!getNotificationsEnabled()) {
+              console.log('🚫 Global notifications disabled - no real-time sound');
+              processedNotificationsRef.current.add(notificationId);
+              return;
+            }
+
             console.log('🚨 Real-time notification - activating alert:', {
               id: newNotification.id,
               message: newNotification.notification_message

@@ -7,6 +7,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { usePersonalNotifications } from "@/hooks/usePersonalNotifications";
+import { getNotificationsEnabled } from "@/hooks/useAlertSound";
 
 // Import pages directly (non-lazy for better performance on core pages)
 import Index from "./pages/Index";
@@ -87,6 +88,13 @@ const MainLayout = () => {
 
   // ตรวจทุกครั้งที่เส้นทางเปลี่ยน เพื่อให้ผู้ใช้ได้ยินเสียงทันทีเมื่อมีการแจ้งเตือน
   useEffect(() => {
+    // 🔒 CRITICAL: ตรวจสอบสถานะการแจ้งเตือนก่อนเรียก checkAndActivateOnRoute
+    const globalEnabled = getNotificationsEnabled();
+    if (!globalEnabled) {
+      console.log('[MainLayout] route changed to', location.pathname, '→ notifications disabled, skip check');
+      return;
+    }
+    
     console.log('[MainLayout] route changed to', location.pathname, '→ recheck personal notifications');
     checkAndActivateOnRoute();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -96,6 +104,13 @@ const MainLayout = () => {
   useEffect(() => {
     const onFocusOrVisible = () => {
       if (document.visibilityState === 'visible') {
+        // 🔒 CRITICAL: ตรวจสอบสถานะการแจ้งเตือนก่อนเรียก checkAndActivateOnRoute
+        const globalEnabled = getNotificationsEnabled();
+        if (!globalEnabled) {
+          console.log('[MainLayout] window focus/visible → notifications disabled, skip check');
+          return;
+        }
+        
         console.log('[MainLayout] window focus/visible → recheck personal notifications');
         checkAndActivateOnRoute();
       }
@@ -111,6 +126,13 @@ const MainLayout = () => {
   // ตรวจเมื่อการตั้งค่าส่วนตัวเริ่มพร้อมใช้งาน (กรณี user/context เพิ่งพร้อมหลังเปลี่ยนหน้า)
   useEffect(() => {
     if (hasActiveSettings) {
+      // 🔒 CRITICAL: ตรวจสอบสถานะการแจ้งเตือนก่อนเรียก checkAndActivateOnRoute
+      const globalEnabled = getNotificationsEnabled();
+      if (!globalEnabled) {
+        console.log('[MainLayout] hasActiveSettings=true but notifications disabled, skip check');
+        return;
+      }
+      
       console.log('[MainLayout] hasActiveSettings=true → recheck personal notifications');
       checkAndActivateOnRoute();
     }
