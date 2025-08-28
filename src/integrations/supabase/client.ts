@@ -12,7 +12,7 @@ const SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3Mi
 // For admin operations, use:
 // import { supabaseAdmin } from "@/integrations/supabase/client"
 
-// Normal client for standard operations with realtime disabled
+// Normal client for standard operations with realtime completely disabled
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
     persistSession: true, // Persist session in storage
@@ -25,6 +25,33 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     }
   }
 });
+
+// Comprehensive realtime disable by overriding the channel method completely
+const originalChannel = supabase.channel;
+supabase.channel = function(name: string) {
+  console.log('🚫 Supabase channel creation blocked:', name);
+  
+  // Return a comprehensive mock channel
+  const mockChannel = {
+    on: () => mockChannel,
+    subscribe: (callback?: (status: string) => void) => {
+      console.log('🚫 Mock channel subscribe blocked:', name);
+      // Don't call callback to avoid triggering any handlers
+      return Promise.resolve({ error: null });
+    },
+    unsubscribe: () => {
+      console.log('🚫 Mock channel unsubscribe:', name);
+      return Promise.resolve({ error: null });
+    },
+    send: () => Promise.resolve({ error: null }),
+    track: () => Promise.resolve({ error: null }),
+    untrack: () => Promise.resolve({ error: null }),
+    presence: { state: {} },
+    state: 'closed'
+  };
+
+  return mockChannel as any;
+};
 
 // Log Supabase client creation
 setTimeout(() => {
@@ -48,6 +75,24 @@ export const supabaseAdmin = createClient<Database>(SUPABASE_URL, SUPABASE_SERVI
     }
   }
 });
+
+// Also override admin client channel method
+supabaseAdmin.channel = function(name: string) {
+  console.log('🚫 Supabase Admin channel creation blocked:', name);
+  
+  const mockChannel = {
+    on: () => mockChannel,
+    subscribe: () => Promise.resolve({ error: null }),
+    unsubscribe: () => Promise.resolve({ error: null }),
+    send: () => Promise.resolve({ error: null }),
+    track: () => Promise.resolve({ error: null }),
+    untrack: () => Promise.resolve({ error: null }),
+    presence: { state: {} },
+    state: 'closed'
+  };
+
+  return mockChannel as any;
+};
 
 /**
  * Fetches the latest device code from rice quality analysis
