@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { generateNotificationSound, getCurrentNotificationSound, type NotificationSoundType } from '@/components/profile/NotificationSoundSettings';
 import { storage } from '@/utils/storage';
+import { getSafeAudioContext, canCreateAudioContext } from '@/utils/safeAudioContext';
 
 export const NOTIFICATIONS_ENABLED_KEY = 'notifications-enabled';
 export const getNotificationsEnabled = (): boolean => {
@@ -56,23 +57,14 @@ export const useAlertSound = (
   // Initialize audio context on user interaction for mobile compatibility
   const initializeAudioContext = async () => {
     try {
-      // ใช้ AudioContext เดียวแบบ global เพื่อไม่ให้ reset เมื่อเปลี่ยนหน้า (SPA)
-      const w = window as any;
-      if (!w.__globalAudioContext) {
-        w.__globalAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      // Use safe AudioContext wrapper
+      const audioContext = await getSafeAudioContext();
+      if (audioContext) {
+        audioContextRef.current = audioContext;
+        userInteractedRef.current = true;
+        return true;
       }
-      audioContextRef.current = w.__globalAudioContext as AudioContext;
-
-      const audioContext = audioContextRef.current;
-      
-      // Resume audio context if it's suspended (required by browser autoplay policies)
-      if (audioContext.state === 'suspended') {
-        await audioContext.resume();
-      }
-      
-      userInteractedRef.current = true;
-      w.__audioInteracted = true; // จดจำว่าเคยมี interaction แล้วแบบ global
-      return true;
+      return false;
     } catch (error) {
       console.warn('Could not initialize audio context:', error);
       return false;
@@ -117,8 +109,18 @@ export const useAlertSound = (
   // Function to play notification sound using the selected sound preference
   const playNotificationSound = async () => {
     try {
+      // Only proceed if we can safely create AudioContext
+      if (!canCreateAudioContext()) {
+        console.log('⚠️ Cannot play sound - waiting for user interaction');
+        return;
+      }
+
       // Ensure audio context is initialized
-      await initializeAudioContext();
+      const initialized = await initializeAudioContext();
+      if (!initialized) {
+        console.log('⚠️ AudioContext initialization failed');
+        return;
+      }
 
       // Get the user's selected notification sound
       const selectedSound = getCurrentNotificationSound();
@@ -197,13 +199,9 @@ export const useAlertSound = (
 
   // Set up user interaction listeners for mobile compatibility
   useEffect(() => {
-    // sync สถานะ interaction และ AudioContext จาก global เมื่อ hook ถูกสร้างใหม่หลังเปลี่ยนหน้า
-    const w = window as any;
-    if (w.__audioInteracted) {
-      userInteractedRef.current = true;
-    }
-    if (w.__globalAudioContext) {
-      audioContextRef.current = w.__globalAudioContext as AudioContext;
+    // Check if AudioContext can be safely used
+    if (!canCreateAudioContext()) {
+      console.log('🎵 AudioContext not ready - waiting for user interaction');
     }
 
     const handleUserInteraction = async () => {
@@ -212,7 +210,7 @@ export const useAlertSound = (
         await initializeAudioContext();
       }
       // หากมีการโต้ตอบครั้งแรกและมีการเตือนที่ active อยู่ ให้เล่นเสียงทันที
-      if (isAlertActive && enabled && !hasPlayedRef.current) {
+      if (isAlertActive && enabled && !hasPlayedRef.current && canCreateAudioContext()) {
         try {
           await playNotificationSound();
           hasPlayedRef.current = true;
