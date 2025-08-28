@@ -59,6 +59,10 @@ export const measurementTranslations: Record<string, string> = {
   main_rate: 'อัตราหลัก',
   mix_index: 'ดัชนีผสม',
   main_index: 'ดัชนีหลัก',
+  heavy_chalkiness_rate: 'อัตราชอล์กแกว',
+  light_honey_rice: 'ข้าวม่วงอ่อน',
+  topline_rate: 'เส้นบน',
+  other_backline: 'เส้นหลังอื่นๆ',
 };
 
 export const columnTranslations: Record<string, string> = {
@@ -90,13 +94,18 @@ export const columnTranslations: Record<string, string> = {
   process_precision: 'ระดับขัดสี',
   
   // New columns - using column names as display names for now
-  mix_rate: 'mix_rate',
-  sprout_rate: 'sprout_rate', 
-  unripe_rate: 'unripe_rate',
-  brown_rice_rate: 'brown_rice_rate',
-  main_rate: 'main_rate',
-  mix_index: 'mix_index',
-  main_index: 'main_index',
+  mix_rate: 'อัตราส่วนผสม',
+  sprout_rate: 'อัตราการงอก', 
+  unripe_rate: 'อัตราการไม่สุก',
+  brown_rice_rate: 'อัตราข้าวกล้อง',
+  main_rate: 'อัตราหลัก',
+  mix_index: 'ดัชนีผสม',
+  main_index: 'ดัชนีหลัก',
+  // New analysis fields
+  heavy_chalkiness_rate: 'อัตราชอล์กแกว',
+  light_honey_rice: 'ข้าวม่วงอ่อน',
+  topline_rate: 'เส้นบน',
+  other_backline: 'เส้นหลังอื่นๆ',
   // New columns
   cur_material: 'วัตถุดิบและชนิดข้าว',
   cur_variety: 'มาตรฐาน',
@@ -138,6 +147,11 @@ export const columnTranslationsEn: Record<string, string> = {
   main_rate: 'Main Rate',
   mix_index: 'Mix Index',
   main_index: 'Main Index',
+  // New analysis fields
+  heavy_chalkiness_rate: 'Heavy Chalkiness Rate',
+  light_honey_rice: 'Light Honey Rice',
+  topline_rate: 'Top Line Rate',
+  other_backline: 'Other Backline',
   // New columns
   cur_material: 'Rice Type',
   cur_variety: 'Standard',
@@ -179,6 +193,11 @@ export const columnTranslationsZh: Record<string, string> = {
   main_rate: '主要率',
   mix_index: '混合指数',
   main_index: '主要指数',
+  // New analysis fields
+  heavy_chalkiness_rate: '重度垩白率',
+  light_honey_rice: '浅色蜜糖米',
+  topline_rate: '顶线率',
+  other_backline: '其他背线',
   // New columns
   cur_material: '大米种类',
   cur_variety: '标准',

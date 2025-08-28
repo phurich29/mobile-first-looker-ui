@@ -306,6 +306,7 @@ export const translations = {
     dataCategoryWholeGrain: { th: 'พื้นข้าวเต็มเมล็ด', en: 'Whole Grain Rice', zh: '整粒米基础' },
     dataCategoryComposition: { th: 'ส่วนผสม', en: 'Composition', zh: '成分' },
     dataCategoryCharacteristics: { th: 'สิ่งเจือปน', en: 'Contaminants', zh: '杂质' },
+    dataCategoryCompositionExtended: { th: 'ส่วนประกอบเพิ่มเติม', en: 'Extended Composition', zh: '扩展成分' },
     historyStatsAverage: { th: 'ค่าเฉลี่ย:', en: 'Average:', zh: '平均值：' },
     historyStatsMinimum: { th: 'ต่ำสุด:', en: 'Min:', zh: '最小值：' },
     historyStatsMaximum: { th: 'สูงสุด:', en: 'Max:', zh: '最大值：' },

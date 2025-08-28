@@ -22,7 +22,13 @@ export const getDataCategories = (t: (category: string, key: string) => string):
       'whiteness', 'red_line_rate', 'parboiled_red_line', 'parboiled_white_rice', 'honey_rice',
       'yellow_rice_rate', 'black_kernel', 'partly_black_peck', 'partly_black',
       'imperfection_rate', 'sticky_rice_rate', 'impurity_num', 'paddy_rate',
-      'process_precision'
+      'process_precision', 'heavy_chalkiness_rate', 'light_honey_rice', 'topline_rate', 'other_backline'
     ]
+  },
+  composition_extended: {
+    title: t('general', 'dataCategoryCompositionExtended'),
+    icon: "📊",
+    color: "bg-blue-50 border-blue-200",
+    fields: ['mix_rate', 'sprout_rate', 'unripe_rate', 'brown_rice_rate', 'main_rate', 'mix_index', 'main_index']
   }
 });
