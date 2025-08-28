@@ -1,7 +1,6 @@
 
 import React from "react";
 import { useMeasurement } from "./measurement/useMeasurement";
-import { useAlertSound } from "@/hooks/useAlertSound";
 import { NotificationIcon } from "./measurement/NotificationIcon";
 import { TimeDisplay } from "./measurement/TimeDisplay";
 import { NotificationText } from "./measurement/NotificationText";
@@ -54,8 +53,7 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
     enabled
   });
 
-  // Play alert sound when alert is active and notifications are enabled (play once only)
-  useAlertSound(isAlertActive, { enabled, playOnce: true });
+  // Removed local sound trigger: sound is now controlled centrally by usePersonalNotifications()
 
   // Get translated measurement name
   const getTranslatedName = (measurementName: string) => {

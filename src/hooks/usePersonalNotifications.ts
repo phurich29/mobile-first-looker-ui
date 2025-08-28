@@ -56,6 +56,15 @@ export const usePersonalNotifications = () => {
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
   }, []);
+
+  // เมื่อเปิดใช้งานการแจ้งเตือน ให้ตรวจสอบเงื่อนไขและเล่นเสียงทันทีถ้าเข้าเงื่อนไข
+  useEffect(() => {
+    if (!user?.id) return;
+    if (!notificationsEnabled) return;
+    console.log('[usePersonalNotifications] notificationsEnabled=true → immediate check');
+    // ไม่บล็อก UI และหลีกเลี่ยง synchronous state thrash
+    Promise.resolve().then(() => checkAndActivateOnRoute());
+  }, [notificationsEnabled, user?.id]);
   
   // ใช้เสียงแจ้งเตือนแบบเล่นครั้งเดียว แต่จะถูกสั่งเล่นใหม่ทุกครั้งที่เปลี่ยนหน้า (ผ่าน checkAndActivateOnRoute)
   useAlertSound(isAlertActive, {
