@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useTranslation } from "@/hooks/useTranslation";
 import { generateDistinctSound } from "@/utils/soundGenerator";
 import { MobileAudioTestButton } from "@/components/mobile-audio/MobileAudioTestButton";
+import { MobileAudioFixer } from "@/components/mobile-audio/MobileAudioFixer";
 
 // Notification sound types
 export type NotificationSoundType = 'alert' | 'chime' | 'bell' | 'ding' | 'notification';
@@ -175,33 +176,43 @@ export const NotificationSoundSettings: React.FC = () => {
       return;
     }
     
+    console.log(`🎵 Preview sound requested: ${soundType}`);
+    
     try {
       setIsPlaying(true);
       setPlayingSound(soundType);
       
+      console.log('🔄 Initializing audio context...');
       // Ensure audio context is initialized
-      await initializeAudioContext();
+      const initialized = await initializeAudioContext();
+      console.log(`🔄 Audio context initialization result: ${initialized}`);
+      
+      if (!initialized) {
+        console.error('❌ Failed to initialize audio context');
+        toast.error(language === 'th' ? 'ไม่สามารถเริ่มต้นระบบเสียงได้' : 'Cannot initialize audio system');
+        return;
+      }
       
       // Add small delay to ensure context is ready
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 100));
       
+      console.log(`🔊 Playing preview sound: ${soundType}`);
       await generateNotificationSound(soundType, currentAudioRef, audioNodesRef);
       
       // For profile page preview, determine duration based on sound type configuration
       let soundDuration = 1000; // Default 1 second
       
       if (soundType === 'alert') {
-        // MP3 file duration - estimate based on actual file
-        soundDuration = 1200; // Give enough time for MP3 to play
+        soundDuration = 1000; // Web Audio generated sounds
       } else {
         // Web Audio API sounds - calculate based on pattern and duration
         const soundOption = SOUND_OPTIONS.find(option => option.id === soundType);
         if (soundOption) {
-          // Use actual duration from sound config
+          // Use actual duration from sound config with pattern multiplier
           const baseDuration = soundOption.frequency === 659.25 ? 800 : // chime
-                              soundOption.frequency === 880 ? 1000 :    // bell  
-                              soundOption.frequency === 523.25 ? 400 :  // ding
-                              soundOption.frequency === 440 ? 600 :     // notification
+                              soundOption.frequency === 880 ? 600 :    // bell  
+                              soundOption.frequency === 523.25 ? 300 :  // ding
+                              soundOption.frequency === 440 ? 800 :     // notification
                               600; // default
           
           // Add pattern multiplier for double/triple sounds
@@ -212,19 +223,22 @@ export const NotificationSoundSettings: React.FC = () => {
         }
       }
       
+      console.log(`⏱️ Sound duration estimated: ${soundDuration}ms`);
+      
       // Reset playing state after actual sound duration (single play only)
       setTimeout(() => {
         if (playingSound === soundType) {
+          console.log(`✅ Preview sound completed: ${soundType}`);
           setIsPlaying(false);
           setPlayingSound(null);
         }
       }, soundDuration);
       
     } catch (error) {
+      console.error('❌ Sound preview error:', error);
       setIsPlaying(false);
       setPlayingSound(null);
-      console.error('Sound play error:', error);
-      toast.error(language === 'th' ? 'ไม่สามารถเล่นเสียงได้' : 'Cannot play sound');
+      toast.error(language === 'th' ? 'ไม่สามารถเล่นเสียงได้ กรุณาลองใหม่' : 'Cannot play sound, please try again');
     }
   };
 
@@ -317,6 +331,11 @@ export const NotificationSoundSettings: React.FC = () => {
           {/* Mobile Audio Test Button */}
           <div className="mt-4">
             <MobileAudioTestButton />
+          </div>
+          
+          {/* Mobile Audio Fixer for troubleshooting */}
+          <div className="mt-4">
+            <MobileAudioFixer />
           </div>
         </div>
       </CardContent>
