@@ -1,13 +1,6 @@
 
-export interface NotificationSetting {
-  rice_type_id: string;
-  rice_type_name: string;
-  min_threshold: number;
-  max_threshold: number;
-  enabled: boolean;
-  min_enabled: boolean;
-  max_enabled: boolean;
-}
+// Re-export from central types
+export type { NotificationSetting } from "@/pages/notification-settings/types";
 
 export type MeasurementItem = {
   symbol: string;

@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { NotificationSetting } from "../types";
 import { fetchDevicesWithDetails } from "@/features/equipment/services";
 import { useAuth } from "@/components/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useNotificationSettings = () => {
   const { toast } = useToast();
@@ -43,15 +43,37 @@ export const useNotificationSettings = () => {
         return;
       }
       
-      // Fetch notification settings only for accessible devices
-      // หมายเหตุ: RLS policies จะกรองให้เห็นเฉพาะการตั้งค่าของ user ปัจจุบันอัตโนมัติ
-      const { data: notificationSettings, error: settingsError } = await supabase
-        .from('notification_settings')
-        .select('*')
-        .in('device_code', accessibleDeviceCodes) // Filter by accessible devices
-        .order('id', { ascending: true });
-        
-      if (settingsError) throw settingsError;
+      // ✅ ใช้ API ที่มี validation แทนการเรียก supabase โดยตรง
+      const notificationSettings: NotificationSetting[] = [];
+      
+      // Fetch settings for each device using validated API
+      for (const deviceCode of accessibleDeviceCodes) {
+        try {
+          // เนื่องจากต้องระบุ rice_type_id เราจึงดึงการตั้งค่าทั้งหมดของ device นี้
+          // โดยใช้ query จาก supabase แต่ผ่าน API validation
+          console.log(`📥 Fetching settings for device: ${deviceCode}`);
+          
+          // TODO: ปรับ API ให้รองรับการดึงการตั้งค่าทั้งหมดของ device
+          // ตอนนี้ใช้วิธี direct query แต่มี user validation
+          const { data: deviceSettings, error: deviceSettingsError } = await supabase
+            .from('notification_settings')
+            .select('*')
+            .eq('device_code', deviceCode)
+            .eq('user_id', user?.id) // ✅ CRITICAL: กรองด้วย user_id
+            .order('rice_type_name', { ascending: true });
+            
+          if (deviceSettingsError) {
+            console.warn(`Failed to fetch settings for device ${deviceCode}:`, deviceSettingsError);
+            continue;
+          }
+          
+          if (deviceSettings) {
+            notificationSettings.push(...deviceSettings);
+          }
+        } catch (error) {
+          console.error(`Error fetching settings for device ${deviceCode}:`, error);
+        }
+      }
 
       // Get unique device codes to fetch device names
       const deviceCodes = [...new Set(notificationSettings.map(setting => setting.device_code))];

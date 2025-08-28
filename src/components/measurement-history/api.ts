@@ -259,22 +259,11 @@ export const getLatestMeasurement = async (
   }
 };
 
-// Notification Settings Interface
-export interface NotificationSettings {
-  id?: string;
-  device_code: string;
-  rice_type_id: string;
-  rice_type_name: string;
-  enabled: boolean;
-  min_enabled: boolean;
-  max_enabled: boolean;
-  min_threshold: number;
-  max_threshold: number;
-  user_id: string; // เพิ่ม user_id เป็น required field
-}
+// Use unified notification setting interface
+import { NotificationSetting } from "@/pages/notification-settings/types";
 
 // Enhanced fetch notification settings with comprehensive validation
-export const getNotificationSettings = async (deviceCode: string, symbol: string): Promise<NotificationSettings | null> => {
+export const getNotificationSettings = async (deviceCode: string, symbol: string): Promise<NotificationSetting | null> => {
   console.log('🔍 getNotificationSettings called:', { deviceCode, symbol });
   
   try {

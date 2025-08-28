@@ -1,6 +1,7 @@
 
 import { useCallback } from "react";
-import { NotificationSetting, getNotificationSetting } from "../types";
+import { getNotificationSetting } from "../types";
+import { NotificationSetting } from "@/pages/notification-settings/types";
 
 export const useNotificationSettings = (notificationSettings: NotificationSetting[]) => {
   // Function to get notification settings for a measurement

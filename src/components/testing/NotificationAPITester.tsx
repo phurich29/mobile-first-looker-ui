@@ -5,9 +5,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { 
   getNotificationSettings, 
-  saveNotificationSettings, 
-  NotificationSettings 
+  saveNotificationSettings
 } from "@/components/measurement-history/api";
+import { NotificationSetting } from "@/pages/notification-settings/types";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle, XCircle, AlertTriangle, User, Database } from "lucide-react";
@@ -23,7 +23,7 @@ export const NotificationAPITester: React.FC = () => {
   const { user } = useAuth();
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [isRunning, setIsRunning] = useState(false);
-  const [currentSettings, setCurrentSettings] = useState<NotificationSettings | null>(null);
+  const [currentSettings, setCurrentSettings] = useState<NotificationSetting | null>(null);
 
   const addTestResult = (result: TestResult) => {
     setTestResults(prev => [...prev, result]);
