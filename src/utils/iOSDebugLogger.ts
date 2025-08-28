@@ -181,16 +181,55 @@ class IOSDebugLogger {
 
   private monitorServiceWorker() {
     if ('serviceWorker' in navigator) {
+      // Log service worker state
+      this.info('SERVICE_WORKER', 'Service worker support detected', {
+        controller: !!navigator.serviceWorker.controller,
+        controllerState: navigator.serviceWorker.controller?.state
+      });
+
+      // Monitor service worker messages
       navigator.serviceWorker.addEventListener('message', (event) => {
         this.debug('SERVICE_WORKER', 'Message received from service worker', event.data);
       });
 
+      // Monitor service worker updates
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        this.warn('SERVICE_WORKER', 'Service worker controller changed');
+      });
+
+      // Check current registrations
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => {
+          this.warn('SERVICE_WORKER', 'Active service worker found', {
+            scope: registration.scope,
+            state: registration.active?.state,
+            scriptURL: registration.active?.scriptURL
+          });
+
+          // Try to unregister
+          registration.unregister().then((success) => {
+            this.info('SERVICE_WORKER', 'Service worker unregistration result', { success });
+          });
+        });
+
+        if (registrations.length === 0) {
+          this.info('SERVICE_WORKER', 'No service workers found');
+        }
+      }).catch((error) => {
+        this.error('SERVICE_WORKER', 'Failed to get service worker registrations', { error: error.toString() }, error);
+      });
+
+      // Monitor ready state (but expect it to fail)
       navigator.serviceWorker.ready.then((registration) => {
-        this.info('SERVICE_WORKER', 'Service worker ready', {
+        this.error('SERVICE_WORKER', 'Service worker became ready (this should not happen)', {
           scope: registration.scope,
           active: !!registration.active
         });
+      }).catch((error) => {
+        this.info('SERVICE_WORKER', 'Service worker ready rejected as expected', { error: error.toString() });
       });
+    } else {
+      this.info('SERVICE_WORKER', 'Service worker not supported');
     }
   }
 

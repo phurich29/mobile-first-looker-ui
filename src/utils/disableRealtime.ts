@@ -33,15 +33,43 @@ if (typeof window !== 'undefined') {
     static readonly CLOSED = 3;
   };
 
-  // 2. Disable Service Worker immediately
+  // 2. Disable Service Worker immediately and aggressively
   if ('serviceWorker' in navigator) {
-    console.log('🚫 Disabling Service Worker for iOS PWA');
+    console.log('🚫 Aggressively disabling Service Worker for iOS PWA');
+    
+    // Unregister all service workers immediately
     navigator.serviceWorker.getRegistrations().then((registrations) => {
       registrations.forEach((registration) => {
-        console.log('🗑️ Unregistering service worker:', registration.scope);
-        registration.unregister();
+        console.log('🗑️ Force unregistering service worker:', registration.scope);
+        registration.unregister().then((success) => {
+          console.log('🗑️ Service worker unregistration result:', success);
+        });
       });
     });
+
+    // Block any new service worker registrations
+    const originalRegister = navigator.serviceWorker.register;
+    navigator.serviceWorker.register = function(...args) {
+      console.error('🚫 BLOCKED Service Worker registration attempt:', args[0]);
+      return Promise.reject(new Error('Service Worker disabled for iOS PWA'));
+    };
+
+    // Override service worker ready promise
+    Object.defineProperty(navigator.serviceWorker, 'ready', {
+      get() {
+        return Promise.reject(new Error('Service Worker disabled for iOS PWA'));
+      }
+    });
+
+    // Clear service worker controller
+    if (navigator.serviceWorker.controller) {
+      console.log('🚫 Removing service worker controller');
+      try {
+        navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+      } catch (e) {
+        console.log('Failed to message service worker controller');
+      }
+    }
   }
 
   // 3. Override EventSource (Server-Sent Events)
