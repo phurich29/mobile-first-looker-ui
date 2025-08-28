@@ -97,19 +97,12 @@ export const usePersonalNotifications = () => {
       }
       
       console.log('✅ Fetched user notification settings (all):', data?.length || 0, 'items');
-      console.log('📋 Settings details:', data?.map(s => ({ 
-        device: s.device_code, 
-        rice_type: s.rice_type_id, 
-        enabled: s.enabled,
-        max_enabled: s.max_enabled,
-        max_threshold: s.max_threshold 
-      })));
       return data as NotificationSetting[];
     },
     enabled: !!user?.id,
-    staleTime: 5000, // ลดเหลือ 5 วินาที
-    refetchOnWindowFocus: true,
-    refetchInterval: 15000, // refetch ทุก 15 วินาที
+    staleTime: 30000, // เพิ่มเป็น 30 วินาที
+    refetchOnWindowFocus: false, // ปิด auto refetch
+    // เอา refetchInterval ออก - ไม่ต้อง refetch อัตโนมัติ
   });
 
   // 🔒 CRITICAL: Calculate hasActiveSettings based on userSettings
@@ -211,9 +204,9 @@ export const usePersonalNotifications = () => {
       console.log('✅ Filtered personal notifications:', relevantNotifications.length, 'relevant items');
       return relevantNotifications as PersonalNotification[];
     },
-    enabled: !!user?.id && !!userSettings && userSettings.length > 0,
-    refetchInterval: 10000, // Check every 10 seconds
-    staleTime: 8000,
+    enabled: !!user?.id && !!userSettings && userSettings.length > 0 && hasActiveSettings,
+    // เอา refetchInterval ออก - ใช้ real-time subscription แทน
+    staleTime: 60000, // เพิ่มเป็น 1 นาที
   });
 
   // Check for new notifications and show alerts
