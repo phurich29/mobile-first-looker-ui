@@ -57,11 +57,12 @@ export const usePersonalNotifications = () => {
     return () => window.removeEventListener('storage', onStorage);
   }, []);
   
-  // Use alert sound: เล่นซ้ำทุก 1 นาที ขณะยังมีการแจ้งเตือนล่าสุด
+  // ใช้เสียงแจ้งเตือนแบบเล่นครั้งเดียว แต่จะถูกสั่งเล่นใหม่ทุกครั้งที่เปลี่ยนหน้า (ผ่าน checkAndActivateOnRoute)
   useAlertSound(isAlertActive, {
     enabled: notificationsEnabled,
-    playOnce: false,
-    intervalMs: 60000, // 1 นาที
+    playOnce: true,
+    repeatCount: 2,     // เล่น 2 รอบต่อหนึ่งทริกเกอร์
+    repeatGapMs: 1000,  // เว้น 1 วินาทีระหว่างรอบ
   });
 
   // Fetch user's notification settings
@@ -294,16 +295,136 @@ export const usePersonalNotifications = () => {
     };
   }, [user?.id, userSettings, refetch]);
   
-  // Force-check on route change: refetch and activate sound if any relevant notifications exist
+  // Force-check on route change: fetch directly if queries aren't ready and activate sound
   const checkAndActivateOnRoute = async () => {
     try {
-      const result = await refetch();
-      const list = result?.data ?? notifications ?? [];
-      if (Array.isArray(list) && list.length > 0 && notificationsEnabled) {
-        // Activate alert sound immediately to draw user attention
-        setIsAlertActive(true);
+      if (!user?.id || !notificationsEnabled) return;
 
-        // Ensure we also stop after inactivity window like normal flow
+      // 1) Ensure we have user settings (use cache, else fetch)
+      let settings = userSettings;
+      if (!settings || settings.length === 0) {
+        const { data, error } = await supabase
+          .from('notification_settings')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('enabled', true);
+        if (error) {
+          console.error('checkAndActivateOnRoute: settings fetch error', error);
+          settings = [] as any;
+        } else {
+          settings = (data as any) || [];
+        }
+      }
+
+      if (!settings || settings.length === 0) return;
+
+      // 2) Fetch latest notifications relevant to settings directly (bypass query enabled state)
+      const deviceCodes = [...new Set(settings.map((s: any) => s.device_code))];
+      const riceTypeIds = [...new Set(settings.map((s: any) => s.rice_type_id))];
+
+      const { data: rawNoti, error: notiError } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .in('device_code', deviceCodes)
+        .in('rice_type_id', riceTypeIds)
+        .order('timestamp', { ascending: false })
+        .limit(20);
+
+      if (notiError) {
+        console.error('checkAndActivateOnRoute: notifications fetch error', notiError);
+        return;
+      }
+
+      const relevant = (rawNoti || []).filter((notification: any) => {
+        const setting = settings!.find(
+          (s: any) => s.device_code === notification.device_code && s.rice_type_id === notification.rice_type_id
+        );
+        if (!setting) return false;
+        if (notification.threshold_type === 'min' && setting.min_enabled) {
+          return notification.value < setting.min_threshold;
+        }
+        if (notification.threshold_type === 'max' && setting.max_enabled) {
+          return notification.value > setting.max_threshold;
+        }
+        return false;
+      });
+
+      // 3) If relevant notifications exist, activate the alert sound immediately
+      if (relevant.length > 0) {
+        // บังคับให้เล่นใหม่แม้กำลัง active อยู่ โดย toggle สถานะ
+        setIsAlertActive(false);
+        setTimeout(() => setIsAlertActive(true), 0);
+        if (inactivityStopRef.current) {
+          clearTimeout(inactivityStopRef.current);
+        }
+        inactivityStopRef.current = setTimeout(() => {
+          setIsAlertActive(false);
+          inactivityStopRef.current = null;
+        }, 5 * 60 * 1000);
+        return;
+      }
+
+      // 4) Fallback: หากยังไม่มีแถวใน notifications ให้ตรวจจากค่าล่าสุดของ rice_quality_analysis
+      //    ใช้ตรรกะ mapping เดียวกับ useNotificationStatus
+      const columnMapping: { [key: string]: string } = {
+        whiteness: 'whiteness',
+        yellow_rice_ratio: 'yellow_rice_rate',
+        head_rice: 'head_rice',
+        whole_kernels: 'whole_kernels',
+        total_brokens: 'total_brokens',
+        small_brokens: 'small_brokens',
+        class1: 'class1',
+        class2: 'class2',
+        class3: 'class3',
+        broken_rice: 'total_brokens',
+        chalky_rice: 'heavy_chalkiness_rate',
+        paddy_rate: 'paddy_rate',
+        red_rice: 'red_line_rate',
+        parboiled_rice: 'parboiled_white_rice',
+        glutinous_rice: 'sticky_rice_rate',
+      };
+
+      // ดึงหลายรายการล่าสุดของทุก device แล้วเลือกแค่รายการล่าสุดต่อเครื่อง
+      const { data: raws, error: latestErr } = await supabase
+        .from('rice_quality_analysis')
+        .select('*')
+        .in('device_code', deviceCodes)
+        .order('created_at', { ascending: false })
+        .limit(Math.max(deviceCodes.length * 3, 10));
+
+      if (latestErr) {
+        console.error('checkAndActivateOnRoute: latest measurements fetch error', latestErr);
+        return;
+      }
+
+      const latestByDevice = new Map<string, any>();
+      (raws || []).forEach((row: any) => {
+        if (!latestByDevice.has(row.device_code)) {
+          latestByDevice.set(row.device_code, row);
+        }
+      });
+
+      let triggered = false;
+      for (const setting of settings) {
+        const latest = latestByDevice.get(setting.device_code);
+        if (!latest) continue;
+        const columnName = columnMapping[setting.rice_type_id];
+        if (!columnName) continue;
+        const currentValue = latest[columnName];
+        if (currentValue === null || currentValue === undefined) continue;
+        if (setting.min_enabled && currentValue < setting.min_threshold) {
+          triggered = true; break;
+        }
+        if (setting.max_enabled && currentValue > setting.max_threshold) {
+          triggered = true; break;
+        }
+      }
+
+      if (triggered) {
+        // บังคับให้เล่นใหม่แม้กำลัง active อยู่ โดย toggle สถานะ
+        setIsAlertActive(false);
+        setTimeout(() => setIsAlertActive(true), 0);
         if (inactivityStopRef.current) {
           clearTimeout(inactivityStopRef.current);
         }

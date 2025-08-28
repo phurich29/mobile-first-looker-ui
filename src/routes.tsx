@@ -56,7 +56,7 @@ const MainLayout = () => {
   const isMobile = useIsMobile();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
-  const { checkAndActivateOnRoute } = usePersonalNotifications();
+  const { checkAndActivateOnRoute, hasActiveSettings } = usePersonalNotifications();
   
   useEffect(() => {
     // Listen for sidebar state changes using custom event
@@ -87,9 +87,35 @@ const MainLayout = () => {
 
   // ตรวจทุกครั้งที่เส้นทางเปลี่ยน เพื่อให้ผู้ใช้ได้ยินเสียงทันทีเมื่อมีการแจ้งเตือน
   useEffect(() => {
+    console.log('[MainLayout] route changed to', location.pathname, '→ recheck personal notifications');
     checkAndActivateOnRoute();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
+
+  // ตรวจเมื่อแท็บกลับมาโฟกัส/แอคทีฟ
+  useEffect(() => {
+    const onFocusOrVisible = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('[MainLayout] window focus/visible → recheck personal notifications');
+        checkAndActivateOnRoute();
+      }
+    };
+    window.addEventListener('focus', onFocusOrVisible);
+    document.addEventListener('visibilitychange', onFocusOrVisible);
+    return () => {
+      window.removeEventListener('focus', onFocusOrVisible);
+      document.removeEventListener('visibilitychange', onFocusOrVisible);
+    };
+  }, [checkAndActivateOnRoute]);
+
+  // ตรวจเมื่อการตั้งค่าส่วนตัวเริ่มพร้อมใช้งาน (กรณี user/context เพิ่งพร้อมหลังเปลี่ยนหน้า)
+  useEffect(() => {
+    if (hasActiveSettings) {
+      console.log('[MainLayout] hasActiveSettings=true → recheck personal notifications');
+      checkAndActivateOnRoute();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasActiveSettings]);
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-950">
