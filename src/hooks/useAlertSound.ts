@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { generateNotificationSound, getCurrentNotificationSound, type NotificationSoundType } from '@/components/profile/NotificationSoundSettings';
+import { storage } from '@/utils/storage';
 
 export const NOTIFICATIONS_ENABLED_KEY = 'notifications-enabled';
 export const getNotificationsEnabled = (): boolean => {
   try {
-    const v = localStorage.getItem(NOTIFICATIONS_ENABLED_KEY);
+    const v = storage.getItem(NOTIFICATIONS_ENABLED_KEY);
     if (v === null) return true; // ค่าเริ่มต้น: เปิดแจ้งเตือน
     return v === 'true';
   } catch {

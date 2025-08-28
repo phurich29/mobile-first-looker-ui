@@ -1,5 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { getNotificationsEnabled, NOTIFICATIONS_ENABLED_KEY } from '@/hooks/useAlertSound';
+import { storage } from '@/utils/storage';
 
 /**
  * Enhanced notification control for device-specific and immediate stopping
@@ -12,7 +13,7 @@ const EMERGENCY_STOP_KEY = '__emergencyStopAlerts';
 // Device-specific notification control
 export const getDeviceNotificationsEnabled = (deviceCode: string): boolean => {
   try {
-    const disabled = JSON.parse(localStorage.getItem(DEVICE_NOTIFICATIONS_KEY) || '{}');
+    const disabled = JSON.parse(storage.getItem(DEVICE_NOTIFICATIONS_KEY) || '{}');
     return !disabled[deviceCode];
   } catch {
     return true;
@@ -21,13 +22,13 @@ export const getDeviceNotificationsEnabled = (deviceCode: string): boolean => {
 
 export const setDeviceNotificationsEnabled = (deviceCode: string, enabled: boolean): void => {
   try {
-    const disabled = JSON.parse(localStorage.getItem(DEVICE_NOTIFICATIONS_KEY) || '{}');
+    const disabled = JSON.parse(storage.getItem(DEVICE_NOTIFICATIONS_KEY) || '{}');
     if (enabled) {
       delete disabled[deviceCode];
     } else {
       disabled[deviceCode] = true;
     }
-    localStorage.setItem(DEVICE_NOTIFICATIONS_KEY, JSON.stringify(disabled));
+    storage.setItem(DEVICE_NOTIFICATIONS_KEY, JSON.stringify(disabled));
     
     // Trigger storage event for other tabs/components
     window.dispatchEvent(new StorageEvent('storage', {
@@ -106,7 +107,7 @@ export const useNotificationControl = () => {
     emergencyStopAllAlerts();
     
     // Also disable global notifications
-    localStorage.setItem(NOTIFICATIONS_ENABLED_KEY, 'false');
+    storage.setItem(NOTIFICATIONS_ENABLED_KEY, 'false');
     window.dispatchEvent(new StorageEvent('storage', {
       key: NOTIFICATIONS_ENABLED_KEY,
       newValue: 'false',
