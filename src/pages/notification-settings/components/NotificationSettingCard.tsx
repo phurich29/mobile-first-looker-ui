@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Edit, Bell, BellOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationSetting } from "../types";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NotificationSettingsDialog } from "@/components/measurement-history/notification-settings";
 import { saveNotificationSettings } from "@/components/measurement-history/api";
 import { useToast } from "@/hooks/use-toast";
@@ -20,9 +20,15 @@ export const NotificationSettingCard = ({
 }: NotificationSettingCardProps) => {
   const { toast } = useToast();
   const { t, language } = useTranslation();
-  const [isEnabled, setIsEnabled] = useState(setting.max_enabled || setting.min_enabled);
+  // แก้ไข: ใช้ setting.enabled เป็นหลัก หรือไม่ก็ดูจาก min/max enabled
+  const [isEnabled, setIsEnabled] = useState(setting.enabled ?? (setting.max_enabled || setting.min_enabled));
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Update state when settings prop changes (e.g., from real-time updates)
+  useEffect(() => {
+    setIsEnabled(setting.enabled ?? (setting.max_enabled || setting.min_enabled));
+  }, [setting.enabled, setting.max_enabled, setting.min_enabled]);
   
   const translateRiceType = (riceTypeName: string): string => {
     if (language === 'th') return riceTypeName;
@@ -47,13 +53,14 @@ export const NotificationSettingCard = ({
       setIsEnabled(checked);
       
       // บันทึกการเปลี่ยนแปลงไปยัง API
+      // แก้ไข: เมื่อ toggle จะเปลี่ยนทั้ง minEnabled และ maxEnabled พร้อมกัน
       await saveNotificationSettings({
         deviceCode: setting.device_code,
         symbol: setting.rice_type_id,
         name: setting.rice_type_name,
-        enabled: checked, // เปลี่ยนสถานะการเปิด/ปิดการแจ้งเตือน
-        minEnabled: setting.min_enabled,
-        maxEnabled: setting.max_enabled,
+        enabled: checked, // เปลี่ยนสถานะการเปิด/ปิดการแจ้งเตือนทั้งหมด
+        minEnabled: checked ? setting.min_enabled : false, // ถ้า toggle off จะปิดทั้งหมด
+        maxEnabled: checked ? setting.max_enabled : false, // ถ้า toggle off จะปิดทั้งหมด
         minThreshold: setting.min_threshold,
         maxThreshold: setting.max_threshold
       });

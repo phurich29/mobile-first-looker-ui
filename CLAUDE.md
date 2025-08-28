@@ -1,268 +1,110 @@
-# Claude Code Configuration - SPARC Development Environment
+# CLAUDE.md
 
-## 🚨 CRITICAL: CONCURRENT EXECUTION & FILE MANAGEMENT
-
-**ABSOLUTE RULES**:
-1. ALL operations MUST be concurrent/parallel in a single message
-2. **NEVER save working files, text/mds and tests to the root folder**
-3. ALWAYS organize files in appropriate subdirectories
-
-### ⚡ GOLDEN RULE: "1 MESSAGE = ALL RELATED OPERATIONS"
-
-**MANDATORY PATTERNS:**
-- **TodoWrite**: ALWAYS batch ALL todos in ONE call (5-10+ todos minimum)
-- **Task tool**: ALWAYS spawn ALL agents in ONE message with full instructions
-- **File operations**: ALWAYS batch ALL reads/writes/edits in ONE message
-- **Bash commands**: ALWAYS batch ALL terminal operations in ONE message
-- **Memory operations**: ALWAYS batch ALL memory store/retrieve in ONE message
-
-### 📁 File Organization Rules
-
-**NEVER save to root folder. Use these directories:**
-- `/src` - Source code files
-- `/tests` - Test files
-- `/docs` - Documentation and markdown files
-- `/config` - Configuration files
-- `/scripts` - Utility scripts
-- `/examples` - Example code
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
-This project uses SPARC (Specification, Pseudocode, Architecture, Refinement, Completion) methodology with Claude-Flow orchestration for systematic Test-Driven Development.
+Mobile-first rice quality monitoring and analysis application built with React, TypeScript, and Capacitor. The application provides real-time monitoring of rice quality measurements from IoT devices, with support for both web and mobile platforms.
 
-## SPARC Commands
+## Common Development Commands
 
-### Core Commands
-- `npx claude-flow sparc modes` - List available modes
-- `npx claude-flow sparc run <mode> "<task>"` - Execute specific mode
-- `npx claude-flow sparc tdd "<feature>"` - Run complete TDD workflow
-- `npx claude-flow sparc info <mode>` - Get mode details
+### Development
+- `npm run dev` - Start development server on port 8080
+- `npm run build` - Build for production
+- `npm run build:dev` - Build with development mode
+- `npm run build:production` - Build for production mode
+- `npm run build:deploy` - Run production build script
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
 
-### Batchtools Commands
-- `npx claude-flow sparc batch <modes> "<task>"` - Parallel execution
-- `npx claude-flow sparc pipeline "<task>"` - Full pipeline processing
-- `npx claude-flow sparc concurrent <mode> "<tasks-file>"` - Multi-task processing
+### Mobile Development (Capacitor)
+- `npm run android` - Run on Android device/emulator
+- `npm run ios` - Run on iOS device/simulator
+- `npm run build:android` - Build and open Android project
+- `npm run build:ios` - Build and open iOS project
+- `npm run sync` - Sync web assets to native platforms
+- `npm run sync:android` - Sync Android platform
+- `npm run sync:ios` - Sync iOS platform
 
-### Build Commands
-- `npm run build` - Build project
-- `npm run test` - Run tests
-- `npm run lint` - Linting
-- `npm run typecheck` - Type checking
+## Code Architecture
 
-## SPARC Workflow Phases
+### Core Stack
+- **Frontend Framework**: React 18 with TypeScript
+- **UI Components**: shadcn/ui components with Radix UI primitives
+- **Styling**: Tailwind CSS with custom theme configuration
+- **State Management**: React Query (TanStack Query) for server state
+- **Routing**: React Router v6
+- **Mobile**: Capacitor for cross-platform mobile support
+- **Backend**: Supabase (PostgreSQL + Realtime + Auth)
 
-1. **Specification** - Requirements analysis (`sparc run spec-pseudocode`)
-2. **Pseudocode** - Algorithm design (`sparc run spec-pseudocode`)
-3. **Architecture** - System design (`sparc run architect`)
-4. **Refinement** - TDD implementation (`sparc tdd`)
-5. **Completion** - Integration (`sparc run integration`)
-
-## Code Style & Best Practices
-
-- **Modular Design**: Files under 500 lines
-- **Environment Safety**: Never hardcode secrets
-- **Test-First**: Write tests before implementation
-- **Clean Architecture**: Separate concerns
-- **Documentation**: Keep updated
-
-## 🚀 Available Agents (54 Total)
-
-### Core Development
-`coder`, `reviewer`, `tester`, `planner`, `researcher`
-
-### Swarm Coordination
-`hierarchical-coordinator`, `mesh-coordinator`, `adaptive-coordinator`, `collective-intelligence-coordinator`, `swarm-memory-manager`
-
-### Consensus & Distributed
-`byzantine-coordinator`, `raft-manager`, `gossip-coordinator`, `consensus-builder`, `crdt-synchronizer`, `quorum-manager`, `security-manager`
-
-### Performance & Optimization
-`perf-analyzer`, `performance-benchmarker`, `task-orchestrator`, `memory-coordinator`, `smart-agent`
-
-### GitHub & Repository
-`github-modes`, `pr-manager`, `code-review-swarm`, `issue-tracker`, `release-manager`, `workflow-automation`, `project-board-sync`, `repo-architect`, `multi-repo-swarm`
-
-### SPARC Methodology
-`sparc-coord`, `sparc-coder`, `specification`, `pseudocode`, `architecture`, `refinement`
-
-### Specialized Development
-`backend-dev`, `mobile-dev`, `ml-developer`, `cicd-engineer`, `api-docs`, `system-architect`, `code-analyzer`, `base-template-generator`
-
-### Testing & Validation
-`tdd-london-swarm`, `production-validator`
-
-### Migration & Planning
-`migration-planner`, `swarm-init`
-
-## 🎯 Claude Code vs MCP Tools
-
-### Claude Code Handles ALL:
-- File operations (Read, Write, Edit, MultiEdit, Glob, Grep)
-- Code generation and programming
-- Bash commands and system operations
-- Implementation work
-- Project navigation and analysis
-- TodoWrite and task management
-- Git operations
-- Package management
-- Testing and debugging
-
-### MCP Tools ONLY:
-- Coordination and planning
-- Memory management
-- Neural features
-- Performance tracking
-- Swarm orchestration
-- GitHub integration
-
-**KEY**: MCP coordinates, Claude Code executes.
-
-## 🚀 Quick Setup
-
-```bash
-# Add Claude Flow MCP server
-claude mcp add claude-flow npx claude-flow@alpha mcp start
+### Project Structure
+```
+src/
+├── components/           # Reusable UI components
+│   ├── ui/              # shadcn/ui base components
+│   ├── auth/            # Authentication components
+│   ├── device-management/   # Device management features
+│   ├── graph-monitor/   # Real-time graph monitoring
+│   └── database-table/  # Database table components
+├── contexts/            # React contexts (Auth, Language, Countdown)
+├── hooks/               # Custom React hooks
+├── integrations/        # External service integrations
+│   └── supabase/       # Supabase client and types
+├── lib/                # Utility functions and helpers
+│   ├── utils.ts        # General utilities
+│   └── translations.ts # i18n translations
+├── pages/              # Route components
+└── routes.tsx          # Route configuration
 ```
 
-## MCP Tool Categories
+### Key Features & Components
 
-### Coordination
-`swarm_init`, `agent_spawn`, `task_orchestrate`
+#### Authentication & Authorization
+- Multi-role system: `guest`, `user`, `admin`, `superadmin`
+- Protected routes with role-based access control
+- Session persistence with Supabase Auth
 
-### Monitoring
-`swarm_status`, `agent_list`, `agent_metrics`, `task_status`, `task_results`
+#### Device Management
+- Real-time monitoring of IoT devices
+- Device access mapping for user permissions
+- Measurement history tracking
 
-### Memory & Neural
-`memory_usage`, `neural_status`, `neural_train`, `neural_patterns`
+#### Graph Monitoring
+- Real-time data visualization with Recharts
+- Multiple graph styles (Classic, Gradient, Neon, etc.)
+- Preset configurations for common views
+- Responsive design for mobile/desktop
 
-### GitHub Integration
-`github_swarm`, `repo_analyze`, `pr_enhance`, `issue_triage`, `code_review`
+#### Notification System
+- Push notifications via Firebase Cloud Messaging
+- User-specific notification preferences
+- Notification history tracking
+- Cross-user notification support
 
-### System
-`benchmark_run`, `features_detect`, `swarm_monitor`
+### Database Schema Key Tables
+- `rice_quality_analysis` - Rice quality measurements
+- `devices` - IoT device registry
+- `user_notification_settings` - User notification preferences
+- `device_access_mapping` - User-device access control
+- `news_articles` - News content management
 
-## 📋 Agent Coordination Protocol
+### Important Configuration Files
+- `capacitor.config.ts` - Mobile app configuration
+- `vite.config.ts` - Vite build configuration
+- `tailwind.config.ts` - Tailwind CSS customization
+- `tsconfig.json` - TypeScript configuration with path aliases (`@/*` → `./src/*`)
 
-### Every Agent MUST:
+### Environment & Deployment
+- Development server: `http://localhost:8080`
+- Production hostname: `setup.riceflow.app`
+- App ID: `setup.riceflow.app`
+- Native app name: `Riceflow`
 
-**1️⃣ BEFORE Work:**
-```bash
-npx claude-flow@alpha hooks pre-task --description "[task]"
-npx claude-flow@alpha hooks session-restore --session-id "swarm-[id]"
-```
-
-**2️⃣ DURING Work:**
-```bash
-npx claude-flow@alpha hooks post-edit --file "[file]" --memory-key "swarm/[agent]/[step]"
-npx claude-flow@alpha hooks notify --message "[what was done]"
-```
-
-**3️⃣ AFTER Work:**
-```bash
-npx claude-flow@alpha hooks post-task --task-id "[task]"
-npx claude-flow@alpha hooks session-end --export-metrics true
-```
-
-## 🎯 Concurrent Execution Examples
-
-### ✅ CORRECT (Single Message):
-```javascript
-[BatchTool]:
-  // Initialize swarm
-  mcp__claude-flow__swarm_init { topology: "mesh", maxAgents: 6 }
-  mcp__claude-flow__agent_spawn { type: "researcher" }
-  mcp__claude-flow__agent_spawn { type: "coder" }
-  mcp__claude-flow__agent_spawn { type: "tester" }
-  
-  // Spawn agents with Task tool
-  Task("Research agent: Analyze requirements...")
-  Task("Coder agent: Implement features...")
-  Task("Tester agent: Create test suite...")
-  
-  // Batch todos
-  TodoWrite { todos: [
-    {id: "1", content: "Research", status: "in_progress", priority: "high"},
-    {id: "2", content: "Design", status: "pending", priority: "high"},
-    {id: "3", content: "Implement", status: "pending", priority: "high"},
-    {id: "4", content: "Test", status: "pending", priority: "medium"},
-    {id: "5", content: "Document", status: "pending", priority: "low"}
-  ]}
-  
-  // File operations
-  Bash "mkdir -p app/{src,tests,docs}"
-  Write "app/src/index.js"
-  Write "app/tests/index.test.js"
-  Write "app/docs/README.md"
-```
-
-### ❌ WRONG (Multiple Messages):
-```javascript
-Message 1: mcp__claude-flow__swarm_init
-Message 2: Task("agent 1")
-Message 3: TodoWrite { todos: [single todo] }
-Message 4: Write "file.js"
-// This breaks parallel coordination!
-```
-
-## Performance Benefits
-
-- **84.8% SWE-Bench solve rate**
-- **32.3% token reduction**
-- **2.8-4.4x speed improvement**
-- **27+ neural models**
-
-## Hooks Integration
-
-### Pre-Operation
-- Auto-assign agents by file type
-- Validate commands for safety
-- Prepare resources automatically
-- Optimize topology by complexity
-- Cache searches
-
-### Post-Operation
-- Auto-format code
-- Train neural patterns
-- Update memory
-- Analyze performance
-- Track token usage
-
-### Session Management
-- Generate summaries
-- Persist state
-- Track metrics
-- Restore context
-- Export workflows
-
-## Advanced Features (v2.0.0)
-
-- 🚀 Automatic Topology Selection
-- ⚡ Parallel Execution (2.8-4.4x speed)
-- 🧠 Neural Training
-- 📊 Bottleneck Analysis
-- 🤖 Smart Auto-Spawning
-- 🛡️ Self-Healing Workflows
-- 💾 Cross-Session Memory
-- 🔗 GitHub Integration
-
-## Integration Tips
-
-1. Start with basic swarm init
-2. Scale agents gradually
-3. Use memory for context
-4. Monitor progress regularly
-5. Train patterns from success
-6. Enable hooks automation
-7. Use GitHub tools first
-
-## Support
-
-- Documentation: https://github.com/ruvnet/claude-flow
-- Issues: https://github.com/ruvnet/claude-flow/issues
-
----
-
-Remember: **Claude Flow coordinates, Claude Code creates!**
+### Testing Approach
+The project uses TypeScript's built-in type checking. No dedicated test runner is configured yet. For testing:
+- Type checking: TypeScript compiler handles type safety
+- Component testing: Manual testing in development mode
+- Consider adding Vitest or Jest for unit testing
 
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.
