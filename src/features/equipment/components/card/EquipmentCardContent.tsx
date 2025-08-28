@@ -1,11 +1,12 @@
 
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart, Settings, Clock, Circle, Bell, AlertTriangle } from "lucide-react";
+import { BarChart, Settings, Clock, Circle, Bell } from "lucide-react";
 import { Link } from "react-router-dom";
 import { formatEquipmentTime, isRecentUpdate, getTimeClasses } from "./utils/timeUtils";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useNotificationStatus } from "../../hooks/useNotificationStatus";
+import "@/components/notification-item-animation.css";
 
 interface EquipmentCardContentProps {
   deviceCode: string;
@@ -42,15 +43,14 @@ export function EquipmentCardContent({
     if (!notificationStatus?.hasSettings) return null;
 
     if (notificationStatus.isTriggered) {
-      // กระดิ่งสีแดง - เข้าเงื่อนไขการแจ้งเตือน
+      // กระดิ่งสีแดงกระพริบ - เข้าเงื่อนไขการแจ้งเตือน
       const triggeredCount = notificationStatus.triggeredSettings.length;
       return (
         <div 
           title={`เข้าเงื่อนไขการแจ้งเตือน ${triggeredCount} รายการ`}
           className="relative"
         >
-          <AlertTriangle className="h-3.5 w-3.5 ml-1.5 text-red-500 fill-red-500" />
-          <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+          <Bell className="h-3.5 w-3.5 ml-1.5 text-red-500 fill-red-500 bell-gentle-blink" />
         </div>
       );
     } else {
