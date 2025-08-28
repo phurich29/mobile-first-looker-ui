@@ -59,7 +59,7 @@ export const measurementTranslations: Record<string, string> = {
   main_rate: 'อัตราหลัก',
   mix_index: 'ดัชนีผสม',
   main_index: 'ดัชนีหลัก',
-  heavy_chalkiness_rate: 'อัตราชอล์กแกว',
+  heavy_chalkiness_rate: 'ท้องไข่',
   light_honey_rice: 'ข้าวม่วงอ่อน',
   topline_rate: 'เส้นบน',
   other_backline: 'เส้นหลังอื่นๆ',
@@ -102,7 +102,7 @@ export const columnTranslations: Record<string, string> = {
   mix_index: 'ดัชนีผสม',
   main_index: 'ดัชนีหลัก',
   // New analysis fields
-  heavy_chalkiness_rate: 'อัตราชอล์กแกว',
+  heavy_chalkiness_rate: 'ท้องไข่',
   light_honey_rice: 'ข้าวม่วงอ่อน',
   topline_rate: 'เส้นบน',
   other_backline: 'เส้นหลังอื่นๆ',
