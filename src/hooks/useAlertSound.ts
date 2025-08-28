@@ -33,6 +33,24 @@ export const useAlertSound = (
   const audioNodesRef = useRef<Array<{ oscillator: OscillatorNode; gainNode: GainNode }>>([]);
   const cancelChainRef = useRef<{ canceled: boolean }>({ canceled: false });
   const isChainRunningRef = useRef<boolean>(false);
+  const instanceIdRef = useRef<string>(`owner_${Math.random().toString(36).slice(2)}_${Date.now()}`);
+
+  // Global playback lock on window to prevent multi-source overlap
+  const getGlobalLock = () => {
+    const w = window as any;
+    if (!w.__alertSoundLock) {
+      w.__alertSoundLock = {
+        running: false,
+        ownerId: null as string | null,
+        cancelRef: { canceled: false } as { canceled: boolean },
+      };
+    }
+    return w.__alertSoundLock as {
+      running: boolean;
+      ownerId: string | null;
+      cancelRef: { canceled: boolean };
+    };
+  };
 
   // Initialize audio context on user interaction for mobile compatibility
   const initializeAudioContext = async () => {
@@ -102,7 +120,17 @@ export const useAlertSound = (
 
   // Play N times sequentially, waiting for clip end + gap between plays
   const playSequentially = async (times: number) => {
-    cancelChainRef.current.canceled = false;
+    // Acquire global lock if available
+    const lock = getGlobalLock();
+    if (lock.running && lock.ownerId !== instanceIdRef.current) {
+      // Another instance is already playing; ignore this request
+      return;
+    }
+    lock.running = true;
+    lock.ownerId = instanceIdRef.current;
+    // Use the global cancelRef so others can cancel if they become owner later
+    lock.cancelRef = { canceled: false };
+    cancelChainRef.current = lock.cancelRef;
     isChainRunningRef.current = true;
     for (let i = 0; i < times; i++) {
       if (cancelChainRef.current.canceled) break;
@@ -144,6 +172,12 @@ export const useAlertSound = (
       await new Promise((r) => setTimeout(r, repeatGapMs));
     }
     isChainRunningRef.current = false;
+    // Release global lock only if we are still the owner
+    const lock2 = getGlobalLock();
+    if (lock2.ownerId === instanceIdRef.current) {
+      lock2.running = false;
+      lock2.ownerId = null;
+    }
   };
 
   // Set up user interaction listeners for mobile compatibility
@@ -190,10 +224,17 @@ export const useAlertSound = (
       // Reset the played flag when alert becomes active
       hasPlayedRef.current = false;
       
-      // ยกเลิก chain เดิมและหยุดเสียงทันทีก่อนเริ่มใหม่ เพื่อกันเสียงทับ
-      cancelChainRef.current.canceled = true;
-      stopAllSounds();
-      // เริ่ม chain ใหม่แบบ sequential เท่านั้น
+      // หากมี chain อื่นกำลังเล่นอยู่ (จากอีกคอมโพเนนต์) ให้ข้าม ไม่เริ่มซ้อน
+      const lock = getGlobalLock();
+      if (lock.running && lock.ownerId !== instanceIdRef.current) {
+        return;
+      }
+      // ถ้าเราเป็นเจ้าของเดิม ให้ยกเลิก chain เดิมก่อนเริ่มใหม่
+      if (lock.ownerId === instanceIdRef.current) {
+        lock.cancelRef.canceled = true;
+        stopAllSounds();
+      }
+      // เริ่ม chain ใหม่แบบ sequential เท่านั้น และยึดล็อคแบบ global
       playSequentially(Math.max(1, repeatCount));
       hasPlayedRef.current = true;
       
@@ -225,6 +266,12 @@ export const useAlertSound = (
       // Cancel any pending repeat chain
       cancelChainRef.current.canceled = true;
       isChainRunningRef.current = false;
+      // Release global lock if we own it
+      const lock = getGlobalLock();
+      if (lock.ownerId === instanceIdRef.current) {
+        lock.running = false;
+        lock.ownerId = null;
+      }
     }
 
     // Cleanup on unmount or when effect dependencies change
