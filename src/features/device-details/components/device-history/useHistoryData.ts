@@ -68,6 +68,7 @@ export const useHistoryData = (deviceIds?: string[]) => {
         main_rate: (item as any)['main_rate'] ?? null,
         mix_index: (item as any)['mix_index'] ?? null,
         main_index: (item as any)['main_index'] ?? null,
+        heavy_chalkiness_rate: (item as any)['heavy_chalkiness_rate'] ?? null,
         // New fields
         cur_material: (item as any)['cur_material'] ?? null,
         cur_variety: (item as any)['cur_variety'] ?? null,
