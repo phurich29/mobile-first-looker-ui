@@ -4,6 +4,7 @@ import { AppLayout } from "@/components/layouts/app-layout"; // Import AppLayout
 // Header and FooterNav are handled by AppLayout
 import { NotificationList } from "@/components/NotificationList";
 import { NotificationManager } from "@/components/NotificationManager";
+import { UserNotificationSettings } from "@/components/UserNotificationSettings";
 import { useAuth } from "@/components/AuthProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
@@ -112,8 +113,12 @@ const Notifications = () => {
           </div>
           
           <div className="bg-white rounded-lg shadow-sm">
-            <Tabs defaultValue="notifications" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 lg:grid-cols-2">
+            <Tabs defaultValue="settings" className="w-full">
+              <TabsList className="grid w-full grid-cols-3 lg:grid-cols-3">
+                <TabsTrigger value="settings" className="flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  <span>การตั้งค่าของฉัน</span>
+                </TabsTrigger>
                 <TabsTrigger value="notifications" className="flex items-center gap-2">
                   <Bell className="h-4 w-4" />
                   <span>การแจ้งเตือน</span>
@@ -123,6 +128,10 @@ const Notifications = () => {
                   <span>Push Notifications</span>
                 </TabsTrigger>
               </TabsList>
+              
+              <TabsContent value="settings" className="p-4 md:p-6">
+                <UserNotificationSettings />
+              </TabsContent>
               
               <TabsContent value="notifications" className="p-4 md:p-6">
                 <div className="space-y-4">
