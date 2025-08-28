@@ -86,6 +86,7 @@ export const usePersonalNotifications = () => {
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
+        .eq('user_id', user.id) // 🔒 กรองเฉพาะการแจ้งเตือนของผู้ใช้นี้เท่านั้น
         .in('device_code', deviceCodes)
         .in('rice_type_id', riceTypeIds)
         .order('timestamp', { ascending: false })
@@ -198,6 +199,12 @@ export const usePersonalNotifications = () => {
           console.log('🔔 Real-time personal notification received:', payload);
           
           const newNotification = payload.new as PersonalNotification;
+          
+          // 🔒 ตรวจสอบว่าการแจ้งเตือนนี้เป็นของผู้ใช้ปัจจุบันหรือไม่
+          if (newNotification.user_id !== user.id) {
+            console.log('🚫 Real-time notification not for this user, ignoring');
+            return;
+          }
           
           // Check if this notification is relevant to user's settings
           const setting = userSettings.find(
