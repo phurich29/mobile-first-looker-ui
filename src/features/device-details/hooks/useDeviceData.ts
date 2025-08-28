@@ -1,4 +1,3 @@
-
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { 
   fetchWholeGrainData, 
@@ -8,6 +7,7 @@ import {
 } from "@/utils/deviceMeasurementUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { useCallback } from "react";
+import { useAuth } from "@/components/AuthProvider";
 
 /**
  * Custom hook to fetch measurement data for a specific device
@@ -15,6 +15,7 @@ import { useCallback } from "react";
 export const useDeviceData = (deviceCode: string | undefined) => {
   // Get query client for invalidating queries
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   
   // Determine if queries should be enabled
   const isQueryEnabled = !!deviceCode && deviceCode !== 'default';
@@ -26,20 +27,21 @@ export const useDeviceData = (deviceCode: string | undefined) => {
       queryClient.invalidateQueries({ queryKey: ['ingredientsData', deviceCode] });
       queryClient.invalidateQueries({ queryKey: ['impuritiesData', deviceCode] });
       queryClient.invalidateQueries({ queryKey: ['allData', deviceCode] });
-      queryClient.invalidateQueries({ queryKey: ['notificationSettings', deviceCode] });
+      queryClient.invalidateQueries({ queryKey: ['notificationSettings', deviceCode, user?.id] });
     }
-  }, [queryClient, deviceCode, isQueryEnabled]);
+  }, [queryClient, deviceCode, isQueryEnabled, user?.id]);
 
   // Fetch notification settings for this device
   const { data: notificationSettings } = useQuery({
-    queryKey: ['notificationSettings', deviceCode],
+    queryKey: ['notificationSettings', deviceCode, user?.id],
     queryFn: async () => {
-      if (!deviceCode) return [];
-      
+      if (!deviceCode || !user?.id) return [];
+
       const { data, error } = await supabase
         .from('notification_settings')
         .select('*')
-        .eq('device_code', deviceCode);
+        .eq('device_code', deviceCode)
+        .eq('user_id', user.id);
         
       if (error) {
         console.error("Error fetching notification settings:", error);
@@ -48,7 +50,7 @@ export const useDeviceData = (deviceCode: string | undefined) => {
       
       return data || [];
     },
-    enabled: isQueryEnabled,
+    enabled: isQueryEnabled && !!user?.id,
   });
 
   // Use React Query for data fetching
