@@ -37,9 +37,6 @@ export const usePersonalNotifications = () => {
   const { user } = useAuth();
   const { canPlayAlert, shouldBlockAlerts: shouldBlock } = useNotificationControl();
   
-  // 🚨 CRITICAL: Use page navigation hook for cleanup
-  usePageNavigation();
-  
   const lastNotificationRef = useRef<string | null>(null);
   const processedNotificationsRef = useRef<Set<string>>(new Set());
   const alertTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -47,6 +44,12 @@ export const usePersonalNotifications = () => {
   const lastActiveAtRef = useRef<number>(0);
   const [isAlertActive, setIsAlertActive] = useState<boolean>(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(getNotificationsEnabled());
+
+  // 🚨 CRITICAL: Use page navigation hook with immediate check callback
+  usePageNavigation(() => {
+    console.log('🔔 Page change detected - performing immediate notification check');
+    checkAndActivateOnRoute();
+  });
 
   // ติดตามการเปลี่ยนแปลงการตั้งค่าแจ้งเตือนของผู้ใช้ (localStorage)
   useEffect(() => {
@@ -319,7 +322,19 @@ export const usePersonalNotifications = () => {
   // Force-check on route change: fetch directly if queries aren't ready and activate sound
   const checkAndActivateOnRoute = async () => {
     try {
-      if (!user?.id || !notificationsEnabled) return;
+      if (!user?.id) {
+        console.log('❌ No user ID - skipping notification check');
+        return;
+      }
+
+      // 🔒 FIRST CHECK: Global notifications enabled?
+      const globalEnabled = getNotificationsEnabled();
+      if (!globalEnabled) {
+        console.log('🚫 Global notifications disabled - skipping check');
+        return;
+      }
+
+      console.log('🔍 Starting immediate notification check...');
 
       // 1) Ensure we have user settings (use cache, else fetch)
       let settings = userSettings;
@@ -331,15 +346,19 @@ export const usePersonalNotifications = () => {
           .eq('enabled', true);
         if (error) {
           console.error('checkAndActivateOnRoute: settings fetch error', error);
-          settings = [] as any;
-        } else {
-          settings = (data as any) || [];
+          return;
         }
+        settings = (data as any) || [];
       }
 
-      if (!settings || settings.length === 0) return;
+      if (!settings || settings.length === 0) {
+        console.log('📭 No notification settings found');
+        return;
+      }
 
-      // 2) Fetch latest notifications relevant to settings directly (bypass query enabled state)
+      console.log('⚙️ Found', settings.length, 'notification settings');
+
+      // 2) Fetch latest notifications relevant to settings directly
       const deviceCodes = [...new Set(settings.map((s: any) => s.device_code))];
       const riceTypeIds = [...new Set(settings.map((s: any) => s.rice_type_id))];
 
@@ -362,6 +381,13 @@ export const usePersonalNotifications = () => {
           (s: any) => s.device_code === notification.device_code && s.rice_type_id === notification.rice_type_id
         );
         if (!setting) return false;
+        
+        // 🔒 DEVICE CHECK: Is this device's notifications enabled?
+        if (shouldBlock(notification.device_code)) {
+          console.log('🚫 Device blocked:', notification.device_code);
+          return false;
+        }
+        
         if (notification.threshold_type === 'min' && setting.min_enabled) {
           return notification.value < setting.min_threshold;
         }
@@ -373,16 +399,12 @@ export const usePersonalNotifications = () => {
 
       // 3) If relevant notifications exist, activate the alert sound immediately
       if (relevant.length > 0) {
-        // 🔒 DOUBLE CHECK: ป้องกัน late detection
-        const hasBlockedDevice = relevant.some(noti => shouldBlock(noti.device_code));
-        if (hasBlockedDevice) {
-          console.log('🚫 Blocked late detection alerts for disabled devices');
-          return;
-        }
+        console.log('🚨 Found', relevant.length, 'relevant notifications - activating alert');
         
         // บังคับให้เล่นใหม่แม้กำลัง active อยู่ โดย toggle สถานะ
         setIsAlertActive(false);
-        setTimeout(() => setIsAlertActive(true), 0);
+        setTimeout(() => setIsAlertActive(true), 100);
+        
         if (inactivityStopRef.current) {
           clearTimeout(inactivityStopRef.current);
         }
@@ -393,8 +415,9 @@ export const usePersonalNotifications = () => {
         return;
       }
 
+      console.log('📝 No relevant notifications found in database, checking live data...');
+
       // 4) Fallback: หากยังไม่มีแถวใน notifications ให้ตรวจจากค่าล่าสุดของ rice_quality_analysis
-      //    ใช้ตรรกะ mapping เดียวกับ useNotificationStatus
       const columnMapping: { [key: string]: string } = {
         whiteness: 'whiteness',
         yellow_rice_ratio: 'yellow_rice_rate',
@@ -413,7 +436,6 @@ export const usePersonalNotifications = () => {
         glutinous_rice: 'sticky_rice_rate',
       };
 
-      // ดึงหลายรายการล่าสุดของทุก device แล้วเลือกแค่รายการล่าสุดต่อเครื่อง
       const { data: raws, error: latestErr } = await supabase
         .from('rice_quality_analysis')
         .select('*')
@@ -435,31 +457,38 @@ export const usePersonalNotifications = () => {
 
       let triggered = false;
       for (const setting of settings) {
+        // 🔒 DEVICE CHECK: Skip if this device is disabled
+        if (shouldBlock(setting.device_code)) {
+          console.log('🚫 Skipping disabled device:', setting.device_code);
+          continue;
+        }
+        
         const latest = latestByDevice.get(setting.device_code);
         if (!latest) continue;
         const columnName = columnMapping[setting.rice_type_id];
         if (!columnName) continue;
         const currentValue = latest[columnName];
         if (currentValue === null || currentValue === undefined) continue;
+        
         if (setting.min_enabled && currentValue < setting.min_threshold) {
-          triggered = true; break;
+          console.log('🚨 MIN threshold triggered:', setting.device_code, setting.rice_type_id, currentValue, '<', setting.min_threshold);
+          triggered = true; 
+          break;
         }
         if (setting.max_enabled && currentValue > setting.max_threshold) {
-          triggered = true; break;
+          console.log('🚨 MAX threshold triggered:', setting.device_code, setting.rice_type_id, currentValue, '>', setting.max_threshold);
+          triggered = true; 
+          break;
         }
       }
 
       if (triggered) {
-        // 🔒 FINAL CHECK: ป้องกันการเล่นเสียงสำหรับอุปกรณ์ที่ปิดแล้ว
-        const blockedDevices = settings.filter(s => shouldBlock(s.device_code));
-        if (blockedDevices.length === settings.length) {
-          console.log('🚫 All devices blocked, skipping alert activation');
-          return;
-        }
+        console.log('🚨 Live data threshold triggered - activating alert');
         
         // บังคับให้เล่นใหม่แม้กำลัง active อยู่ โดย toggle สถานะ
         setIsAlertActive(false);
-        setTimeout(() => setIsAlertActive(true), 0);
+        setTimeout(() => setIsAlertActive(true), 100);
+        
         if (inactivityStopRef.current) {
           clearTimeout(inactivityStopRef.current);
         }
@@ -467,6 +496,8 @@ export const usePersonalNotifications = () => {
           setIsAlertActive(false);
           inactivityStopRef.current = null;
         }, 5 * 60 * 1000);
+      } else {
+        console.log('✅ No thresholds triggered - no alert needed');
       }
     } catch (e) {
       console.warn('checkAndActivateOnRoute failed:', e);

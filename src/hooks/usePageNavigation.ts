@@ -2,28 +2,25 @@ import { useEffect } from 'react';
 import { emergencyStopAllAlerts } from '@/hooks/useNotificationControl';
 
 /**
- * Hook to handle cleanup when navigating between pages
- * Prevents audio from continuing to play after page changes
+ * Hook to handle cleanup and immediate notification check when navigating between pages
  */
-export const usePageNavigation = () => {
+export const usePageNavigation = (onPageChange?: () => void) => {
   useEffect(() => {
     let previousPath = window.location.pathname;
     
     const handlePathChange = () => {
       const currentPath = window.location.pathname;
       if (currentPath !== previousPath) {
-        console.log('🚨 Page changed from', previousPath, 'to', currentPath, '- stopping all alerts');
+        console.log('🚨 Page changed from', previousPath, 'to', currentPath);
         
-        // Emergency stop all alerts when page changes
+        // First: Emergency stop all current alerts
         emergencyStopAllAlerts();
         
-        // Additional cleanup - stop any lingering audio contexts
+        // Clean up audio immediately
         const cleanup = () => {
-          // Force garbage collection of audio contexts if possible
           if ((window as any).__globalAudioContext) {
             try {
               const audioContext = (window as any).__globalAudioContext;
-              // Suspend instead of close to allow reuse but stop current sounds
               if (audioContext.state === 'running') {
                 audioContext.suspend();
               }
@@ -32,7 +29,6 @@ export const usePageNavigation = () => {
             }
           }
           
-          // Clear all global audio locks
           if ((window as any).__alertSoundLock) {
             const lock = (window as any).__alertSoundLock;
             lock.running = false;
@@ -42,7 +38,6 @@ export const usePageNavigation = () => {
             }
           }
           
-          // Stop all HTML audio elements
           document.querySelectorAll('audio').forEach(audio => {
             audio.pause();
             audio.currentTime = 0;
@@ -50,23 +45,23 @@ export const usePageNavigation = () => {
           });
         };
 
-        // Run cleanup immediately
         cleanup();
         
-        // Also run cleanup after a short delay to catch any delayed audio
-        setTimeout(cleanup, 100);
+        // Second: Trigger immediate notification check after cleanup
+        if (onPageChange) {
+          setTimeout(() => {
+            console.log('🔔 Triggering immediate notification check after page change');
+            onPageChange();
+          }, 200); // Small delay to ensure cleanup is complete
+        }
         
         previousPath = currentPath;
       }
     };
 
-    // Check for path changes using multiple methods
     const checkInterval = setInterval(handlePathChange, 500);
-    
-    // Listen for popstate events (back/forward browser navigation)
     window.addEventListener('popstate', handlePathChange);
     
-    // Listen for pushstate/replacestate (programmatic navigation)
     const originalPushState = history.pushState;
     const originalReplaceState = history.replaceState;
     
@@ -86,5 +81,5 @@ export const usePageNavigation = () => {
       history.pushState = originalPushState;
       history.replaceState = originalReplaceState;
     };
-  }, []); // Empty dependency array - run once on mount
+  }, [onPageChange]);
 };
