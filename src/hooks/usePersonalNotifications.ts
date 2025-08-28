@@ -5,6 +5,7 @@ import { toast } from '@/hooks/use-toast';
 import { useAlertSound, getNotificationsEnabled, NOTIFICATIONS_ENABLED_KEY } from '@/hooks/useAlertSound';
 import { useAuth } from '@/components/AuthProvider';
 import { useNotificationControl, shouldBlockAlerts } from '@/hooks/useNotificationControl';
+import { usePageNavigation } from '@/hooks/usePageNavigation';
 
 /**
  * Personal Notification Hook - ระบบแจ้งเตือนส่วนตัวตามการตั้งค่าของผู้ใช้
@@ -35,6 +36,10 @@ interface NotificationSetting {
 export const usePersonalNotifications = () => {
   const { user } = useAuth();
   const { canPlayAlert, shouldBlockAlerts: shouldBlock } = useNotificationControl();
+  
+  // 🚨 CRITICAL: Use page navigation hook for cleanup
+  usePageNavigation();
+  
   const lastNotificationRef = useRef<string | null>(null);
   const processedNotificationsRef = useRef<Set<string>>(new Set());
   const alertTimeoutRef = useRef<NodeJS.Timeout | null>(null);

@@ -78,25 +78,39 @@ export const useAlertSound = (
     }
   };
 
-  // Function to stop all currently playing sounds
+  // Function to stop all currently playing sounds IMMEDIATELY
   const stopAllSounds = () => {
-    // Stop MP3 audio
+    // Stop MP3 audio immediately
     if (currentAudioRef.current) {
       currentAudioRef.current.pause();
       currentAudioRef.current.currentTime = 0;
+      currentAudioRef.current.src = ''; // Clear source to prevent further loading
       currentAudioRef.current = null;
     }
     
-    // Stop Web Audio API nodes
+    // Stop Web Audio API nodes with immediate gain reduction
     audioNodesRef.current.forEach(({ oscillator, gainNode }) => {
       try {
+        // Immediately cut volume to 0
+        gainNode.gain.cancelScheduledValues(audioContextRef.current?.currentTime || 0);
         gainNode.gain.setValueAtTime(0, audioContextRef.current?.currentTime || 0);
-        oscillator.stop();
+        
+        // Stop oscillator immediately
+        oscillator.stop(audioContextRef.current?.currentTime || 0);
+        oscillator.disconnect();
+        gainNode.disconnect();
       } catch (error) {
-        // Oscillator might already be stopped
+        // Oscillator might already be stopped - ignore error
       }
     });
     audioNodesRef.current = [];
+    
+    // Global emergency stop - find all audio elements and stop them
+    document.querySelectorAll('audio').forEach(audio => {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.src = '';
+    });
   };
 
   // Function to play notification sound using the selected sound preference
@@ -248,7 +262,7 @@ export const useAlertSound = (
         }, intervalMs);
       }
     } else {
-      // Clear timer when alert is no longer active OR notifications are disabled
+      // 🚨 IMMEDIATE STOP: Clear timer and stop all sounds ASAP
       if (timerRef.current) {
         if (playOnce) {
           clearTimeout(timerRef.current);
@@ -258,24 +272,28 @@ export const useAlertSound = (
         timerRef.current = null;
       }
       
-      // IMPORTANT: Stop all currently playing sounds immediately
+      // 🔇 FORCE STOP: Stop all currently playing sounds immediately
       stopAllSounds();
+      
+      // Cancel any pending chains immediately
+      cancelChainRef.current.canceled = true;
+      isChainRunningRef.current = false;
       
       // Reset played flag when alert becomes inactive
       hasPlayedRef.current = false;
-      // Cancel any pending repeat chain
-      cancelChainRef.current.canceled = true;
-      isChainRunningRef.current = false;
+      
       // Release global lock if we own it
       const lock = getGlobalLock();
       if (lock.ownerId === instanceIdRef.current) {
         lock.running = false;
         lock.ownerId = null;
+        lock.cancelRef.canceled = true;
       }
     }
 
     // Cleanup on unmount or when effect dependencies change
     return () => {
+      // 🚨 CLEANUP: Stop everything immediately
       if (timerRef.current) {
         if (playOnce) {
           clearTimeout(timerRef.current);
@@ -284,8 +302,21 @@ export const useAlertSound = (
         }
         timerRef.current = null;
       }
-      // Also stop any playing sounds on cleanup
+      
+      // Force stop all sounds
       stopAllSounds();
+      
+      // Cancel chains
+      cancelChainRef.current.canceled = true;
+      isChainRunningRef.current = false;
+      
+      // Release global lock
+      const lock = getGlobalLock();
+      if (lock.ownerId === instanceIdRef.current) {
+        lock.running = false;
+        lock.ownerId = null;
+        lock.cancelRef.canceled = true;
+      }
     };
   }, [isAlertActive, enabled, playOnce, intervalMs, repeatCount, repeatGapMs]);
 
