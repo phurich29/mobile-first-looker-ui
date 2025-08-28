@@ -148,60 +148,84 @@ export class MobileAudioService {
   }
 
   /**
-   * Play sound using native platform capabilities
+   * Play sound using native platform capabilities with enhanced volume
    */
   private async playNativeSound(soundType: NotificationSoundType): Promise<void> {
-    // For native platforms, we can use the existing generateNotificationSound
-    // but with enhanced volume and better mobile optimization
-    const audioRef = { current: null as HTMLAudioElement | null };
-    const audioNodesRef = { current: [] as Array<{ oscillator: OscillatorNode; gainNode: GainNode }> };
+    try {
+      console.log('🔊 Playing native sound with enhanced volume');
+      
+      // For native platforms, use the enhanced generateNotificationSound
+      const audioRef = { current: null as HTMLAudioElement | null };
+      const audioNodesRef = { current: [] as Array<{ oscillator: OscillatorNode; gainNode: GainNode }> };
 
-    await generateNotificationSound(soundType, audioRef, audioNodesRef);
+      await generateNotificationSound(soundType, audioRef, audioNodesRef);
 
-    // Enhance volume for mobile devices
-    if (audioRef.current) {
-      audioRef.current.volume = Math.min(1.0, audioRef.current.volume * 1.2);
-    }
-
-    // Wait for sound to complete
-    return new Promise<void>((resolve) => {
+      // Additional volume enhancement for any HTML audio elements created
       if (audioRef.current) {
-        const audio = audioRef.current;
-        const cleanup = () => {
-          audio.removeEventListener('ended', onEnded);
-          audio.removeEventListener('error', onError);
-          resolve();
-        };
-
-        const onEnded = cleanup;
-        const onError = cleanup;
-
-        audio.addEventListener('ended', onEnded, { once: true });
-        audio.addEventListener('error', onError, { once: true });
-
-        // Fallback timeout
-        setTimeout(cleanup, 5000);
-      } else {
-        // For WebAudio-generated sounds, estimate duration
-        setTimeout(resolve, 2000);
+        audioRef.current.volume = Math.min(1.0, audioRef.current.volume * 1.3);
       }
-    });
+
+      // Wait for sound to complete with better duration estimation
+      return new Promise<void>((resolve) => {
+        if (audioRef.current) {
+          const audio = audioRef.current;
+          const cleanup = () => {
+            audio.removeEventListener('ended', onEnded);
+            audio.removeEventListener('error', onError);
+            resolve();
+          };
+
+          const onEnded = cleanup;
+          const onError = cleanup;
+
+          audio.addEventListener('ended', onEnded, { once: true });
+          audio.addEventListener('error', onError, { once: true });
+
+          // Fallback timeout
+          setTimeout(cleanup, 3000);
+        } else {
+          // For WebAudio-generated sounds, use config-based duration
+          const config = soundType === 'alert' ? 800 : 
+                        soundType === 'chime' ? 1000 : 
+                        soundType === 'bell' ? 600 : 
+                        soundType === 'notification' ? 800 : 500;
+          setTimeout(resolve, config);
+        }
+      });
+    } catch (error) {
+      console.error('Failed to play native sound:', error);
+      throw error;
+    }
   }
 
   /**
-   * Play sound using web audio API
+   * Play sound using web audio API with enhanced mobile volume
    */
   private async playWebSound(soundType: NotificationSoundType): Promise<void> {
-    // Use existing web audio implementation
-    const audioRef = { current: null as HTMLAudioElement | null };
-    const audioNodesRef = { current: [] as Array<{ oscillator: OscillatorNode; gainNode: GainNode }> };
+    try {
+      console.log('🔊 Playing web audio with mobile volume optimization');
+      
+      // Use the enhanced sound generator with mobile volume boost
+      const audioRef = { current: null as HTMLAudioElement | null };
+      const audioNodesRef = { current: [] as Array<{ oscillator: OscillatorNode; gainNode: GainNode }> };
 
-    await generateNotificationSound(soundType, audioRef, audioNodesRef);
+      await generateNotificationSound(soundType, audioRef, audioNodesRef);
 
-    // Return promise that resolves when sound completes
-    return new Promise<void>((resolve) => {
-      setTimeout(resolve, 2000); // Estimated duration
-    });
+      // Return promise that resolves when sound completes
+      return new Promise<void>((resolve) => {
+        // Get sound config to estimate duration
+        const config = getCurrentNotificationSound();
+        const estimatedDuration = config === 'alert' ? 1000 : 
+                                 config === 'chime' ? 1200 : 
+                                 config === 'bell' ? 800 : 
+                                 config === 'notification' ? 1000 : 600;
+        
+        setTimeout(resolve, estimatedDuration);
+      });
+    } catch (error) {
+      console.error('Failed to play web sound:', error);
+      throw error;
+    }
   }
 
   /**

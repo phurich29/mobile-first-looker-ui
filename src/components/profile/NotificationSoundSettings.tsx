@@ -125,19 +125,21 @@ export const NotificationSoundSettings: React.FC = () => {
   // Enhanced mobile audio initialization using MobileAudioService
   const initializeAudioContext = async () => {
     try {
+      console.log('🔊 Initializing enhanced mobile audio with volume boost');
+      
       // Import mobile audio service dynamically to avoid issues
       const { mobileAudioService } = await import('@/services/MobileAudioService');
       const success = await mobileAudioService.initialize();
       
       if (success) {
-        console.log('✅ Mobile audio context initialized successfully');
+        console.log('✅ Enhanced mobile audio context initialized successfully');
         return true;
       } else {
         console.warn('⚠️ Mobile audio initialization failed');
         return false;
       }
     } catch (error) {
-      console.error('❌ Error initializing mobile audio:', error);
+      console.error('❌ Error initializing enhanced mobile audio:', error);
       return false;
     }
   };
