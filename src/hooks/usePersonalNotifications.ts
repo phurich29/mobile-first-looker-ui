@@ -70,7 +70,19 @@ export const usePersonalNotifications = () => {
   // เมื่อเปิดใช้งานการแจ้งเตือน ให้ตรวจสอบเงื่อนไขและเล่นเสียงทันทีถ้าเข้าเงื่อนไข
   useEffect(() => {
     if (!user?.id) return;
-    if (!notificationsEnabled) return;
+    
+    // 🔒 CRITICAL: ตรวจสอบสถานะการแจ้งเตือนก่อนเสมอ
+    const globalEnabled = getNotificationsEnabled();
+    if (!globalEnabled) {
+      console.log('🚫 Global notifications disabled on mount - no check needed');
+      return;
+    }
+    
+    if (!notificationsEnabled) {
+      console.log('🚫 Notifications disabled in state - no check needed');
+      return;
+    }
+    
     console.log('[usePersonalNotifications] notificationsEnabled=true → immediate check');
     // ไม่บล็อก UI และหลีกเลี่ยง synchronous state thrash
     Promise.resolve().then(() => checkAndActivateOnRoute());
@@ -78,7 +90,7 @@ export const usePersonalNotifications = () => {
   
   // ใช้เสียงแจ้งเตือนแบบเล่นครั้งเดียว แต่จะถูกสั่งเล่นใหม่ทุกครั้งที่เปลี่ยนหน้า (ผ่าน checkAndActivateOnRoute)
   useAlertSound(isAlertActive, {
-    enabled: notificationsEnabled,
+    enabled: notificationsEnabled && getNotificationsEnabled(), // Double check
     playOnce: true,
     repeatCount: 2,     // เล่น 2 รอบต่อหนึ่งทริกเกอร์
     repeatGapMs: 1000,  // เว้น 1 วินาทีระหว่างรอบ
@@ -188,6 +200,12 @@ export const usePersonalNotifications = () => {
       // 🔒 CRITICAL CHECK: ตรวจสอบว่าควรบล็อคการแจ้งเตือนหรือไม่
       if (shouldBlock(latestNotification.device_code)) {
         console.log('🚫 Blocked notification due to control settings:', latestNotification.device_code);
+        return;
+      }
+      
+      // 🔒 ADDITIONAL CHECK: ตรวจสอบ global notifications อีกครั้ง
+      if (!getNotificationsEnabled()) {
+        console.log('🚫 Global notifications disabled - blocking sound');
         return;
       }
       
