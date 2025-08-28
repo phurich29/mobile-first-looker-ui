@@ -255,7 +255,8 @@ const App: React.FC = () => {
                 {/* Temporarily disable GlobalNotificationManager to stop sounds */}
                 {/* <GlobalNotificationManager /> */}
                 <RouterProvider router={router} />
-                <Toaster />
+                {/* Temporarily disable Toaster to test if it causes sound */}
+                {/* <Toaster /> */}
                 {/* Disabled notification popup to prevent annoying modal */}
                 {false && showNotificationPopup && (
                   <NotificationPermissionPopup
