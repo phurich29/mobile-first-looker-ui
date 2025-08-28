@@ -39,7 +39,7 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
   const [dragState, dragHandlers] = useDragScroll(containerRef);
   // Get all column keys and create custom order: วันที่บันทึก, ชื่ออุปกรณ์, รหัสเครื่อง, จำนวนเมล็ด, then rest
   const allKeys = getColumnKeys(historyData);
-  const priorityColumns = ['created_at', 'machine_unix_time', 'device_display_name', 'device_code', 'cur_material', 'cur_material_code', 'cur_variety', 'cur_variety_code', 'output'];
+  const priorityColumns = ['created_at', 'machine_unix_time', 'device_display_name', 'device_code', 'cur_material', 'cur_material_code', 'output'];
   const remainingKeys = allKeys.filter(
     (k) => !priorityColumns.includes(k) && k !== 'device_display_name' && k !== 'output'
   );
@@ -95,8 +95,6 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
                   ? t('dataCategories', 'kernelCount')
                   : key === 'cur_material_code'
                   ? 'รหัสประเภทข้าว'
-                  : key === 'cur_variety_code'
-                  ? 'รหัสมาตรฐาน'
                   : getColumnTranslation(key);
                 
                 return (
@@ -130,12 +128,8 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
                     >
                       {key === 'cur_material'
                         ? translateByCode('material', value)
-                        : key === 'cur_variety'
-                        ? translateByCode('variety_detect', value)
                         : key === 'cur_material_code'
                         ? (row.cur_material ?? '-')
-                        : key === 'cur_variety_code'
-                        ? (row.cur_variety ?? '-')
                         : formatCellValue(key, value)}
                     </TableCell>
                   );
