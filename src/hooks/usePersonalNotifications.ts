@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useAlertSound, getNotificationsEnabled, NOTIFICATIONS_ENABLED_KEY } from '@/hooks/useAlertSound';
 import { useAuth } from '@/components/AuthProvider';
+import { useNotificationControl, shouldBlockAlerts } from '@/hooks/useNotificationControl';
 
 /**
  * Personal Notification Hook - ระบบแจ้งเตือนส่วนตัวตามการตั้งค่าของผู้ใช้
@@ -33,6 +34,7 @@ interface NotificationSetting {
 
 export const usePersonalNotifications = () => {
   const { user } = useAuth();
+  const { canPlayAlert, shouldBlockAlerts: shouldBlock } = useNotificationControl();
   const lastNotificationRef = useRef<string | null>(null);
   const processedNotificationsRef = useRef<Set<string>>(new Set());
   const alertTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -174,6 +176,12 @@ export const usePersonalNotifications = () => {
         value: latestNotification.value,
         type: latestNotification.threshold_type
       });
+      
+      // 🔒 CRITICAL CHECK: ตรวจสอบว่าควรบล็อคการแจ้งเตือนหรือไม่
+      if (shouldBlock(latestNotification.device_code)) {
+        console.log('🚫 Blocked notification due to control settings:', latestNotification.device_code);
+        return;
+      }
       
       // Clear any existing timeout
       if (alertTimeoutRef.current) {
@@ -360,6 +368,13 @@ export const usePersonalNotifications = () => {
 
       // 3) If relevant notifications exist, activate the alert sound immediately
       if (relevant.length > 0) {
+        // 🔒 DOUBLE CHECK: ป้องกัน late detection
+        const hasBlockedDevice = relevant.some(noti => shouldBlock(noti.device_code));
+        if (hasBlockedDevice) {
+          console.log('🚫 Blocked late detection alerts for disabled devices');
+          return;
+        }
+        
         // บังคับให้เล่นใหม่แม้กำลัง active อยู่ โดย toggle สถานะ
         setIsAlertActive(false);
         setTimeout(() => setIsAlertActive(true), 0);
@@ -430,6 +445,13 @@ export const usePersonalNotifications = () => {
       }
 
       if (triggered) {
+        // 🔒 FINAL CHECK: ป้องกันการเล่นเสียงสำหรับอุปกรณ์ที่ปิดแล้ว
+        const blockedDevices = settings.filter(s => shouldBlock(s.device_code));
+        if (blockedDevices.length === settings.length) {
+          console.log('🚫 All devices blocked, skipping alert activation');
+          return;
+        }
+        
         // บังคับให้เล่นใหม่แม้กำลัง active อยู่ โดย toggle สถานะ
         setIsAlertActive(false);
         setTimeout(() => setIsAlertActive(true), 0);
