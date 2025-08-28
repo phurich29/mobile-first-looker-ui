@@ -15,6 +15,15 @@ export const useNotificationSettings = (deviceCode: string, symbol: string, name
   const [minThreshold, setMinThreshold] = useState(0);
   const [maxThreshold, setMaxThreshold] = useState(100);
 
+  // Reset all states to default values
+  const resetStates = useCallback(() => {
+    setEnabled(false);
+    setMinEnabled(false);
+    setMaxEnabled(false);
+    setMinThreshold(0);
+    setMaxThreshold(100);
+  }, []);
+
   const loadSettings = useCallback(async () => {
     try {
       setLoading(true);
@@ -88,7 +97,8 @@ export const useNotificationSettings = (deviceCode: string, symbol: string, name
     setMinThreshold,
     setMaxThreshold,
     loadSettings,
-    handleSaveSettings
+    handleSaveSettings,
+    resetStates
   };
 };
 

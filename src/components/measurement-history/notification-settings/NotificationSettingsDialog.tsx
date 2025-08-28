@@ -21,15 +21,26 @@ export function NotificationSettingsDialog({
     setMinThreshold,
     setMaxThreshold,
     loadSettings,
-    handleSaveSettings
+    handleSaveSettings,
+    resetStates
   } = useNotificationSettings(deviceCode, symbol, name);
 
-  // Load existing settings on open
+  // Reset and load settings when dialog opens
   useEffect(() => {
     if (open && deviceCode && symbol) {
+      // Always reset state first to prevent cross-user contamination
+      resetStates();
+      // Force reload settings from API
       loadSettings();
     }
-  }, [open, deviceCode, symbol, loadSettings]);
+  }, [open, deviceCode, symbol, loadSettings, resetStates]);
+
+  // Reset states when dialog closes
+  useEffect(() => {
+    if (!open) {
+      resetStates();
+    }
+  }, [open, resetStates]);
 
   const handleSave = async () => {
     const success = await handleSaveSettings();
@@ -38,11 +49,19 @@ export function NotificationSettingsDialog({
     }
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      // Reset states immediately when closing
+      resetStates();
+    }
+    onOpenChange(newOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <NotificationDialogContent
         open={open}
-        onOpenChange={onOpenChange}
+        onOpenChange={handleOpenChange}
         deviceCode={deviceCode}
         symbol={symbol}
         name={name}
