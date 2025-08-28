@@ -1,4 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/AuthProvider';
 
@@ -15,6 +16,7 @@ export interface NotificationStatus {
 
 export const useNotificationStatus = (deviceCode: string) => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   return useQuery({
     queryKey: ['notification-status', deviceCode, user?.id],
@@ -116,5 +118,41 @@ export const useNotificationStatus = (deviceCode: string) => {
     enabled: !!user?.id && !!deviceCode,
     staleTime: 30000, // 30 วินาที
     refetchInterval: 60000, // รีเฟรชทุก 1 นาที
+    refetchOnMount: 'always', // เข้าเพจแล้วดึงใหม่เสมอ เพื่อลดโอกาสแคชค้าง
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
+};
+
+// Subscribe to realtime changes for immediate UI update
+export const useNotificationStatusRealtime = (deviceCode: string) => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!user?.id || !deviceCode) return;
+
+    const channel = supabase
+      .channel(`notification-settings-${user.id}-${deviceCode}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // INSERT | UPDATE | DELETE
+          schema: 'public',
+          table: 'notification_settings',
+        },
+        (payload) => {
+          const row: any = payload.new ?? payload.old;
+          if (!row) return;
+          if (row.user_id === user.id && row.device_code === deviceCode) {
+            queryClient.invalidateQueries({ queryKey: ['notification-status', deviceCode, user.id] });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, deviceCode, queryClient]);
 };

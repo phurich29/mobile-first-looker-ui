@@ -4,7 +4,7 @@ import { BarChart, Settings, Clock, Circle, Bell } from "lucide-react";
 import { Link } from "react-router-dom";
 import { formatEquipmentTime, isRecentUpdate, getTimeClasses } from "./utils/timeUtils";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useNotificationStatus } from "../../hooks/useNotificationStatus";
+import { useNotificationStatus, useNotificationStatusRealtime } from "../../hooks/useNotificationStatus";
 import { getNotificationsEnabled, NOTIFICATIONS_ENABLED_KEY } from "@/hooks/useAlertSound";
 import { useEffect, useState } from "react";
 
@@ -25,6 +25,8 @@ export function EquipmentCardContent({
 }: EquipmentCardContentProps) {
   const { t, language } = useTranslation();
   const { data: notificationStatus, isLoading, error } = useNotificationStatus(deviceCode);
+  // subscribe realtime so bell updates immediately when settings change
+  useNotificationStatusRealtime(deviceCode);
   const formattedTime = formatEquipmentTime(lastUpdated, language);
   const isRecent = isRecentUpdate(lastUpdated, deviceData);
   const timeClasses = getTimeClasses(isRecent);
