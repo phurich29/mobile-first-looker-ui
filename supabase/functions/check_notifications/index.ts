@@ -91,20 +91,21 @@ serve(async (req) => {
         const message = `ค่า "${setting.rice_type_name}" (${value}) ต่ำกว่าเกณฑ์ที่กำหนดไว้ (${setting.min_threshold})`;
         console.log(`MIN THRESHOLD BREACH: ${message}`);
         
-        // Check if notification already exists
+        // Check if notification already exists for this user
         const { data: existingNotification, error: existingError } = await supabase
           .from("notifications")
           .select("*")
           .eq("device_code", setting.device_code)
           .eq("rice_type_id", setting.rice_type_id)
           .eq("threshold_type", "min")
+          .eq("user_id", setting.user_id) // 🔒 CRITICAL: Filter by user_id
           .order("timestamp", { ascending: false })
           .limit(1);
         
         if (existingError) {
           console.error("Error checking existing notification:", existingError);
         } else if (existingNotification && existingNotification.length > 0) {
-          // Update existing notification
+          // Update existing notification (with user verification)
           const { error: updateError } = await supabase
             .from("notifications")
             .update({
@@ -114,7 +115,8 @@ serve(async (req) => {
               timestamp: new Date().toISOString(),
               analysis_id: analysis.id
             })
-            .eq("id", existingNotification[0].id);
+            .eq("id", existingNotification[0].id)
+            .eq("user_id", setting.user_id); // 🔒 CRITICAL: Ensure user ownership
           
           if (updateError) {
             console.error("Error updating notification:", updateError);
@@ -151,20 +153,21 @@ serve(async (req) => {
         const message = `ค่า "${setting.rice_type_name}" (${value}) สูงกว่าเกณฑ์ที่กำหนดไว้ (${setting.max_threshold})`;
         console.log(`MAX THRESHOLD BREACH: ${message}`);
         
-        // Check if notification already exists
+        // Check if notification already exists for this user
         const { data: existingNotification, error: existingError } = await supabase
           .from("notifications")
           .select("*")
           .eq("device_code", setting.device_code)
           .eq("rice_type_id", setting.rice_type_id)
           .eq("threshold_type", "max")
+          .eq("user_id", setting.user_id) // 🔒 CRITICAL: Filter by user_id
           .order("timestamp", { ascending: false })
           .limit(1);
         
         if (existingError) {
           console.error("Error checking existing notification:", existingError);
         } else if (existingNotification && existingNotification.length > 0) {
-          // Update existing notification
+          // Update existing notification (with user verification)
           const { error: updateError } = await supabase
             .from("notifications")
             .update({
@@ -174,7 +177,8 @@ serve(async (req) => {
               timestamp: new Date().toISOString(),
               analysis_id: analysis.id
             })
-            .eq("id", existingNotification[0].id);
+            .eq("id", existingNotification[0].id)
+            .eq("user_id", setting.user_id); // 🔒 CRITICAL: Ensure user ownership
           
           if (updateError) {
             console.error("Error updating notification:", updateError);

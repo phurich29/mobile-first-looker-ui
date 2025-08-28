@@ -17,8 +17,28 @@ serve(async (req) => {
   try {
     // สร้าง Supabase client
     const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") || "";
+    
+    // Get authorization header
+    const authorization = req.headers.get('Authorization');
+    
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authorization || '' } }
+    });
+
+    // Get current user from JWT token
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !user) {
+      console.error("Error getting user:", userError);
+      return new Response(
+        JSON.stringify({ error: "Authentication required" }),
+        {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
 
     // ดึงพารามิเตอร์จาก query string (ถ้ามี)
     const url = new URL(req.url);
@@ -28,12 +48,13 @@ serve(async (req) => {
     const pageNum = parseInt(page);
     const offset = (pageNum - 1) * limitNum;
 
-    console.log(`Query notifications with limit: ${limitNum}, page: ${pageNum}, offset: ${offset}`);
+    console.log(`Query notifications for user ${user.id} with limit: ${limitNum}, page: ${pageNum}, offset: ${offset}`);
 
-    // ดึงข้อมูลจากตาราง notifications
+    // ดึงข้อมูลจากตาราง notifications สำหรับ user ปัจจุบันเท่านั้น
     const { data: notifications, error, count } = await supabase
       .from("notifications")
       .select("*", { count: "exact" })
+      .eq("user_id", user.id) // 🔒 CRITICAL: Filter by current user only
       .order("timestamp", { ascending: false })
       .range(offset, offset + limitNum - 1);
 
