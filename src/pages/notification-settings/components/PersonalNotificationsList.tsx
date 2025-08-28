@@ -116,13 +116,13 @@ export const PersonalNotificationsList = ({
                     {setting.min_enabled && (
                       <Badge variant="secondary" className="text-xs">
                         <TrendingDown className="w-3 h-3 mr-1" />
-                        แจ้งเตือนเมื่อต่ำกว่า {setting.min_threshold}
+                        ต่ำกว่า {setting.min_threshold}
                       </Badge>
                     )}
                     {setting.max_enabled && (
-                      <Badge variant="destructive" className="text-xs">
+                      <Badge variant="secondary" className="text-xs">
                         <TrendingUp className="w-3 h-3 mr-1" />
-                        แจ้งเตือนเมื่อเกิน {setting.max_threshold}
+                        เกิน {setting.max_threshold}
                       </Badge>
                     )}
                   </div>
