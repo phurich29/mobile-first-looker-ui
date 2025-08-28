@@ -448,118 +448,50 @@ export const saveNotificationSettings = async (settings: {
       timestamp: new Date().toISOString()
     });
     
-    // First check if settings already exist for this user with additional validation
-    console.log('🔍 Checking existing settings for user:', userId);
-    const existingSettings = await getNotificationSettings(deviceCode, symbol);
+    // Use UPSERT to avoid duplicate key conflicts and race conditions
+    console.log('💾 Upserting notification settings for user:', userId);
     
-    if (existingSettings?.id) {
-      // Additional ownership validation before update
-      if (existingSettings.user_id !== userId) {
-        console.error('🚨 SECURITY VIOLATION: Attempting to update settings owned by different user:', {
-          existingUserId: existingSettings.user_id,
-          requestingUserId: userId
-        });
-        
-        logSecurityEvent({
-          function_name: 'saveNotificationSettings',
-          user_id: userId,
-          device_code: deviceCode,
-          rice_type_id: symbol,
-          action: 'ownership_violation_update',
-          success: false,
-          error_message: `Attempted to update settings owned by ${existingSettings.user_id}`,
-          timestamp: new Date().toISOString()
-        });
-        
-        throw createApiError('saveNotificationSettings', 'Security violation: Cannot update settings owned by another user', userId, {
-          device_code: deviceCode,
-          rice_type_id: symbol,
-          existing_user_id: existingSettings.user_id
-        });
-      }
-      
-      console.log('🔄 Updating existing settings for user:', userId);
-      
-      // Update existing settings with explicit user_id check
-      const { error } = await supabase
-        .from('notification_settings')
-        .update({
-          enabled,
-          min_enabled: minEnabled,
-          max_enabled: maxEnabled,
-          min_threshold: minThreshold,
-          max_threshold: maxThreshold,
-        })
-        .eq('id', existingSettings.id)
-        .eq('user_id', userId); // ⭐ CRITICAL: Double-check user_id in update
-      
-      if (error) {
-        logSecurityEvent({
-          function_name: 'saveNotificationSettings',
-          user_id: userId,
-          device_code: deviceCode,
-          rice_type_id: symbol,
-          action: 'update_failed',
-          success: false,
-          error_message: error.message,
-          timestamp: new Date().toISOString()
-        });
-        throw error;
-      }
-      
-      console.log('✅ Successfully updated notification settings');
+    const { error } = await supabase
+      .from('notification_settings')
+      .upsert({
+        device_code: deviceCode,
+        rice_type_id: symbol,
+        rice_type_name: name,
+        enabled,
+        min_enabled: minEnabled,
+        max_enabled: maxEnabled,
+        min_threshold: minThreshold,
+        max_threshold: maxThreshold,
+        user_id: userId, // ⭐ CRITICAL: Validated user_id
+      }, {
+        onConflict: 'device_code,rice_type_id,user_id', // Use the unique constraint columns
+        ignoreDuplicates: false // Update on conflict
+      });
+    
+    if (error) {
       logSecurityEvent({
         function_name: 'saveNotificationSettings',
         user_id: userId,
         device_code: deviceCode,
         rice_type_id: symbol,
-        action: 'update_success',
-        success: true,
+        action: 'upsert_failed',
+        success: false,
+        error_message: error.message,
         timestamp: new Date().toISOString()
       });
-    } else {
-      // Create new settings with validated user_id
-      console.log('📝 Creating new settings for user:', userId);
-      
-      const { error } = await supabase
-        .from('notification_settings')
-        .insert({
-          device_code: deviceCode,
-          rice_type_id: symbol,
-          rice_type_name: name,
-          enabled,
-          min_enabled: minEnabled,
-          max_enabled: maxEnabled,
-          min_threshold: minThreshold,
-          max_threshold: maxThreshold,
-          user_id: userId, // ⭐ CRITICAL: Validated user_id
-        });
-      
-      if (error) {
-        logSecurityEvent({
-          function_name: 'saveNotificationSettings',
-          user_id: userId,
-          device_code: deviceCode,
-          rice_type_id: symbol,
-          action: 'insert_failed',
-          success: false,
-          error_message: error.message,
-          timestamp: new Date().toISOString()
-        });
-        throw error;
-      }
-      
-      console.log('✅ Successfully created new notification settings');
-      logSecurityEvent({
-        function_name: 'saveNotificationSettings',
-        user_id: userId,
-        device_code: deviceCode,
-        rice_type_id: symbol,
-        action: 'insert_success',
-        success: true,
-        timestamp: new Date().toISOString()
-      });
+      throw error;
     }
+    
+    console.log('✅ Successfully saved notification settings');
+    logSecurityEvent({
+      function_name: 'saveNotificationSettings',
+      user_id: userId,
+      device_code: deviceCode,
+      rice_type_id: symbol,
+      action: 'upsert_success',
+      success: true,
+      timestamp: new Date().toISOString()
+    });
   } catch (error: any) {
     console.error('Error saving notification settings:', error);
     
