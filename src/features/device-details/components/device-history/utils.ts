@@ -63,6 +63,7 @@ export const COLUMN_ORDER = [
   'impurity_num',
   'paddy_rate',
   'whiteness',
+  'heavy_chalkiness_rate',
   'process_precision',
   // NEW COLUMNS
   'mix_rate',

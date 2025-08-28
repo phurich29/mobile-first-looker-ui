@@ -33,6 +33,7 @@ export const useMeasurementTranslations = () => {
       'impurity_num': { category: 'measurements', key: 'impurityNum' },
       'paddy_rate': { category: 'measurements', key: 'paddyRate' },
       'whiteness': { category: 'measurements', key: 'whiteness' },
+      'heavy_chalkiness_rate': { category: 'measurements', key: 'heavyChalkiness' },
       'process_precision': { category: 'measurements', key: 'processPrecision' },
     };
 
