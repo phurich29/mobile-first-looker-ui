@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Bell, BellOff, AlertTriangle, CheckCircle, Settings, Clock, TrendingUp, TrendingDown, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -114,16 +115,40 @@ export const PersonalNotificationsList = ({
                   <div className="text-sm text-muted-foreground">{setting.rice_type_id}</div>
                   <div className="flex gap-2 mt-1">
                     {setting.min_enabled && (
-                      <Badge variant="secondary" className="text-xs">
-                        <TrendingDown className="w-3 h-3 mr-1" />
-                        ต่ำกว่า {setting.min_threshold}
-                      </Badge>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Badge
+                              variant="secondary"
+                              className="text-xs ring-1 ring-foreground/10 shadow-sm hover:shadow transition-colors"
+                            >
+                              <TrendingDown className="w-3 h-3 mr-1" />
+                              แจ้งเตือนเมื่อต่ำกว่า {setting.min_threshold}
+                            </Badge>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            แจ้งเตือนเมื่อค่าน้อยกว่าค่าที่ตั้งไว้
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     )}
                     {setting.max_enabled && (
-                      <Badge variant="secondary" className="text-xs">
-                        <TrendingUp className="w-3 h-3 mr-1" />
-                        เกิน {setting.max_threshold}
-                      </Badge>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Badge
+                              variant="destructive"
+                              className="text-xs ring-1 ring-destructive/20 shadow-sm hover:shadow transition-colors"
+                            >
+                              <TrendingUp className="w-3 h-3 mr-1" />
+                              แจ้งเตือนเมื่อเกิน {setting.max_threshold}
+                            </Badge>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            แจ้งเตือนเมื่อค่ามากกว่าค่าที่ตั้งไว้
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     )}
                   </div>
                 </div>
