@@ -7,6 +7,7 @@ import { Play, Square, Volume2, Check } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/hooks/useTranslation";
 import { generateDistinctSound } from "@/utils/soundGenerator";
+import { MobileAudioTestButton } from "@/components/mobile-audio/MobileAudioTestButton";
 
 // Notification sound types
 export type NotificationSoundType = 'alert' | 'chime' | 'bell' | 'ding' | 'notification';
@@ -28,11 +29,11 @@ const SOUND_OPTIONS: SoundOption[] = [
     id: 'alert',
     name: 'เสียงแจ้งเตือน',
     nameEn: 'Alert',
-    description: 'เสียงแจ้งเตือนคุณภาพสูงจากไฟล์ MP3',
-    descriptionEn: 'High-quality alert sound from MP3 file',
-    audioFile: '/sounds/alert-33762.mp3',
-    frequency: 700,
-    pattern: 'single',
+    description: 'เสียงแจ้งเตือนคุณภาพสูง (Generated)',
+    descriptionEn: 'High-quality alert sound (Generated)',
+    // Remove audioFile - use generated sound for mobile compatibility
+    frequency: 800,
+    pattern: 'double',
     wave: 'square'
   },
   {
@@ -77,7 +78,6 @@ const SOUND_OPTIONS: SoundOption[] = [
   }
 ];
 
-// Sound generator functions
 export const generateNotificationSound = async (
   soundType: NotificationSoundType,
   audioRef?: React.MutableRefObject<HTMLAudioElement | null>,
@@ -87,25 +87,7 @@ export const generateNotificationSound = async (
   if (!soundOption) return;
 
   try {
-    // For the alert sound, use the actual audio file
-    if (soundType === 'alert' && soundOption.audioFile) {
-      const audio = new Audio(soundOption.audioFile);
-      audio.volume = 0.8; // Increase volume for better audibility
-      
-      // Store reference for stopping later
-      if (audioRef) {
-        audioRef.current = audio;
-      }
-      
-      // Handle mobile audio context requirements
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        await playPromise;
-      }
-      return;
-    }
-
-    // For other sounds, use the distinct sound generator for unique sounds
+    // Use the distinct sound generator for all sounds (mobile-friendly)
     await generateDistinctSound(soundType, audioNodesRef);
     
   } catch (error) {
@@ -140,10 +122,24 @@ export const NotificationSoundSettings: React.FC = () => {
     };
   }, []);
 
-  // TEMPORARILY DISABLED FOR iOS PWA COMPATIBILITY
+  // Enhanced mobile audio initialization using MobileAudioService
   const initializeAudioContext = async () => {
-    console.log('Audio features temporarily disabled for iOS PWA compatibility');
-    return false;
+    try {
+      // Import mobile audio service dynamically to avoid issues
+      const { mobileAudioService } = await import('@/services/MobileAudioService');
+      const success = await mobileAudioService.initialize();
+      
+      if (success) {
+        console.log('✅ Mobile audio context initialized successfully');
+        return true;
+      } else {
+        console.warn('⚠️ Mobile audio initialization failed');
+        return false;
+      }
+    } catch (error) {
+      console.error('❌ Error initializing mobile audio:', error);
+      return false;
+    }
   };
 
   const stopSound = () => {
@@ -309,12 +305,17 @@ export const NotificationSoundSettings: React.FC = () => {
         </RadioGroup>
         
         <div className="pt-4 border-t">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground mb-3">
             {language === 'th' 
               ? 'การตั้งค่าจะถูกบันทึกอัตโนมัติเมื่อเลือกเสียง' 
               : 'Settings are automatically saved when you select a sound'
             }
           </p>
+          
+          {/* Mobile Audio Test Button */}
+          <div className="mt-4">
+            <MobileAudioTestButton />
+          </div>
         </div>
       </CardContent>
     </Card>
