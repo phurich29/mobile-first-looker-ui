@@ -20,6 +20,8 @@ export const GlobalNotificationManager: React.FC = () => {
     }
   }, [hasActiveSettings]);
   
+  // Route-change check ถูกย้ายไปทำที่ MainLayout (ภายใน Router)
+  
   // This component doesn't render anything - it just manages personal notifications
   return null;
 };

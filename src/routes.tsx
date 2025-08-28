@@ -1,11 +1,12 @@
 
 import { lazy, Suspense } from "react";
-import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
+import { createBrowserRouter, Navigate, Outlet, useLocation } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { FooterNav } from "@/components/FooterNav";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { usePersonalNotifications } from "@/hooks/usePersonalNotifications";
 
 // Import pages directly (non-lazy for better performance on core pages)
 import Index from "./pages/Index";
@@ -54,6 +55,8 @@ const LoadingSpinner = () => (
 const MainLayout = () => {
   const isMobile = useIsMobile();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const location = useLocation();
+  const { checkAndActivateOnRoute } = usePersonalNotifications();
   
   useEffect(() => {
     // Listen for sidebar state changes using custom event
@@ -81,6 +84,12 @@ const MainLayout = () => {
       window.removeEventListener('sidebarStateChanged', updateSidebarState);
     };
   }, []);
+
+  // ตรวจทุกครั้งที่เส้นทางเปลี่ยน เพื่อให้ผู้ใช้ได้ยินเสียงทันทีเมื่อมีการแจ้งเตือน
+  useEffect(() => {
+    checkAndActivateOnRoute();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-emerald-50 to-gray-50 dark:from-gray-900 dark:to-gray-950">

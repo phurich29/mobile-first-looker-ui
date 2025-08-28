@@ -46,6 +46,8 @@ export function EquipmentCardContent({
   // Debug logging for notification status
   console.log(`🔔 Device ${deviceCode} - notificationStatus:`, notificationStatus, 'isLoading:', isLoading, 'error:', error);
 
+  // เสียงแจ้งเตือนถูกจัดการระดับ Global ที่ `usePersonalNotifications` ผ่าน `GlobalNotificationManager`
+
   const handleDeviceClick = () => {
     // Save last viewed device for both authenticated users and guests
     localStorage.setItem('lastViewedDeviceCode', deviceCode);

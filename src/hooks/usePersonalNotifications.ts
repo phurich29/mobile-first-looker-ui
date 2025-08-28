@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { useAlertSound } from '@/hooks/useAlertSound';
+import { useAlertSound, getNotificationsEnabled, NOTIFICATIONS_ENABLED_KEY } from '@/hooks/useAlertSound';
 import { useAuth } from '@/components/AuthProvider';
 
 /**
@@ -36,13 +36,32 @@ export const usePersonalNotifications = () => {
   const lastNotificationRef = useRef<string | null>(null);
   const processedNotificationsRef = useRef<Set<string>>(new Set());
   const alertTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const inactivityStopRef = useRef<NodeJS.Timeout | null>(null);
+  const lastActiveAtRef = useRef<number>(0);
   const [isAlertActive, setIsAlertActive] = useState<boolean>(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(getNotificationsEnabled());
+
+  // ติดตามการเปลี่ยนแปลงการตั้งค่าแจ้งเตือนของผู้ใช้ (localStorage)
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === NOTIFICATIONS_ENABLED_KEY) {
+        const enabled = getNotificationsEnabled();
+        setNotificationsEnabled(enabled);
+        if (!enabled) {
+          // ปิดเสียงทันทีเมื่อผู้ใช้ปิดแจ้งเตือน
+          setIsAlertActive(false);
+        }
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
   
-  // Use alert sound
+  // Use alert sound: เล่นซ้ำทุก 1 นาที ขณะยังมีการแจ้งเตือนล่าสุด
   useAlertSound(isAlertActive, {
-    enabled: true,
-    playOnce: true,
-    intervalMs: 5000
+    enabled: notificationsEnabled,
+    playOnce: false,
+    intervalMs: 60000, // 1 นาที
   });
 
   // Fetch user's notification settings
@@ -153,8 +172,9 @@ export const usePersonalNotifications = () => {
         alertTimeoutRef.current = null;
       }
       
-      // Activate alert sound
+      // Activate alert sound และบันทึกเวลาล่าสุดที่ active
       setIsAlertActive(true);
+      lastActiveAtRef.current = Date.now();
       
       // Show toast notification
       toast({
@@ -164,12 +184,16 @@ export const usePersonalNotifications = () => {
         duration: 10000,
       });
 
-      // Stop alert sound after notification duration
-      alertTimeoutRef.current = setTimeout(() => {
+      // ยืดอายุการเล่นเสียงต่อเนื่อง: หากไม่มีแจ้งเตือนใหม่ภายใน 5 นาที ให้หยุด
+      if (inactivityStopRef.current) {
+        clearTimeout(inactivityStopRef.current);
+      }
+      inactivityStopRef.current = setTimeout(() => {
+        // หากไม่มีการอัปเดตล่าสุดเกิน 5 นาที จะหยุดเสียง
         setIsAlertActive(false);
-        console.log('🔕 Personal alert sound stopped after timeout');
-        alertTimeoutRef.current = null;
-      }, 10000);
+        console.log('🔕 Personal alert sound stopped due to inactivity (5 minutes)');
+        inactivityStopRef.current = null;
+      }, 5 * 60 * 1000);
 
       // Update refs
       lastNotificationRef.current = latestNotification.id;
@@ -270,12 +294,39 @@ export const usePersonalNotifications = () => {
     };
   }, [user?.id, userSettings, refetch]);
   
+  // Force-check on route change: refetch and activate sound if any relevant notifications exist
+  const checkAndActivateOnRoute = async () => {
+    try {
+      const result = await refetch();
+      const list = result?.data ?? notifications ?? [];
+      if (Array.isArray(list) && list.length > 0 && notificationsEnabled) {
+        // Activate alert sound immediately to draw user attention
+        setIsAlertActive(true);
+
+        // Ensure we also stop after inactivity window like normal flow
+        if (inactivityStopRef.current) {
+          clearTimeout(inactivityStopRef.current);
+        }
+        inactivityStopRef.current = setTimeout(() => {
+          setIsAlertActive(false);
+          inactivityStopRef.current = null;
+        }, 5 * 60 * 1000);
+      }
+    } catch (e) {
+      console.warn('checkAndActivateOnRoute failed:', e);
+    }
+  };
+  
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (alertTimeoutRef.current) {
         clearTimeout(alertTimeoutRef.current);
         alertTimeoutRef.current = null;
+      }
+      if (inactivityStopRef.current) {
+        clearTimeout(inactivityStopRef.current);
+        inactivityStopRef.current = null;
       }
     };
   }, []);
@@ -284,6 +335,7 @@ export const usePersonalNotifications = () => {
     notifications,
     userSettings,
     hasActiveSettings: userSettings && userSettings.length > 0,
-    refetch
+    refetch,
+    checkAndActivateOnRoute
   };
 };
