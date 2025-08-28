@@ -36,6 +36,7 @@ interface NotificationSetting {
   max_enabled: boolean;
   min_threshold: number;
   max_threshold: number;
+  rice_type_name?: string;
 }
 
 interface PersonalNotificationsListProps {
@@ -118,9 +119,9 @@ export const PersonalNotificationsList = ({
             {userSettings.map((setting, index) => (
               <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                 <div className="flex-1">
-                  <div className="font-medium">{setting.device_code}</div>
-                  <div className="text-sm text-muted-foreground">{setting.rice_type_id}</div>
-                  <div className="flex gap-2 mt-1">
+                  <div className="font-medium text-foreground">{setting.device_code}</div>
+                  <div className="text-sm text-muted-foreground font-medium">{setting.rice_type_name || setting.rice_type_id}</div>
+                  <div className="flex gap-2 mt-2">
                     {setting.min_enabled && (
                       <TooltipProvider>
                         <Tooltip>
