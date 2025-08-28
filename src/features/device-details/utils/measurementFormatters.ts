@@ -135,6 +135,13 @@ export const formatImpuritiesItems = (
       updatedAt: new Date(latestData.created_at) 
     },
     { 
+      symbol: 'heavy_chalkiness_rate', 
+      name: 'ท้องไข่', 
+      price: latestData.heavy_chalkiness_rate?.toFixed(1), 
+      iconColor: '#FFE082', 
+      updatedAt: new Date(latestData.created_at) 
+    },
+    { 
       symbol: 'red_line_rate', 
       name: 'สีต่ำกว่ามาตรฐาน', 
       price: latestData.red_line_rate?.toFixed(1), 

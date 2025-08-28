@@ -53,7 +53,7 @@ export const fetchImpuritiesData = async (deviceCode: string) => {
   
   const { data, error } = await supabase
     .from('rice_quality_analysis')
-    .select('id, red_line_rate, parboiled_red_line, parboiled_white_rice, honey_rice, yellow_rice_rate, black_kernel, partly_black_peck, partly_black, imperfection_rate, sticky_rice_rate, impurity_num, paddy_rate, whiteness, process_precision, created_at, thai_datetime')
+    .select('id, red_line_rate, parboiled_red_line, parboiled_white_rice, honey_rice, yellow_rice_rate, black_kernel, partly_black_peck, partly_black, imperfection_rate, sticky_rice_rate, impurity_num, paddy_rate, whiteness, process_precision, heavy_chalkiness_rate, created_at, thai_datetime')
     .eq('device_code', deviceCode)
     .order('created_at', { ascending: false })
     .limit(10);
