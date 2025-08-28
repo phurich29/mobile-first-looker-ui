@@ -252,7 +252,8 @@ const App: React.FC = () => {
           <CountdownProvider>
             <AuthProvider>
               <QueryClientProvider client={queryClient}>
-                <GlobalNotificationManager />
+                {/* Temporarily disable GlobalNotificationManager to stop sounds */}
+                {/* <GlobalNotificationManager /> */}
                 <RouterProvider router={router} />
                 <Toaster />
                 {/* Disabled notification popup to prevent annoying modal */}
