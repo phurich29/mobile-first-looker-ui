@@ -4,7 +4,6 @@ import { AuthProvider } from "./components/AuthProvider";
 import { CountdownProvider } from "./contexts/CountdownContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 
-
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Toaster } from "@/components/ui/toaster";
 import { toast } from "@/components/ui/use-toast";
@@ -15,6 +14,16 @@ import { Capacitor } from "@capacitor/core";
 
 import { NotificationPermissionPopup } from '@/components/NotificationPermissionPopup';
 import { GlobalNotificationManager } from '@/components/GlobalNotificationManager';
+import DebugPanel from '@/components/DebugPanel';
+import { iOSLogger } from './utils/iOSDebugLogger';
+
+// Log app initialization
+iOSLogger.info('APP_INIT', 'Application initializing', {
+  timestamp: new Date().toISOString(),
+  userAgent: navigator.userAgent,
+  capacitor: Capacitor.isNativePlatform(),
+  platform: Capacitor.getPlatform()
+});
 
 
 
@@ -34,6 +43,7 @@ const App: React.FC = () => {
   
   // ฟังก์ชันสำหรับจัดการการยอมรับการแจ้งเตือน
   const handleAcceptNotification = async () => {
+    iOSLogger.info('NOTIFICATION_PERMISSION', 'User clicked Accept notification permission');
     setShowNotificationPopup(false);
     
     console.log('🔔 User clicked Accept - attempting to request permission...');
@@ -42,8 +52,15 @@ const App: React.FC = () => {
     if (typeof Notification !== 'undefined' && Notification.requestPermission) {
       try {
         console.log('🔔 Current permission before request:', Notification.permission);
+        iOSLogger.debug('NOTIFICATION_PERMISSION', 'Requesting browser notification permission', {
+          currentPermission: Notification.permission
+        });
+        
         const browserPermission = await Notification.requestPermission();
         console.log('🔔 Browser permission result after request:', browserPermission);
+        iOSLogger.info('NOTIFICATION_PERMISSION', 'Browser permission result', {
+          result: browserPermission
+        });
         
         if (browserPermission === 'granted') {
           // แสดงข้อความสำเร็จ
@@ -55,17 +72,25 @@ const App: React.FC = () => {
           
           // ส่งการแจ้งเตือนทดสอบ
           setTimeout(() => {
-            new Notification('🎉 ยินดีต้อนรับสู่ RiceFlow!', {
-              body: 'คุณได้เปิดใช้งานการแจ้งเตือนแล้ว จะได้รับข้อมูลอัพเดททันที',
-              icon: '/favicon.ico'
-            });
+            try {
+              iOSLogger.debug('NOTIFICATION_TEST', 'Sending test notification');
+              new Notification('🎉 ยินดีต้อนรับสู่ RiceFlow!', {
+                body: 'คุณได้เปิดใช้งานการแจ้งเตือนแล้ว จะได้รับข้อมูลอัพเดททันที',
+                icon: '/favicon.ico'
+              });
+              iOSLogger.info('NOTIFICATION_TEST', 'Test notification sent successfully');
+            } catch (error) {
+              iOSLogger.error('NOTIFICATION_TEST', 'Failed to send test notification', { error: error.toString() }, error as Error);
+            }
           }, 2000);
         } else if (browserPermission === 'denied') {
+          iOSLogger.warn('NOTIFICATION_PERMISSION', 'User denied notification permission');
           // ผู้ใช้ปฏิเสธ - เปิด browser settings โดยอัตโนมัติ
          
           
           // พยายามเปิด browser notification settings
           try {
+            iOSLogger.debug('BROWSER_SETTINGS', 'Attempting to open browser notification settings');
             // สำหรับ Chrome/Edge
             if (navigator.userAgent.includes('Chrome') || navigator.userAgent.includes('Edge')) {
               window.open('chrome://settings/content/notifications', '_blank');
@@ -95,6 +120,7 @@ const App: React.FC = () => {
             
           } catch (error) {
             console.log('❌ Failed to open browser settings:', error);
+            iOSLogger.error('BROWSER_SETTINGS', 'Failed to open browser settings', { error: error.toString() }, error as Error);
             toast({
               title: "🛠️ ตั้งค่าแบบ Manual",
               description: "คลิกไอคอน 🔔 ข้าง URL แล้วเลือก 'Reset permission'",
@@ -102,6 +128,7 @@ const App: React.FC = () => {
             });
           }
         } else {
+          iOSLogger.warn('NOTIFICATION_PERMISSION', 'Unexpected permission result', { result: browserPermission });
           // default หรือสถานะอื่นๆ
           toast({
             title: "ℹ️ ลองอีกครั้ง",
@@ -111,6 +138,7 @@ const App: React.FC = () => {
         }
       } catch (error) {
         console.log('❌ Browser permission request failed:', error);
+        iOSLogger.error('NOTIFICATION_PERMISSION', 'Browser permission request failed', { error: error.toString() }, error as Error);
         toast({
           title: "❌ เกิดข้อผิดพลาด",
           description: "ไม่สามารถขออนุญาตได้ กรุณาตั้งค่าในเบราว์เซอร์",
@@ -119,6 +147,7 @@ const App: React.FC = () => {
       }
     } else {
       // เบราว์เซอร์ไม่สนับสนุน Notification API
+      iOSLogger.warn('NOTIFICATION_PERMISSION', 'Browser does not support Notification API');
       toast({
         title: "⚠️ เบราว์เซอร์ไม่สนับสนุน",
         description: "เบราว์เซอร์นี้ไม่สามารถใช้การแจ้งเตือนได้",
@@ -255,6 +284,7 @@ const App: React.FC = () => {
                 <GlobalNotificationManager />
                 <RouterProvider router={router} />
                 <Toaster />
+                <DebugPanel />
                 {/* Disabled notification popup to prevent annoying modal */}
                 {false && showNotificationPopup && (
                   <NotificationPermissionPopup

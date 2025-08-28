@@ -26,6 +26,16 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   }
 });
 
+// Log Supabase client creation
+setTimeout(() => {
+  if (typeof window !== 'undefined' && (window as any).iOSLogger) {
+    (window as any).iOSLogger.info('SUPABASE_CLIENT', 'Main Supabase client created', {
+      url: SUPABASE_URL,
+      realtimeDisabled: true
+    });
+  }
+}, 100);
+
 // Admin client with full access for admin operations with realtime disabled
 export const supabaseAdmin = createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: {
