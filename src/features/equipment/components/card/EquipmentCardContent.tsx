@@ -1,11 +1,11 @@
 
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart, Settings, Clock, Circle, Bell } from "lucide-react";
+import { BarChart, Settings, Clock, Circle, Bell, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { formatEquipmentTime, isRecentUpdate, getTimeClasses } from "./utils/timeUtils";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useUserNotifications } from "../../hooks/useUserNotifications";
+import { useNotificationStatus } from "../../hooks/useNotificationStatus";
 
 interface EquipmentCardContentProps {
   deviceCode: string;
@@ -23,18 +23,44 @@ export function EquipmentCardContent({
   deviceData
 }: EquipmentCardContentProps) {
   const { t, language } = useTranslation();
-  const { data: hasUserNotifications, isLoading, error } = useUserNotifications(deviceCode);
+  const { data: notificationStatus, isLoading, error } = useNotificationStatus(deviceCode);
   const formattedTime = formatEquipmentTime(lastUpdated, language);
   const isRecent = isRecentUpdate(lastUpdated, deviceData);
   const timeClasses = getTimeClasses(isRecent);
 
   // Debug logging for notification status
-  console.log(`🔔 Device ${deviceCode} - hasUserNotifications:`, hasUserNotifications, 'isLoading:', isLoading, 'error:', error);
+  console.log(`🔔 Device ${deviceCode} - notificationStatus:`, notificationStatus, 'isLoading:', isLoading, 'error:', error);
 
   const handleDeviceClick = () => {
     // Save last viewed device for both authenticated users and guests
     localStorage.setItem('lastViewedDeviceCode', deviceCode);
     console.log('💾 Saved last viewed device:', deviceCode);
+  };
+
+  // กำหนดสถานะและสีของไอคอนแจ้งเตือน
+  const getNotificationIcon = () => {
+    if (!notificationStatus?.hasSettings) return null;
+
+    if (notificationStatus.isTriggered) {
+      // กระดิ่งสีแดง - เข้าเงื่อนไขการแจ้งเตือน
+      const triggeredCount = notificationStatus.triggeredSettings.length;
+      return (
+        <div 
+          title={`เข้าเงื่อนไขการแจ้งเตือน ${triggeredCount} รายการ`}
+          className="relative"
+        >
+          <AlertTriangle className="h-3.5 w-3.5 ml-1.5 text-red-500 fill-red-500" />
+          <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+        </div>
+      );
+    } else {
+      // กระดิ่งสีเหลือง - มีการตั้งค่าแต่ไม่เข้าเงื่อนไข
+      return (
+        <div title="มีการตั้งค่าแจ้งเตือนสำหรับเครื่องนี้">
+          <Bell className="h-3.5 w-3.5 ml-1.5 text-amber-500" />
+        </div>
+      );
+    }
   };
 
   return (
@@ -50,11 +76,7 @@ export function EquipmentCardContent({
           ) : (
             <Circle className="h-4 w-4 ml-1.5 text-red-500 fill-red-500" />
           )}
-          {hasUserNotifications && (
-            <div title="คุณได้ตั้งค่าแจ้งเตือนสำหรับเครื่องนี้ไว้">
-              <Bell className="h-3.5 w-3.5 ml-1.5 text-amber-500" />
-            </div>
-          )}
+          {getNotificationIcon()}
         </div>
       </div>
       
