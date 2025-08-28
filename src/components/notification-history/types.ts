@@ -12,6 +12,13 @@ export interface Notification {
   read?: boolean;
   analysis_id?: number;
   user_id?: string;
+  settings_snapshot?: {
+    min_threshold?: number;
+    max_threshold?: number;
+    min_enabled?: boolean;
+    max_enabled?: boolean;
+    rice_type_name?: string;
+  };
 }
 
 export interface NotificationFilters {

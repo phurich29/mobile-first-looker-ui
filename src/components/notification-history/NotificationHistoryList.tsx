@@ -7,6 +7,7 @@ import { NotificationFilters } from "./components/NotificationFilters";
 import { EmptyState } from "./components/EmptyState";
 import { LoadingState } from "./components/LoadingState";
 import { MinimalNotificationCard } from "./components/MinimalNotificationCard";
+import { NotificationDetailCard } from "./components/NotificationDetailCard";
 import { NotificationPagination } from "./components/NotificationPagination";
 import { useNotificationHistory } from "./hooks/useNotificationHistory";
 import { useQueryClient } from "@tanstack/react-query";
@@ -141,15 +142,14 @@ export const NotificationHistoryList = () => {
       ) : (
         <div className="space-y-4">
           {/* Notification Cards */}
-          <div className="space-y-3">
-            {notifications.map((notification) => (
-              <MinimalNotificationCard
-                key={notification.id}
-                notification={notification}
-                onViewDetails={handleViewDetails}
-              />
-            ))}
-          </div>
+        <div className="space-y-4">
+          {notifications?.map((notification) => (
+            <NotificationDetailCard 
+              key={`${notification.id}-${notification.notification_count}`}
+              notification={notification}
+            />
+          ))}
+        </div>
 
           {/* Pagination */}
           {totalPages > 1 && (

@@ -296,6 +296,45 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_settings_history: {
+        Row: {
+          action_type: string
+          created_at: string
+          created_by: string
+          device_code: string
+          id: string
+          new_settings: Json | null
+          old_settings: Json | null
+          rice_type_id: string
+          rice_type_name: string
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          created_by?: string
+          device_code: string
+          id?: string
+          new_settings?: Json | null
+          old_settings?: Json | null
+          rice_type_id: string
+          rice_type_name: string
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          created_by?: string
+          device_code?: string
+          id?: string
+          new_settings?: Json | null
+          old_settings?: Json | null
+          rice_type_id?: string
+          rice_type_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           analysis_id: number | null
@@ -306,6 +345,7 @@ export type Database = {
           notification_message: string | null
           read: boolean | null
           rice_type_id: string
+          settings_snapshot: Json | null
           threshold_type: string
           timestamp: string | null
           user_id: string
@@ -320,6 +360,7 @@ export type Database = {
           notification_message?: string | null
           read?: boolean | null
           rice_type_id: string
+          settings_snapshot?: Json | null
           threshold_type: string
           timestamp?: string | null
           user_id: string
@@ -334,6 +375,7 @@ export type Database = {
           notification_message?: string | null
           read?: boolean | null
           rice_type_id?: string
+          settings_snapshot?: Json | null
           threshold_type?: string
           timestamp?: string | null
           user_id?: string

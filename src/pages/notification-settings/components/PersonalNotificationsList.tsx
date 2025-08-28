@@ -19,6 +19,13 @@ interface PersonalNotification {
   timestamp: string;
   notification_count: number;
   user_id: string;
+  settings_snapshot?: {
+    min_threshold?: number;
+    max_threshold?: number;
+    min_enabled?: boolean;
+    max_enabled?: boolean;
+    rice_type_name?: string;
+  };
 }
 
 interface NotificationSetting {
@@ -212,40 +219,67 @@ export const PersonalNotificationsList = ({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {notifications.slice(0, 5).map((notification) => (
+          <div className="space-y-4">
+            {notifications.slice(0, 3).map((notification) => (
               <div key={`${notification.id}-${notification.notification_count}`} 
-                   className="flex items-start gap-3 p-3 border rounded-lg">
-                <div className="p-2 bg-red-100 rounded-full">
-                  <AlertTriangle className="w-4 h-4 text-red-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Badge variant={notification.threshold_type === 'max' ? 'destructive' : 'secondary'} 
-                           className="text-xs">
-                      {notification.threshold_type === 'max' ? (
-                        <><TrendingUp className="w-3 h-3 mr-1" />เกินค่า</>
-                      ) : (
-                        <><TrendingDown className="w-3 h-3 mr-1" />ต่ำกว่า</>
-                      )}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(notification.timestamp), { 
-                        addSuffix: true, 
-                        locale: th 
-                      })}
-                    </span>
+                   className="border rounded-lg overflow-hidden">
+                <div className="p-3 bg-muted/30">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Badge variant={notification.threshold_type === 'max' ? 'destructive' : 'secondary'} 
+                             className="text-xs">
+                        {notification.threshold_type === 'max' ? (
+                          <><TrendingUp className="w-3 h-3 mr-1" />เกินค่า</>
+                        ) : (
+                          <><TrendingDown className="w-3 h-3 mr-1" />ต่ำกว่า</>
+                        )}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDistanceToNow(new Date(notification.timestamp), { 
+                          addSuffix: true, 
+                          locale: th 
+                        })}
+                      </span>
+                    </div>
+                    {notification.notification_count > 1 && (
+                      <Badge variant="outline" className="text-xs">
+                        {notification.notification_count} ครั้ง
+                      </Badge>
+                    )}
                   </div>
-                  <p className="text-sm font-medium">{notification.notification_message}</p>
+                  <p className="text-sm font-medium mb-1">{notification.notification_message}</p>
                   <p className="text-xs text-muted-foreground">
-                    {notification.device_code} • {notification.rice_type_id} • ค่า: {notification.value}
+                    {notification.device_code} • {notification.rice_type_id}
                   </p>
                 </div>
+                
+                {/* การเปรียบเทียบค่า */}
+                {notification.settings_snapshot && (
+                  <div className="p-3 border-t">
+                    <div className="grid grid-cols-2 gap-3 text-center">
+                      <div className="p-2 bg-secondary/20 rounded">
+                        <p className="text-xs text-muted-foreground">ค่าที่ตั้งไว้</p>
+                        <p className="text-sm font-semibold">
+                          {notification.threshold_type === 'max' 
+                            ? notification.settings_snapshot.max_threshold?.toFixed(2)
+                            : notification.settings_snapshot.min_threshold?.toFixed(2)
+                          }
+                        </p>
+                      </div>
+                      <div className="p-2 bg-destructive/10 border border-destructive/20 rounded">
+                        <p className="text-xs text-muted-foreground">ค่าที่ได้รับ</p>
+                        <p className="text-sm font-semibold text-destructive">
+                          {notification.value.toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
           
-          {notifications.length > 5 && (
+          {notifications.length > 3 && (
             <div className="mt-4 text-center">
               <Button variant="outline" size="sm" onClick={() => navigate('/notification-history')}>
                 ดูประวัติทั้งหมด ({notifications.length} รายการ)
