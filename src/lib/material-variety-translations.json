@@ -59,13 +59,13 @@
           "code": "8_0",
           "name_zh": "泰国茉莉香_白米",
           "name_en": "Thai Hommali_White Rice",
-          "name_th": "ข้าวหอมมะลิ_ข้าวดิบ"
+          "name_th": "ข้าวหอมมะลิ_ข้าวสาร"
         },
         {
           "code": "8_1",
           "name_zh": "泰国茉莉香_碎米",
           "name_en": "Thai Hommali_Broken Rice",
-          "name_th": "ข้าวหอมมะลิ_ข้าวหักรวม"
+          "name_th": "ข้าวหอมมะลิ_ข้าวหัก"
         },
         {
           "code": "8_2",
@@ -77,13 +77,13 @@
           "code": "9_0",
           "name_zh": "泰国香米_白米",
           "name_en": "Thai Jasmine_White Rice",
-          "name_th": "ข้าวหอม_ข้าวดิบ"
+          "name_th": "ข้าวหอม_ข้าวสาร"
         },
         {
           "code": "9_1",
           "name_zh": "泰国香米_碎米",
           "name_en": "Thai Jasmine_Broken Rice",
-          "name_th": "ข้าวหอม_ข้าวหักรวม"
+          "name_th": "ข้าวหอม_ข้าวหัก"
         },
         {
           "code": "9_2",
@@ -95,13 +95,13 @@
           "code": "10_0",
           "name_zh": "泰国白米_白米",
           "name_en": "Thai White Rice_White Rice",
-          "name_th": "ข้าวขาว_ข้าวดิบ"
+          "name_th": "ข้าวขาว_ข้าวสาร"
         },
         {
           "code": "10_1",
           "name_zh": "泰国白米_碎米",
           "name_en": "Thai White Rice_Broken Rice",
-          "name_th": "ข้าวขาว_ข้าวหักรวม"
+          "name_th": "ข้าวขาว_ข้าวหัก"
         },
         {
           "code": "10_2",
@@ -113,13 +113,13 @@
           "code": "11_0",
           "name_zh": "泰国糯米_白米",
           "name_en": "Thai Glutinous Rice_White Rice",
-          "name_th": "ข้าวเหนียว_ข้าวดิบ"
+          "name_th": "ข้าวเหนียว_ข้าวสาร"
         },
         {
           "code": "11_1",
           "name_zh": "泰国糯米_碎米",
           "name_en": "Thai Glutinous Rice_Broken Rice",
-          "name_th": "ข้าวเหนียว_ข้าวหักรวม"
+          "name_th": "ข้าวเหนียว_ข้าวหัก"
         },
         {
           "code": "11_2",
@@ -131,13 +131,13 @@
           "code": "12_0",
           "name_zh": "泰国蒸谷米_白米",
           "name_en": "Thai Parboiled Rice_White Rice",
-          "name_th": "ข้าวนึ่ง_ข้าวดิบ"
+          "name_th": "ข้าวนึ่ง_ข้าวสาร"
         },
         {
           "code": "12_1",
           "name_zh": "泰国蒸谷米_碎米",
           "name_en": "Thai Parboiled Rice_Broken Rice",
-          "name_th": "ข้าวนึ่ง_ข้าวหักรวม"
+          "name_th": "ข้าวนึ่ง_ข้าวหัก"
         },
         {
           "code": "12_2",
