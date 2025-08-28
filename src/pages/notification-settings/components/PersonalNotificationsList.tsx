@@ -9,6 +9,7 @@ import { th } from "date-fns/locale";
 import { useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useDevicesQuery } from "@/features/equipment/hooks/useDevicesQuery";
+import { getNotificationsEnabled } from "@/hooks/useAlertSound";
 import NotificationSettingsDialog from "@/components/measurement-history/notification-settings/NotificationSettingsDialog";
 
 interface PersonalNotification {
@@ -61,6 +62,9 @@ export const PersonalNotificationsList = ({
   const { user } = useAuth();
   const { devices } = useDevicesQuery();
   const deviceNameByCode = Object.fromEntries((devices || []).map((d: any) => [d.device_code, d.display_name]));
+  
+  // ตรวจสอบสถานะการแจ้งเตือนทั่วไป
+  const globalNotificationsEnabled = getNotificationsEnabled();
 
   // แสดงสถานะระบบ
   const renderSystemStatus = () => (
@@ -95,9 +99,11 @@ export const PersonalNotificationsList = ({
                 </p>
               </div>
               <Button 
-                onClick={() => navigate('/notifications')}
+                onClick={globalNotificationsEnabled ? () => navigate('/notifications') : undefined}
                 size="sm"
                 variant="outline"
+                disabled={!globalNotificationsEnabled}
+                className={!globalNotificationsEnabled ? "opacity-50 cursor-not-allowed" : ""}
               >
                 ตั้งค่าแจ้งเตือน
               </Button>
