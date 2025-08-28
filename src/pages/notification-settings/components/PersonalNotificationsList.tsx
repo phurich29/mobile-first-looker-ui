@@ -98,15 +98,6 @@ export const PersonalNotificationsList = ({
                   ยังไม่มีการตั้งค่าแจ้งเตือน
                 </p>
               </div>
-              <Button 
-                onClick={globalNotificationsEnabled ? () => navigate('/notifications') : undefined}
-                size="sm"
-                variant="outline"
-                disabled={!globalNotificationsEnabled}
-                className={!globalNotificationsEnabled ? "opacity-50 cursor-not-allowed" : ""}
-              >
-                ตั้งค่าแจ้งเตือน
-              </Button>
             </>
           )}
         </div>
