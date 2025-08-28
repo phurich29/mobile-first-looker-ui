@@ -1,21 +1,25 @@
 import React, { useEffect } from 'react';
-import { useGlobalNotifications } from '@/hooks/useGlobalNotifications';
+import { usePersonalNotifications } from '@/hooks/usePersonalNotifications';
 
 /**
- * Global Notification Manager
- * This component handles notifications across the entire application
- * regardless of which page the user is currently viewing.
+ * Personal Notification Manager
+ * This component handles personal notifications based on user's settings
+ * Only shows notifications when user has enabled notification settings.
  */
 export const GlobalNotificationManager: React.FC = () => {
-  console.log('🌍 GlobalNotificationManager: Initializing...');
+  console.log('👤 PersonalNotificationManager: Initializing...');
   
-  // Initialize global notifications
-  useGlobalNotifications();
+  // Initialize personal notifications (only for users with settings)
+  const { hasActiveSettings } = usePersonalNotifications();
   
   useEffect(() => {
-    console.log('🌍 GlobalNotificationManager: Mounted and active');
-  }, []);
+    if (hasActiveSettings) {
+      console.log('👤 PersonalNotificationManager: Active with user settings');
+    } else {
+      console.log('👤 PersonalNotificationManager: No active settings, notifications disabled');
+    }
+  }, [hasActiveSettings]);
   
-  // This component doesn't render anything - it just manages global notifications
+  // This component doesn't render anything - it just manages personal notifications
   return null;
 };
