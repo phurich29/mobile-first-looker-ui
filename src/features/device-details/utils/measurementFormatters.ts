@@ -11,35 +11,35 @@ export const formatWholeGrainItems = (
   const items = [
     { 
       symbol: 'class1', 
-      name: 'ชั้น 1 (>7.0mm)', 
+      name: 'class1', 
       price: latestData.class1?.toFixed(1), 
       iconColor: '#9b87f5', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'class2', 
-      name: 'ชั้น 2 (>6.6-7.0mm)', 
+      name: 'class2', 
       price: latestData.class2?.toFixed(1), 
       iconColor: '#7E69AB', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'class3', 
-      name: 'ชั้น 3 (>6.2-6.6mm)', 
+      name: 'class3', 
       price: latestData.class3?.toFixed(1), 
       iconColor: '#6E59A5', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'short_grain', 
-      name: 'เมล็ดสั้น', 
+      name: 'short_grain', 
       price: latestData.short_grain?.toFixed(1), 
       iconColor: '#333333', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'slender_kernel', 
-      name: 'ข้าวลีบ', 
+      name: 'slender_kernel', 
       price: latestData.slender_kernel?.toFixed(1), 
       iconColor: '#D6BCFA', 
       updatedAt: new Date(latestData.created_at) 
@@ -70,35 +70,35 @@ export const formatIngredientItems = (
   const items = [
     { 
       symbol: 'whole_kernels', 
-      name: 'เต็มเมล็ด', 
+      name: 'whole_kernels', 
       price: latestData.whole_kernels?.toFixed(1), 
       iconColor: '#4CAF50', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'head_rice', 
-      name: 'ต้นข้าว', 
+      name: 'head_rice', 
       price: latestData.head_rice?.toFixed(1), 
       iconColor: '#9b87f5', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'total_brokens', 
-      name: 'ข้าวหักรวม', 
+      name: 'total_brokens', 
       price: latestData.total_brokens?.toFixed(1), 
       iconColor: '#7E69AB', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'small_brokens', 
-      name: 'ปลายข้าว', 
+      name: 'small_brokens', 
       price: latestData.small_brokens?.toFixed(1), 
       iconColor: '#6E59A5', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'small_brokens_c1', 
-      name: 'ปลายข้าว C1', 
+      name: 'small_brokens_c1', 
       price: latestData.small_brokens_c1?.toFixed(1), 
       iconColor: '#D6BCFA', 
       updatedAt: new Date(latestData.created_at) 
@@ -129,105 +129,105 @@ export const formatImpuritiesItems = (
   const items = [
     { 
       symbol: 'whiteness', 
-      name: 'ความขาว', 
+      name: 'whiteness', 
       price: latestData.whiteness?.toFixed(1), 
       iconColor: '#90CAF9', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'heavy_chalkiness_rate', 
-      name: 'ท้องไข่', 
+      name: 'heavy_chalkiness_rate', 
       price: latestData.heavy_chalkiness_rate?.toFixed(1), 
       iconColor: '#FFE082', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'red_line_rate', 
-      name: 'สีต่ำกว่ามาตรฐาน', 
+      name: 'red_line_rate', 
       price: latestData.red_line_rate?.toFixed(1), 
       iconColor: '#9b87f5', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'parboiled_red_line', 
-      name: 'เมล็ดแดง', 
+      name: 'parboiled_red_line', 
       price: latestData.parboiled_red_line?.toFixed(1), 
       iconColor: '#7E69AB', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'parboiled_white_rice', 
-      name: 'ข้าวดิบ', 
+      name: 'parboiled_white_rice', 
       price: latestData.parboiled_white_rice?.toFixed(1), 
       iconColor: '#EEEEEE', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'honey_rice', 
-      name: 'เมล็ดม่วง', 
+      name: 'honey_rice', 
       price: latestData.honey_rice?.toFixed(1), 
       iconColor: '#6E59A5', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'yellow_rice_rate', 
-      name: 'เมล็ดเหลือง', 
+      name: 'yellow_rice_rate', 
       price: latestData.yellow_rice_rate?.toFixed(1), 
       iconColor: '#D6BCFA', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'black_kernel', 
-      name: 'เมล็ดดำ', 
+      name: 'black_kernel', 
       price: latestData.black_kernel?.toFixed(1), 
       iconColor: '#212121', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'partly_black_peck', 
-      name: 'ดำบางส่วน & จุดดำ', 
+      name: 'partly_black_peck', 
       price: latestData.partly_black_peck?.toFixed(1), 
       iconColor: '#616161', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'partly_black', 
-      name: 'ดำบางส่วน', 
+      name: 'partly_black', 
       price: latestData.partly_black?.toFixed(1), 
       iconColor: '#4E4E4E', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'imperfection_rate', 
-      name: 'เมล็ดเสีย', 
+      name: 'imperfection_rate', 
       price: latestData.imperfection_rate?.toFixed(1), 
       iconColor: '#9E9E9E', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'sticky_rice_rate', 
-      name: 'ข้าวเหนียว', 
+      name: 'sticky_rice_rate', 
       price: latestData.sticky_rice_rate?.toFixed(1), 
       iconColor: '#907AD6', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'impurity_num', 
-      name: 'เมล็ดอื่นๆ', 
+      name: 'impurity_num', 
       price: latestData.impurity_num?.toFixed(1), 
       iconColor: '#7986CB', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'paddy_rate', 
-      name: 'ข้าวเปลือก(เมล็ด/กก.)', 
+      name: 'paddy_rate', 
       price: latestData.paddy_rate?.toFixed(1), 
       iconColor: '#81C784', 
       updatedAt: new Date(latestData.created_at) 
     },
     { 
       symbol: 'process_precision', 
-      name: 'ระดับขัดสี', 
+      name: 'process_precision', 
       price: latestData.process_precision?.toFixed(1), 
       iconColor: '#80DEEA', 
       updatedAt: new Date(latestData.created_at) 

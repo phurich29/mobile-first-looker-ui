@@ -148,7 +148,7 @@ export const columnTranslationsEn: Record<string, string> = {
   mix_index: 'Mix Index',
   main_index: 'Main Index',
   // New analysis fields
-  heavy_chalkiness_rate: 'Heavy Chalkiness Rate',
+  heavy_chalkiness_rate: 'heavy_chalkiness_rate',
   light_honey_rice: 'Light Honey Rice',
   topline_rate: 'Top Line Rate',
   other_backline: 'Other Backline',

@@ -7,6 +7,7 @@ import { NotificationText } from "./measurement/NotificationText";
 import { AlertBell } from "./measurement/AlertBell";
 import { MeasurementValue } from "./measurement/MeasurementValue";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useMeasurementTranslations } from "@/lib/measurementTranslations";
 import "./notification-item-animation.css";
 
 type MeasurementItemProps = {
@@ -39,6 +40,7 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
   enabled = true,
 }) => {
   const { t } = useTranslation();
+  const { getColumnTranslation } = useMeasurementTranslations();
   
   // Use the measurement hook to manage states and fetch data
   const {
@@ -83,6 +85,7 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
       'เมล็ดอื่นๆ': 'impurity_num',
       'ข้าวเปลือก(เมล็ด/กก.)': 'paddy_rate',
       'ความขาว': 'whiteness',
+      'ท้องไข่': 'heavyChalkiness',
       'ระดับขัดสี': 'process_precision',
       'อัตราส่วนผสม': 'mix_rate',
       'อัตราการงอก': 'sprout_rate',
@@ -97,7 +100,14 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
     if (translationKey) {
       return t('measurements', translationKey as any);
     }
-    
+
+    // If measurementName is actually a column symbol (e.g., 'class1', 'heavy_chalkiness_rate'),
+    // translate it via centralized column translations
+    const columnTranslated = getColumnTranslation(measurementName);
+    if (columnTranslated && columnTranslated !== measurementName) {
+      return columnTranslated;
+    }
+
     return measurementName;
   };
   
