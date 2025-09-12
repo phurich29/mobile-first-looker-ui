@@ -52,7 +52,7 @@ export const translations = {
   },
   device: {
     equipment: { th: 'อุปกรณ์', en: 'Panalyzer', zh: '设备' },
-    deviceCode: { th: 'รหัสอุปกรณ์', en: 'S/N', zh: 'S/N' },
+    deviceCode: { th: 'รหัสอุปกรณ์', en: 'S/N', zh: '序列号' },
     deviceName: { th: 'ชื่ออุปกรณ์', en: 'Device Name', zh: '设备名称' },
     status: { th: 'สถานะ', en: 'Status', zh: '状态' },
     online: { th: 'ออนไลน์', en: 'Online', zh: '在线' },
@@ -430,7 +430,7 @@ export const translations = {
     name: { th: 'Name', en: 'Name', zh: '名称' },
     deviceCode: { th: 'Device Code', en: 'Device Code', zh: '设备代码' },
     seedCount: { th: 'จำนวนเมล็ด', en: 'Seed Count', zh: '种子数量' },
-    id: { th: 'ID', en: 'ID', zh: 'ID' },
+    id: { th: 'ID', en: 'ID', zh: '编号' },
     sharedBy: { th: 'แบ่งปันโดย', en: 'Shared by', zh: '分享者' },
     sharedOn: { th: 'แบ่งปันเมื่อ', en: 'Shared on', zh: '分享于' },
     riceFlow: { th: 'RiceFlow', en: 'RiceFlow', zh: 'RiceFlow' },

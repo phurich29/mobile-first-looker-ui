@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button"; 
 import { Users, UserPlus, X, CheckCircle, BarChart } from "lucide-react";
@@ -32,6 +33,7 @@ interface User {
 }
 
 export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: EquipmentCardProps) => {
+  const { t } = useTranslation();
   const [isUsersDialogOpen, setIsUsersDialogOpen] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -313,14 +315,14 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
               <img src={equipmentIcon} alt="อุปกรณ์" className="w-10 h-10" />
             </div>
             <span className="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-medium">
-              อุปกรณ์
+              {t('device', 'equipment')}
             </span>
           </div>
           <CardTitle className="text-base font-bold">{deviceCode}</CardTitle>
         </CardHeader>
         <CardContent className="p-4 pt-0">
           <div className="text-xs text-gray-600">
-            <p className="mb-0.5">อัพเดทล่าสุด:</p>
+            <p className="mb-0.5">{t('device', 'lastUpdate')}</p>
             <p className="font-medium">{formattedTime}</p>
           </div>
           
@@ -333,7 +335,7 @@ export const EquipmentCard = ({ deviceCode, lastUpdated, isAdmin = false }: Equi
             >
               <Link to={`/device/${deviceCode}`} onClick={handleDeviceClick}>
                 <BarChart className="h-3 w-3 mr-1" />
-                ดูข้อมูล
+                {t('general', 'viewData')}
               </Link>
             </Button>
           </div>
