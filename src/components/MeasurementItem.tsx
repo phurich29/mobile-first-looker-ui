@@ -108,6 +108,18 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
       return columnTranslated;
     }
 
+    // Normalize camelCase to snake_case (e.g., shortGrain -> short_grain)
+    const normalized = measurementName
+      .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+      .replace(/\s+/g, '_')
+      .toLowerCase();
+    if (normalized !== measurementName) {
+      const normTranslated = getColumnTranslation(normalized);
+      if (normTranslated && normTranslated !== normalized) {
+        return normTranslated;
+      }
+    }
+
     return measurementName;
   };
   
@@ -139,7 +151,7 @@ export const MeasurementItem: React.FC<MeasurementItemProps> = ({
               <div className="flex flex-col">
                 <h3 className="font-bold text-base text-gray-800 dark:text-gray-200">{getTranslatedName(name)}</h3>
                 <div className="flex items-center">
-                  <span className="text-xs text-gray-500 dark:text-gray-400">{symbol}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{getColumnTranslation(symbol)}</span>
                   <NotificationText 
                     enabled={enabled}
                     notificationType={notificationType}
